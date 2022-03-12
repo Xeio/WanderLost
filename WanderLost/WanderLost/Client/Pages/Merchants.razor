@@ -28,11 +28,14 @@
     }
 </select>
 
+<label for="showAll" >Show All Merchants</label>
+<input id="showAll" type="checkbox" @bind="@ShowAllMerchants" />
+
 @if(ServerRegion is null || Server is null)
 {
     <h4>Select a Server</h4>
 }
-else
+else if(_merchants is not null)
 {
     <table class="table">
         <thead>
@@ -43,7 +46,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var merchant in _activeMerchants ?? Enumerable.Empty<ActiveMerchant>())
+            @foreach (var merchant in GetVisibleMerchants())
             {
                 <tr>
                     <td>@merchant.Name</td>
@@ -84,6 +87,8 @@ else
             ServerChanged();
         }
     }
+
+    private bool ShowAllMerchants { get; set; }
 
     private ActiveMerchant[]? _activeMerchants;
     private Dictionary<string, ServerRegion>? _serverRegions;
@@ -150,7 +155,15 @@ else
 
         if (resort)
         {
-            Array.Sort(_activeMerchants, (a, b) => (int)(a.NextAppearance - b.NextAppearance).Ticks);
+            _activeMerchants = _activeMerchants.OrderBy(m => m.NextAppearance).ThenBy(m => _merchants[m.Name].Region).ToArray();
         }
+    }
+
+    private IEnumerable<ActiveMerchant> GetVisibleMerchants()
+    {
+        if (_activeMerchants is null || _merchants is null) return Enumerable.Empty<ActiveMerchant>();
+
+        var nextAppearance = _activeMerchants.Min(m => m.NextAppearance);
+        return _activeMerchants.Where(m => ShowAllMerchants || m.NextAppearance == nextAppearance);
     }
 }
