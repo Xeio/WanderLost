@@ -1,0 +1,156 @@
+﻿@page "/"
+@using WanderLost.Shared
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+@implements IAsyncDisposable
+
+<PageTitle>Merchants</PageTitle>
+
+<h1>Wandering Merchants</h1>
+
+<label for="severRegion">Server Region: </label>
+<select id="severRegion" @bind="@ServerRegion">
+    <option></option>
+    @foreach(var datacenter in _serverRegions?.Values ?? Enumerable.Empty<ServerRegion>())
+    {
+        <option>@datacenter.Name</option>
+    }
+</select>
+<label for="server">Server: </label>
+<select id="sever" @bind="@Server">
+    <option></option>
+    @if (!string.IsNullOrWhiteSpace(ServerRegion))
+    {
+        @foreach (var datacenter in _serverRegions?[ServerRegion].Servers ?? Enumerable.Empty<string>())
+        {
+            <option>@datacenter</option>
+        }
+    }
+</select>
+
+@if(ServerRegion is null || Server is null)
+{
+    <h4>Select a Server</h4>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Region</th>
+                <th>Next Appearance In</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var merchant in _activeMerchants ?? Enumerable.Empty<ActiveMerchant>())
+            {
+                <tr>
+                    <td>@merchant.Name</td>
+                    <td>@_merchants[merchant.Name].Region</td>
+                    @if (merchant.NextAppearance > DateTime.UtcNow)
+                    {
+                        <td>@((merchant.NextAppearance - DateTime.UtcNow).ToString(@"hh\:mm\:ss"))</td>
+                    }
+                    else
+                    {
+                        <td>Active</td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private string? _serverRegion;
+    private string? ServerRegion
+    {
+        get { return _serverRegion; }
+        set
+        {
+            _serverRegion = value;
+            ServerRegionChanged();
+        }
+    }
+
+    private string? _server;
+    private string? Server
+    {
+        get { return _server; }
+        set
+        {
+            _server = value;
+            ServerChanged();
+        }
+    }
+
+    private ActiveMerchant[]? _activeMerchants;
+    private Dictionary<string, ServerRegion>? _serverRegions;
+    private Dictionary<string, MerchantData>? _merchants;
+
+    private Timer? _timer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _serverRegions = await Http.GetFromJsonAsync<Dictionary<string, ServerRegion>>(NavigationManager.ToAbsoluteUri("/data/servers.json"));
+
+        _merchants = await Http.GetFromJsonAsync<Dictionary<string, MerchantData>>(NavigationManager.ToAbsoluteUri("/data/merchants.json"));
+
+        _activeMerchants = _merchants?.Values.Select(m => new ActiveMerchant() { Name = m.Name }).ToArray();
+
+        if(_serverRegions is not null &&
+            _merchants is not null &&
+            _activeMerchants is not null){
+            _timer = new Timer(TimerTick, null, 1, 1000);
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_timer is not null)
+        {
+            await _timer.DisposeAsync();
+        }
+    }
+
+    private void ServerChanged()
+    {
+        //TODO:
+    }
+
+    private void ServerRegionChanged()
+    {
+        UpdateMerchants(true);
+    }
+
+    async void TimerTick(object? _)
+    {
+        UpdateMerchants();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void UpdateMerchants(bool force = false)
+    {
+        if (string.IsNullOrWhiteSpace(_serverRegion)) return;
+        if (_merchants is null) return;
+        if (_activeMerchants is null) return;
+        if (_serverRegions is null) return;
+
+        bool resort = false;
+
+        foreach(var merchant in _activeMerchants)
+        {
+            if (force || merchant.AppearanceExpires < DateTime.UtcNow)
+            {
+                merchant.CalculateNextAppearance(_merchants, _serverRegions[_serverRegion].TimeZone);
+                resort = true;
+            }
+        }
+
+        if (resort)
+        {
+            Array.Sort(_activeMerchants, (a, b) => (int)(a.NextAppearance - b.NextAppearance).Ticks);
+        }
+    }
+}
