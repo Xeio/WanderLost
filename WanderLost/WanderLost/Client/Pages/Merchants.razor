@@ -1,7 +1,8 @@
 ﻿@page "/"
 @using WanderLost.Shared
-@inject NavigationManager NavigationManager
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject HttpClient Http
+@inject NavigationManager NavigationManager
 @implements IAsyncDisposable
 
 <PageTitle>Merchants</PageTitle>
@@ -73,6 +74,7 @@ else if(_merchants is not null)
         set
         {
             _serverRegion = value;
+            Server = null;
             ServerRegionChanged();
         }
     }
@@ -84,6 +86,7 @@ else if(_merchants is not null)
         set
         {
             _server = value;
+            Task.Run(SaveData);
             ServerChanged();
         }
     }
@@ -104,11 +107,16 @@ else if(_merchants is not null)
 
         _activeMerchants = _merchants?.Values.Select(m => new ActiveMerchant() { Name = m.Name }).ToArray();
 
-        if(_serverRegions is not null &&
+        if (_serverRegions is not null &&
             _merchants is not null &&
-            _activeMerchants is not null){
+            _activeMerchants is not null)
+        {
             _timer = new Timer(TimerTick, null, 1, 1000);
         }
+
+        var savedData = await LocalStorage.GetItemAsync<ClientData?>(nameof(ClientData));
+        ServerRegion = savedData?.Region;
+        Server = savedData?.Server;
     }
 
     public async ValueTask DisposeAsync()
@@ -127,6 +135,15 @@ else if(_merchants is not null)
     private void ServerRegionChanged()
     {
         UpdateMerchants(true);
+    }
+
+    private async Task SaveData()
+    {
+        await LocalStorage.SetItemAsync(nameof(ClientData), new ClientData()
+            {
+                Region = ServerRegion ?? string.Empty,
+                Server = Server ?? string.Empty,
+            });
     }
 
     async void TimerTick(object? _)
