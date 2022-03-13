@@ -211,7 +211,7 @@ else if(_merchants is not null)
         {
             if (force || merchant.AppearanceExpires < DateTimeOffset.UtcNow)
             {
-                merchant.CalculateNextAppearance(_merchants, _serverRegions[_serverRegion].TimeZone);
+                merchant.CalculateNextAppearance(_merchants, _serverRegions[_serverRegion].UtcOffset);
                 merchant.ClearInstance();
                 resort = true;
             }

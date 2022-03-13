@@ -1,7 +1,7 @@
 {
   "NAE": {
     "Name": "NAE",
-    "TimeZone": "America/New_York",
+    "UtcOffset": "-05:00:00",
     "Servers": [ "Galatur" ]
   }
 }

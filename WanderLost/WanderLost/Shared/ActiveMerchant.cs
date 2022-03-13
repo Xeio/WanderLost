@@ -7,28 +7,26 @@
         public DateTimeOffset NextAppearance { get; private set; }
         public DateTimeOffset AppearanceExpires { get; private set; }
 
-        public void CalculateNextAppearance(Dictionary<string, MerchantData> merchants, string serverTimeZone)
+        public void CalculateNextAppearance(Dictionary<string, MerchantData> merchants, TimeSpan serverUtcOffset)
         {
-            const int expiresAfter = 25;
-
-            var serverOffset = TimeZoneInfo.FindSystemTimeZoneById(serverTimeZone).BaseUtcOffset;
+            var expiresAfter = TimeSpan.FromMinutes(25);
 
             var nextAppearanceTime = merchants[Name].AppearanceTimes
-                .Select(apperance => DateTimeOffset.UtcNow.ToOffset(serverOffset).Date + apperance)
-                .Where(time => time >= DateTimeOffset.UtcNow.AddMinutes(-expiresAfter))
+                .Select(apperance => new DateTimeOffset(DateTimeOffset.UtcNow.ToOffset(serverUtcOffset).Date, serverUtcOffset) + apperance)
+                .Where(time => time >= DateTimeOffset.UtcNow - expiresAfter)
                 .FirstOrDefault();
             
             if(nextAppearanceTime == default)
             {
                 //Next apperance is the following day
                 nextAppearanceTime = merchants[Name].AppearanceTimes
-                    .Select(apperance => DateTimeOffset.UtcNow.ToOffset(serverOffset).Date.AddDays(1) + apperance)
-                    .Where(time => time >= DateTimeOffset.UtcNow.AddMinutes(-expiresAfter))
+                    .Select(apperance => new DateTimeOffset(DateTimeOffset.UtcNow.ToOffset(serverUtcOffset).Date.AddDays(1), serverUtcOffset) + apperance)
+                    .Where(time => time >= DateTimeOffset.UtcNow - expiresAfter)
                     .FirstOrDefault();
             }
 
             NextAppearance = nextAppearanceTime;
-            AppearanceExpires = nextAppearanceTime.AddMinutes(expiresAfter);
+            AppearanceExpires = nextAppearanceTime + expiresAfter;
         }
 
         public void ClearInstance()

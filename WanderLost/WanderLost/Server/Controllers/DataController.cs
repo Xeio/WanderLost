@@ -64,7 +64,7 @@ namespace WanderLost.Server.Controllers
             var activeMerchants = merchants.Select(m => new ActiveMerchant() { Name = m.Value.Name }).ToList();
             foreach(var activeMerchant in activeMerchants)
             {
-                activeMerchant.CalculateNextAppearance(merchants, currentRegion.Value.TimeZone);
+                activeMerchant.CalculateNextAppearance(merchants, currentRegion.Value.UtcOffset);
             }
 
             return activeMerchants;
