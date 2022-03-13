@@ -43,6 +43,23 @@
                 </div>
             </div>
         </div>
+        <div class="col-sm-6">
+            <div class="card border-secondary mb-3">
+                <div class="card-header">Card</div>
+                <div class="card-body">
+                    <InputRadioGroup @bind-Value="ActiveMerchant.RapportRarity">
+                        <div class="form-check">
+                            <InputRadio class="form-check-input" Value="@Rarity.Epic" id="EpicRapport"/>
+                            <label class="form-check-label" for="EpicRapport">Epic</label>
+                        </div>
+                        <div class="form-check">
+                            <InputRadio class="form-check-input" Value="@Rarity.Legendary" id="LegendaryRapport"/>
+                            <label class="form-check-label" for="LegendaryRapport">Legendary</label>
+                        </div>
+                    </InputRadioGroup>
+                </div>
+            </div>
+        </div>
     </div>
     <button class="btn btn-success" @onclick="Submit" disabled="@(!ActiveMerchant.IsValid(AllMerchantData ?? new()))">Submit</button>
 </EditForm>

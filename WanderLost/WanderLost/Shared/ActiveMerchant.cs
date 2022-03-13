@@ -7,6 +7,7 @@ namespace WanderLost.Shared
         public string Name { get; init; } = string.Empty;
         public string Zone { get; set; } = string.Empty;
         public string Card { get; set; } = string.Empty;
+        public Rarity? RapportRarity { get; set; }
 
         [JsonIgnore]
         public DateTimeOffset NextAppearance { get; private set; }
@@ -39,6 +40,7 @@ namespace WanderLost.Shared
         {
             Zone = string.Empty;
             Card = string.Empty;
+            RapportRarity = null;
         }
 
         public void CopyInstance(ActiveMerchant other)
@@ -46,13 +48,15 @@ namespace WanderLost.Shared
             //Copies only data sent between client and server
             Zone = other.Zone;
             Card = other.Card;
+            RapportRarity = other.RapportRarity;
         }
 
         public bool IsValid(Dictionary<string, MerchantData> allMerchantData)
         {
             if(string.IsNullOrWhiteSpace(Name) ||
                 string.IsNullOrWhiteSpace(Zone) ||
-                string.IsNullOrWhiteSpace(Card))
+                string.IsNullOrWhiteSpace(Card) ||
+                RapportRarity is null)
             {
                 return false;
             }
