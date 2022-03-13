@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.ResponseCompression;
+using WanderLost.Server.Controllers;
+using WanderLost.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +8,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddSignalR();
+builder.Services.AddMemoryCache();
+
+builder.Services.AddScoped<DataController>();
+
+builder.Services.AddResponseCompression(opts =>
+{
+    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+        new[] { "application/octet-stream" });
+});
 
 var app = builder.Build();
 
@@ -28,9 +40,11 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseResponseCompression();
 
 app.MapRazorPages();
 app.MapControllers();
 app.MapFallbackToFile("index.html");
+app.MapHub<MerchantHub>($"/{nameof(IMerchantHubClient)}");
 
 app.Run();

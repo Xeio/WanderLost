@@ -2,6 +2,7 @@
 @using WanderLost.Shared
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject HttpClient Http
+@inject MerchantHubClient HubClient
 @inject NavigationManager NavigationManager
 @implements IAsyncDisposable
 
@@ -85,9 +86,10 @@ else if(_merchants is not null)
         get { return _server; }
         set
         {
+            var oldValue = _server;
             _server = value;
             Task.Run(SaveData);
-            ServerChanged();
+            Task.Run(() => ServerChanged(oldValue));
         }
     }
 
@@ -117,6 +119,14 @@ else if(_merchants is not null)
         var savedData = await LocalStorage.GetItemAsync<ClientData?>(nameof(ClientData));
         ServerRegion = savedData?.Region;
         Server = savedData?.Server;
+
+        HubClient.OnUpdateMerchant((server, merchant) =>
+        {
+            if(Server != server) return;
+            throw new NotImplementedException();
+        });
+
+        await HubClient.HubConnection.StartAsync();
     }
 
     public async ValueTask DisposeAsync()
@@ -127,9 +137,17 @@ else if(_merchants is not null)
         }
     }
 
-    private void ServerChanged()
+    private async Task ServerChanged(string? oldServer)
     {
-        //TODO:
+        if (!string.IsNullOrWhiteSpace(oldServer))
+        {
+            await HubClient.UnsubscribeFromServer(oldServer);
+        }
+        if (!string.IsNullOrWhiteSpace(Server))
+        {
+            //TODO: Get current data
+            await HubClient.SubscribeToServer(Server);
+        }
     }
 
     private void ServerRegionChanged()
