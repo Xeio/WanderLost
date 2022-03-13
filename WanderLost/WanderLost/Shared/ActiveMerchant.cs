@@ -3,26 +3,26 @@
     public class ActiveMerchant
     {
         public string Name { get; init; } = string.Empty;
-        public DateTime NextAppearance { get; set; }
-        public DateTime AppearanceExpires { get; private set; }
+        public DateTimeOffset NextAppearance { get; set; }
+        public DateTimeOffset AppearanceExpires { get; private set; }
 
-        public void CalculateNextAppearance(Dictionary<string, MerchantData> merchants, string timeZone)
+        public void CalculateNextAppearance(Dictionary<string, MerchantData> merchants, string serverTimeZone)
         {
-
             const int expiresAfter = 25;
-            var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZone);
+
+            var serverOffset = TimeZoneInfo.FindSystemTimeZoneById(serverTimeZone).BaseUtcOffset;
 
             var nextAppearanceTime = merchants[Name].AppearanceTimes
-                .Select(apperance => DateTime.UtcNow.Date - timeZoneInfo.BaseUtcOffset + apperance)
-                .Where(time => time >= DateTime.UtcNow.AddMinutes(-expiresAfter))
+                .Select(apperance => DateTimeOffset.UtcNow.ToOffset(serverOffset).Date + apperance)
+                .Where(time => time >= DateTimeOffset.UtcNow.AddMinutes(-expiresAfter))
                 .FirstOrDefault();
             
             if(nextAppearanceTime == default)
             {
                 //Next apperance is the following day
                 nextAppearanceTime = merchants[Name].AppearanceTimes
-                    .Select(apperance => DateTime.UtcNow.Date.AddDays(1) - timeZoneInfo.BaseUtcOffset + apperance)
-                    .Where(time => time >= DateTime.UtcNow.AddMinutes(-expiresAfter))
+                    .Select(apperance => DateTimeOffset.UtcNow.ToOffset(serverOffset).Date.AddDays(1) + apperance)
+                    .Where(time => time >= DateTimeOffset.UtcNow.AddMinutes(-expiresAfter))
                     .FirstOrDefault();
             }
 

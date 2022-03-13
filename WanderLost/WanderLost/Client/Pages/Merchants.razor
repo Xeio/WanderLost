@@ -52,9 +52,9 @@ else if(_merchants is not null)
                 <tr>
                     <td>@merchant.Name</td>
                     <td>@_merchants[merchant.Name].Region</td>
-                    @if (merchant.NextAppearance > DateTime.UtcNow)
+                    @if (merchant.NextAppearance > DateTimeOffset.UtcNow)
                     {
-                        <td>@((merchant.NextAppearance - DateTime.UtcNow).ToString(@"hh\:mm\:ss"))</td>
+                        <td>@((merchant.NextAppearance - DateTimeOffset.UtcNow).ToString(@"hh\:mm\:ss"))</td>
                     }
                     else
                     {
@@ -163,7 +163,7 @@ else if(_merchants is not null)
 
         foreach(var merchant in _activeMerchants)
         {
-            if (force || merchant.AppearanceExpires < DateTime.UtcNow)
+            if (force || merchant.AppearanceExpires < DateTimeOffset.UtcNow)
             {
                 merchant.CalculateNextAppearance(_merchants, _serverRegions[_serverRegion].TimeZone);
                 resort = true;
