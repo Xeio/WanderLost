@@ -46,6 +46,7 @@ else if(_merchants is not null)
                 <th>Region</th>
                 <th>Next Appearance In</th>
                 <th>Zone</th>
+                <th>Card</th>
                 <th>Submit</th>
             </tr>
         </thead>
@@ -66,10 +67,12 @@ else if(_merchants is not null)
                     @if (string.IsNullOrWhiteSpace(merchant.Zone))
                     {
                         <td>?</td>
+                        <td>?</td>
                     }
                     else
                     {
                         <td>@merchant.Zone</td>
+                        <td>@merchant.Card</td>
                     }
                     @if (merchant.NextAppearance < DateTimeOffset.UtcNow && string.IsNullOrWhiteSpace(merchant.Zone))
                     {

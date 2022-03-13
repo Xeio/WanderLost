@@ -3,31 +3,36 @@
     "Name": "Dorella",
     "Region": "Feiton",
     "AppearanceTimes": [ "01:30:00", "04:30:00", "05:30:00", "07:30:00", "08:30:00", "11:30:00", "13:30:00", "16:30:00", "17:30:00", "19:30:00", "20:30:00", "23:30:00" ],
-    "Zones": [ "Kalaja" ]
+    "Zones": [ "Kalaja" ],
+    "Cards": [ "Goulding", "Kaldor", "Levi" ],
   },
   "Morris": {
     "Name": "Morris",
     "Region": "East Luterra",
     "AppearanceTimes": [ "01:30:00", "04:30:00", "05:30:00", "07:30:00", "08:30:00", "11:30:00", "13:30:00", "16:30:00", "17:30:00", "19:30:00", "20:30:00", "23:30:00" ],
     "Zones": [ "Dyorika Plain", "Flowering Orchard", "Sunbright Hill" ],
+    "Cards": [ "Brinewt", "Meehan", "Morpheo", "Thunderwings" ],
   },
   "Lucas": {
     "Name": "Lucas",
     "Region": "Yudia",
     "AppearanceTimes": [ "01:30:00", "04:30:00", "05:30:00", "07:30:00", "08:30:00", "11:30:00", "13:30:00", "16:30:00", "17:30:00", "19:30:00", "20:30:00", "23:30:00" ],
     "Zones": [ "Ozhorn Hill", "Saland Hill" ],
+    "Cards": [ "Giant Worm", "Morina", "Thunder" ],
   },
   "Mac": {
     "Name": "Mac",
     "Region": "Anikka",
     "AppearanceTimes": [ "01:30:00", "04:30:00", "05:30:00", "07:30:00", "08:30:00", "11:30:00", "13:30:00", "16:30:00", "17:30:00", "19:30:00", "20:30:00", "23:30:00" ],
     "Zones": [ "Delphi Township", "Melody Forest", "Prisma Valley", "Rattan Hill", "Twilight Mists" ],
+    "Cards": [ "Madam Moonscent", "Sir Druden", "Sir Valleylead", "Wei" ],
   },
   "Jeffrey": {
     "Name": "Jeffrey",
     "Region": "Sushire",
     "AppearanceTimes": [ "01:30:00", "04:30:00", "05:30:00", "07:30:00", "08:30:00", "11:30:00", "13:30:00", "16:30:00", "17:30:00", "19:30:00", "20:30:00", "23:30:00" ],
     "Zones": [ "Bitterwind Hill", "Frozen Sea", "Iceblood Plateau", "Icewing Heights", "Lake Eternity" ],
+    "Cards": [ "Javern", "Madnick", "Sian" ],
   },
 
   "Ben": {
@@ -35,18 +40,21 @@
     "Region": "Rethramis",
     "AppearanceTimes": [ "00:30:00", "03:30:00", "04:30:00", "06:30:00", "07:30:00", "10:30:00", "12:30:00", "15:30:00", "16:30:00", "18:30:00", "19:30:00", "22:30:00" ],
     "Zones": [ "Ankumo Mountain", "Loghill", "Rethramis Border" ],
+    "Cards": [ "Prideholme Neria", "Varut", "Siera" ],
   },
   "Laitir": {
     "Name": "Laitir",
     "Region": "Yorn",
     "AppearanceTimes": [ "00:30:00", "03:30:00", "04:30:00", "06:30:00", "07:30:00", "10:30:00", "12:30:00", "15:30:00", "16:30:00", "18:30:00", "19:30:00", "22:30:00" ],
     "Zones": [ "Black Anvil Mine", "Hall of Promise", "Iron Hammer Mine", "Unfinished Garden", "Yorn's Cradle" ],
+    "Cards": [ "Great Castle Neria", "Kaysarr", "Piyer"],
   },
   "Peter": {
     "Name": "Peter",
     "Region": "North Vern",
     "AppearanceTimes": [ "00:30:00", "03:30:00", "04:30:00", "06:30:00", "07:30:00", "10:30:00", "12:30:00", "15:30:00", "16:30:00", "18:30:00", "19:30:00", "22:30:00" ],
     "Zones": [ "Balankar Mountains", "Fesnar Highland", "Parna Forest", "Port Krona", "Vernese Forest" ],
+    "Cards": [ "Gideon", "Payla", "Thar" ],
   },
 
   "Malone": {
@@ -54,35 +62,41 @@
     "Region": "West Luterra",
     "AppearanceTimes": [ "00:30:00", "02:30:00", "05:30:00", "06:30:00", "08:30:00", "09:30:00", "12:30:00", "14:30:00", "17:30:00", "18:30:00", "20:30:00", "21:30:00" ],
     "Zones": [ "Battlebound Plains", "Bilbrin Forest", "Lakebar", "Medrick Monastery", "Mount Zagoras" ],
+    "Cards": [ "Berhart", "Cadogan", "Cassleford" ],
   },
   "Burt": {
     "Name": "Burt",
     "Region": "East Luterra",
     "AppearanceTimes": [ "00:30:00", "02:30:00", "05:30:00", "06:30:00", "08:30:00", "09:30:00", "12:30:00", "14:30:00", "17:30:00", "18:30:00", "20:30:00", "21:30:00" ],
     "Zones": [ "Blackrose Chapel", "Borea's Domain", "Croconys Seashore", "Leyar Terrace" ],
+    "Cards": [ "Nox", "Seria", "Thunderwings" ],
   },
   "Oliver": {
     "Name": "Oliver",
     "Region": "Tortoyk",
     "AppearanceTimes": [ "00:30:00", "02:30:00", "05:30:00", "06:30:00", "08:30:00", "09:30:00", "12:30:00", "14:30:00", "17:30:00", "18:30:00", "20:30:00", "21:30:00" ],
     "Zones": [ "Forest of Giants", "Seaswept Woods", "Skyreach Steppe", "Sweetwater Forest" ],
+    "Cards": [ "Egg of Creation", "Eohl", "Mokamoka" ],
   },
   "Nox": {
     "Name": "Nox",
     "Region": "Arthitine",
     "AppearanceTimes": [ "00:30:00", "02:30:00", "05:30:00", "06:30:00", "08:30:00", "09:30:00", "12:30:00", "14:30:00", "17:30:00", "18:30:00", "20:30:00", "21:30:00" ],
     "Zones": [ "Arid Path", "Nebelhorn", "Riza Falls", "Scraplands", "Totrich", "Windbringer Hill" ],
+    "Cards": [ "Bergstrom", "Krause", "Stern Neria" ],
   },
   "Aricer": {
     "Name": "Aricer",
     "Region": "Rohendel",
     "AppearanceTimes": [ "00:30:00", "02:30:00", "05:30:00", "06:30:00", "08:30:00", "09:30:00", "12:30:00", "14:30:00", "17:30:00", "18:30:00", "20:30:00", "21:30:00" ],
     "Zones": [ "Breezesome Brae", "Elzowin's Shade", "Glass Lotus Lake", "Lake Shiverwave", "Xeneela Ruins" ],
+    "Cards": [ "Alifer", "Gnosis", "Lenora" ],
   },
   "Rayni": {
     "Name": "Rayni",
     "Region": "Punika",
     "AppearanceTimes": [ "00:30:00", "02:30:00", "05:30:00", "06:30:00", "08:30:00", "09:30:00", "12:30:00", "14:30:00", "17:30:00", "18:30:00", "20:30:00", "21:30:00" ],
     "Zones": [ "Secret Forest", "Starsand Beach", "Tideshelf Path", "Tikatika Colony" ],
+    "Cards": [ "Albion", "Cicerra", "Seto", "Stella" ],
   }
 }

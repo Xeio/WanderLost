@@ -19,16 +19,17 @@ namespace WanderLost.Server.Controllers
 
             if (!await IsValidServer(server)) return;
             
-            var merchantData = (await _dataController.GetMerchantData())[merchant.Name];
+            var allMerchantData = await _dataController.GetMerchantData();
+            if (!merchant.IsValid(allMerchantData)) return;
+
             var activeMerchants = await _dataController.GetActiveMerchants(server);
 
             var serverMerchant = activeMerchants.FirstOrDefault(m => m.Name == merchant.Name);
 
-            if (serverMerchant is null || merchantData is null) return; //Failed to find matching merchant
+            if (serverMerchant is null) return; //Failed to find matching merchant
             if (serverMerchant.NextAppearance > DateTimeOffset.UtcNow) return; //Don't allow updating merchants from the future
-            if (!merchantData.Zones.Contains(merchant.Zone)) return; //Reject invalid zone data
 
-            serverMerchant.Zone = merchant.Zone;
+            serverMerchant.CopyInstance(merchant);
 
             await Clients.Group(server).UpdateMerchant(server, serverMerchant);
         }

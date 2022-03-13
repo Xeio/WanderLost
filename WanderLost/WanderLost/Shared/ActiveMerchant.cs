@@ -1,10 +1,16 @@
-﻿namespace WanderLost.Shared
+﻿using System.Text.Json.Serialization;
+
+namespace WanderLost.Shared
 {
     public class ActiveMerchant
     {
         public string Name { get; init; } = string.Empty;
         public string Zone { get; set; } = string.Empty;
+        public string Card { get; set; } = string.Empty;
+
+        [JsonIgnore]
         public DateTimeOffset NextAppearance { get; private set; }
+        [JsonIgnore]
         public DateTimeOffset AppearanceExpires { get; private set; }
 
         public void CalculateNextAppearance(Dictionary<string, MerchantData> merchants, TimeSpan serverUtcOffset)
@@ -31,18 +37,32 @@
 
         public void ClearInstance()
         {
-            Zone = String.Empty;
+            Zone = string.Empty;
+            Card = string.Empty;
         }
 
         public void CopyInstance(ActiveMerchant other)
         {
+            //Copies only data sent between client and server
             Zone = other.Zone;
+            Card = other.Card;
         }
 
-        public bool IsValidForSubmission()
+        public bool IsValid(Dictionary<string, MerchantData> allMerchantData)
         {
-            return !string.IsNullOrWhiteSpace(Name) &&
-                    !string.IsNullOrWhiteSpace(Zone);
+            if(string.IsNullOrWhiteSpace(Name) ||
+                string.IsNullOrWhiteSpace(Zone) ||
+                string.IsNullOrWhiteSpace(Card))
+            {
+                return false;
+            }
+            
+            if(!allMerchantData.ContainsKey(Name)) return false;
+            
+            var data = allMerchantData[Name];
+
+            return data.Zones.Contains(Zone) &&
+                    data.Cards.Contains(Card);
         }
     }
 }

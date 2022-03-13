@@ -27,42 +27,44 @@
                 </div>
             </div>
         </div>
-        @*<div class="col-sm-6">
+        <div class="col-sm-6">
             <div class="card border-secondary mb-3">
                 <div class="card-header">Card</div>
                 <div class="card-body">
                     <InputRadioGroup @bind-Value="ActiveMerchant.Card">
-                        @foreach(var zone in MerchantData?.Zones ?? Enumerable.Empty<string>())
+                        @foreach(var card in MerchantData?.Cards ?? Enumerable.Empty<string>())
                         {
                             <div class="form-check">
-                                <InputRadio class="form-check-input" Value="@zone" id="@(zone+"oo")"/>
-                                <label class="form-check-label" for="@(zone+"oo")">@zone</label>
+                                <InputRadio class="form-check-input" Value="@card" id="@card"/>
+                                <label class="form-check-label" for="@card">@card</label>
                             </div>
                         }
                     </InputRadioGroup>
                 </div>
             </div>
-        </div>*@
+        </div>
     </div>
-    <button class="btn btn-success" @onclick="Submit" disabled="@(!ActiveMerchant.IsValidForSubmission())">Submit</button>
+    <button class="btn btn-success" @onclick="Submit" disabled="@(!ActiveMerchant.IsValid(AllMerchantData ?? new()))">Submit</button>
 </EditForm>
 
 @code{
     [Parameter]
-    public string Server { get; set; }
+    public string Server { get; set; } = string.Empty;
 
     [Parameter]
-    public string MerchantName { get; set; }
+    public string MerchantName { get; set; } = string.Empty;
 
-    public MerchantData MerchantData { get; set; }
+    public MerchantData? MerchantData { get; set; }
+
+    public Dictionary<string, MerchantData>? AllMerchantData { get; set; }
 
     public ActiveMerchant ActiveMerchant { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
-        var allMerchants = await Http.GetFromJsonAsync<Dictionary<string, MerchantData>>(NavigationManager.ToAbsoluteUri("/data/merchants.json"), Utils.JsonOptions);
+        AllMerchantData = await Http.GetFromJsonAsync<Dictionary<string, MerchantData>>(NavigationManager.ToAbsoluteUri("/data/merchants.json"), Utils.JsonOptions);
 
-        MerchantData = allMerchants[MerchantName];
+        MerchantData = AllMerchantData?[MerchantName];
 
         HubClient.OnUpdateMerchant((server, merchant) =>
         {
