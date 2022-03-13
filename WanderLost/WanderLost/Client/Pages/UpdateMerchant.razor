@@ -1,0 +1,89 @@
+﻿@page "/UpdateMerchant/{Server}/{MerchantName}/"
+
+@using WanderLost.Shared
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject HttpClient Http
+@inject MerchantHubClient HubClient
+@inject NavigationManager NavigationManager
+
+<PageTitle>Submit Merchant Location</PageTitle>
+<h1>Submit Location for @ActiveMerchant.Name - @MerchantData?.Region</h1>
+
+<EditForm Model="ActiveMerchant">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="card border-secondary mb-3">
+                <div class="card-header">Zone</div>
+                <div class="card-body">
+                    <InputRadioGroup @bind-Value="ActiveMerchant.Zone">
+                        @foreach(var zone in MerchantData?.Zones ?? Enumerable.Empty<string>())
+                        {
+                            <div class="form-check">
+                                <InputRadio class="form-check-input" Value="@zone" id="@zone"/>
+                                <label class="form-check-label" for="@zone">@zone</label>
+                            </div>
+                        }
+                    </InputRadioGroup>
+                </div>
+            </div>
+        </div>
+        @*<div class="col-sm-6">
+            <div class="card border-secondary mb-3">
+                <div class="card-header">Card</div>
+                <div class="card-body">
+                    <InputRadioGroup @bind-Value="ActiveMerchant.Card">
+                        @foreach(var zone in MerchantData?.Zones ?? Enumerable.Empty<string>())
+                        {
+                            <div class="form-check">
+                                <InputRadio class="form-check-input" Value="@zone" id="@(zone+"oo")"/>
+                                <label class="form-check-label" for="@(zone+"oo")">@zone</label>
+                            </div>
+                        }
+                    </InputRadioGroup>
+                </div>
+            </div>
+        </div>*@
+    </div>
+    <button class="btn btn-success" @onclick="Submit" disabled="@(!ActiveMerchant.IsValidForSubmission())">Submit</button>
+</EditForm>
+
+@code{
+    [Parameter]
+    public string Server { get; set; }
+
+    [Parameter]
+    public string MerchantName { get; set; }
+
+    public MerchantData MerchantData { get; set; }
+
+    public ActiveMerchant ActiveMerchant { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var allMerchants = await Http.GetFromJsonAsync<Dictionary<string, MerchantData>>(NavigationManager.ToAbsoluteUri("/data/merchants.json"), Utils.JsonOptions);
+
+        MerchantData = allMerchants[MerchantName];
+
+        HubClient.OnUpdateMerchant((server, merchant) =>
+        {
+            if(Server == server && merchant.Name == MerchantName)
+            {
+                //Someone else beat us to submitting the merchant, just go back to index
+                NavigationManager.NavigateTo("/");
+            }
+        });
+
+        if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.HubConnectionState.Disconnected)
+        {
+            await HubClient.HubConnection.StartAsync();
+        }
+
+        ActiveMerchant = new ActiveMerchant() { Name = MerchantName };
+    }
+
+    private async Task Submit()
+    {
+        await HubClient.UpdateMerchant(Server, ActiveMerchant);
+        NavigationManager.NavigateTo("/");
+    }
+}

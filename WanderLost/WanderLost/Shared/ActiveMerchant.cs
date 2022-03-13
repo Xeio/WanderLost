@@ -3,7 +3,8 @@
     public class ActiveMerchant
     {
         public string Name { get; init; } = string.Empty;
-        public DateTimeOffset NextAppearance { get; set; }
+        public string Zone { get; set; } = string.Empty;
+        public DateTimeOffset NextAppearance { get; private set; }
         public DateTimeOffset AppearanceExpires { get; private set; }
 
         public void CalculateNextAppearance(Dictionary<string, MerchantData> merchants, string serverTimeZone)
@@ -28,6 +29,22 @@
 
             NextAppearance = nextAppearanceTime;
             AppearanceExpires = nextAppearanceTime.AddMinutes(expiresAfter);
+        }
+
+        public void ClearInstance()
+        {
+            Zone = String.Empty;
+        }
+
+        public void CopyInstance(ActiveMerchant other)
+        {
+            Zone = other.Zone;
+        }
+
+        public bool IsValidForSubmission()
+        {
+            return !string.IsNullOrWhiteSpace(Name) &&
+                    !string.IsNullOrWhiteSpace(Zone);
         }
     }
 }

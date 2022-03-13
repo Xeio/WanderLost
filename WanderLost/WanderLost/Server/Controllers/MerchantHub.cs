@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using WanderLost.Shared;
+using WanderLost.Shared.Interfaces;
 
 namespace WanderLost.Server.Controllers
 {
-    public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubClient
+    public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
     {
         private readonly DataController _dataController;
 
@@ -14,16 +15,27 @@ namespace WanderLost.Server.Controllers
 
         public async Task UpdateMerchant(string server, ActiveMerchant merchant)
         {
-            throw new NotImplementedException(); //Validations and such
+            if (merchant is null) return;
 
-            await Clients.Group(server).UpdateMerchant(server, merchant);
+            if (!await IsValidServer(server)) return;
+            
+            var merchantData = (await _dataController.GetMerchantData())[merchant.Name];
+            var activeMerchants = await _dataController.GetActiveMerchants(server);
+
+            var serverMerchant = activeMerchants.FirstOrDefault(m => m.Name == merchant.Name);
+
+            if (serverMerchant is null || merchantData is null) return; //Failed to find matching merchant
+            if (serverMerchant.NextAppearance > DateTimeOffset.UtcNow) return; //Don't allow updating merchants from the future
+            if (!merchantData.Zones.Contains(merchant.Zone)) return; //Reject invalid zone data
+
+            serverMerchant.Zone = merchant.Zone;
+
+            await Clients.Group(server).UpdateMerchant(server, serverMerchant);
         }
 
         public async Task SubscribeToServer(string server)
-
         {
-            var regions = await _dataController.GetServerRegions();
-            if (regions.SelectMany(r => r.Value.Servers).Any(s => server == s))
+            if (await IsValidServer(server))
             {
                 await Groups.AddToGroupAsync(Context.ConnectionId, server);
             }
@@ -32,6 +44,18 @@ namespace WanderLost.Server.Controllers
         public async Task UnsubscribeFromServer(string server)
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, server);
+        }
+
+        private async Task<bool> IsValidServer(string server)
+        {
+            var regions = await _dataController.GetServerRegions();
+            return regions.SelectMany(r => r.Value.Servers).Any(s => server == s);
+        }
+
+        public async Task<IEnumerable<ActiveMerchant>> GetKnownActiveMerchants(string server)
+        {
+            var activeMerchants = await _dataController.GetActiveMerchants(server);
+            return activeMerchants.Where(m => !string.IsNullOrWhiteSpace(m.Zone));
         }
     }
 }

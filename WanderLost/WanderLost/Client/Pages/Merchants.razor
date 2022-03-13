@@ -45,6 +45,8 @@ else if(_merchants is not null)
                 <th>Name</th>
                 <th>Region</th>
                 <th>Next Appearance In</th>
+                <th>Zone</th>
+                <th>Submit</th>
             </tr>
         </thead>
         <tbody>
@@ -60,6 +62,22 @@ else if(_merchants is not null)
                     else
                     {
                         <td>Active</td>
+                    }
+                    @if (string.IsNullOrWhiteSpace(merchant.Zone))
+                    {
+                        <td>?</td>
+                    }
+                    else
+                    {
+                        <td>@merchant.Zone</td>
+                    }
+                    @if (merchant.NextAppearance < DateTimeOffset.UtcNow && string.IsNullOrWhiteSpace(merchant.Zone))
+                    {
+                        <td><a href="/UpdateMerchant/@Server/@merchant.Name">Submit Location</a></td>
+                    }
+                    else
+                    {
+                        <td/>
                     }
                 </tr>
             }
@@ -95,7 +113,7 @@ else if(_merchants is not null)
 
     private bool ShowAllMerchants { get; set; }
 
-    private ActiveMerchant[]? _activeMerchants;
+    private List<ActiveMerchant>? _activeMerchants;
     private Dictionary<string, ServerRegion>? _serverRegions;
     private Dictionary<string, MerchantData>? _merchants;
 
@@ -107,7 +125,7 @@ else if(_merchants is not null)
 
         _merchants = await Http.GetFromJsonAsync<Dictionary<string, MerchantData>>(NavigationManager.ToAbsoluteUri("/data/merchants.json"), Utils.JsonOptions);
 
-        _activeMerchants = _merchants?.Values.Select(m => new ActiveMerchant() { Name = m.Name }).ToArray();
+        _activeMerchants = _merchants?.Values.Select(m => new ActiveMerchant() { Name = m.Name }).ToList();
 
         if (_serverRegions is not null &&
             _merchants is not null &&
@@ -123,10 +141,14 @@ else if(_merchants is not null)
         HubClient.OnUpdateMerchant((server, merchant) =>
         {
             if(Server != server) return;
-            throw new NotImplementedException();
+            _activeMerchants?.FirstOrDefault(am => am.Name == merchant.Name)?.CopyInstance(merchant);
+            InvokeAsync(StateHasChanged);
         });
 
-        await HubClient.HubConnection.StartAsync();
+        if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.HubConnectionState.Disconnected)
+        {
+            await HubClient.HubConnection.StartAsync();
+        }
     }
 
     public async ValueTask DisposeAsync()
@@ -145,8 +167,14 @@ else if(_merchants is not null)
         }
         if (!string.IsNullOrWhiteSpace(Server))
         {
-            //TODO: Get current data
             await HubClient.SubscribeToServer(Server);
+
+            //Sync with the server's current data
+            _activeMerchants?.ForEach(m => m.ClearInstance());
+            foreach(var serverMerchant in await HubClient.GetKnownActiveMerchants(Server))
+            {
+                _activeMerchants.FirstOrDefault(m => m.Name == serverMerchant.Name)?.CopyInstance(serverMerchant);
+            }
         }
     }
 
@@ -184,13 +212,14 @@ else if(_merchants is not null)
             if (force || merchant.AppearanceExpires < DateTimeOffset.UtcNow)
             {
                 merchant.CalculateNextAppearance(_merchants, _serverRegions[_serverRegion].TimeZone);
+                merchant.ClearInstance();
                 resort = true;
             }
         }
 
         if (resort)
         {
-            _activeMerchants = _activeMerchants.OrderBy(m => m.NextAppearance).ThenBy(m => _merchants[m.Name].Region).ToArray();
+            _activeMerchants = _activeMerchants.OrderBy(m => m.NextAppearance).ThenBy(m => _merchants[m.Name].Region).ToList();
         }
     }
 

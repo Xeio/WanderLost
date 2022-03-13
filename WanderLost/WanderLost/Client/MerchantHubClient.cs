@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using WanderLost.Shared;
+using WanderLost.Shared.Interfaces;
 
 namespace WanderLost.Client
 {
-    public class MerchantHubClient : IMerchantHubClient, IAsyncDisposable
+    //Implements client for incoming calls, and server to act as a proxy for outgoing calls
+    public class MerchantHubClient : IMerchantHubServer, IMerchantHubClient, IAsyncDisposable
     {
         public HubConnection HubConnection {get; init; }
 
@@ -42,6 +44,11 @@ namespace WanderLost.Client
         public void OnUpdateMerchant(Action<string, ActiveMerchant> action)
         {
             HubConnection.On(nameof(UpdateMerchant), action);
+        }
+
+        public async Task<IEnumerable<ActiveMerchant>> GetKnownActiveMerchants(string server)
+        {
+            return await HubConnection.InvokeAsync<IEnumerable<ActiveMerchant>>(nameof(GetKnownActiveMerchants), server);
         }
     }
 }

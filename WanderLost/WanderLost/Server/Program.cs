@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.ResponseCompression;
 using WanderLost.Server.Controllers;
-using WanderLost.Shared;
+using WanderLost.Shared.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 

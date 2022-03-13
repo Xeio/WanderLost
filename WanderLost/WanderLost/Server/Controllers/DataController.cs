@@ -39,5 +39,35 @@ namespace WanderLost.Server.Controllers
             var json = await File.ReadAllTextAsync(serversFile.PhysicalPath);
             return JsonSerializer.Deserialize<Dictionary<string, ServerRegion>>(json, Utils.JsonOptions) ?? new Dictionary<string, ServerRegion>();
         }
+
+        public async Task<List<ActiveMerchant>> GetActiveMerchants(string server)
+        {
+            return await _memoryCache.GetOrCreateAsync(server, async (cacheEntry) =>
+                {
+                    var activeMerchants = await BuildActiveMerchants(cacheEntry, server);
+                    //Force the cache to expire once any merchant apperance expires
+                    cacheEntry.AbsoluteExpiration = activeMerchants.Min(m => m.AppearanceExpires);
+                    return activeMerchants;
+                }
+            );
+        }
+
+        private async Task<List<ActiveMerchant>> BuildActiveMerchants(ICacheEntry entry, string server)
+        {
+            var merchants = await GetMerchantData();
+            var regions = await GetServerRegions();
+            
+            var currentRegion = regions.FirstOrDefault(r => r.Value.Servers.Contains(server));
+
+            if (currentRegion.Value == null) throw new ArgumentException("Invalid Server");
+
+            var activeMerchants = merchants.Select(m => new ActiveMerchant() { Name = m.Value.Name }).ToList();
+            foreach(var activeMerchant in activeMerchants)
+            {
+                activeMerchant.CalculateNextAppearance(merchants, currentRegion.Value.TimeZone);
+            }
+
+            return activeMerchants;
+        }
     }
 }
