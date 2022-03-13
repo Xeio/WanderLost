@@ -16,33 +16,27 @@ namespace WanderLost.Server.Controllers
             _memoryCache = memoryCache;
         }
 
-        public Dictionary<string, MerchantData> MerchantData
+        public async Task<Dictionary<string, MerchantData>> GetMerchantData()
         {
-            get
-            {
-                return _memoryCache.GetOrCreate(nameof(MerchantData), BuildMerchantData);
-            }
+            return await _memoryCache.GetOrCreateAsync(nameof(MerchantData), BuildMerchantData);
         }
 
-        private Dictionary<string, MerchantData> BuildMerchantData(ICacheEntry entry)
+        private async Task<Dictionary<string, MerchantData>> BuildMerchantData(ICacheEntry entry)
         {
             var serversFile = _webHostEnvironment.WebRootFileProvider.GetFileInfo("data/merchants.json");
-            var json = File.ReadAllText(serversFile.PhysicalPath);
+            var json = await File.ReadAllTextAsync(serversFile.PhysicalPath);
             return JsonSerializer.Deserialize<Dictionary<string, MerchantData>>(json, Utils.JsonOptions) ?? new Dictionary<string, MerchantData>();
         }
 
-        public Dictionary<string, ServerRegion> ServerRegions
+        public async Task<Dictionary<string, ServerRegion>> GetServerRegions()
         {
-            get
-            {
-                return _memoryCache.GetOrCreate(nameof(MerchantData), BuildServerData);
-            }
+            return await _memoryCache.GetOrCreateAsync(nameof(ServerRegion), BuildServerData);
         }
 
-        private Dictionary<string, ServerRegion> BuildServerData(ICacheEntry entry)
+        private async Task<Dictionary<string, ServerRegion>> BuildServerData(ICacheEntry entry)
         {
             var serversFile = _webHostEnvironment.WebRootFileProvider.GetFileInfo("data/servers.json");
-            var json = File.ReadAllText(serversFile.PhysicalPath);
+            var json = await File.ReadAllTextAsync(serversFile.PhysicalPath);
             return JsonSerializer.Deserialize<Dictionary<string, ServerRegion>>(json, Utils.JsonOptions) ?? new Dictionary<string, ServerRegion>();
         }
     }

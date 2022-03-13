@@ -20,8 +20,10 @@ namespace WanderLost.Server.Controllers
         }
 
         public async Task SubscribeToServer(string server)
+
         {
-            if (_dataController.ServerRegions.SelectMany(r => r.Value.Servers).Any(s => server == s))
+            var regions = await _dataController.GetServerRegions();
+            if (regions.SelectMany(r => r.Value.Servers).Any(s => server == s))
             {
                 await Groups.AddToGroupAsync(Context.ConnectionId, server);
             }
