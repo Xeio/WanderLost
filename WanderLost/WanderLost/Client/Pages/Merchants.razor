@@ -101,9 +101,9 @@ else if(_merchants is not null)
 
     protected override async Task OnInitializedAsync()
     {
-        _serverRegions = await Http.GetFromJsonAsync<Dictionary<string, ServerRegion>>(NavigationManager.ToAbsoluteUri("/data/servers.json"));
+        _serverRegions = await Http.GetFromJsonAsync<Dictionary<string, ServerRegion>>(NavigationManager.ToAbsoluteUri("/data/servers.json"), Utils.JsonOptions);
 
-        _merchants = await Http.GetFromJsonAsync<Dictionary<string, MerchantData>>(NavigationManager.ToAbsoluteUri("/data/merchants.json"));
+        _merchants = await Http.GetFromJsonAsync<Dictionary<string, MerchantData>>(NavigationManager.ToAbsoluteUri("/data/merchants.json"), Utils.JsonOptions);
 
         _activeMerchants = _merchants?.Values.Select(m => new ActiveMerchant() { Name = m.Name }).ToArray();
 
