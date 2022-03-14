@@ -6,7 +6,7 @@ namespace WanderLost.Server.Controllers
 {
     public class DataController
     {
-        private IWebHostEnvironment _webHostEnvironment;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
         private readonly IMemoryCache _memoryCache;
 
@@ -44,7 +44,7 @@ namespace WanderLost.Server.Controllers
         {
             return await _memoryCache.GetOrCreateAsync(server, async (cacheEntry) =>
                 {
-                    var activeMerchants = await BuildActiveMerchants(cacheEntry, server);
+                    var activeMerchants = await BuildActiveMerchants(server);
                     //Force the cache to expire once any merchant apperance expires
                     cacheEntry.AbsoluteExpiration = activeMerchants.Min(m => m.AppearanceExpires);
                     return activeMerchants;
@@ -52,7 +52,7 @@ namespace WanderLost.Server.Controllers
             );
         }
 
-        private async Task<List<ActiveMerchant>> BuildActiveMerchants(ICacheEntry entry, string server)
+        private async Task<List<ActiveMerchant>> BuildActiveMerchants(string server)
         {
             var merchants = await GetMerchantData();
             var regions = await GetServerRegions();
