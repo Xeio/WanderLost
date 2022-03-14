@@ -1,0 +1,6 @@
+﻿<span class="@Item.Rarity">@Item.Name</span>
+
+@code {
+    [Parameter, EditorRequired]
+    public Item Item { get; init; } = new();
+}
