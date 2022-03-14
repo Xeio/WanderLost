@@ -33,7 +33,7 @@
 <label for="showAll" >Show All Merchants</label>
 <input id="showAll" type="checkbox" @bind="@ShowAllMerchants" />
 
-@if(ServerRegion is null || Server is null)
+@if(string.IsNullOrWhiteSpace(ServerRegion) || string.IsNullOrWhiteSpace(Server))
 {
     <h4>Select a Server</h4>
 }
