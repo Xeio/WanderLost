@@ -1,7 +1,23 @@
 {
   "NAE": {
-    "Name": "NAE",
+    "Name": "NA East",
     "UtcOffset": "-05:00:00",
-    "Servers": [ "Galatur" ]
+    "Servers": [
+      "Adrinne",
+      "Aldebaran",
+      "Avesta",
+      "Azena",
+      "Danube",
+      "Elzowin",
+      "Galatur",
+      "Karta",
+      "Kharmine",
+      "Ladon",
+      "Regulus",
+      "Sasha",
+      "Una",
+      "Vykas",
+      "Zosma"
+    ]
   }
 }

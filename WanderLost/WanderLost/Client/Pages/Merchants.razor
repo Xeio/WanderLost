@@ -12,9 +12,9 @@
 <label for="severRegion">Server Region: </label>
 <select id="severRegion" @bind="@ServerRegion">
     <option></option>
-    @foreach(var datacenter in _serverRegions?.Values ?? Enumerable.Empty<ServerRegion>())
+    @foreach(var datacenter in _serverRegions ?? new())
     {
-        <option>@datacenter.Name</option>
+        <option value="@datacenter.Key">@datacenter.Value.Name</option>
     }
 </select>
 <label for="server">Server: </label>
