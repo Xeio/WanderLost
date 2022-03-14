@@ -1,0 +1,97 @@
+﻿@{
+    bool anyMerchantActive = GetVisibleMerchants().Any(m => m.IsActive); 
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Region</th>
+                
+            @if (anyMerchantActive)
+            {
+                <td>Expires</td>
+                <th>Zone</th>
+                <th>Card</th>
+                <th>Rapport</th>
+                <th>Submit</th>
+            }
+            else
+            {
+                <th>Next Appearance In</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var merchant in GetVisibleMerchants())
+        {
+            <tr>
+                <td>@merchant.Name</td>
+                <td>@MerchantData[merchant.Name].Region</td>
+                    
+                @if(anyMerchantActive)
+                {
+                    @if (merchant.IsActive)
+                    {
+                        <td>@((merchant.AppearanceExpires - DateTimeOffset.UtcNow).ToString(@"hh\:mm\:ss"))</td>
+                    }
+                    else
+                    {
+                        <td/>
+                    }
+                    @if (string.IsNullOrWhiteSpace(merchant.Zone))
+                    {
+                        <td>?</td>
+                        <td>?</td>
+                        <td>?</td>
+                    }
+                    else
+                    {
+                        <td>@merchant.Zone</td>
+                        <td>@merchant.Card</td>
+                        <td>@merchant.RapportRarity</td>
+                    }
+                    @if (merchant.IsActive && string.IsNullOrWhiteSpace(merchant.Zone))
+                    {
+                        <td><a href="/UpdateMerchant/@Server/@merchant.Name">Submit Location</a></td>
+                    }
+                    else
+                    {
+                        <td/>
+                    }
+                }
+                else
+                {
+                    @if (merchant.NextAppearance > DateTimeOffset.UtcNow)
+                    {
+                        <td>@((merchant.NextAppearance - DateTimeOffset.UtcNow).ToString(@"hh\:mm\:ss"))</td>
+                    }
+                    else
+                    {
+                        <td>Active</td>
+                    }
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    [Parameter, EditorRequired]
+    public Dictionary<string, MerchantData> MerchantData { get; init; } = new();
+
+    [Parameter, EditorRequired]
+    public IEnumerable<ActiveMerchant> Merchants { get; init; } = Enumerable.Empty<ActiveMerchant>();
+
+    [Parameter]
+    public bool ActiveOnly { get; init; }
+
+    [Parameter, EditorRequired]
+    public string Server { get; init; } = string.Empty;
+
+    private IEnumerable<ActiveMerchant> GetVisibleMerchants()
+    {
+        if (MerchantData is null || Merchants is null) return Enumerable.Empty<ActiveMerchant>();
+
+        return Merchants.Where(m => m.IsActive ^ !ActiveOnly);
+    }
+}

@@ -14,6 +14,8 @@ namespace WanderLost.Shared
         [JsonIgnore]
         public DateTimeOffset AppearanceExpires { get; private set; }
 
+        public bool IsActive => DateTimeOffset.UtcNow > NextAppearance && DateTimeOffset.UtcNow < AppearanceExpires;
+
         public void CalculateNextAppearance(Dictionary<string, MerchantData> merchants, TimeSpan serverUtcOffset)
         {
             var expiresAfter = TimeSpan.FromMinutes(25);

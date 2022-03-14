@@ -1,5 +1,4 @@
 ﻿@page "/"
-@using WanderLost.Shared
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject HttpClient Http
 @inject MerchantHubClient HubClient
@@ -31,64 +30,20 @@
 </select>
 
 <label for="showAll" >Show All Merchants</label>
-<input id="showAll" type="checkbox" @bind="@ShowAllMerchants" />
 
 @if(string.IsNullOrWhiteSpace(ServerRegion) || string.IsNullOrWhiteSpace(Server))
 {
     <h4>Select a Server</h4>
 }
-else if(_merchants is not null)
+else if(_activeMerchants is not null && _merchants is not null)
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Region</th>
-                <th>Next Appearance In</th>
-                <th>Zone</th>
-                <th>Card</th>
-                <th>Rapport</th>
-                <th>Submit</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var merchant in GetVisibleMerchants())
-            {
-                <tr>
-                    <td>@merchant.Name</td>
-                    <td>@_merchants[merchant.Name].Region</td>
-                    @if (merchant.NextAppearance > DateTimeOffset.UtcNow)
-                    {
-                        <td>@((merchant.NextAppearance - DateTimeOffset.UtcNow).ToString(@"hh\:mm\:ss"))</td>
-                    }
-                    else
-                    {
-                        <td>Active</td>
-                    }
-                    @if (string.IsNullOrWhiteSpace(merchant.Zone))
-                    {
-                        <td>?</td>
-                        <td>?</td>
-                        <td>?</td>
-                    }
-                    else
-                    {
-                        <td>@merchant.Zone</td>
-                        <td>@merchant.Card</td>
-                        <td>@merchant.RapportRarity</td>
-                    }
-                    @if (merchant.NextAppearance < DateTimeOffset.UtcNow && string.IsNullOrWhiteSpace(merchant.Zone))
-                    {
-                        <td><a href="/UpdateMerchant/@Server/@merchant.Name">Submit Location</a></td>
-                    }
-                    else
-                    {
-                        <td/>
-                    }
-                </tr>
-            }
-        </tbody>
-    </table>
+    @if(_activeMerchants.Any(m => m.IsActive))
+    {
+        <h3>Active Merchants</h3>
+        <ActiveMerchantsGrid Server="@Server" Merchants="@_activeMerchants" MerchantData="@_merchants" ActiveOnly="true" />
+    }
+    <h3>Upcoming Merchants</h3>
+    <ActiveMerchantsGrid Server="@Server" Merchants="@_activeMerchants" MerchantData="@_merchants" />
 }
 
 @code {
@@ -116,8 +71,6 @@ else if(_merchants is not null)
             Task.Run(() => ServerChanged(oldValue));
         }
     }
-
-    private bool ShowAllMerchants { get; set; }
 
     private List<ActiveMerchant>? _activeMerchants;
     private Dictionary<string, ServerRegion>? _serverRegions;
@@ -179,7 +132,7 @@ else if(_merchants is not null)
             _activeMerchants?.ForEach(m => m.ClearInstance());
             foreach(var serverMerchant in await HubClient.GetKnownActiveMerchants(Server))
             {
-                _activeMerchants.FirstOrDefault(m => m.Name == serverMerchant.Name)?.CopyInstance(serverMerchant);
+                _activeMerchants?.FirstOrDefault(m => m.Name == serverMerchant.Name)?.CopyInstance(serverMerchant);
             }
         }
     }
@@ -227,13 +180,5 @@ else if(_merchants is not null)
         {
             _activeMerchants = _activeMerchants.OrderBy(m => m.NextAppearance).ThenBy(m => _merchants[m.Name].Region).ToList();
         }
-    }
-
-    private IEnumerable<ActiveMerchant> GetVisibleMerchants()
-    {
-        if (_activeMerchants is null || _merchants is null) return Enumerable.Empty<ActiveMerchant>();
-
-        var nextAppearance = _activeMerchants.Min(m => m.NextAppearance);
-        return _activeMerchants.Where(m => ShowAllMerchants || m.NextAppearance == nextAppearance);
     }
 }
