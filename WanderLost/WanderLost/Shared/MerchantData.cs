@@ -6,6 +6,6 @@
         public string Region { get; init; } = string.Empty;
         public List<TimeSpan> AppearanceTimes { get; init; } = new();
         public List<string> Zones { get; init; } = new();
-        public List<string> Cards { get; init; } = new();
+        public List<Item> Cards { get; init; } = new();
     }
 }

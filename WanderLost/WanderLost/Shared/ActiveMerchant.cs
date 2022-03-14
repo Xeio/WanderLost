@@ -6,7 +6,7 @@ namespace WanderLost.Shared
     {
         public string Name { get; init; } = string.Empty;
         public string Zone { get; set; } = string.Empty;
-        public string Card { get; set; } = string.Empty;
+        public Item Card { get; set; } = new();
         public Rarity? RapportRarity { get; set; }
 
         [JsonIgnore]
@@ -41,7 +41,7 @@ namespace WanderLost.Shared
         public void ClearInstance()
         {
             Zone = string.Empty;
-            Card = string.Empty;
+            Card = new();
             RapportRarity = null;
         }
 
@@ -57,7 +57,6 @@ namespace WanderLost.Shared
         {
             if(string.IsNullOrWhiteSpace(Name) ||
                 string.IsNullOrWhiteSpace(Zone) ||
-                string.IsNullOrWhiteSpace(Card) ||
                 RapportRarity is null)
             {
                 return false;
@@ -68,7 +67,7 @@ namespace WanderLost.Shared
             var data = allMerchantData[Name];
 
             return data.Zones.Contains(Zone) &&
-                    data.Cards.Contains(Card);
+                    data.Cards.Any(c => c.Name == Card.Name && c.Rarity == Card.Rarity);
         }
     }
 }

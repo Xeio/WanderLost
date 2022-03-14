@@ -31,12 +31,12 @@
             <div class="card border-secondary mb-3">
                 <div class="card-header">Card</div>
                 <div class="card-body">
-                    <InputRadioGroup @bind-Value="ActiveMerchant.Card">
-                        @foreach(var card in MerchantData?.Cards ?? Enumerable.Empty<string>())
+                    <InputRadioGroup @bind-Value="CardName">
+                        @foreach(var card in MerchantData?.Cards ?? Enumerable.Empty<Item>())
                         {
                             <div class="form-check">
-                                <InputRadio class="form-check-input" Value="@card" id="@card"/>
-                                <label class="form-check-label" for="@card">@card</label>
+                                <InputRadio class="form-check-input" Value="@card.Name" id="@card.Name"/>
+                                <label class="form-check-label" for="@card.Name"><ItemDisplay Item="@card" /></label>
                             </div>
                         }
                     </InputRadioGroup>
@@ -50,11 +50,11 @@
                     <InputRadioGroup @bind-Value="ActiveMerchant.RapportRarity">
                         <div class="form-check">
                             <InputRadio class="form-check-input" Value="@Rarity.Epic" id="EpicRapport"/>
-                            <label class="form-check-label" for="EpicRapport">Epic</label>
+                            <label class="form-check-label" for="EpicRapport"><ItemDisplay Item="@(new Item(){ Name="Epic", Rarity= Rarity.Epic })" /></label>
                         </div>
                         <div class="form-check">
                             <InputRadio class="form-check-input" Value="@Rarity.Legendary" id="LegendaryRapport"/>
-                            <label class="form-check-label" for="LegendaryRapport">Legendary</label>
+                            <label class="form-check-label" for="LegendaryRapport"><ItemDisplay Item="@(new Item(){ Name="Legendary", Rarity= Rarity.Legendary })" /></label>
                         </div>
                     </InputRadioGroup>
                 </div>
@@ -76,6 +76,19 @@
     public Dictionary<string, MerchantData>? AllMerchantData { get; set; }
 
     public ActiveMerchant ActiveMerchant { get; set; } = new();
+
+    public string CardName
+    {
+        get{ return ActiveMerchant.Card.Name; }
+        set 
+        {
+            var card = MerchantData?.Cards?.FirstOrDefault(c => value == c.Name);
+            if(card is not null)
+            {
+                ActiveMerchant.Card = card;
+            }
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {

@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace WanderLost.Shared
 {
@@ -8,6 +9,10 @@ namespace WanderLost.Shared
         {
             AllowTrailingCommas = true,
             ReadCommentHandling = JsonCommentHandling.Skip,
+            Converters =
+            {
+                new JsonStringEnumConverter()
+            },
         };
     }
 }

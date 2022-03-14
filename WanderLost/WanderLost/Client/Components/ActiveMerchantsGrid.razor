@@ -47,8 +47,8 @@
                     else
                     {
                         <td>@merchant.Zone</td>
-                        <td>@merchant.Card</td>
-                        <td><ItemDisplay Item="@(new Item() { Name = merchant.RapportRarity?.ToString(), Rarity = merchant.RapportRarity ?? Rarity.Rare})"/></td>
+                        <td><ItemDisplay Item="@merchant.Card" /></td>
+                        <td><ItemDisplay Item="@(new Item() { Name = merchant.RapportRarity?.ToString() ?? "", Rarity = merchant.RapportRarity ?? Rarity.Rare})"/></td>
                     }
                     @if (merchant.IsActive && string.IsNullOrWhiteSpace(merchant.Zone))
                     {
