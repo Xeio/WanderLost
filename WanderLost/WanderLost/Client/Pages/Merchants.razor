@@ -9,38 +9,45 @@
 
 <h1>Wandering Merchants</h1>
 
-<label for="severRegion">Server Region: </label>
-<select id="severRegion" @bind="@ServerRegion">
-    <option></option>
-    @foreach(var datacenter in _serverRegions ?? new())
-    {
-        <option value="@datacenter.Key">@datacenter.Value.Name</option>
-    }
-</select>
-<label for="server">Server: </label>
-<select id="sever" @bind="@Server">
-    <option></option>
-    @if (!string.IsNullOrWhiteSpace(ServerRegion))
-    {
-        @foreach (var datacenter in _serverRegions?[ServerRegion].Servers ?? Enumerable.Empty<string>())
-        {
-            <option>@datacenter</option>
-        }
-    }
-</select>
+<div class="row">
+    <div class="col-4">
+        <label for="severRegion">Server Region: </label>
+        <select class="form-select" id="severRegion" @bind="@ServerRegion">
+            <option></option>
+            @foreach(var datacenter in _serverRegions ?? new())
+            {
+                <option value="@datacenter.Key">@datacenter.Value.Name</option>
+            }
+        </select>
+    </div>
+
+    <div class="col-4">
+        <label class="control-label" for="server">Server: </label>
+        <select class="form-select" id="server" @bind="@Server">
+            <option></option>
+            @if (!string.IsNullOrWhiteSpace(ServerRegion))
+            {
+                @foreach (var datacenter in _serverRegions?[ServerRegion].Servers ?? Enumerable.Empty<string>())
+                {
+                    <option>@datacenter</option>
+                }
+            }
+        </select>
+    </div>
+</div>
 
 @if(string.IsNullOrWhiteSpace(ServerRegion) || string.IsNullOrWhiteSpace(Server))
 {
-    <h4>Select a Server</h4>
+    <h3 class="mt-3">Select a Server</h3>
 }
 else if(_activeMerchants is not null && _merchants is not null)
 {
     @if(_activeMerchants.Any(m => m.IsActive))
     {
-        <h3>Active Merchants</h3>
+        <h3 class="mt-3">Active Merchants</h3>
         <ActiveMerchantsGrid Server="@Server" Merchants="@_activeMerchants" MerchantData="@_merchants" ActiveOnly="true" />
     }
-    <h3>Upcoming Merchants</h3>
+    <h3 class="mt-3">Upcoming Merchants</h3>
     <ActiveMerchantsGrid Server="@Server" Merchants="@_activeMerchants" MerchantData="@_merchants" />
 }
 
