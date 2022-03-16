@@ -7,10 +7,12 @@ namespace WanderLost.Server.Controllers
     public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
     {
         private readonly DataController _dataController;
+        private readonly ILogger _logger;
 
-        public MerchantHub(DataController dataController)
+        public MerchantHub(DataController dataController, ILogger<MerchantHub> logger)
         {
             _dataController = dataController;
+            _logger = logger;
         }
 
         public async Task UpdateMerchant(string server, ActiveMerchant merchant)
@@ -30,6 +32,8 @@ namespace WanderLost.Server.Controllers
             if (serverMerchant.NextAppearance > DateTimeOffset.UtcNow) return; //Don't allow updating merchants from the future
 
             serverMerchant.CopyInstance(merchant);
+
+            _logger.LogInformation("Updated server {server} merchant {Merchant}. Zone:{Zone}, Card:{Card}", server, serverMerchant.Name, serverMerchant.Zone, serverMerchant.Card.Name);
 
             await Clients.Group(server).UpdateMerchant(server, serverMerchant);
         }
