@@ -110,6 +110,8 @@
             await HubClient.HubConnection.StartAsync();
         }
 
+        await HubClient.SubscribeToServer(Server);
+
         ActiveMerchant = new ActiveMerchant() { Name = MerchantName };
     }
 
