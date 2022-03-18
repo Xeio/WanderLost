@@ -1,7 +1,7 @@
 {
   "NAE": {
     "Name": "NA East",
-    "UtcOffset": "-05:00:00",
+    "UtcOffset": "-04:00:00",
     "Servers": [
       "Adrinne",
       "Aldebaran",
@@ -22,7 +22,7 @@
   },
   "NAW": {
     "Name": "NA West",
-    "UtcOffset": "-08:00:00",
+    "UtcOffset": "-07:00:00",
     "Servers": [
       "Akkan",
       "Bergstrom",
@@ -74,7 +74,7 @@
   },
   "SA": {
     "Name": "South America",
-    "UtcOffset": "-03:00:00",
+    "UtcOffset": "-04:00:00",
     "Servers": [
       "Agaton",
       "Arcturus",
