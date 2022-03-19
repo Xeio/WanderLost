@@ -7,6 +7,7 @@
     <UserSecretsId>80ad86ac-2395-4fe2-b474-62e5a3c29a62</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..</DockerfileContext>
+	<TrimMode>copyused</TrimMode>
   </PropertyGroup>
 
   <ItemGroup>
