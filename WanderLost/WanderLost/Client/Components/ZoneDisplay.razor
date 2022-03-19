@@ -1,0 +1,26 @@
+﻿@inject ClientStaticDataController StaticData
+
+<span class="zone">@ZoneName</span>
+
+@if (!string.IsNullOrWhiteSpace(_imageUrl))
+{
+    <style>
+        .zone:hover::after {
+            background-image: url(@_imageUrl);
+        }
+    </style>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public string ZoneName { get; init; } = string.Empty;
+
+    private string? _imageUrl;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await StaticData.Init();
+
+        _imageUrl = StaticData.Zones.FirstOrDefault(z => z.Name == ZoneName)?.ImageUrl;
+    }
+}

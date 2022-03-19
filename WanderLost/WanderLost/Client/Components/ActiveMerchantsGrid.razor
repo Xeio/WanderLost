@@ -48,7 +48,7 @@
                     }
                     else
                     {
-                        <td>@merchant.Zone</td>
+                        <td><ZoneDisplay ZoneName="@merchant.Zone"/></td>
                         <td><ItemDisplay Item="@merchant.Card" /></td>
                         <td><ItemDisplay Item="@(new Item() { Name = merchant.RapportRarity?.ToString() ?? "", Rarity = merchant.RapportRarity ?? Rarity.Rare})"/></td>
                     }
