@@ -193,7 +193,7 @@
     "Name": "Burt",
     "Region": "East Luterra",
     "AppearanceTimes": [ "00:30:00", "02:30:00", "05:30:00", "06:30:00", "08:30:00", "09:30:00", "12:30:00", "14:30:00", "17:30:00", "18:30:00", "20:30:00", "21:30:00" ],
-    "Zones": [ "Blackrose Chapel", "Borea's Domain", "Croconys Seashore", "Leyar Terrace" ],
+    "Zones": [ "Blackrose Chapel", "Borea's Domain", "Croconys Seashore (North)", "Croconys Seashore (South)", "Leyar Terrace" ],
     "Cards": [
       {
         "Name": "Nox",
