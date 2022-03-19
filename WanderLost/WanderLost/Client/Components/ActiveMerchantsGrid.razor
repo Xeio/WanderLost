@@ -1,4 +1,6 @@
-﻿@{
+﻿@inject ClientStaticDataController StaticData
+
+@{
     bool anyMerchantActive = GetVisibleMerchants().Any(m => m.IsActive); 
 }
 <table class="table">
@@ -26,7 +28,7 @@
         {
             <tr>
                 <td>@merchant.Name</td>
-                <td>@MerchantData[merchant.Name].Region</td>
+                <td>@StaticData.Merchants[merchant.Name].Region</td>
                     
                 @if(anyMerchantActive)
                 {
@@ -77,9 +79,6 @@
 
 @code {
     [Parameter, EditorRequired]
-    public Dictionary<string, MerchantData> MerchantData { get; init; } = new();
-
-    [Parameter, EditorRequired]
     public IEnumerable<ActiveMerchant> Merchants { get; init; } = Enumerable.Empty<ActiveMerchant>();
 
     [Parameter]
@@ -88,10 +87,13 @@
     [Parameter, EditorRequired]
     public string Server { get; init; } = string.Empty;
 
+    protected override async Task OnInitializedAsync()
+    {
+        await StaticData.Init();
+    }
+
     private IEnumerable<ActiveMerchant> GetVisibleMerchants()
     {
-        if (MerchantData is null || Merchants is null) return Enumerable.Empty<ActiveMerchant>();
-
         return Merchants.Where(m => m.IsActive ^ !ActiveOnly);
     }
 }

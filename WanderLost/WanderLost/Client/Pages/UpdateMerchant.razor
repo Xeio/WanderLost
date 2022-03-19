@@ -1,8 +1,9 @@
 ﻿@page "/UpdateMerchant/{Server}/{MerchantName}/"
 
 @using WanderLost.Shared
+
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
-@inject HttpClient Http
+@inject ClientStaticDataController StaticData
 @inject MerchantHubClient HubClient
 @inject NavigationManager NavigationManager
 
@@ -61,7 +62,7 @@
             </div>
         </div>
     </div>
-    <button class="btn btn-success" @onclick="Submit" disabled="@(!ActiveMerchant.IsValid(AllMerchantData ?? new()))">Submit</button>
+    <button class="btn btn-success" @onclick="Submit" disabled="@(!ActiveMerchant.IsValid(StaticData.Merchants))">Submit</button>
 </EditForm>
 
 @code{
@@ -72,8 +73,6 @@
     public string MerchantName { get; set; } = string.Empty;
 
     public MerchantData? MerchantData { get; set; }
-
-    public Dictionary<string, MerchantData>? AllMerchantData { get; set; }
 
     public ActiveMerchant ActiveMerchant { get; set; } = new();
 
@@ -92,9 +91,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        AllMerchantData = await Http.GetFromJsonAsync<Dictionary<string, MerchantData>>(NavigationManager.ToAbsoluteUri("/data/merchants.json"), Utils.JsonOptions);
+        await StaticData.Init();
 
-        MerchantData = AllMerchantData?[MerchantName];
+        MerchantData = StaticData.Merchants[MerchantName];
 
         HubClient.OnUpdateMerchant((server, merchant) =>
         {

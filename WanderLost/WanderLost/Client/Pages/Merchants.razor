@@ -1,8 +1,9 @@
 ﻿@page "/"
+
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
-@inject HttpClient Http
+@inject ClientStaticDataController StaticData
 @inject MerchantHubClient HubClient
-@inject NavigationManager NavigationManager
+
 @implements IAsyncDisposable
 
 <PageTitle>Merchants</PageTitle>
@@ -14,7 +15,7 @@
         <label for="severRegion">Server Region: </label>
         <select class="form-select" id="severRegion" @bind="@ServerRegion">
             <option></option>
-            @foreach(var datacenter in _serverRegions ?? new())
+            @foreach(var datacenter in StaticData.ServerRegions)
             {
                 <option value="@datacenter.Key">@datacenter.Value.Name</option>
             }
@@ -27,7 +28,7 @@
             <option></option>
             @if (!string.IsNullOrWhiteSpace(ServerRegion))
             {
-                @foreach (var datacenter in _serverRegions?[ServerRegion].Servers ?? Enumerable.Empty<string>())
+                @foreach (var datacenter in StaticData.ServerRegions[ServerRegion].Servers ?? Enumerable.Empty<string>())
                 {
                     <option>@datacenter</option>
                 }
@@ -40,15 +41,15 @@
 {
     <h3 class="mt-3">Select a Server</h3>
 }
-else if(_activeMerchants is not null && _merchants is not null)
+else if(_activeMerchants.Count > 0)
 {
     @if(_activeMerchants.Any(m => m.IsActive))
     {
         <h3 class="mt-3">Active Merchants</h3>
-        <ActiveMerchantsGrid Server="@Server" Merchants="@_activeMerchants" MerchantData="@_merchants" ActiveOnly="true" />
+        <ActiveMerchantsGrid Server="@Server" Merchants="@_activeMerchants" ActiveOnly="true" />
     }
     <h3 class="mt-3">Upcoming Merchants</h3>
-    <ActiveMerchantsGrid Server="@Server" Merchants="@_activeMerchants" MerchantData="@_merchants" />
+    <ActiveMerchantsGrid Server="@Server" Merchants="@_activeMerchants" />
 }
 
 @code {
@@ -77,26 +78,16 @@ else if(_activeMerchants is not null && _merchants is not null)
         }
     }
 
-    private List<ActiveMerchant>? _activeMerchants;
-    private Dictionary<string, ServerRegion>? _serverRegions;
-    private Dictionary<string, MerchantData>? _merchants;
-
+    private List<ActiveMerchant> _activeMerchants = new();
     private Timer? _timer;
 
     protected override async Task OnInitializedAsync()
     {
-        _serverRegions = await Http.GetFromJsonAsync<Dictionary<string, ServerRegion>>(NavigationManager.ToAbsoluteUri("/data/servers.json"), Utils.JsonOptions);
+        await StaticData.Init();
 
-        _merchants = await Http.GetFromJsonAsync<Dictionary<string, MerchantData>>(NavigationManager.ToAbsoluteUri("/data/merchants.json"), Utils.JsonOptions);
+        _activeMerchants = StaticData.Merchants.Values.Select(m => new ActiveMerchant() { Name = m.Name }).ToList();
 
-        _activeMerchants = _merchants?.Values.Select(m => new ActiveMerchant() { Name = m.Name }).ToList();
-
-        if (_serverRegions is not null &&
-            _merchants is not null &&
-            _activeMerchants is not null)
-        {
-            _timer = new Timer(TimerTick, null, 1, 1000);
-        }
+        _timer = new Timer(TimerTick, null, 1, 1000);
 
         var savedData = await LocalStorage.GetItemAsync<ClientData?>(nameof(ClientData));
         ServerRegion = savedData?.Region;
@@ -165,9 +156,7 @@ else if(_activeMerchants is not null && _merchants is not null)
     private void UpdateMerchants(bool force = false)
     {
         if (string.IsNullOrWhiteSpace(_serverRegion)) return;
-        if (_merchants is null) return;
-        if (_activeMerchants is null) return;
-        if (_serverRegions is null) return;
+        if (_activeMerchants.Count == 0) return;
 
         bool resort = false;
 
@@ -175,7 +164,7 @@ else if(_activeMerchants is not null && _merchants is not null)
         {
             if (force || merchant.AppearanceExpires < DateTimeOffset.UtcNow)
             {
-                merchant.CalculateNextAppearance(_merchants, _serverRegions[_serverRegion].UtcOffset);
+                merchant.CalculateNextAppearance(StaticData.Merchants, StaticData.ServerRegions[_serverRegion].UtcOffset);
                 merchant.ClearInstance();
                 resort = true;
             }
@@ -183,7 +172,7 @@ else if(_activeMerchants is not null && _merchants is not null)
 
         if (resort)
         {
-            _activeMerchants = _activeMerchants.OrderBy(m => m.NextAppearance).ThenBy(m => _merchants[m.Name].Region).ToList();
+            _activeMerchants = _activeMerchants.OrderBy(m => m.NextAppearance).ThenBy(m => StaticData.Merchants[m.Name].Region).ToList();
         }
     }
 }
