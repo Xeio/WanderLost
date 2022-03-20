@@ -1,7 +1,7 @@
 ﻿@inject ClientStaticDataController StaticData
 
 @{
-    bool anyMerchantActive = GetVisibleMerchants().Any(m => m.Merchants.Any(x => x.IsActive));
+    bool anyMerchantActive = GetVisibleMerchantGroups().Any(m => m.Merchants.Any(x => x.IsActive));
 }
 <table class="table">
     <thead>
@@ -25,7 +25,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var merchantGroup in GetVisibleMerchants())
+        @foreach (var merchantGroup in GetVisibleMerchantGroups())
         {
             int merchantIdx = 0;
             @foreach (var merchant in merchantGroup.Merchants.OrderByDescending(x => x.Votes))
@@ -93,7 +93,7 @@
 
 @code {
     [Parameter, EditorRequired]
-    public IEnumerable<ActiveMerchantGroup> Merchants { get; init; } = Enumerable.Empty<ActiveMerchantGroup>();
+    public IEnumerable<ActiveMerchantGroup> MerchantGroups { get; init; } = Enumerable.Empty<ActiveMerchantGroup>();
 
     [Parameter]
     public bool ActiveOnly { get; init; }
@@ -106,9 +106,8 @@
         await StaticData.Init();
     }
 
-    private IEnumerable<ActiveMerchantGroup> GetVisibleMerchants()
+    private IEnumerable<ActiveMerchantGroup> GetVisibleMerchantGroups()
     {
-        //return Merchants.Where(m => m.IsActive ^ !ActiveOnly);
-        return Merchants.Where(m => m.Merchants.Any(x => x.IsActive) ^ !ActiveOnly);
+        return MerchantGroups.Where(m => m.Merchants.Any(x => x.IsActive) ^ !ActiveOnly);
     }
 }

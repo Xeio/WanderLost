@@ -42,6 +42,14 @@ namespace WanderLost.Shared
         public void ClearInstances()
         {
             Merchants.ForEach(x => x.ClearInstance());
+            //If more than one merchant exists (because of suggested replacements), remove all but one merchant to start fresh.
+            if (Merchants.Count > 1)
+            {
+                foreach (var excessMerchants in Merchants.Skip(1).ToList())
+                {
+                    Merchants.Remove(excessMerchants);
+                }
+            }
         }
 
         public void CopyInstance(ActiveMerchantGroup amg)
