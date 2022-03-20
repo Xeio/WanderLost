@@ -1,11 +1,11 @@
 ﻿@inject ClientStaticDataController StaticData
 
-<span class="zone">@ZoneName</span>
+<span class="zone @_imageClass">@ZoneName</span>
 
 @if (!string.IsNullOrWhiteSpace(_imageUrl))
 {
     <style>
-        .zone:hover::after {
+        .@(_imageClass).zone:hover::after {
             content: url(@_imageUrl);
         }
     </style>
@@ -16,11 +16,13 @@
     public string ZoneName { get; init; } = string.Empty;
 
     private string? _imageUrl;
+    private string _imageClass = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         await StaticData.Init();
 
         _imageUrl = StaticData.Zones.FirstOrDefault(z => z.Name == ZoneName)?.ImageUrl;
+        _imageClass = "Hover" + new string(ZoneName.Where(char.IsLetter).ToArray());
     }
 }
