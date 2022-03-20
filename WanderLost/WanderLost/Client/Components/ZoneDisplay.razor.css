@@ -3,12 +3,8 @@
 }
 
 .zone:hover::after {
-    content: '';
     position: absolute;
     left: calc(100% + 30px);
     top: -20px;
-    width: 1000px;
-    height: 1000px;
     z-index: 999;
-    background-repeat: no-repeat;
 }
