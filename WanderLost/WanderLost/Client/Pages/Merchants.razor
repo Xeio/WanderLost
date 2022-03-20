@@ -41,15 +41,15 @@
 {
     <h3 class="mt-3">Select a Server</h3>
 }
-else if(_activeMerchants.Count > 0)
+else if(_activeMerchantGroups.Count > 0)
 {
-    @if(_activeMerchants.Any(m => m.IsActive))
+    @if(_activeMerchantGroups.Any(m => m.Merchants.Any(x => x.IsActive)))
     {
         <h3 class="mt-3">Active Merchants</h3>
-        <ActiveMerchantsGrid Server="@Server" Merchants="@_activeMerchants" ActiveOnly="true" />
+        <ActiveMerchantsGrid Server="@Server" Merchants="@_activeMerchantGroups" ActiveOnly="true" />
     }
     <h3 class="mt-3">Upcoming Merchants</h3>
-    <ActiveMerchantsGrid Server="@Server" Merchants="@_activeMerchants" />
+    <ActiveMerchantsGrid Server="@Server" Merchants="@_activeMerchantGroups" />
 }
 
 @code {
@@ -59,9 +59,12 @@ else if(_activeMerchants.Count > 0)
         get { return _serverRegion; }
         set
         {
-            _serverRegion = value;
-            Server = null;
-            ServerRegionChanged();
+            if (_serverRegion != value)
+            {
+                _serverRegion = value;
+                Server = null;
+                ServerRegionChanged();
+            }
         }
     }
 
@@ -71,21 +74,24 @@ else if(_activeMerchants.Count > 0)
         get { return _server; }
         set
         {
-            var oldValue = _server;
-            _server = value;
-            Task.Run(SaveData);
-            Task.Run(() => ServerChanged(oldValue));
+            if (_server != value)
+            {
+                var oldValue = _server;
+                _server = value;
+                Task.Run(SaveData);
+                Task.Run(() => ServerChanged(oldValue));
+            }
         }
     }
 
-    private List<ActiveMerchant> _activeMerchants = new();
+    private List<ActiveMerchantGroup> _activeMerchantGroups = new();
     private Timer? _timer;
 
     protected override async Task OnInitializedAsync()
     {
         await StaticData.Init();
 
-        _activeMerchants = StaticData.Merchants.Values.Select(m => new ActiveMerchant() { Name = m.Name }).ToList();
+        _activeMerchantGroups = StaticData.Merchants.Values.Select(m => new ActiveMerchant() { Name = m.Name }).Select(x => new ActiveMerchantGroup(x)).ToList();
 
         _timer = new Timer(TimerTick, null, 1, 1000);
 
@@ -93,10 +99,11 @@ else if(_activeMerchants.Count > 0)
         ServerRegion = savedData?.Region;
         Server = savedData?.Server;
 
-        HubClient.OnUpdateMerchant((server, merchant) =>
+        HubClient.OnUpdateMerchantGroup((server, merchantGroup) =>
         {
             if(Server != server) return;
-            _activeMerchants?.FirstOrDefault(am => am.Name == merchant.Name)?.CopyInstance(merchant);
+            var entry = _activeMerchantGroups?.FirstOrDefault(x => x.Id == merchantGroup.Id);
+            entry?.CopyInstance(merchantGroup);
             InvokeAsync(StateHasChanged);
         });
 
@@ -125,11 +132,19 @@ else if(_activeMerchants.Count > 0)
             await HubClient.SubscribeToServer(Server);
 
             //Sync with the server's current data
-            _activeMerchants?.ForEach(m => m.ClearInstance());
-            foreach(var serverMerchant in await HubClient.GetKnownActiveMerchants(Server))
+            _activeMerchantGroups?.ForEach(m => m.ClearInstances());
+            foreach (var serverMerchantGroup in await HubClient.GetKnownActiveMerchantGroups(Server))
             {
-                _activeMerchants?.FirstOrDefault(m => m.Name == serverMerchant.Name)?.CopyInstance(serverMerchant);
+                if (_activeMerchantGroups?.FirstOrDefault(x => x.Id == serverMerchantGroup.Id) is ActiveMerchantGroup existing)
+                {
+                    existing.CopyInstance(serverMerchantGroup);
+                }
+                else
+                {
+                    _activeMerchantGroups?.Add(serverMerchantGroup);
+                }
             }
+            StateHasChanged();
         }
     }
 
@@ -156,23 +171,25 @@ else if(_activeMerchants.Count > 0)
     private void UpdateMerchants(bool force = false)
     {
         if (string.IsNullOrWhiteSpace(_serverRegion)) return;
-        if (_activeMerchants.Count == 0) return;
+        if (_activeMerchantGroups.Count == 0) return;
 
         bool resort = false;
 
-        foreach(var merchant in _activeMerchants)
+        foreach (var merchant in _activeMerchantGroups)
         {
-            if (force || merchant.AppearanceExpires < DateTimeOffset.UtcNow)
+            if (force || merchant.MostVotedMerchant?.AppearanceExpires < DateTimeOffset.UtcNow)
             {
-                merchant.CalculateNextAppearance(StaticData.Merchants, StaticData.ServerRegions[_serverRegion].UtcOffset);
-                merchant.ClearInstance();
+                merchant.CalculateNextAppearances(StaticData.Merchants, StaticData.ServerRegions[_serverRegion].UtcOffset);
+                //The ClearInstances() method overrides new merchant data set in ServerChanged() when refreshing the page, can't figure out a fix for this at the moment.
+                //Seems to work fine by disabling for now...
+                @*merchant.ClearInstances();*@
                 resort = true;
             }
         }
 
         if (resort)
         {
-            _activeMerchants = _activeMerchants.OrderBy(m => m.NextAppearance).ThenBy(m => StaticData.Merchants[m.Name].Region).ToList();
+            _activeMerchantGroups = _activeMerchantGroups.OrderBy(m => m.MostVotedMerchant.NextAppearance).ThenBy(m => StaticData.Merchants[m.MostVotedMerchant.Name].Region).ToList();
         }
     }
 }

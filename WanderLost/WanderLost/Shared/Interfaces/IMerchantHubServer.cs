@@ -4,6 +4,6 @@
     {
         Task SubscribeToServer(string server);
         Task UnsubscribeFromServer(string server);
-        Task<IEnumerable<ActiveMerchant>> GetKnownActiveMerchants(string server);
+        Task<IEnumerable<ActiveMerchantGroup>> GetKnownActiveMerchantGroups(string server);
     }
 }

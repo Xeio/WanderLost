@@ -40,34 +40,34 @@ namespace WanderLost.Server.Controllers
             return JsonSerializer.Deserialize<Dictionary<string, ServerRegion>>(json, Utils.JsonOptions) ?? new Dictionary<string, ServerRegion>();
         }
 
-        public async Task<List<ActiveMerchant>> GetActiveMerchants(string server)
+        public async Task<List<ActiveMerchantGroup>> GetActiveMerchantGroups(string server)
         {
             return await _memoryCache.GetOrCreateAsync(server, async (cacheEntry) =>
-                {
-                    var activeMerchants = await BuildActiveMerchants(server);
-                    //Force the cache to expire once any merchant apperance expires
-                    cacheEntry.AbsoluteExpiration = activeMerchants.Min(m => m.AppearanceExpires);
-                    return activeMerchants;
-                }
+            {
+                var activeMerchants = await BuildActiveMerchantGroups(server);
+                //Force the cache to expire once any merchant apperance expires
+                cacheEntry.AbsoluteExpiration = activeMerchants.Min(m => m.MostVotedMerchant?.AppearanceExpires);
+                return activeMerchants;
+            }
             );
         }
 
-        private async Task<List<ActiveMerchant>> BuildActiveMerchants(string server)
+        private async Task<List<ActiveMerchantGroup>> BuildActiveMerchantGroups(string server)
         {
             var merchants = await GetMerchantData();
             var regions = await GetServerRegions();
-            
+
             var currentRegion = regions.FirstOrDefault(r => r.Value.Servers.Contains(server));
 
             if (currentRegion.Value == null) throw new ArgumentException("Invalid Server");
 
             var activeMerchants = merchants.Select(m => new ActiveMerchant() { Name = m.Value.Name }).ToList();
-            foreach(var activeMerchant in activeMerchants)
+            foreach (var activeMerchant in activeMerchants)
             {
                 activeMerchant.CalculateNextAppearance(merchants, currentRegion.Value.UtcOffset);
             }
 
-            return activeMerchants;
+            return activeMerchants.ConvertAll(x => new ActiveMerchantGroup(x));
         }
     }
 }

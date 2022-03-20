@@ -22,22 +22,31 @@ namespace WanderLost.Server.Controllers
             if (merchant is null) return;
 
             if (!await IsValidServer(server)) return;
-            
+
             var allMerchantData = await _dataController.GetMerchantData();
             if (!merchant.IsValid(allMerchantData)) return;
 
-            var activeMerchants = await _dataController.GetActiveMerchants(server);
+            var activeMerchantGroups = await _dataController.GetActiveMerchantGroups(server);
 
-            var serverMerchant = activeMerchants.FirstOrDefault(m => m.Name == merchant.Name);
+            var serverMerchantGroup = activeMerchantGroups.FirstOrDefault(m => m.MostVotedMerchant?.Name == merchant.Name);
 
-            if (serverMerchant is null) return; //Failed to find matching merchant
-            if (serverMerchant.NextAppearance > DateTimeOffset.UtcNow) return; //Don't allow updating merchants from the future
+            if (serverMerchantGroup is null) return; //Failed to find matching merchant
+            if (serverMerchantGroup.MostVotedMerchant?.NextAppearance > DateTimeOffset.UtcNow) return; //Don't allow updating merchants from the future
 
-            serverMerchant.CopyInstance(merchant);
+            serverMerchantGroup.ClearPlaceholderMerchant();
+            serverMerchantGroup.UpdateOrAddMerchant(merchant);
 
-            _logger.LogInformation("Updated server {server} merchant {Merchant}. Zone:{Zone}, Card:{Card}", server, serverMerchant.Name, serverMerchant.Zone, serverMerchant.Card.Name);
+            _logger.LogInformation("Updated server {server} merchant {Merchant}. Zone:{Zone}, Card:{Card}", server, merchant.Name, merchant.Zone, merchant.Card.Name);
 
-            await Clients.Group(server).UpdateMerchant(server, serverMerchant);
+            await UpdateMerchantGroup(server, serverMerchantGroup);
+        }
+
+        public async Task UpdateMerchantGroup(string server, ActiveMerchantGroup merchantGroup)
+        {
+            if (merchantGroup is null) return;
+            if (!await IsValidServer(server)) return;
+
+            await Clients.Group(server).UpdateMerchantGroup(server, merchantGroup);
         }
 
         public async Task SubscribeToServer(string server)
@@ -59,10 +68,10 @@ namespace WanderLost.Server.Controllers
             return regions.SelectMany(r => r.Value.Servers).Any(s => server == s);
         }
 
-        public async Task<IEnumerable<ActiveMerchant>> GetKnownActiveMerchants(string server)
+        public async Task<IEnumerable<ActiveMerchantGroup>> GetKnownActiveMerchantGroups(string server)
         {
-            var activeMerchants = await _dataController.GetActiveMerchants(server);
-            return activeMerchants.Where(m => !string.IsNullOrWhiteSpace(m.Zone));
+            var activeMerchants = await _dataController.GetActiveMerchantGroups(server);
+            return activeMerchants.Where(m => m.Merchants.Any(x => !string.IsNullOrWhiteSpace(x.Zone)));
         }
     }
 }
