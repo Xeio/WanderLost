@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.ResponseCompression;
 using WanderLost.Server.Controllers;
-using WanderLost.Shared.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,8 +37,6 @@ else
 
 app.UseHttpsRedirection();
 
-app.UseBlazorFrameworkFiles();
-app.UseStaticFiles();
 
 app.UseRouting();
 
@@ -48,6 +45,9 @@ app.UseResponseCompression();
 app.MapRazorPages();
 app.MapControllers();
 app.MapFallbackToFile("index.html");
-app.MapHub<MerchantHub>($"/{nameof(IMerchantHubClient)}");
+app.MapHub<MerchantHub>($"/{MerchantHub.Path}");
+
+app.UseBlazorFrameworkFiles();
+app.UseStaticFiles();
 
 app.Run();

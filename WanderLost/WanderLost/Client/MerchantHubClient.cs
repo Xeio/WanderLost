@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.SignalR.Client;
+﻿using Microsoft.AspNetCore.SignalR.Client;
 using WanderLost.Shared;
 using WanderLost.Shared.Interfaces;
 
@@ -10,10 +9,10 @@ namespace WanderLost.Client
     {
         public HubConnection HubConnection {get; init; }
 
-        public MerchantHubClient(NavigationManager navigationManager)
+        public MerchantHubClient(IConfiguration configuration)
         {
             HubConnection = new HubConnectionBuilder()
-                .WithUrl(navigationManager.ToAbsoluteUri($"/{nameof(IMerchantHubClient)}"))
+                .WithUrl(configuration["SocketEndpoint"])
                 .WithAutomaticReconnect()
                 .Build();
         }

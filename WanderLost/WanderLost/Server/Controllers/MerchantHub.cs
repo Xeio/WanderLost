@@ -6,6 +6,8 @@ namespace WanderLost.Server.Controllers
 {
     public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
     {
+        public static string Path { get; } = "MerchantHub";
+
         private readonly DataController _dataController;
         private readonly ILogger _logger;
 
