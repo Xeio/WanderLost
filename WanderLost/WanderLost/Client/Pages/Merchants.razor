@@ -142,10 +142,6 @@ else if(_activeMerchantGroups.Count > 0)
                 {
                     existing.ReplaceInstances(serverMerchantGroup.ActiveMerchants);
                 }
-                else
-                {
-                    _activeMerchantGroups.Add(serverMerchantGroup);
-                }
             }
             StateHasChanged();
         }
