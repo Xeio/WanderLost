@@ -10,35 +10,6 @@ namespace WanderLost.Shared
         public Rarity? RapportRarity { get; set; }
         public int Votes { get; set; } = 1;
 
-        [JsonIgnore]
-        public DateTimeOffset NextAppearance { get; private set; }
-        [JsonIgnore]
-        public DateTimeOffset AppearanceExpires { get; private set; }
-
-        public bool IsActive => DateTimeOffset.UtcNow > NextAppearance && DateTimeOffset.UtcNow < AppearanceExpires;
-
-        public void CalculateNextAppearance(Dictionary<string, MerchantData> merchants, TimeSpan serverUtcOffset)
-        {
-            var expiresAfter = TimeSpan.FromMinutes(25);
-
-            var nextAppearanceTime = merchants[Name].AppearanceTimes
-                .Select(apperance => new DateTimeOffset(DateTimeOffset.UtcNow.ToOffset(serverUtcOffset).Date, serverUtcOffset) + apperance)
-                .Where(time => time >= DateTimeOffset.UtcNow - expiresAfter)
-                .FirstOrDefault();
-            
-            if(nextAppearanceTime == default)
-            {
-                //Next apperance is the following day
-                nextAppearanceTime = merchants[Name].AppearanceTimes
-                    .Select(apperance => new DateTimeOffset(DateTimeOffset.UtcNow.ToOffset(serverUtcOffset).Date.AddDays(1), serverUtcOffset) + apperance)
-                    .Where(time => time >= DateTimeOffset.UtcNow - expiresAfter)
-                    .FirstOrDefault();
-            }
-
-            NextAppearance = nextAppearanceTime;
-            AppearanceExpires = nextAppearanceTime + expiresAfter;
-        }
-
         public void ClearInstance()
         {
             Zone = string.Empty;
@@ -73,7 +44,11 @@ namespace WanderLost.Shared
 
         public bool IsEqualTo(ActiveMerchant merchant)
         {
-            return Name == merchant.Name && Zone == merchant.Zone && Card?.Name == merchant.Card?.Name && Card?.Rarity == merchant.Card?.Rarity && RapportRarity == merchant.RapportRarity;
+            return Name == merchant.Name &&
+                Zone == merchant.Zone &&
+                Card.Name == merchant.Card.Name &&
+                Card.Rarity == merchant.Card.Rarity &&
+                RapportRarity == merchant.RapportRarity;
         }
     }
 }

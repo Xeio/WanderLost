@@ -28,12 +28,11 @@ namespace WanderLost.Server.Controllers
 
             var activeMerchantGroups = await _dataController.GetActiveMerchantGroups(server);
 
-            var serverMerchantGroup = activeMerchantGroups.FirstOrDefault(m => m.MostVotedMerchant?.Name == merchant.Name);
+            var serverMerchantGroup = activeMerchantGroups.FirstOrDefault(m => m.MerchantName == merchant.Name);
 
             if (serverMerchantGroup is null) return; //Failed to find matching merchant
-            if (serverMerchantGroup.MostVotedMerchant?.NextAppearance > DateTimeOffset.UtcNow) return; //Don't allow updating merchants from the future
+            if (!serverMerchantGroup.IsActive) return; //Don't allow updating merchants that aren't active
 
-            serverMerchantGroup.ClearPlaceholderMerchant();
             serverMerchantGroup.UpdateOrAddMerchant(merchant);
 
             _logger.LogInformation("Updated server {server} merchant {Merchant}. Zone:{Zone}, Card:{Card}", server, merchant.Name, merchant.Zone, merchant.Card.Name);
@@ -71,7 +70,7 @@ namespace WanderLost.Server.Controllers
         public async Task<IEnumerable<ActiveMerchantGroup>> GetKnownActiveMerchantGroups(string server)
         {
             var activeMerchants = await _dataController.GetActiveMerchantGroups(server);
-            return activeMerchants.Where(m => m.Merchants.Any(x => !string.IsNullOrWhiteSpace(x.Zone)));
+            return activeMerchants.Where(m => m.ActiveMerchants.Any(x => !string.IsNullOrWhiteSpace(x.Zone)));
         }
     }
 }
