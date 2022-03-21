@@ -1,6 +1,7 @@
 {
   "Dorella": {
     "Name": "Dorella",
+    "ID": "41182",
     "Region": "Feiton",
     "AppearanceTimes": [ "01:30:00", "04:30:00", "05:30:00", "07:30:00", "08:30:00", "11:30:00", "13:30:00", "16:30:00", "17:30:00", "19:30:00", "20:30:00", "23:30:00" ],
     "Zones": [ "Kalaja" ],
@@ -21,6 +22,7 @@
   },
   "Morris": {
     "Name": "Morris",
+    "ID": "80018",
     "Region": "East Luterra",
     "AppearanceTimes": [ "01:30:00", "04:30:00", "05:30:00", "07:30:00", "08:30:00", "11:30:00", "13:30:00", "16:30:00", "17:30:00", "19:30:00", "20:30:00", "23:30:00" ],
     "Zones": [ "Dyorika Plain", "Flowering Orchard", "Sunbright Hill" ],
@@ -45,6 +47,7 @@
   },
   "Lucas": {
     "Name": "Lucas",
+    "ID": "80015",
     "Region": "Yudia",
     "AppearanceTimes": [ "01:30:00", "04:30:00", "05:30:00", "07:30:00", "08:30:00", "11:30:00", "13:30:00", "16:30:00", "17:30:00", "19:30:00", "20:30:00", "23:30:00" ],
     "Zones": [ "Ozhorn Hill", "Saland Hill" ],
@@ -65,6 +68,7 @@
   },
   "Mac": {
     "Name": "Mac",
+    "ID": "80016",
     "Region": "Anikka",
     "AppearanceTimes": [ "01:30:00", "04:30:00", "05:30:00", "07:30:00", "08:30:00", "11:30:00", "13:30:00", "16:30:00", "17:30:00", "19:30:00", "20:30:00", "23:30:00" ],
     "Zones": [ "Delphi Township", "Melody Forest", "Prisma Valley", "Rattan Hill", "Twilight Mists" ],
@@ -89,6 +93,7 @@
   },
   "Jeffrey": {
     "Name": "Jeffrey",
+    "ID": "80013",
     "Region": "Shushire",
     "AppearanceTimes": [ "01:30:00", "04:30:00", "05:30:00", "07:30:00", "08:30:00", "11:30:00", "13:30:00", "16:30:00", "17:30:00", "19:30:00", "20:30:00", "23:30:00" ],
     "Zones": [ "Bitterwind Hill", "Frozen Sea", "Iceblood Plateau", "Icewing Heights", "Lake Eternity" ],
@@ -110,6 +115,7 @@
 
   "Ben": {
     "Name": "Ben",
+    "ID": "80002",
     "Region": "Rethramis",
     "AppearanceTimes": [ "00:30:00", "03:30:00", "04:30:00", "06:30:00", "07:30:00", "10:30:00", "12:30:00", "15:30:00", "16:30:00", "18:30:00", "19:30:00", "22:30:00" ],
     "Zones": [ "Ankumo Mountain", "Loghill", "Rethramis Border" ],
@@ -130,6 +136,7 @@
   },
   "Laitir": {
     "Name": "Laitir",
+    "ID": "26585",
     "Region": "Yorn",
     "AppearanceTimes": [ "00:30:00", "03:30:00", "04:30:00", "06:30:00", "07:30:00", "10:30:00", "12:30:00", "15:30:00", "16:30:00", "18:30:00", "19:30:00", "22:30:00" ],
     "Zones": [ "Black Anvil Mine", "Hall of Promise", "Iron Hammer Mine", "Unfinished Garden", "Yorn's Cradle" ],
@@ -150,6 +157,7 @@
   },
   "Peter": {
     "Name": "Peter",
+    "ID": "80020",
     "Region": "North Vern",
     "AppearanceTimes": [ "00:30:00", "03:30:00", "04:30:00", "06:30:00", "07:30:00", "10:30:00", "12:30:00", "15:30:00", "16:30:00", "18:30:00", "19:30:00", "22:30:00" ],
     "Zones": [ "Balankar Mountains", "Fesnar Highland", "Parna Forest", "Port Krona", "Vernese Forest" ],
@@ -171,6 +179,7 @@
 
   "Malone": {
     "Name": "Malone",
+    "ID": "80017",
     "Region": "West Luterra",
     "AppearanceTimes": [ "00:30:00", "02:30:00", "05:30:00", "06:30:00", "08:30:00", "09:30:00", "12:30:00", "14:30:00", "17:30:00", "18:30:00", "20:30:00", "21:30:00" ],
     "Zones": [ "Battlebound Plains", "Bilbrin Forest", "Lakebar", "Medrick Monastery", "Mount Zagoras" ],
@@ -191,6 +200,7 @@
   },
   "Burt": {
     "Name": "Burt",
+    "ID": "80003",
     "Region": "East Luterra",
     "AppearanceTimes": [ "00:30:00", "02:30:00", "05:30:00", "06:30:00", "08:30:00", "09:30:00", "12:30:00", "14:30:00", "17:30:00", "18:30:00", "20:30:00", "21:30:00" ],
     "Zones": [ "Blackrose Chapel", "Borea's Domain", "Croconys Seashore (North)", "Croconys Seashore (South)", "Leyar Terrace" ],
@@ -211,6 +221,7 @@
   },
   "Oliver": {
     "Name": "Oliver",
+    "ID": "80019",
     "Region": "Tortoyk",
     "AppearanceTimes": [ "00:30:00", "02:30:00", "05:30:00", "06:30:00", "08:30:00", "09:30:00", "12:30:00", "14:30:00", "17:30:00", "18:30:00", "20:30:00", "21:30:00" ],
     "Zones": [ "Forest of Giants", "Seaswept Woods", "Skyreach Steppe", "Sweetwater Forest" ],
@@ -231,6 +242,7 @@
   },
   "Nox": {
     "Name": "Nox",
+    "ID": "80014",
     "Region": "Arthetine",
     "AppearanceTimes": [ "00:30:00", "02:30:00", "05:30:00", "06:30:00", "08:30:00", "09:30:00", "12:30:00", "14:30:00", "17:30:00", "18:30:00", "20:30:00", "21:30:00" ],
     "Zones": [ "Arid Path", "Nebelhorn", "Riza Falls", "Scraplands", "Totrich", "Windbringer Hill" ],
@@ -251,6 +263,7 @@
   },
   "Aricer": {
     "Name": "Aricer",
+    "ID": "80022",
     "Region": "Rohendel",
     "AppearanceTimes": [ "00:30:00", "02:30:00", "05:30:00", "06:30:00", "08:30:00", "09:30:00", "12:30:00", "14:30:00", "17:30:00", "18:30:00", "20:30:00", "21:30:00" ],
     "Zones": [ "Breezesome Brae", "Elzowin's Shade", "Glass Lotus Lake", "Lake Shiverwave", "Xeneela Ruins" ],
@@ -271,6 +284,7 @@
   },
   "Rayni": {
     "Name": "Rayni",
+    "ID": "80059",
     "Region": "Punika",
     "AppearanceTimes": [ "00:30:00", "02:30:00", "05:30:00", "06:30:00", "08:30:00", "09:30:00", "12:30:00", "14:30:00", "17:30:00", "18:30:00", "20:30:00", "21:30:00" ],
     "Zones": [ "Secret Forest", "Starsand Beach", "Tideshelf Path", "Tikatika Colony" ],
