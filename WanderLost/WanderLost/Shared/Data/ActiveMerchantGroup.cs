@@ -80,6 +80,7 @@ namespace WanderLost.Shared.Data
         {
             ActiveMerchants.Clear();
             ActiveMerchants.AddRange(activeMerchants);
+            ActiveMerchants.Sort((a, b) => b.Votes - a.Votes);
         }
     }
 }
