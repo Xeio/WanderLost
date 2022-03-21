@@ -40,9 +40,10 @@ namespace WanderLost.Client
             await HubConnection.SendAsync(nameof(UpdateMerchant), server, merchant);
         }
 
-        public Task UpdateMerchantGroup(string server, ActiveMerchantGroup merchantGroup)
+        Task IMerchantHubClient.UpdateMerchantGroup(string server, ActiveMerchantGroup merchantGroup)
         {
-            return HubConnection.SendAsync(nameof(UpdateMerchantGroup), server, merchantGroup);
+            //Not a callable server method
+            throw new NotImplementedException();
         }
 
         public void OnUpdateMerchant(Action<string, ActiveMerchant> action)
@@ -52,7 +53,7 @@ namespace WanderLost.Client
 
         public void OnUpdateMerchantGroup(Action<string, ActiveMerchantGroup> action)
         {
-            HubConnection.On(nameof(UpdateMerchantGroup), action);
+            HubConnection.On(nameof(IMerchantHubClient.UpdateMerchantGroup), action);
         }
 
         public async Task<IEnumerable<ActiveMerchantGroup>> GetKnownActiveMerchantGroups(string server)
