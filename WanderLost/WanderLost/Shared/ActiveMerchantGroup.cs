@@ -1,66 +1,87 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+
+using System.Text.Json.Serialization;
 
 namespace WanderLost.Shared
 {
     public class ActiveMerchantGroup
     {
-        public string Id { get; init; } = "";
-        public List<ActiveMerchant> Merchants { get; init; } = new List<ActiveMerchant>();
-        public ActiveMerchant MostVotedMerchant { get => Merchants.MaxBy(x => x.Votes) ?? throw new NullReferenceException(); }
+        [JsonIgnore]
+        public MerchantData MerchantData { get; init; } = new();
 
-        public ActiveMerchantGroup() { }
-        public ActiveMerchantGroup(ActiveMerchant firstMerchant)
+        private string _merchantName = string.Empty;
+        public string MerchantName
         {
-            Id = firstMerchant.Name;
-            UpdateOrAddMerchant(firstMerchant);
+            get
+            {
+                //If merchant group came across network, it won't have data but the name will be serialized as its own property
+                if (!string.IsNullOrWhiteSpace(MerchantData.Name))
+                {
+                    return MerchantData.Name;
+                }
+                else
+                {
+                    return _merchantName;
+                }
+            }
+            init
+            {
+                _merchantName = value;
+            }
+        }
+
+        public List<ActiveMerchant> ActiveMerchants { get; init; } = new List<ActiveMerchant>();
+
+        [JsonIgnore]
+        public DateTimeOffset NextAppearance { get; private set; }
+        [JsonIgnore]
+        public DateTimeOffset AppearanceExpires { get; private set; }
+
+        public bool IsActive => DateTimeOffset.UtcNow > NextAppearance && DateTimeOffset.UtcNow < AppearanceExpires;
+
+        public void CalculateNextAppearance(TimeSpan serverUtcOffset)
+        {
+            var expiresAfter = TimeSpan.FromMinutes(25);
+
+            var nextAppearanceTime = MerchantData.AppearanceTimes
+                .Select(apperance => new DateTimeOffset(DateTimeOffset.UtcNow.ToOffset(serverUtcOffset).Date, serverUtcOffset) + apperance)
+                .Where(time => time >= DateTimeOffset.UtcNow - expiresAfter)
+                .FirstOrDefault();
+
+            if (nextAppearanceTime == default)
+            {
+                //Next apperance is the following day
+                nextAppearanceTime = MerchantData.AppearanceTimes
+                    .Select(apperance => new DateTimeOffset(DateTimeOffset.UtcNow.ToOffset(serverUtcOffset).Date.AddDays(1), serverUtcOffset) + apperance)
+                    .Where(time => time >= DateTimeOffset.UtcNow - expiresAfter)
+                    .FirstOrDefault();
+            }
+
+            NextAppearance = nextAppearanceTime;
+            AppearanceExpires = nextAppearanceTime + expiresAfter;
         }
 
         public void UpdateOrAddMerchant(ActiveMerchant merchant)
         {
-            if (Merchants.FirstOrDefault(x => x.IsEqualTo(merchant)) is ActiveMerchant existing)
+            if (ActiveMerchants.FirstOrDefault(x => x.IsEqualTo(merchant)) is ActiveMerchant existing)
             {
                 existing.Votes++;
             }
             else
             {
-                Merchants.Add(merchant);
-            }
-        }
-
-        public void ClearPlaceholderMerchant()
-        {
-            if (Merchants.FirstOrDefault(x => x.Zone == "") is ActiveMerchant existing)
-            {
-                Merchants.Remove(existing);
+                ActiveMerchants.Add(merchant);
             }
         }
 
         public void ClearInstances()
         {
-            Merchants.ForEach(x => x.ClearInstance());
-            //If more than one merchant exists (because of suggested replacements), remove all but one merchant to start fresh.
-            if (Merchants.Count > 1)
-            {
-                foreach (var excessMerchants in Merchants.Skip(1).ToList())
-                {
-                    Merchants.Remove(excessMerchants);
-                }
-            }
+            ActiveMerchants.Clear();
         }
 
-        public void CopyInstance(ActiveMerchantGroup amg)
+        public void ReplaceInstances(List<ActiveMerchant> activeMerchants)
         {
-            Merchants.Clear();
-            Merchants.AddRange(amg.Merchants);
-        }
-
-        public void CalculateNextAppearances(Dictionary<string, MerchantData> merchants, TimeSpan serverUtcOffset)
-        {
-            Merchants.ForEach(x => x.CalculateNextAppearance(merchants, serverUtcOffset));
+            ActiveMerchants.Clear();
+            ActiveMerchants.AddRange(activeMerchants);
         }
     }
 }

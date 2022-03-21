@@ -43,7 +43,7 @@
 }
 else if(_activeMerchantGroups.Count > 0)
 {
-    @if(_activeMerchantGroups.Any(m => m.Merchants.Any(x => x.IsActive)))
+    @if(_activeMerchantGroups.Any(m => m.IsActive))
     {
         <h3 class="mt-3">Active Merchants</h3>
         <ActiveMerchantsGrid Server="@Server" MerchantGroups="@_activeMerchantGroups" ActiveOnly="true" />
@@ -91,7 +91,7 @@ else if(_activeMerchantGroups.Count > 0)
     {
         await StaticData.Init();
 
-        _activeMerchantGroups = StaticData.Merchants.Values.Select(m => new ActiveMerchant() { Name = m.Name }).Select(x => new ActiveMerchantGroup(x)).ToList();
+        _activeMerchantGroups = StaticData.Merchants.Values.Select(m => new ActiveMerchantGroup() { MerchantData = m}).ToList();
 
         _timer = new Timer(TimerTick, null, 1, 1000);
 
@@ -102,11 +102,9 @@ else if(_activeMerchantGroups.Count > 0)
         HubClient.OnUpdateMerchantGroup((server, merchantGroup) =>
         {
             if(Server != server) return;
-            if (_activeMerchantGroups?.FirstOrDefault(x => x.Id == merchantGroup.Id) is ActiveMerchantGroup existing)
+            if (_activeMerchantGroups.FirstOrDefault(m => m.MerchantName == merchantGroup.MerchantName) is ActiveMerchantGroup existing)
             {
-                //Force CalculateNextAppearance() because MostVotedMerchant.AppearanceExpires will be unset here (see [JsonIgnore] in ActiveMerchant.cs)
-                merchantGroup.CalculateNextAppearances(StaticData.Merchants, StaticData.ServerRegions[_serverRegion].UtcOffset);
-                existing.CopyInstance(merchantGroup);
+                existing.ReplaceInstances(merchantGroup.ActiveMerchants);
             }
             InvokeAsync(StateHasChanged);
         });
@@ -131,22 +129,22 @@ else if(_activeMerchantGroups.Count > 0)
         {
             await HubClient.UnsubscribeFromServer(oldServer);
         }
-        if (!string.IsNullOrWhiteSpace(Server))
+        if (!string.IsNullOrWhiteSpace(Server) && !string.IsNullOrWhiteSpace(ServerRegion))
         {
             await HubClient.SubscribeToServer(Server);
 
             //Sync with the server's current data
-            _activeMerchantGroups?.ForEach(m => m.ClearInstances());
+            _activeMerchantGroups.ForEach(m => m.ClearInstances());
             foreach (var serverMerchantGroup in await HubClient.GetKnownActiveMerchantGroups(Server))
             {
-                serverMerchantGroup.CalculateNextAppearances(StaticData.Merchants, StaticData.ServerRegions[_serverRegion].UtcOffset);
-                if (_activeMerchantGroups?.FirstOrDefault(x => x.Id == serverMerchantGroup.Id) is ActiveMerchantGroup existing)
+                serverMerchantGroup.CalculateNextAppearance(StaticData.ServerRegions[ServerRegion].UtcOffset);
+                if (_activeMerchantGroups.FirstOrDefault(mg => mg.MerchantName == serverMerchantGroup.MerchantName) is ActiveMerchantGroup existing)
                 {
-                    existing.CopyInstance(serverMerchantGroup);
+                    existing.ReplaceInstances(serverMerchantGroup.ActiveMerchants);
                 }
                 else
                 {
-                    _activeMerchantGroups?.Add(serverMerchantGroup);
+                    _activeMerchantGroups.Add(serverMerchantGroup);
                 }
             }
             StateHasChanged();
@@ -180,19 +178,19 @@ else if(_activeMerchantGroups.Count > 0)
 
         bool resort = false;
 
-        foreach (var merchant in _activeMerchantGroups)
+        foreach (var merchantGroup in _activeMerchantGroups)
         {
-            if (force || merchant.MostVotedMerchant?.AppearanceExpires < DateTimeOffset.UtcNow)
+            if (force || merchantGroup.AppearanceExpires < DateTimeOffset.UtcNow)
             {
-                merchant.CalculateNextAppearances(StaticData.Merchants, StaticData.ServerRegions[_serverRegion].UtcOffset);
-                merchant.ClearInstances();
+                merchantGroup.CalculateNextAppearance(StaticData.ServerRegions[_serverRegion].UtcOffset);
+                merchantGroup.ClearInstances();
                 resort = true;
             }
         }
 
         if (resort)
         {
-            _activeMerchantGroups = _activeMerchantGroups.OrderBy(m => m.MostVotedMerchant.NextAppearance).ThenBy(m => StaticData.Merchants[m.MostVotedMerchant.Name].Region).ToList();
+            _activeMerchantGroups = _activeMerchantGroups.OrderBy(m => m.NextAppearance).ThenBy(m => m.MerchantData.Region).ToList();
         }
     }
 }

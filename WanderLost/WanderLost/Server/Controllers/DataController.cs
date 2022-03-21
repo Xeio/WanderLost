@@ -44,12 +44,11 @@ namespace WanderLost.Server.Controllers
         {
             return await _memoryCache.GetOrCreateAsync(server, async (cacheEntry) =>
             {
-                var activeMerchants = await BuildActiveMerchantGroups(server);
+                var merchantGroups = await BuildActiveMerchantGroups(server);
                 //Force the cache to expire once any merchant apperance expires
-                cacheEntry.AbsoluteExpiration = activeMerchants.Min(m => m.MostVotedMerchant?.AppearanceExpires);
-                return activeMerchants;
-            }
-            );
+                cacheEntry.AbsoluteExpiration = merchantGroups.Min(m => m.AppearanceExpires);
+                return merchantGroups;
+            });
         }
 
         private async Task<List<ActiveMerchantGroup>> BuildActiveMerchantGroups(string server)
@@ -61,13 +60,13 @@ namespace WanderLost.Server.Controllers
 
             if (currentRegion.Value == null) throw new ArgumentException("Invalid Server");
 
-            var activeMerchants = merchants.Select(m => new ActiveMerchant() { Name = m.Value.Name }).ToList();
-            foreach (var activeMerchant in activeMerchants)
+            var activeMerchantGroups = merchants.Values.Select(m => new ActiveMerchantGroup() { MerchantData = m }).ToList();
+            foreach (var activeMerchant in activeMerchantGroups)
             {
-                activeMerchant.CalculateNextAppearance(merchants, currentRegion.Value.UtcOffset);
+                activeMerchant.CalculateNextAppearance(currentRegion.Value.UtcOffset);
             }
 
-            return activeMerchants.ConvertAll(x => new ActiveMerchantGroup(x));
+            return activeMerchantGroups;
         }
     }
 }

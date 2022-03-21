@@ -1,7 +1,5 @@
-﻿@inject ClientStaticDataController StaticData
-
-@{
-    bool anyMerchantActive = GetVisibleMerchantGroups().Any(m => m.Merchants.Any(x => x.IsActive));
+﻿@{
+    bool anyMerchantActive = GetVisibleMerchantGroups().Any(mg => mg.IsActive);
 }
 <table class="table">
     <thead>
@@ -16,7 +14,7 @@
                 <th>Card</th>
                 <th>Rapport</th>
                 <th>Votes</th>
-                <th>Submit</th>
+                <th></th>
             }
             else
             {
@@ -27,65 +25,49 @@
     <tbody>
         @foreach (var merchantGroup in GetVisibleMerchantGroups())
         {
-            int merchantIdx = 0;
-            @foreach (var merchant in merchantGroup.Merchants.OrderByDescending(x => x.Votes))
+            int rowSpan = merchantGroup.ActiveMerchants.Count > 0 ? merchantGroup.ActiveMerchants.Count : 1; 
+            <tr>
+                <td rowspan="@rowSpan">@merchantGroup.MerchantName</td>
+                <td rowspan="@rowSpan">@merchantGroup.MerchantData.Region</td>
+                @if (anyMerchantActive && merchantGroup.IsActive)
+                {
+                    <td rowspan="@rowSpan">@((merchantGroup.AppearanceExpires - DateTimeOffset.UtcNow).ToString(@"hh\:mm\:ss"))</td>
+                }
+                else if(!anyMerchantActive && merchantGroup.NextAppearance > DateTimeOffset.UtcNow)
+                {
+                    <td>@((merchantGroup.NextAppearance - DateTimeOffset.UtcNow).ToString(@"hh\:mm\:ss"))</td>
+                }
+                else
+                {
+                    <td>Active</td>
+                }
+
+                @if(anyMerchantActive && merchantGroup.ActiveMerchants.Count == 0)
+                {
+                    <td>?</td>
+                    <td>?</td>
+                    <td>?</td>
+                    <td/>
+                    <td><a href="/UpdateMerchant/@Server/@merchantGroup.MerchantName">Submit Location</a></td>
+                }
+                else if(anyMerchantActive)
+                {
+                    var merchant = merchantGroup.ActiveMerchants.First();
+                    <td><ZoneDisplay ZoneName="@merchant.Zone" /></td>
+                    <td><ItemDisplay Item="@merchant.Card" /></td>
+                    <td><ItemDisplay Item="@(new Item() { Name = merchant.RapportRarity?.ToString() ?? "", Rarity = merchant.RapportRarity ?? Rarity.Rare})" /></td>
+                    <td>@merchant.Votes</td>
+                    <td rowspan="@rowSpan"><a class="link-danger" href="/UpdateMerchant/@Server/@merchantGroup.MerchantName">Suggest Replacement</a></td>
+                }         
+            </tr>
+            @foreach (var merchant in merchantGroup.ActiveMerchants.Skip(1))
             {
                 <tr>
-                    @if (merchantIdx == 0)
-                    {
-                        <td rowspan="@merchantGroup.Merchants.Count">@merchant.Name</td>
-                        <td rowspan="@merchantGroup.Merchants.Count">@StaticData.Merchants[merchant.Name].Region</td>
-                    }
-
-                    @if (anyMerchantActive)
-                    {
-                        @if (merchant.IsActive)
-                        {
-                            @if (merchantIdx == 0)
-                            {
-                                <td rowspan="@merchantGroup.Merchants.Count">@((merchant.AppearanceExpires - DateTimeOffset.UtcNow).ToString(@"hh\:mm\:ss"))</td>
-                            }
-                        }
-                        else
-                        {
-                            <td />
-                        }
-                        @if (string.IsNullOrWhiteSpace(merchant.Zone))
-                        {
-                            <td>?</td>
-                            <td>?</td>
-                            <td>?</td>
-                            <td>?</td>
-                        }
-                        else
-                        {
-                            <td><ZoneDisplay ZoneName="@merchant.Zone" /></td>
-                            <td><ItemDisplay Item="@merchant.Card" /></td>
-                            <td><ItemDisplay Item="@(new Item() { Name = merchant.RapportRarity?.ToString() ?? "", Rarity = merchant.RapportRarity ?? Rarity.Rare})" /></td>
-                            <td>@merchant.Votes</td>
-                        }
-                        @if (merchant.IsActive && string.IsNullOrWhiteSpace(merchant.Zone))
-                        {
-                            <td><a href="/UpdateMerchant/@Server/@merchant.Name">Submit Location</a></td>
-                        }
-                        else
-                        {
-                            <td><a class="link-danger" href="/UpdateMerchant/@Server/@merchant.Name">Suggest Replacement</a></td>
-                        }
-                    }
-                    else
-                    {
-                        @if (merchant.NextAppearance > DateTimeOffset.UtcNow)
-                        {
-                            <td>@((merchant.NextAppearance - DateTimeOffset.UtcNow).ToString(@"hh\:mm\:ss"))</td>
-                        }
-                        else
-                        {
-                            <td>Active</td>
-                        }
-                    }
+                    <td><ZoneDisplay ZoneName="@merchant.Zone" /></td>
+                    <td><ItemDisplay Item="@merchant.Card" /></td>
+                    <td><ItemDisplay Item="@(new Item() { Name = merchant.RapportRarity?.ToString() ?? "", Rarity = merchant.RapportRarity ?? Rarity.Rare})" /></td>
+                    <td>@merchant.Votes</td>
                 </tr>
-                merchantIdx++;
             }
         }
     </tbody>
@@ -101,13 +83,8 @@
     [Parameter, EditorRequired]
     public string Server { get; init; } = string.Empty;
 
-    protected override async Task OnInitializedAsync()
-    {
-        await StaticData.Init();
-    }
-
     private IEnumerable<ActiveMerchantGroup> GetVisibleMerchantGroups()
     {
-        return MerchantGroups.Where(m => m.Merchants.Any(x => x.IsActive) ^ !ActiveOnly);
+        return MerchantGroups.Where(mg => mg.IsActive ^ !ActiveOnly);
     }
 }
