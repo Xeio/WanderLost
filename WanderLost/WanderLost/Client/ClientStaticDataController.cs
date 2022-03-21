@@ -26,6 +26,8 @@ namespace WanderLost.Client
             if (Initialized) return;
 
             Merchants = await _httpClient.GetFromJsonAsync<Dictionary<string, MerchantData>>(_navigationManager.ToAbsoluteUri("/data/merchants.json"), Utils.JsonOptions) ?? new();
+            Utils.GenerateDebugTestMerchant(Merchants);
+
             ServerRegions = await _httpClient.GetFromJsonAsync<Dictionary<string, ServerRegion>>(_navigationManager.ToAbsoluteUri("/data/servers.json"), Utils.JsonOptions) ?? new();
             Zones = await _httpClient.GetFromJsonAsync<List<Zone>>(_navigationManager.ToAbsoluteUri("/data/zones.json"), Utils.JsonOptions) ?? new();
 

@@ -26,7 +26,9 @@ namespace WanderLost.Server.Controllers
         {
             var serversFile = _webHostEnvironment.WebRootFileProvider.GetFileInfo("data/merchants.json");
             var json = await File.ReadAllTextAsync(serversFile.PhysicalPath);
-            return JsonSerializer.Deserialize<Dictionary<string, MerchantData>>(json, Utils.JsonOptions) ?? new Dictionary<string, MerchantData>();
+            var merchantData = JsonSerializer.Deserialize<Dictionary<string, MerchantData>>(json, Utils.JsonOptions) ?? new Dictionary<string, MerchantData>();
+            Utils.GenerateDebugTestMerchant(merchantData);
+            return merchantData;
         }
 
         public async Task<Dictionary<string, ServerRegion>> GetServerRegions()
