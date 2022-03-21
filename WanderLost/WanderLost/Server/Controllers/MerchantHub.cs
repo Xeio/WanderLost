@@ -62,7 +62,7 @@ namespace WanderLost.Server.Controllers
         public async Task<IEnumerable<ActiveMerchantGroup>> GetKnownActiveMerchantGroups(string server)
         {
             var activeMerchants = await _dataController.GetActiveMerchantGroups(server);
-            return activeMerchants.Where(m => m.ActiveMerchants.Any(x => !string.IsNullOrWhiteSpace(x.Zone)));
+            return activeMerchants.Where(m => m.ActiveMerchants.Any());
         }
     }
 }
