@@ -38,7 +38,7 @@ namespace WanderLost.Client
             if (merchantGroup == null) return new ValueTask();
 
             string body = $"Wandering Merchant \"{merchantGroup.MerchantName}\" was found at {merchantGroup.ActiveMerchants.FirstOrDefault()?.Zone ?? "_unkown"}.";
-            return _notifications.CreateAsync($"Wandering Merchant \"{merchantGroup.MerchantName}\" found", new NotificationOptions { Body = body, Renotify = true, Icon = "ExclamationMark.png" });
+            return _notifications.CreateAsync($"Wandering Merchant \"{merchantGroup.MerchantName}\" found", new NotificationOptions { Body = body, Renotify = true, Icon = "images/notifications/ExclamationMark.png" });
         }
 
         public ValueTask CreateMerchantSpawnNotification(ActiveMerchantGroup merchantGroup)
@@ -46,7 +46,7 @@ namespace WanderLost.Client
             if (merchantGroup == null) return new ValueTask();
 
             string body = $"Wandering Merchant \"{merchantGroup.MerchantName}\" is waiting for you.";
-            return _notifications.CreateAsync($"Wandering Merchant \"{merchantGroup.MerchantName}\" spawned", new NotificationOptions { Body = body, Renotify = true, Icon = "QuestionMark.png" });
+            return _notifications.CreateAsync($"Wandering Merchant \"{merchantGroup.MerchantName}\" spawned", new NotificationOptions { Body = body, Renotify = true, Icon = "images/notifications/QuestionMark.png" });
         }
     }
 }
