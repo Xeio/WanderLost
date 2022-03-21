@@ -23,6 +23,7 @@ namespace WanderLost.Client
             {
                 await HubConnection.DisposeAsync();
             }
+            GC.SuppressFinalize(this);
         }
 
         public async Task SubscribeToServer(string server)
