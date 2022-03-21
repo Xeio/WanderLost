@@ -37,15 +37,7 @@ namespace WanderLost.Server.Controllers
 
             _logger.LogInformation("Updated server {server} merchant {Merchant}. Zone:{Zone}, Card:{Card}", server, merchant.Name, merchant.Zone, merchant.Card.Name);
 
-            await UpdateMerchantGroup(server, serverMerchantGroup);
-        }
-
-        public async Task UpdateMerchantGroup(string server, ActiveMerchantGroup merchantGroup)
-        {
-            if (merchantGroup is null) return;
-            if (!await IsValidServer(server)) return;
-
-            await Clients.Group(server).UpdateMerchantGroup(server, merchantGroup);
+            await Clients.Group(server).UpdateMerchantGroup(server, serverMerchantGroup);
         }
 
         public async Task SubscribeToServer(string server)
