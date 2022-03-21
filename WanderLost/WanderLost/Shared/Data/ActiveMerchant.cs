@@ -1,4 +1,6 @@
-﻿namespace WanderLost.Shared.Data
+﻿using System.Text.Json.Serialization;
+
+namespace WanderLost.Shared.Data
 {
     public class ActiveMerchant
     {
@@ -7,6 +9,12 @@
         public Item Card { get; set; } = new();
         public Rarity? RapportRarity { get; set; }
         public int Votes { get; set; } = 1;
+
+        /// <summary>
+        /// Identifier for client on the server, may be IP or later an account identifier
+        /// </summary>
+        [JsonIgnore]
+        public string UploadedBy { get;set; } = string.Empty;
 
         public void ClearInstance()
         {
