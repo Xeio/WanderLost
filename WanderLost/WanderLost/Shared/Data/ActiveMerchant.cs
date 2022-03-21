@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace WanderLost.Shared
+﻿namespace WanderLost.Shared.Data
 {
     public class ActiveMerchant
     {
@@ -27,15 +25,15 @@ namespace WanderLost.Shared
 
         public bool IsValid(Dictionary<string, MerchantData> allMerchantData)
         {
-            if(string.IsNullOrWhiteSpace(Name) ||
+            if (string.IsNullOrWhiteSpace(Name) ||
                 string.IsNullOrWhiteSpace(Zone) ||
                 RapportRarity is null)
             {
                 return false;
             }
-            
-            if(!allMerchantData.ContainsKey(Name)) return false;
-            
+
+            if (!allMerchantData.ContainsKey(Name)) return false;
+
             var data = allMerchantData[Name];
 
             return data.Zones.Contains(Zone) &&

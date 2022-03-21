@@ -1,4 +1,6 @@
-﻿namespace WanderLost.Shared.Interfaces
+﻿using WanderLost.Shared.Data;
+
+namespace WanderLost.Shared.Interfaces
 {
     public interface IMerchantHubClient : IMerchantHubShared
     {

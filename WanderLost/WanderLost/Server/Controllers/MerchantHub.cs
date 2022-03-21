@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using WanderLost.Shared;
+using WanderLost.Shared.Data;
 using WanderLost.Shared.Interfaces;
 
 namespace WanderLost.Server.Controllers

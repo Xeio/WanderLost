@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using System.Net.Http.Json;
 using WanderLost.Shared;
+using WanderLost.Shared.Data;
 
 namespace WanderLost.Client
 {

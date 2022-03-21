@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using System.Text.Json;
 using WanderLost.Shared;
+using WanderLost.Shared.Data;
 
 namespace WanderLost.Server.Controllers
 {

@@ -1,4 +1,4 @@
-﻿namespace WanderLost.Shared
+﻿namespace WanderLost.Shared.Data
 {
     public enum Rarity
     {

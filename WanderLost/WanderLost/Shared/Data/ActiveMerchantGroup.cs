@@ -1,8 +1,6 @@
-﻿
+﻿using System.Text.Json.Serialization;
 
-using System.Text.Json.Serialization;
-
-namespace WanderLost.Shared
+namespace WanderLost.Shared.Data
 {
     public class ActiveMerchantGroup
     {
