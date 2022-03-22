@@ -1,0 +1,15 @@
+﻿
+
+@if (Enabled)
+{
+    <span class="oi oi-volume-high mx-2 text-success cursor-pointer" @onclick="@(_ => StateChanged.InvokeAsync(false))"></span>
+}
+else
+{
+    <span class="oi oi-volume-off mx-2 text-danger cursor-pointer" @onclick="@(_ => StateChanged.InvokeAsync(true))"></span>
+}
+
+@code {
+    [Parameter] public bool Enabled { get; set; }
+    [Parameter] public EventCallback<bool> StateChanged { get; set; }
+}
