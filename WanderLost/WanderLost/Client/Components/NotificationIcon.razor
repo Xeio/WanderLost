@@ -2,11 +2,11 @@
 
 @if (Enabled)
 {
-    <span class="oi oi-volume-high mx-2 text-success cursor-pointer" @onclick="@(_ => StateChanged.InvokeAsync(false))"></span>
+    <span class="oi oi-volume-high px-2 text-success cursor-pointer" @onclick="@(_ => StateChanged.InvokeAsync(false))"></span>
 }
 else
 {
-    <span class="oi oi-volume-off mx-2 text-danger cursor-pointer" @onclick="@(_ => StateChanged.InvokeAsync(true))"></span>
+    <span class="oi oi-volume-off px-2 text-danger cursor-pointer" @onclick="@(_ => StateChanged.InvokeAsync(true))"></span>
 }
 
 @code {
