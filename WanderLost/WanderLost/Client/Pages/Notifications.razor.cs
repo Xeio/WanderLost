@@ -9,20 +9,20 @@ namespace WanderLost.Client.Pages
     {
         [Inject] public ILocalStorageService LocalStorage { get; set; } = default!; //default! to suppress NULL warning
         [Inject] public ClientStaticDataController StaticData { get; set; } = default!;
+        [Inject] public NavigationManager NavigationManager { get; set; } = default!;
 
         private ClientData? ClientData;
         protected override async Task OnInitializedAsync()
         {
             await StaticData.Init();
             ClientData = await LocalStorage.GetItemAsync<ClientData?>(nameof(ClientData));
-
-            if (ClientData != null && ClientData.NotifyingMerchants == null)
+            if (ClientData == null)
+                NavigationManager.NavigateTo(NavigationManager.BaseUri);
+            else if (ClientData.NotifyingMerchants == null)
             {
-                await LocalStorage.RemoveItemAsync(nameof(ClientData));
                 ClientData.NotifyingMerchants = buildNotifyingMerchantsPreset();
-                var json = JsonSerializer.Serialize(ClientData.NotifyingMerchants);
-                var desjon = JsonSerializer.Deserialize<List<MerchantData>?>(json);
                 await LocalStorage.SetItemAsync(nameof(ClientData), ClientData);
+                ClientData = await LocalStorage.GetItemAsync<ClientData?>(nameof(ClientData));
             }
             await base.OnInitializedAsync();
         }
@@ -32,10 +32,7 @@ namespace WanderLost.Client.Pages
             if (value == null) throw new ArgumentNullException(nameof(value));
             if (ClientData == null) return;
             if (StaticData.Merchants == null) return;
-            if (ClientData.NotifyingMerchants == null)
-            {
-                ClientData.NotifyingMerchants = buildNotifyingMerchantsPreset();
-            }
+            if (ClientData.NotifyingMerchants == null) return;
 
             bool changed = false;
             if (category == nameof(StaticData.Merchants))
@@ -88,6 +85,7 @@ namespace WanderLost.Client.Pages
                         if (!setActive)
                         {
                             existing.Cards.Remove(card);
+                            changed = true;
                         }
                     }
                     else if (setActive)
@@ -106,6 +104,7 @@ namespace WanderLost.Client.Pages
                 //save to cookies
                 await LocalStorage.SetItemAsync(nameof(ClientData), ClientData);
             }
+            StateHasChanged();
         }
 
         private List<MerchantData> buildNotifyingMerchantsPreset()
