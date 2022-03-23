@@ -12,7 +12,8 @@ namespace WanderLost.Client.Pages
         [Inject] public NavigationManager NavigationManager { get; set; } = default!;
         [Inject] public ClientNotificationService ClientNotifications { get; set; } = default!; //default! to suppress NULL warning
 
-        private ClientData ClientData = new();
+        ClientData ClientData = new();
+        bool NotificationsDisabledByBrowser = false;
         protected override async Task OnInitializedAsync()
         {
             await StaticData.Init();
@@ -23,8 +24,23 @@ namespace WanderLost.Client.Pages
                 await saveClientData();
                 await tryInitClientData();
             }
-            _ = ClientNotifications.Init(ClientData);
+            _ = handleClientNotificationInit();
             await base.OnInitializedAsync();
+        }
+
+        private async Task handleClientNotificationInit()
+        {
+            if (!await ClientNotifications.IsPermissionGrantedByUser())
+            {
+                NotificationsDisabledByBrowser = true;
+                StateHasChanged();
+            }
+            await ClientNotifications.Init(ClientData);
+            if (ClientNotifications.NotificationsAvailable)
+            {
+                NotificationsDisabledByBrowser = false;
+                StateHasChanged();
+            }
         }
 
         private async Task tryInitClientData()
