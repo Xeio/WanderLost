@@ -46,7 +46,7 @@ namespace WanderLost.Client
             if (merchantGroup == null) return new ValueTask();
 
             string body = $"Wandering Merchant \"{merchantGroup.MerchantName}\" is waiting for you somewhere.";
-            return _notifications.CreateAsync($"Wandering Merchant \"{merchantGroup.MerchantName}\" spawned", new NotificationOptions { Body = body, Renotify = true, Icon = "images/notifications/QuestionMark.png" });
+            return _notifications.CreateAsync($"Wandering Merchant \"{merchantGroup.MerchantName}\" appeared", new NotificationOptions { Body = body, Renotify = true, Icon = "images/notifications/QuestionMark.png" });
         }
     }
 }
