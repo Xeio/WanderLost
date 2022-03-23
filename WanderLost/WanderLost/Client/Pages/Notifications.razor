@@ -2,11 +2,25 @@
 
 <h1>Notification settings</h1>
 
-<div class="d-flex py-1">
-    <span class="text-nowrap my-auto">Edit notification alarms.</span>
-    <div class="d-flex justify-content-evenly w-100">
-        <button class="btn btn-dark" @onclick="OnTestMerchantSpawnClicked">Test Merchant <span class="text-warning">spawn</span></button>
-        <button class="btn btn-dark" @onclick="OnTestMerchantFoundClicked">Test Merchant <span class="text-danger">found</span></button>
+<p class="text-nowrap">Edit notification alarms.</p>
+<div class="d-flex">
+    <div class="d-flex">
+        <div class="form-check my-auto">
+            <input class="form-check-input" type="checkbox" value="" id="merchantSpawn" @bind="NotifyAppearanceWrapper">
+            <label class="form-check-label" for="merchantSpawn">
+                Notify merchant spawn
+            </label>
+        </div>
+        <button class="btn btn-dark mx-2" disabled="@(!ClientData.NotifyMerchantAppearance)" @onclick="OnTestMerchantSpawnClicked">Test Merchant <span class="text-warning">appeared</span></button>
+    </div>
+    <div class="d-flex mx-2">
+        <div class="form-check my-auto">
+            <input class="form-check-input" type="checkbox" value="" id="merchantFound" checked disabled>
+            <label class="form-check-label" for="merchantFound">
+                Notify merchant found
+            </label>
+        </div>
+        <button class="btn btn-dark mx-2" @onclick="OnTestMerchantFoundClicked">Test Merchant <span class="text-danger">found</span></button>
     </div>
 </div>
 <div class="d-flex overflow-hidden flex-wrap">
