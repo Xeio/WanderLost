@@ -90,7 +90,7 @@ namespace WanderLost.Client.Pages
                 MerchantName = "Lailai",
                 ActiveMerchants = new List<ActiveMerchant> { new ActiveMerchant { Name = "Lailai", Card = dummyData.Cards[0], Zone = dummyData.Zones[0], RapportRarity = Rarity.Rare } },
             };
-            await ClientNotifications.RequestMerchantFoundNotification(dummyMerchantGroup);
+            await ClientNotifications.ForceMerchantFoundNotification(dummyMerchantGroup);
         }
 
         protected async Task OnNotificationStateChanged(bool setActive, string category, string merchant, object value)

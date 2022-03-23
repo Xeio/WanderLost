@@ -14,6 +14,11 @@ namespace WanderLost.Client
             _notifications = notif;
         }
 
+        /// <summary>
+        /// Initialize Browser-Notifications by asking the user for permission. Also apply usersettings for ignored merchants, loot, etc.
+        /// </summary>
+        /// <param name="userSettings"></param>
+        /// <returns></returns>
         public async Task Init(ClientData? userSettings)
         {
             if (userSettings != null)
@@ -38,7 +43,11 @@ namespace WanderLost.Client
                 }
             }
         }
-
+        /// <summary>
+        /// Request a "merchant found" Browser-Notification for the given merchantGroup, rules from usersettings are applied; the request can be denied.
+        /// </summary>
+        /// <param name="merchantGroup"></param>
+        /// <returns></returns>
         public ValueTask RequestMerchantFoundNotification(ActiveMerchantGroup merchantGroup)
         {
             if (merchantGroup == null) return ValueTask.CompletedTask;
@@ -54,6 +63,15 @@ namespace WanderLost.Client
                                                         .Any(x => x.Cards.Any(allowedCard => merchantGroup.ActiveMerchants.Any(actMerch => actMerch.Card.Name == allowedCard.Name)))) return ValueTask.CompletedTask;
             }
 
+            return ForceMerchantFoundNotification(merchantGroup);
+        }
+        /// <summary>
+        /// Force a "merchant found" Browser-Notification for the given merchantGroup, rules from usersettings are NOT applied.
+        /// </summary>
+        /// <param name="merchantGroup"></param>
+        /// <returns></returns>
+        public ValueTask ForceMerchantFoundNotification(ActiveMerchantGroup merchantGroup)
+        {
             string body = "";
             if (merchantGroup.ActiveMerchants.Count > 1)
             {
@@ -68,7 +86,11 @@ namespace WanderLost.Client
 
             return _notifications.CreateAsync($"Wandering Merchant \"{merchantGroup.MerchantName}\" found", new NotificationOptions { Body = body, Renotify = true, Tag = $"found_{merchantGroup.MerchantName}", Icon = "images/notifications/ExclamationMark.png" });
         }
-
+        /// <summary>
+        /// Request a "merchant appeared" Browser-Notification for the given merchantGroup, rules from usersettings are applied; the request can be denied.
+        /// </summary>
+        /// <param name="merchantGroup"></param>
+        /// <returns></returns>
         public ValueTask RequestMerchantSpawnNotification(ActiveMerchantGroup merchantGroup)
         {
             if (merchantGroup == null) return ValueTask.CompletedTask;

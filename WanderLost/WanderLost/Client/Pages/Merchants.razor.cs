@@ -165,17 +165,16 @@ namespace WanderLost.Client.Pages
                 }
             }
 
+            //Notify appearance of merchants who are 1 second away from spawning.
+            foreach (var merchantGroup in _activeMerchantGroups.Where(x => !x.IsActive && x.NextAppearance < (DateTimeOffset.UtcNow.AddSeconds(1))))
+            {
+                Notifications.RequestMerchantSpawnNotification(merchantGroup);
+
+            }
+
             if (resort)
             {
                 _activeMerchantGroups = _activeMerchantGroups.OrderBy(m => m.NextAppearance).ThenBy(m => m.MerchantData.Region).ToList();
-
-                if (!force)
-                {
-                    if (_activeMerchantGroups.FirstOrDefault(x => x.IsActive) is ActiveMerchantGroup newActiveMerchantGroup)
-                    {
-                        Notifications.RequestMerchantSpawnNotification(newActiveMerchantGroup);
-                    }
-                }
             }
         }
     }
