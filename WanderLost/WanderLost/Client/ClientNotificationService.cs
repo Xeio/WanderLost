@@ -44,6 +44,22 @@ namespace WanderLost.Client
             }
         }
         /// <summary>
+        /// Check if user has granted permission for Browser-Notifications.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> IsPermissionGrantedByUser()
+        {
+            if (await _notifications.IsSupportedByBrowserAsync())
+            {
+                if (_notifications.PermissionStatus == PermissionType.Granted)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        /// <summary>
         /// Request a "merchant found" Browser-Notification for the given merchantGroup, rules from usersettings are applied; the request can be denied.
         /// </summary>
         /// <param name="merchantGroup"></param>
