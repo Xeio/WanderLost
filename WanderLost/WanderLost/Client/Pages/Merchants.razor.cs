@@ -49,7 +49,6 @@ namespace WanderLost.Client.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            _ = Notifications.Init();
             await StaticData.Init();
 
             _activeMerchantGroups = StaticData.Merchants.Values.Select(m => new ActiveMerchantGroup() { MerchantData = m }).ToList();
@@ -57,6 +56,9 @@ namespace WanderLost.Client.Pages
             _timer = new Timer(TimerTick, null, 1, 1000);
 
             ClientData = await LocalStorage.GetItemAsync<ClientData?>(nameof(ClientData));
+            //Init Notifications with settings in ClientData
+            _ = Notifications.Init(ClientData);
+
             ServerRegion = ClientData?.Region;
             Server = ClientData?.Server;
 
@@ -67,7 +69,7 @@ namespace WanderLost.Client.Pages
                 {
                     if (merchantGroup.HasDifferentMerchantsTo(existing) && merchantGroup.ActiveMerchants.Any())
                     {
-                        Notifications.CreateMerchantFoundNotification(merchantGroup);
+                        Notifications.RequestMerchantFoundNotification(merchantGroup);
                     }
                     else if (!merchantGroup.ActiveMerchants.Any())
                     {
@@ -171,7 +173,7 @@ namespace WanderLost.Client.Pages
                 {
                     if (_activeMerchantGroups.FirstOrDefault(x => x.IsActive) is ActiveMerchantGroup newActiveMerchantGroup)
                     {
-                        Notifications.CreateMerchantSpawnNotification(newActiveMerchantGroup);
+                        Notifications.RequestMerchantSpawnNotification(newActiveMerchantGroup);
                     }
                 }
             }
