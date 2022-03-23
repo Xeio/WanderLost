@@ -15,7 +15,6 @@ namespace WanderLost.Client.Pages
         private ClientData ClientData = new();
         protected override async Task OnInitializedAsync()
         {
-            _ = ClientNotifications.Init();
             await StaticData.Init();
             await tryInitClientData();
             if (ClientData.NotifyingMerchants == null)
@@ -24,6 +23,7 @@ namespace WanderLost.Client.Pages
                 await saveClientData();
                 await tryInitClientData();
             }
+            _ = ClientNotifications.Init(ClientData);
             await base.OnInitializedAsync();
         }
 
@@ -56,7 +56,7 @@ namespace WanderLost.Client.Pages
 
         protected async Task OnTestMerchantSpawnClicked()
         {
-            await ClientNotifications.Init();
+            await ClientNotifications.Init(ClientData);
 
             var dummyData = new MerchantData
             {
@@ -70,13 +70,13 @@ namespace WanderLost.Client.Pages
                 MerchantName = "Lailai",
                 ActiveMerchants = new List<ActiveMerchant> { new ActiveMerchant { Name = "Lailai", Card = dummyData.Cards[0], Zone = dummyData.Zones[0] } },
             };
-            await ClientNotifications.CreateMerchantSpawnNotification(dummyMerchantGroup);
+            await ClientNotifications.RequestMerchantSpawnNotification(dummyMerchantGroup);
         }
 
 
         protected async Task OnTestMerchantFoundClicked()
         {
-            await ClientNotifications.Init();
+            await ClientNotifications.Init(ClientData);
 
             var dummyData = new MerchantData
             {
@@ -88,9 +88,9 @@ namespace WanderLost.Client.Pages
             {
                 MerchantData = dummyData,
                 MerchantName = "Lailai",
-                ActiveMerchants = new List<ActiveMerchant> { new ActiveMerchant { Name = "Lailai", Card = dummyData.Cards[0], Zone = dummyData.Zones[0] } },
+                ActiveMerchants = new List<ActiveMerchant> { new ActiveMerchant { Name = "Lailai", Card = dummyData.Cards[0], Zone = dummyData.Zones[0], RapportRarity = Rarity.Rare } },
             };
-            await ClientNotifications.CreateMerchantFoundNotification(dummyMerchantGroup);
+            await ClientNotifications.RequestMerchantFoundNotification(dummyMerchantGroup);
         }
 
         protected async Task OnNotificationStateChanged(bool setActive, string category, string merchant, object value)
