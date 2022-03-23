@@ -8,7 +8,7 @@
 }
 else
 {
-    <p class="text-nowrap">Edit notification alarms.</p>
+    <p class="text-nowrap">Edit notification alarms. Click on <NotificationIcon Enabled="true"/>/<NotificationIcon Enabled="false" /> to disable/enable notifications for an item.</p>
     <div class="d-flex">
         <div class="d-flex">
             <div class="form-check my-auto">
@@ -47,7 +47,7 @@ else
                                 {
                                     <li class="d-block">
                                         <NotificationIcon Enabled="IsMerchantValueNotified(merchant.Key, nameof(merchant.Value.Zones), item)" StateChanged="@(x => OnNotificationStateChanged(x, nameof(merchant.Value.Zones), merchant.Key, item))" />
-                                        @item
+                                        <ZoneDisplay ZoneName="@item" />
                                     </li>
                                 }
                             </ul>
@@ -59,7 +59,7 @@ else
                                 {
                                     <li class="d-block">
                                         <NotificationIcon Enabled="IsMerchantValueNotified(merchant.Key, nameof(merchant.Value.Cards), item)" StateChanged="@(x => OnNotificationStateChanged(x, nameof(merchant.Value.Cards), merchant.Key, item))" />
-                                        @item.Name
+                                        <ItemDisplay Item="@item" />
                                     </li>
                                 }
                             </ul>
