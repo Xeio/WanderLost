@@ -19,7 +19,7 @@
     protected override Task OnParametersSetAsync()
     {
         var zoneEncoded = Uri.EscapeDataString(ZoneName);
-        _imageUrl = Path.ChangeExtension(Path.Join("/images/zones/", zoneEncoded), ".png");
+        _imageUrl = Path.ChangeExtension(Path.Join("/images/zones/", zoneEncoded), ".jpg");
         _imageClass = "Hover" + new string(ZoneName.Where(char.IsLetter).ToArray());
         return Task.CompletedTask;
     }
