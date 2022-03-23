@@ -12,40 +12,63 @@ namespace WanderLost.Client.Pages
         [Inject] public NavigationManager NavigationManager { get; set; } = default!;
         [Inject] public ClientNotificationService ClientNotifications { get; set; } = default!; //default! to suppress NULL warning
 
-        private ClientData? ClientData;
+        private ClientData ClientData = new();
         protected override async Task OnInitializedAsync()
         {
             _ = ClientNotifications.Init();
             await StaticData.Init();
-            ClientData = await LocalStorage.GetItemAsync<ClientData?>(nameof(ClientData));
-            if (ClientData == null)
-                NavigationManager.NavigateTo(NavigationManager.BaseUri);
-            else if (ClientData.NotifyingMerchants == null)
+            await tryInitClientData();
+            if (ClientData.NotifyingMerchants == null)
             {
                 ClientData.NotifyingMerchants = buildNotifyingMerchantsPreset();
-                await LocalStorage.SetItemAsync(nameof(ClientData), ClientData);
-                ClientData = await LocalStorage.GetItemAsync<ClientData?>(nameof(ClientData));
+                await saveClientData();
+                await tryInitClientData();
             }
             await base.OnInitializedAsync();
         }
 
-        private T pickRandomElement<T>(IEnumerable<T> list)
+        private async Task tryInitClientData()
         {
-            var r = new Random((int)DateTime.Now.Ticks);
-            return list.ElementAt(r.Next(0, list.Count()));
+            var cd = await LocalStorage.GetItemAsync<ClientData?>(nameof(ClientData));
+            if (cd == null)
+                NavigationManager.NavigateTo(NavigationManager.BaseUri);
+            else
+                ClientData = cd;
+        }
+
+        //private T pickRandomElement<T>(IEnumerable<T> list)
+        //{
+        //    var r = new Random((int)DateTime.Now.Ticks);
+        //    return list.ElementAt(r.Next(0, list.Count()));
+        //}
+
+        private ValueTask saveClientData()
+        {
+            return LocalStorage.SetItemAsync(nameof(ClientData), ClientData);
+        }
+
+        protected async Task OnToggleNotifyAppearanceClicked()
+        {
+            ClientData.NotifyMerchantAppearance = !ClientData.NotifyMerchantAppearance;
+            await saveClientData();
+            StateHasChanged();
         }
 
         protected async Task OnTestMerchantSpawnClicked()
         {
             await ClientNotifications.Init();
 
-            var dummyData = pickRandomElement(StaticData.Merchants).Value;
+            var dummyData = new MerchantData
+            {
+                Name = "Lailai",
+                Zones = new List<string> { "Punika" },
+                Cards = new List<Item> { new Item { Name = "Shut up!!", Rarity = Rarity.Rare } },
+            };
             var dummyMerchantGroup = new ActiveMerchantGroup
             {
                 MerchantData = dummyData,
-                MerchantName = dummyData.Name,
-                ActiveMerchants = new List<ActiveMerchant> { new ActiveMerchant { Name = dummyData.Name } },
-
+                MerchantName = "Lailai",
+                ActiveMerchants = new List<ActiveMerchant> { new ActiveMerchant { Name = "Lailai", Card = dummyData.Cards[0], Zone = dummyData.Zones[0] } },
             };
             await ClientNotifications.CreateMerchantSpawnNotification(dummyMerchantGroup);
         }
@@ -55,16 +78,19 @@ namespace WanderLost.Client.Pages
         {
             await ClientNotifications.Init();
 
-            var dummyData = pickRandomElement(StaticData.Merchants).Value;
+            var dummyData = new MerchantData
+            {
+                Name = "Lailai",
+                Zones = new List<string> { "Punika" },
+                Cards = new List<Item> { new Item { Name = "Shut up!!", Rarity = Rarity.Rare } },
+            };
             var dummyMerchantGroup = new ActiveMerchantGroup
             {
                 MerchantData = dummyData,
-                MerchantName = dummyData.Name,
-                ActiveMerchants = new List<ActiveMerchant> { new ActiveMerchant { Name = dummyData.Name, Card = pickRandomElement(dummyData.Cards), Zone = pickRandomElement(dummyData.Zones) } },
-
+                MerchantName = "Lailai",
+                ActiveMerchants = new List<ActiveMerchant> { new ActiveMerchant { Name = "Lailai", Card = dummyData.Cards[0], Zone = dummyData.Zones[0] } },
             };
             await ClientNotifications.CreateMerchantFoundNotification(dummyMerchantGroup);
-
         }
 
         protected async Task OnNotificationStateChanged(bool setActive, string category, string merchant, object value)
@@ -142,7 +168,7 @@ namespace WanderLost.Client.Pages
             if (changed)
             {
                 //save to cookies
-                await LocalStorage.SetItemAsync(nameof(ClientData), ClientData);
+                await saveClientData();
             }
             StateHasChanged();
         }
@@ -186,5 +212,15 @@ namespace WanderLost.Client.Pages
 
             return ClientData.NotifyingMerchants.Any(x => x.Name == name);
         }
+
+        public bool NotifyAppearanceWrapper
+        {
+            get { return ClientData.NotifyMerchantAppearance; }
+            set 
+            {
+                _ = OnToggleNotifyAppearanceClicked();
+            }
+        }
+
     }
 }
