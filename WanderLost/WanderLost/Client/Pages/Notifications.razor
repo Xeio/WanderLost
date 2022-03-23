@@ -2,73 +2,80 @@
 
 <h1>Notification settings</h1>
 
-<p class="text-nowrap">Edit notification alarms.</p>
-<div class="d-flex">
+@if (NotificationsDisabledByBrowser)
+{
+    <p><span class="oi oi-ban text-danger mx-2"></span>Notifications disabled in browser.</p>
+}
+else
+{
+    <p class="text-nowrap">Edit notification alarms.</p>
     <div class="d-flex">
-        <div class="form-check my-auto">
-            <input class="form-check-input" type="checkbox" value="" id="merchantSpawn" @bind="NotifyAppearanceWrapper">
-            <label class="form-check-label" for="merchantSpawn">
-                Notify merchant spawn
-            </label>
-        </div>
-        <button class="btn btn-dark mx-2" disabled="@(!ClientData.NotifyMerchantAppearance)" @onclick="OnTestMerchantSpawnClicked">Test Merchant <span class="text-warning">appeared</span></button>
-    </div>
-    <div class="d-flex mx-2">
-        <div class="form-check my-auto">
-            <input class="form-check-input" type="checkbox" value="" id="merchantFound" checked disabled>
-            <label class="form-check-label" for="merchantFound">
-                Notify merchant found
-            </label>
-        </div>
-        <button class="btn btn-dark mx-2" @onclick="OnTestMerchantFoundClicked">Test Merchant <span class="text-danger">found</span></button>
-    </div>
-</div>
-<div class="d-flex overflow-hidden flex-wrap">
-    @foreach (var merchant in StaticData.Merchants)
-    {
-        <div class="card" style="width: 20rem;">
-            <div class="card-header">
-                <NotificationIcon Enabled="IsMerchantNotified(merchant.Key)" StateChanged="@(x => OnNotificationStateChanged(x, nameof(StaticData.Merchants), merchant.Key , merchant.Key))" />
-                @merchant.Key
+        <div class="d-flex">
+            <div class="form-check my-auto">
+                <input class="form-check-input" type="checkbox" value="" id="merchantSpawn" @bind="NotifyAppearanceWrapper">
+                <label class="form-check-label" for="merchantSpawn">
+                    Notify merchant spawn
+                </label>
             </div>
-            @if (HasNotifiedMerchantValues(merchant.Key))
-            {
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item" style="min-height: 168px;">
-                        <h6 class="card-subtitle mb-2 text-muted">Zones</h6>
-                        <ul>
-                            @foreach (var item in merchant.Value.Zones)
-                            {
-                                <li class="d-block">
-                                    <NotificationIcon Enabled="IsMerchantValueNotified(merchant.Key, nameof(merchant.Value.Zones), item)" StateChanged="@(x => OnNotificationStateChanged(x, nameof(merchant.Value.Zones), merchant.Key, item))" />
-                                    @item
-                                </li>
-                            }
-                        </ul>
-                    </li>
-                    <li class="list-group-item" style="min-height: 137px;">
-                        <h6 class="card-subtitle mb-2 text-muted">Cards</h6>
-                        <ul>
-                            @foreach (var item in merchant.Value.Cards)
-                            {
-                                <li class="d-block">
-                                    <NotificationIcon Enabled="IsMerchantValueNotified(merchant.Key, nameof(merchant.Value.Cards), item)" StateChanged="@(x => OnNotificationStateChanged(x, nameof(merchant.Value.Cards), merchant.Key, item))" />
-                                    @item.Name
-                                </li>
-                            }
-                        </ul>
-                    </li>
-                    <li class="list-group-item">
-                        <h6 class="card-subtitle mb-2 text-muted">Rapport</h6>
-                        <ul>
-                            <li class="d-block">
-                                <span class="oi oi-volume-off mx-2 text-secondary"></span>
-                                soon™
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            }
+            <button class="btn btn-dark mx-2" disabled="@(!ClientData.NotifyMerchantAppearance)" @onclick="OnTestMerchantSpawnClicked">Test Merchant <span class="text-warning">appeared</span></button>
         </div>
-    }
-</div>
+        <div class="d-flex mx-2">
+            <div class="form-check my-auto">
+                <input class="form-check-input" type="checkbox" value="" id="merchantFound" checked disabled>
+                <label class="form-check-label" for="merchantFound">
+                    Notify merchant found
+                </label>
+            </div>
+            <button class="btn btn-dark mx-2" @onclick="OnTestMerchantFoundClicked">Test Merchant <span class="text-danger">found</span></button>
+        </div>
+    </div>
+    <div class="d-flex overflow-hidden flex-wrap">
+        @foreach (var merchant in StaticData.Merchants)
+        {
+            <div class="card" style="width: 20rem;">
+                <div class="card-header">
+                    <NotificationIcon Enabled="IsMerchantNotified(merchant.Key)" StateChanged="@(x => OnNotificationStateChanged(x, nameof(StaticData.Merchants), merchant.Key, merchant.Key))" />
+                    @merchant.Key
+                </div>
+                @if (HasNotifiedMerchantValues(merchant.Key))
+                {
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item" style="min-height: 168px;">
+                            <h6 class="card-subtitle mb-2 text-muted">Zones</h6>
+                            <ul>
+                                @foreach (var item in merchant.Value.Zones)
+                                {
+                                    <li class="d-block">
+                                        <NotificationIcon Enabled="IsMerchantValueNotified(merchant.Key, nameof(merchant.Value.Zones), item)" StateChanged="@(x => OnNotificationStateChanged(x, nameof(merchant.Value.Zones), merchant.Key, item))" />
+                                        @item
+                                    </li>
+                                }
+                            </ul>
+                        </li>
+                        <li class="list-group-item" style="min-height: 137px;">
+                            <h6 class="card-subtitle mb-2 text-muted">Cards</h6>
+                            <ul>
+                                @foreach (var item in merchant.Value.Cards)
+                                {
+                                    <li class="d-block">
+                                        <NotificationIcon Enabled="IsMerchantValueNotified(merchant.Key, nameof(merchant.Value.Cards), item)" StateChanged="@(x => OnNotificationStateChanged(x, nameof(merchant.Value.Cards), merchant.Key, item))" />
+                                        @item.Name
+                                    </li>
+                                }
+                            </ul>
+                        </li>
+                        <li class="list-group-item">
+                            <h6 class="card-subtitle mb-2 text-muted">Rapport</h6>
+                            <ul>
+                                <li class="d-block">
+                                    <span class="oi oi-volume-off mx-2 text-secondary"></span>
+                                    soon™
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                }
+            </div>
+        }
+    </div>
+}
