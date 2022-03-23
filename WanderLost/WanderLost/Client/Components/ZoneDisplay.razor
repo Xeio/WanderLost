@@ -1,6 +1,4 @@
-﻿@inject ClientStaticDataController StaticData
-
-<span class="zone @_imageClass">@ZoneName</span>
+﻿<span class="zone @_imageClass">@ZoneName</span>
 
 @if (!string.IsNullOrWhiteSpace(_imageUrl))
 {
@@ -18,11 +16,11 @@
     private string? _imageUrl;
     private string _imageClass = string.Empty;
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnParametersSetAsync()
     {
-        await StaticData.Init();
-
-        _imageUrl = StaticData.Zones.FirstOrDefault(z => z.Name == ZoneName)?.ImageUrl;
+        var zoneEncoded = Uri.EscapeDataString(ZoneName);
+        _imageUrl = Path.ChangeExtension(Path.Join("/images/zones/", zoneEncoded), ".jpg");
         _imageClass = "Hover" + new string(ZoneName.Where(char.IsLetter).ToArray());
+        return Task.CompletedTask;
     }
 }
