@@ -9,7 +9,7 @@
         <label for="severRegion">Server Region: </label>
         <select class="form-select" id="severRegion" @bind="@ServerRegion">
             <option></option>
-            @foreach(var datacenter in StaticData.ServerRegions)
+            @foreach (var datacenter in StaticData.ServerRegions)
             {
                 <option value="@datacenter.Key">@datacenter.Value.Name</option>
             }
@@ -29,6 +29,12 @@
             }
         </select>
     </div>
+    @if (!string.IsNullOrWhiteSpace(Server))
+    {
+        <div class="col d-flex justify-content-end mt-auto">
+            <NotificationToggle />
+        </div>
+    }
 </div>
 
 @if(string.IsNullOrWhiteSpace(ServerRegion) || string.IsNullOrWhiteSpace(Server))
