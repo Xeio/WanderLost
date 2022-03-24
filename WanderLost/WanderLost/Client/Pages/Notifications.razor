@@ -1,14 +1,20 @@
 ﻿@page "/notifications"
 
 <h1>Notification settings</h1>
+@if (!string.IsNullOrWhiteSpace(_clientData.Server))
+{
+    <div class="d-flex justify-content-end">
+        <NotificationToggle NotificationStateChanged="@(x => OnNotificationStateChanged(x))" />
+    </div>
+}
 
-@if (NotificationsDisabledByBrowser)
+@if (_notificationsDisabledByBrowser)
 {
     <p><span class="oi oi-ban text-danger mx-2"></span>Notifications disabled in browser.</p>
 }
 else
 {
-    <p class="text-nowrap">Edit notification alarms. Click on <NotificationIcon Enabled="true"/>/<NotificationIcon Enabled="false" /> to disable/enable notifications for an item.</p>
+    <p class="text-nowrap">Edit notification alarms. Click on <NotificationIcon Enabled="true" />/<NotificationIcon Enabled="false" /> to disable/enable notifications for an item.</p>
     <div class="d-flex">
         <div class="d-flex">
             <div class="form-check my-auto">
@@ -17,7 +23,7 @@ else
                     Notify merchant spawn
                 </label>
             </div>
-            <button class="btn btn-dark mx-2" disabled="@(!ClientData.NotifyMerchantAppearance)" @onclick="OnTestMerchantSpawnClicked">Test Merchant <span class="text-warning">appeared</span></button>
+            <button class="btn btn-dark mx-2" disabled="@(!_clientData.NotifyMerchantAppearance)" @onclick="OnTestMerchantSpawnClicked">Test Merchant <span class="text-warning">appeared</span></button>
         </div>
         <div class="d-flex mx-2">
             <div class="form-check my-auto">

@@ -1,0 +1,97 @@
+﻿
+@using Blazored.LocalStorage
+@inject ClientNotificationService Notifications
+@inject ILocalStorageService LocalStorage
+
+<div class="d-flex p-1 border rounded cursor-pointer" @onclick="OnNotificationToggleClicked">
+    <span>Merchant notifications: </span>
+    <div >
+        @if (_activated)
+        {
+            <span class="text-success mx-1">
+                <span>on</span>
+                <span class="oi oi-circle-check"></span>
+            </span>
+
+        }
+        else
+        {
+            <span class="text-danger mx-1">
+                <span>off</span>
+                <span class="oi oi-ban"></span>
+            </span>
+        }
+    </div>
+</div>
+
+@code {
+
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public EventCallback<bool> NotificationStateChanged { get; set; }
+
+    private bool _activated = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var cd = await LocalStorage.GetItemAsync<ClientData?>(nameof(ClientData));
+        if (cd?.NotificationsEnabled == true)
+        {
+            _activated = true;
+            Notifications.EnableNotifications();
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    protected async Task OnNotificationToggleClicked()
+    {
+        if (_activated)
+        {
+            await disableNotifications();
+        }
+        else
+        {
+            if (await Notifications.IsSupportedByBrowser() && await Notifications.RequestPermission())
+            {
+                await enableNotifications();
+            }
+        }
+        StateHasChanged();
+    }
+
+    private async Task enableNotifications()
+    {
+        if (await setClientDataNotificationsValue(true))
+        {
+            Notifications.EnableNotifications();
+            _ = NotificationStateChanged.InvokeAsync(true);
+            _activated = true;
+        }
+    }
+
+    private async Task disableNotifications()
+    {
+        if (await setClientDataNotificationsValue(false))
+        {
+            Notifications.DisableNotifications();
+            _ = NotificationStateChanged.InvokeAsync(false);
+            _activated = false;
+        }
+    }
+
+    private async Task<bool> setClientDataNotificationsValue(bool value)
+    {
+        var cd = await LocalStorage.GetItemAsync<ClientData?>(nameof(ClientData));
+        if (cd != null)
+        {
+            cd.NotificationsEnabled = value;
+            await LocalStorage.SetItemAsync(nameof(ClientData), cd);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+}
