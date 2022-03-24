@@ -56,8 +56,6 @@ namespace WanderLost.Client.Pages
             _timer = new Timer(TimerTick, null, 1, 1000);
 
             ClientData = await LocalStorage.GetItemAsync<ClientData?>(nameof(ClientData));
-            //Init Notifications with settings in ClientData
-            Notifications.Init(ClientData);
 
             ServerRegion = ClientData?.Region;
             Server = ClientData?.Server;

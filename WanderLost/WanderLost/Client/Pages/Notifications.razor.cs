@@ -77,8 +77,6 @@ namespace WanderLost.Client.Pages
 
         protected async Task OnTestMerchantSpawnClicked()
         {
-            ClientNotifications.Init(_clientData);
-
             var dummyData = new MerchantData
             {
                 Name = "Lailai",
@@ -97,8 +95,6 @@ namespace WanderLost.Client.Pages
 
         protected async Task OnTestMerchantFoundClicked()
         {
-            ClientNotifications.Init(_clientData);
-
             var dummyData = new MerchantData
             {
                 Name = "Lailai",

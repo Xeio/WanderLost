@@ -34,10 +34,13 @@
     protected override async Task OnInitializedAsync()
     {
         var cd = await LocalStorage.GetItemAsync<ClientData?>(nameof(ClientData));
-        if (cd?.NotificationsEnabled == true)
+        if (cd != null)
         {
-            _activated = true;
-            Notifications.EnableNotifications();
+            Notifications.Init(cd);
+            if (cd?.NotificationsEnabled == true)
+            {
+                _activated = true;
+            }
         }
 
         await base.OnInitializedAsync();
