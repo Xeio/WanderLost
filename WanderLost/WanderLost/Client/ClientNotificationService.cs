@@ -7,8 +7,8 @@ namespace WanderLost.Client
     {
         public bool NotificationsAvailable { get; private set; } = false;
 
-        private INotificationService _notifications;
-        private ClientData _userSettings = new ClientData();
+        private readonly INotificationService _notifications;
+        private ClientData _userSettings = new();
         public ClientNotificationService(INotificationService notif)
         {
             _notifications = notif;
@@ -78,7 +78,7 @@ namespace WanderLost.Client
             NotificationsAvailable = true;
         }
 
-        private bool isAllowedForMerchantFoundNotifications(ActiveMerchantGroup merchantGroup)
+        private bool IsAllowedForMerchantFoundNotifications(ActiveMerchantGroup merchantGroup)
         {
             if (merchantGroup.ActiveMerchants.Count == 0) return false;
 
@@ -103,7 +103,7 @@ namespace WanderLost.Client
         {
             if (!NotificationsAvailable) return ValueTask.CompletedTask;
             if (merchantGroup == null) return ValueTask.CompletedTask;
-            if (!isAllowedForMerchantFoundNotifications(merchantGroup)) return ValueTask.CompletedTask;
+            if (!IsAllowedForMerchantFoundNotifications(merchantGroup)) return ValueTask.CompletedTask;
 
             return ForceMerchantFoundNotification(merchantGroup);
         }

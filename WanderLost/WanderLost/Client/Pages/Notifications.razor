@@ -4,7 +4,7 @@
 @if (!string.IsNullOrWhiteSpace(_clientData.Server))
 {
     <div class="d-flex justify-content-end">
-        <NotificationToggle NotificationStateChanged="@(x => OnNotificationStateChanged(x))" />
+        <NotificationToggle NotificationStateChanged="@(x => OnNotificationStateChanged())" />
     </div>
 }
 

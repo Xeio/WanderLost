@@ -25,8 +25,6 @@
 </div>
 
 @code {
-
-    [Parameter] public bool Disabled { get; set; }
     [Parameter] public EventCallback<bool> NotificationStateChanged { get; set; }
 
     private bool _activated = false;
@@ -67,7 +65,7 @@
         if (await setClientDataNotificationsValue(true))
         {
             Notifications.EnableNotifications();
-            _ = NotificationStateChanged.InvokeAsync(true);
+            await NotificationStateChanged.InvokeAsync(true);
             _activated = true;
         }
     }
@@ -77,7 +75,7 @@
         if (await setClientDataNotificationsValue(false))
         {
             Notifications.DisableNotifications();
-            _ = NotificationStateChanged.InvokeAsync(false);
+            await NotificationStateChanged.InvokeAsync(false);
             _activated = false;
         }
     }
