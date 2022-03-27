@@ -6,10 +6,10 @@ namespace WanderLost.Client.Pages
 {
     public partial class Merchants : IAsyncDisposable
     {
-        [Inject] public ILocalStorageService LocalStorage { get; set; } = default!; //default! to suppress NULL warning
-        [Inject] public ClientStaticDataController StaticData { get; set; } = default!; //default! to suppress NULL warning
-        [Inject] public MerchantHubClient HubClient { get; set; } = default!; //default! to suppress NULL warning
-        [Inject] public ClientNotificationService Notifications { get; set; } = default!; //default! to suppress NULL warning
+        [Inject] public ClientSettingsController ClientSettings { get; init; } = default!;
+        [Inject] public ClientStaticDataController StaticData { get; init; } = default!;
+        [Inject] public MerchantHubClient HubClient { get; init; } = default!;
+        [Inject] public ClientNotificationService Notifications { get; init; } = default!;
 
         private string? _serverRegion;
         private string? ServerRegion
@@ -21,6 +21,7 @@ namespace WanderLost.Client.Pages
                 {
                     _serverRegion = value;
                     Server = null;
+                    Task.Run(() => ClientSettings.SetRegion(_serverRegion ?? string.Empty));
                     ServerRegionChanged();
                 }
             }
@@ -36,7 +37,7 @@ namespace WanderLost.Client.Pages
                 {
                     var oldValue = _server;
                     _server = value;
-                    Task.Run(SaveData);
+                    Task.Run(() => ClientSettings.SetServer(_server ?? string.Empty));
                     Task.Run(() => ServerChanged(oldValue));
                 }
             }
@@ -44,20 +45,18 @@ namespace WanderLost.Client.Pages
 
         private List<ActiveMerchantGroup> _activeMerchantGroups = new();
         private Timer? _timer;
-        private ClientData? ClientData;
 
         protected override async Task OnInitializedAsync()
         {
             await StaticData.Init();
+            await ClientSettings.Init();
 
             _activeMerchantGroups = StaticData.Merchants.Values.Select(m => new ActiveMerchantGroup() { MerchantData = m }).ToList();
 
             _timer = new Timer(TimerTick, null, 1, 1000);
 
-            ClientData = await LocalStorage.GetItemAsync<ClientData?>(nameof(ClientData));
-
-            ServerRegion = ClientData?.Region;
-            Server = ClientData?.Server;
+            ServerRegion = ClientSettings.Region;
+            Server = ClientSettings.Server;
 
             HubClient.OnUpdateMerchantGroup((server, merchantGroup) =>
             {
@@ -119,24 +118,6 @@ namespace WanderLost.Client.Pages
         private void ServerRegionChanged()
         {
             UpdateMerchants(true);
-        }
-
-        private async Task SaveData()
-        {
-            if (ClientData != null)
-            {
-                ClientData.Region = ServerRegion ?? "";
-                ClientData.Server = Server ?? "";
-            }
-            else
-            {
-                ClientData = new ClientData()
-                {
-                    Region = ServerRegion ?? "",
-                    Server = Server ?? "",
-                };
-            }
-            await LocalStorage.SetItemAsync(nameof(ClientData), ClientData);
         }
 
         async void TimerTick(object? _)

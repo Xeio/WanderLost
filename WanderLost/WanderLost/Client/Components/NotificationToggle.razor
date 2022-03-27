@@ -1,12 +1,13 @@
 ﻿
 @using Blazored.LocalStorage
+@inject ClientSettingsController ClientSettings
 @inject ClientNotificationService Notifications
 @inject ILocalStorageService LocalStorage
 
 <div class="d-flex p-1 border rounded cursor-pointer" @onclick="OnNotificationToggleClicked">
     <span>Merchant notifications: </span>
     <div >
-        @if (_activated)
+        @if (ClientSettings.NotificationsEnabled)
         {
             <span class="text-success mx-1">
                 <span>on</span>
@@ -27,72 +28,30 @@
 @code {
     [Parameter] public EventCallback<bool> NotificationStateChanged { get; set; }
 
-    private bool _activated = false;
-
     protected override async Task OnInitializedAsync()
     {
-        var cd = await LocalStorage.GetItemAsync<ClientData?>(nameof(ClientData));
-        if (cd != null)
-        {
-            Notifications.Init(cd);
-            if (cd?.NotificationsEnabled == true)
-            {
-                _activated = true;
-            }
-        }
+        await Notifications.Init();
+        await ClientSettings.Init();
 
         await base.OnInitializedAsync();
     }
 
-    protected async Task OnNotificationToggleClicked()
+    private async Task OnNotificationToggleClicked()
     {
-        if (_activated)
-        {
-            await disableNotifications();
-        }
-        else
+        var oldValue = ClientSettings.NotificationsEnabled;
+        if (!oldValue)
         {
             if (await Notifications.IsSupportedByBrowser() && await Notifications.RequestPermission())
             {
-                await enableNotifications();
+                await ClientSettings.SetNotificationsEnabled(true);
+                await NotificationStateChanged.InvokeAsync();
             }
-        }
-        StateHasChanged();
-    }
-
-    private async Task enableNotifications()
-    {
-        if (await setClientDataNotificationsValue(true))
-        {
-            Notifications.EnableNotifications();
-            await NotificationStateChanged.InvokeAsync(true);
-            _activated = true;
-        }
-    }
-
-    private async Task disableNotifications()
-    {
-        if (await setClientDataNotificationsValue(false))
-        {
-            Notifications.DisableNotifications();
-            await NotificationStateChanged.InvokeAsync(false);
-            _activated = false;
-        }
-    }
-
-    private async Task<bool> setClientDataNotificationsValue(bool value)
-    {
-        var cd = await LocalStorage.GetItemAsync<ClientData?>(nameof(ClientData));
-        if (cd != null)
-        {
-            cd.NotificationsEnabled = value;
-            await LocalStorage.SetItemAsync(nameof(ClientData), cd);
-            return true;
         }
         else
         {
-            return false;
+            await ClientSettings.SetNotificationsEnabled(false);
+            await NotificationStateChanged.InvokeAsync();
         }
+        StateHasChanged();
     }
-
 }
