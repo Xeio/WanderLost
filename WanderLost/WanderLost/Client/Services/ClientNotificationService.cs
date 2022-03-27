@@ -1,7 +1,7 @@
 ﻿using Append.Blazor.Notifications;
 using WanderLost.Shared.Data;
 
-namespace WanderLost.Client
+namespace WanderLost.Client.Services
 {
     public class ClientNotificationService
     {

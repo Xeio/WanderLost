@@ -2,7 +2,7 @@
 using WanderLost.Shared.Data;
 using WanderLost.Shared.Interfaces;
 
-namespace WanderLost.Client
+namespace WanderLost.Client.Services
 {
     //Implements client for incoming calls, and server to act as a proxy for outgoing calls
     public class MerchantHubClient : IMerchantHubServer, IMerchantHubClient, IAsyncDisposable
