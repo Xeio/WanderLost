@@ -6,72 +6,27 @@ namespace WanderLost.Client.Pages
 {
     public partial class Notifications
     {
-        [Inject] public ILocalStorageService LocalStorage { get; set; } = default!; //default! to suppress NULL warning
-        [Inject] public ClientStaticDataController StaticData { get; set; } = default!;
-        [Inject] public NavigationManager NavigationManager { get; set; } = default!;
-        [Inject] public ClientNotificationService ClientNotifications { get; set; } = default!; //default! to suppress NULL warning
+        [Inject] public ClientSettingsController ClientSettings { get; init; } = default!;
+        [Inject] public ClientStaticDataController StaticData { get; init; } = default!;
+        [Inject] public NavigationManager NavigationManager { get; init; } = default!;
+        [Inject] public ClientNotificationService ClientNotifications { get; init; } = default!;
 
-        private ClientData _clientData = new();
-        bool _notificationsDisabledByBrowser = false;
         protected override async Task OnInitializedAsync()
         {
             await StaticData.Init();
-            await Init();
+            await ClientSettings.Init();
+
             await base.OnInitializedAsync();
-            StateHasChanged();
-        }
 
-        private async Task Init()
-        {
-            await TryInitClientData();
-            if (_clientData.NotifyingMerchants == null)
+            if(ClientSettings.NotifyingMerchants.Count == 0)
             {
-                _clientData.NotifyingMerchants = BuildNotifyingMerchantsPreset();
-                await SaveClientData();
-                await TryInitClientData();
+                await ClientSettings.SetNotifyingMerchants(BuildNotifyingMerchantsPreset());
             }
-            HandleClientNotificationInit();
         }
 
-        private void HandleClientNotificationInit()
+        protected async Task ToggleNotifyAppearance()
         {
-            if (_clientData?.NotificationsEnabled == true)
-            {
-                _notificationsDisabledByBrowser = false;
-            }
-            else
-            {
-                _notificationsDisabledByBrowser = true;
-            }
-            StateHasChanged();
-        }
-
-        private async Task TryInitClientData()
-        {
-            var cd = await LocalStorage.GetItemAsync<ClientData?>(nameof(ClientData));
-            //if ClientData is not set or no server is specified yet, go back to mainpage, no point in being here.
-            if (cd == null || string.IsNullOrWhiteSpace(cd.Server))
-                NavigationManager.NavigateTo(NavigationManager.BaseUri);
-            else
-                _clientData = cd;
-        }
-
-        protected async Task OnNotificationStateChanged()
-        {
-            await Init();
-            StateHasChanged();
-        }
-
-        private ValueTask SaveClientData()
-        {
-            return LocalStorage.SetItemAsync(nameof(ClientData), _clientData);
-        }
-
-        protected async Task OnToggleNotifyAppearanceClicked()
-        {
-            _clientData.NotifyMerchantAppearance = !_clientData.NotifyMerchantAppearance;
-            await SaveClientData();
-            StateHasChanged();
+            await ClientSettings.SetNotifyMerchantAppearance(!ClientSettings.NotifyMerchantAppearance);
         }
 
         protected async Task OnTestMerchantSpawnClicked()
@@ -111,19 +66,14 @@ namespace WanderLost.Client.Pages
 
         protected async Task OnNotificationStateChanged(bool setActive, string category, string merchant, object value)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
-            if (_clientData == null) return;
-            if (StaticData.Merchants == null) return;
-            if (_clientData.NotifyingMerchants == null) return;
-
             bool changed = false;
             if (category == nameof(StaticData.Merchants))
             {
-                if (_clientData?.NotifyingMerchants?.FirstOrDefault(x => x.Name == value as string) is MerchantData existing)
+                if (ClientSettings.NotifyingMerchants.FirstOrDefault(x => x.Name == value as string) is MerchantData existing)
                 {
                     if (!setActive)
                     {
-                        _clientData.NotifyingMerchants.Remove(existing);
+                        ClientSettings.NotifyingMerchants.Remove(existing);
                         changed = true;
                     }
                 }
@@ -131,14 +81,14 @@ namespace WanderLost.Client.Pages
                 {
                     if (setActive && StaticData.Merchants.FirstOrDefault(x => x.Key == value as string).Value is MerchantData mData)
                     {
-                        _clientData?.NotifyingMerchants?.Add(mData);
+                        ClientSettings.NotifyingMerchants?.Add(mData);
                         changed = true;
                     }
                 }
             }
             else if (category == nameof(MerchantData.Zones))
             {
-                if (_clientData?.NotifyingMerchants?.FirstOrDefault(x => x.Name == merchant) is MerchantData existing)
+                if (ClientSettings.NotifyingMerchants.FirstOrDefault(x => x.Name == merchant) is MerchantData existing)
                 {
                     if (existing.Zones.FirstOrDefault(x => x == value as string) is string zone)
                     {
@@ -160,7 +110,7 @@ namespace WanderLost.Client.Pages
             }
             else if (category == nameof(MerchantData.Cards))
             {
-                if (_clientData?.NotifyingMerchants?.FirstOrDefault(x => x.Name == merchant) is MerchantData existing)
+                if (ClientSettings.NotifyingMerchants.FirstOrDefault(x => x.Name == merchant) is MerchantData existing)
                 {
                     if (existing.Cards.FirstOrDefault(x => x.Name == (value as Item)?.Name) is Item card)
                     {
@@ -183,8 +133,7 @@ namespace WanderLost.Client.Pages
 
             if (changed)
             {
-                //save to cookies
-                await SaveClientData();
+                await ClientSettings.SetNotifyingMerchants(ClientSettings.NotifyingMerchants);
             }
             StateHasChanged();
         }
@@ -196,24 +145,18 @@ namespace WanderLost.Client.Pages
 
         protected bool IsMerchantNotified(string name)
         {
-            if (_clientData == null) return true;
-            if (_clientData.NotifyingMerchants == null) return true;
-
-            return _clientData.NotifyingMerchants.Any(x => x.Name == name);
+            return ClientSettings.NotifyingMerchants.Any(x => x.Name == name);
         }
 
         protected bool IsMerchantValueNotified(string name, string category, object value)
         {
-            if (_clientData == null) return true;
-            if (_clientData.NotifyingMerchants == null) return true;
-
             if (category == nameof(MerchantData.Zones))
             {
-                return _clientData.NotifyingMerchants.FirstOrDefault(x => x.Name == name)?.Zones.Any(x => x == value as string) ?? false;
+                return ClientSettings.NotifyingMerchants.FirstOrDefault(x => x.Name == name)?.Zones.Any(x => x == value as string) ?? false;
             }
             else if (category == nameof(MerchantData.Cards))
             {
-                return _clientData.NotifyingMerchants.FirstOrDefault(x => x.Name == name)?.Cards.Any(x => x.Name == (value as Item)?.Name) ?? false;
+                return ClientSettings.NotifyingMerchants.FirstOrDefault(x => x.Name == name)?.Cards.Any(x => x.Name == (value as Item)?.Name) ?? false;
             }
             else
             {
@@ -223,20 +166,7 @@ namespace WanderLost.Client.Pages
 
         protected bool HasNotifiedMerchantValues(string name)
         {
-            if (_clientData == null) return false;
-            if (_clientData.NotifyingMerchants == null) return false;
-
-            return _clientData.NotifyingMerchants.Any(x => x.Name == name);
+            return ClientSettings.NotifyingMerchants.Any(x => x.Name == name);
         }
-
-        public bool NotifyAppearanceWrapper
-        {
-            get { return _clientData.NotifyMerchantAppearance; }
-            set 
-            {
-                Task.Run(OnToggleNotifyAppearanceClicked);
-            }
-        }
-
     }
 }

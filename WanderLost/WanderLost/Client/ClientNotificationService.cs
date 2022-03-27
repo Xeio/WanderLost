@@ -5,28 +5,20 @@ namespace WanderLost.Client
 {
     public class ClientNotificationService
     {
-        public bool NotificationsAvailable { get; private set; } = false;
-
+        private readonly ClientSettingsController _clientSettings;
         private readonly INotificationService _notifications;
-        private ClientData _userSettings = new();
-        public ClientNotificationService(INotificationService notif)
+
+        public ClientNotificationService(INotificationService notif, ClientSettingsController clientSettings)
         {
             _notifications = notif;
+            _clientSettings = clientSettings;
         }
 
-        /// <summary>
-        /// Apply usersettings for ignored merchants, loot, etc.
-        /// </summary>
-        /// <param name="userSettings"></param>
-        /// <returns></returns>
-        public void Init(ClientData? userSettings)
+        public async Task Init()
         {
-            if (userSettings != null)
-            {
-                _userSettings = userSettings;
-                NotificationsAvailable = userSettings.NotificationsEnabled;
-            }
+            await _clientSettings.Init();
         }
+
         /// <summary>
         /// Check if user has granted permission for Browser-Notifications.
         /// </summary>
@@ -62,33 +54,17 @@ namespace WanderLost.Client
             return await _notifications.RequestPermissionAsync() is PermissionType answer && answer == PermissionType.Granted;
         }
 
-        /// <summary>
-        /// Disable notifications manually, browser settings are unaffected.
-        /// </summary>
-        public void DisableNotifications()
-        {
-            NotificationsAvailable = false;
-        }
-
-        /// <summary>
-        /// Disable notifications manually, browser settings are unaffected.
-        /// </summary>
-        public void EnableNotifications()
-        {
-            NotificationsAvailable = true;
-        }
-
         private bool IsAllowedForMerchantFoundNotifications(ActiveMerchantGroup merchantGroup)
         {
             if (merchantGroup.ActiveMerchants.Count == 0) return false;
 
             //Check _userSettings if merchants in merchantGroup are allowed for notifications.
-            if (_userSettings.NotifyingMerchants != null)
+            if (_clientSettings.NotifyingMerchants != null)
             {
-                if (!_userSettings.NotifyingMerchants.Any(allowedMerch => allowedMerch.Name == merchantGroup.MerchantName)) return false;
-                if (!_userSettings.NotifyingMerchants.Where(allowedMerch => allowedMerch.Name == merchantGroup.MerchantName)
+                if (!_clientSettings.NotifyingMerchants.Any(allowedMerch => allowedMerch.Name == merchantGroup.MerchantName)) return false;
+                if (!_clientSettings.NotifyingMerchants.Where(allowedMerch => allowedMerch.Name == merchantGroup.MerchantName)
                                                         .Any(x => x.Zones.Any(allowedZone => merchantGroup.ActiveMerchants.Any(actMerch => actMerch.Zone == allowedZone)))) return false;
-                if (!_userSettings.NotifyingMerchants.Where(allowedMerch => allowedMerch.Name == merchantGroup.MerchantName)
+                if (!_clientSettings.NotifyingMerchants.Where(allowedMerch => allowedMerch.Name == merchantGroup.MerchantName)
                                                         .Any(x => x.Cards.Any(allowedCard => merchantGroup.ActiveMerchants.Any(actMerch => actMerch.Card.Name == allowedCard.Name)))) return false;
             }
             return true;
@@ -101,7 +77,7 @@ namespace WanderLost.Client
         /// <returns></returns>
         public ValueTask RequestMerchantFoundNotification(ActiveMerchantGroup merchantGroup)
         {
-            if (!NotificationsAvailable) return ValueTask.CompletedTask;
+            if (!_clientSettings.NotificationsEnabled) return ValueTask.CompletedTask;
             if (merchantGroup == null) return ValueTask.CompletedTask;
             if (!IsAllowedForMerchantFoundNotifications(merchantGroup)) return ValueTask.CompletedTask;
 
@@ -135,13 +111,10 @@ namespace WanderLost.Client
         /// <returns></returns>
         public ValueTask RequestMerchantSpawnNotification(ActiveMerchantGroup merchantGroup)
         {
-            if (!NotificationsAvailable) return ValueTask.CompletedTask;
+            if (!_clientSettings.NotificationsEnabled) return ValueTask.CompletedTask;
             if (merchantGroup == null) return ValueTask.CompletedTask;
-            if (!_userSettings.NotifyMerchantAppearance) return ValueTask.CompletedTask;
-            if (_userSettings.NotifyingMerchants != null)
-            {
-                if (!_userSettings.NotifyingMerchants.Any(allowedMerch => allowedMerch.Name == merchantGroup.MerchantName)) return ValueTask.CompletedTask;
-            }
+            if (!_clientSettings.NotifyMerchantAppearance) return ValueTask.CompletedTask;
+            if (!_clientSettings.NotifyingMerchants.Any(allowedMerch => allowedMerch.Name == merchantGroup.MerchantName)) return ValueTask.CompletedTask;
 
             string body = $"Wandering Merchant \"{merchantGroup.MerchantName}\" is waiting for you somewhere.";
             return _notifications.CreateAsync($"Wandering Merchant \"{merchantGroup.MerchantName}\" appeared", new NotificationOptions { Body = body, Renotify = true, Tag = "spawn_merchant", Icon = "images/notifications/QuestionMark.png" });
