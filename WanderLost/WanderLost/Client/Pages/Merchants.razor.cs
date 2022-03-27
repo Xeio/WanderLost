@@ -1,5 +1,4 @@
-﻿using Append.Blazor.Notifications;
-using Blazored.LocalStorage;
+﻿using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components;
 using WanderLost.Shared.Data;
 
