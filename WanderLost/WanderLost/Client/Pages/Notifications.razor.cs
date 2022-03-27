@@ -17,11 +17,6 @@ namespace WanderLost.Client.Pages
             await ClientSettings.Init();
 
             await base.OnInitializedAsync();
-
-            if(ClientSettings.NotifyingMerchants.Count == 0)
-            {
-                await ClientSettings.SetNotifyingMerchants(BuildNotifyingMerchantsPreset());
-            }
         }
 
         protected async Task ToggleNotifyAppearance()
@@ -64,109 +59,60 @@ namespace WanderLost.Client.Pages
             await ClientNotifications.ForceMerchantFoundNotification(dummyMerchantGroup);
         }
 
-        protected async Task OnNotificationStateChanged(bool setActive, string category, string merchant, object value)
+        protected async Task OnNotificationToggle(bool setActive, NotificationSettingType category, string merchant, object value)
         {
-            bool changed = false;
-            if (category == nameof(StaticData.Merchants))
+            if (!ClientSettings.Notifications.TryGetValue(merchant, out var notificationSetting))
             {
-                if (ClientSettings.NotifyingMerchants.FirstOrDefault(x => x.Name == value as string) is MerchantData existing)
+                notificationSetting = ClientSettings.Notifications[merchant] = new();
+            }
+
+            if (category == NotificationSettingType.Merchant)
+            {
+                notificationSetting.Enabled = !notificationSetting.Enabled;
+            }
+            else if (category == NotificationSettingType.Card && value is Item card)
+            {
+                if (notificationSetting.Cards.Contains(card.Name))
                 {
-                    if (!setActive)
-                    {
-                        ClientSettings.NotifyingMerchants.Remove(existing);
-                        changed = true;
-                    }
+                    notificationSetting.Cards.Remove(card.Name);
                 }
                 else
                 {
-                    if (setActive && StaticData.Merchants.FirstOrDefault(x => x.Key == value as string).Value is MerchantData mData)
-                    {
-                        ClientSettings.NotifyingMerchants?.Add(mData);
-                        changed = true;
-                    }
+                    notificationSetting.Cards.Add(card.Name);
+                    //Also force-enable the merchant, if a user is trying to notify based on an item that merchant carries
+                    if (!notificationSetting.Enabled) notificationSetting.Enabled = true;
                 }
             }
-            else if (category == nameof(MerchantData.Zones))
+            else if(category == NotificationSettingType.Rapport)
             {
-                if (ClientSettings.NotifyingMerchants.FirstOrDefault(x => x.Name == merchant) is MerchantData existing)
-                {
-                    if (existing.Zones.FirstOrDefault(x => x == value as string) is string zone)
-                    {
-                        if (!setActive)
-                        {
-                            existing.Zones.Remove(zone);
-                            changed = true;
-                        }
-                    }
-                    else if (setActive)
-                    {
-                        if (value as string is string valueStr)
-                        {
-                            existing.Zones.Add(valueStr);
-                            changed = true;
-                        }
-                    }
-                }
-            }
-            else if (category == nameof(MerchantData.Cards))
-            {
-                if (ClientSettings.NotifyingMerchants.FirstOrDefault(x => x.Name == merchant) is MerchantData existing)
-                {
-                    if (existing.Cards.FirstOrDefault(x => x.Name == (value as Item)?.Name) is Item card)
-                    {
-                        if (!setActive)
-                        {
-                            existing.Cards.Remove(card);
-                            changed = true;
-                        }
-                    }
-                    else if (setActive)
-                    {
-                        if (value as Item is Item valueCard)
-                        {
-                            existing.Cards.Add(valueCard);
-                            changed = true;
-                        }
-                    }
-                }
+                throw new NotImplementedException();
             }
 
-            if (changed)
-            {
-                await ClientSettings.SetNotifyingMerchants(ClientSettings.NotifyingMerchants);
-            }
-            StateHasChanged();
-        }
-
-        private List<MerchantData> BuildNotifyingMerchantsPreset()
-        {
-            return StaticData.Merchants.Select(x => x.Value).ToList();
+            await ClientSettings.SaveNotificationSettings();
         }
 
         protected bool IsMerchantNotified(string name)
         {
-            return ClientSettings.NotifyingMerchants.Any(x => x.Name == name);
+            if(ClientSettings.Notifications.TryGetValue(name, out var setting))
+            {
+                return setting.Enabled;
+            }
+            return false;
         }
 
-        protected bool IsMerchantValueNotified(string name, string category, object value)
+        protected bool IsMerchantValueNotified(string name, NotificationSettingType category, object value)
         {
-            if (category == nameof(MerchantData.Zones))
+            if (!ClientSettings.Notifications.TryGetValue(name, out var setting))
             {
-                return ClientSettings.NotifyingMerchants.FirstOrDefault(x => x.Name == name)?.Zones.Any(x => x == value as string) ?? false;
+                return false;
             }
-            else if (category == nameof(MerchantData.Cards))
-            {
-                return ClientSettings.NotifyingMerchants.FirstOrDefault(x => x.Name == name)?.Cards.Any(x => x.Name == (value as Item)?.Name) ?? false;
-            }
-            else
-            {
-                throw new ArgumentException($"unknown {nameof(category)}.");
-            }
-        }
 
-        protected bool HasNotifiedMerchantValues(string name)
-        {
-            return ClientSettings.NotifyingMerchants.Any(x => x.Name == name);
+            if (category == NotificationSettingType.Card && value is Item card)
+            {
+                return setting.Cards.Contains(card.Name);
+            }
+
+            return false;
         }
     }
 }
