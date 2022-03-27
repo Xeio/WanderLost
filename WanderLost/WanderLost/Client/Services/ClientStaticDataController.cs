@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 using WanderLost.Shared;
 using WanderLost.Shared.Data;
 
-namespace WanderLost.Client
+namespace WanderLost.Client.Services
 {
     public class ClientStaticDataController
     {

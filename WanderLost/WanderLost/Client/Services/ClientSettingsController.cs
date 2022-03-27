@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using WanderLost.Shared.Data;
 
-namespace WanderLost.Client
+namespace WanderLost.Client.Services
 {
     public class ClientSettingsController
     {
