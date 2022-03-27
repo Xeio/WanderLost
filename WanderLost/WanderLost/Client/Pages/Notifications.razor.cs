@@ -56,7 +56,7 @@ namespace WanderLost.Client.Pages
                 _clientData = cd;
         }
 
-        protected async Task OnNotificationStateChanged(bool value)
+        protected async Task OnNotificationStateChanged()
         {
             await Init();
             StateHasChanged();
@@ -234,7 +234,7 @@ namespace WanderLost.Client.Pages
             get { return _clientData.NotifyMerchantAppearance; }
             set 
             {
-                _ = OnToggleNotifyAppearanceClicked();
+                Task.Run(OnToggleNotifyAppearanceClicked);
             }
         }
 
