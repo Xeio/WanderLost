@@ -1,6 +1,5 @@
 ﻿using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components;
-using System.Text.Json;
 using WanderLost.Shared.Data;
 
 namespace WanderLost.Client.Pages
