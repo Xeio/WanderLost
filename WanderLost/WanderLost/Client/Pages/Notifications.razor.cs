@@ -17,24 +17,24 @@ namespace WanderLost.Client.Pages
         protected override async Task OnInitializedAsync()
         {
             await StaticData.Init();
-            await init();
+            await Init();
             await base.OnInitializedAsync();
             StateHasChanged();
         }
 
-        private async Task init()
+        private async Task Init()
         {
-            await tryInitClientData();
+            await TryInitClientData();
             if (_clientData.NotifyingMerchants == null)
             {
-                _clientData.NotifyingMerchants = buildNotifyingMerchantsPreset();
-                await saveClientData();
-                await tryInitClientData();
+                _clientData.NotifyingMerchants = BuildNotifyingMerchantsPreset();
+                await SaveClientData();
+                await TryInitClientData();
             }
-            handleClientNotificationInit();
+            HandleClientNotificationInit();
         }
 
-        private void handleClientNotificationInit()
+        private void HandleClientNotificationInit()
         {
             if (_clientData?.NotificationsEnabled == true)
             {
@@ -47,7 +47,7 @@ namespace WanderLost.Client.Pages
             StateHasChanged();
         }
 
-        private async Task tryInitClientData()
+        private async Task TryInitClientData()
         {
             var cd = await LocalStorage.GetItemAsync<ClientData?>(nameof(ClientData));
             //if ClientData is not set or no server is specified yet, go back to mainpage, no point in being here.
@@ -59,11 +59,11 @@ namespace WanderLost.Client.Pages
 
         protected async Task OnNotificationStateChanged(bool value)
         {
-            await init();
+            await Init();
             StateHasChanged();
         }
 
-        private ValueTask saveClientData()
+        private ValueTask SaveClientData()
         {
             return LocalStorage.SetItemAsync(nameof(ClientData), _clientData);
         }
@@ -71,7 +71,7 @@ namespace WanderLost.Client.Pages
         protected async Task OnToggleNotifyAppearanceClicked()
         {
             _clientData.NotifyMerchantAppearance = !_clientData.NotifyMerchantAppearance;
-            await saveClientData();
+            await SaveClientData();
             StateHasChanged();
         }
 
@@ -185,12 +185,12 @@ namespace WanderLost.Client.Pages
             if (changed)
             {
                 //save to cookies
-                await saveClientData();
+                await SaveClientData();
             }
             StateHasChanged();
         }
 
-        private List<MerchantData> buildNotifyingMerchantsPreset()
+        private List<MerchantData> BuildNotifyingMerchantsPreset()
         {
             return StaticData.Merchants.Select(x => x.Value).ToList();
         }
