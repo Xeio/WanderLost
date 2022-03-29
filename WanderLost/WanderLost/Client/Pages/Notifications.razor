@@ -1,0 +1,122 @@
+﻿@page "/Notifications"
+
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject ClientStaticDataController StaticData
+
+@implements IAsyncDisposable
+
+<style>
+    .card-columns {
+        column-count: 4;
+    }
+
+        .card-columns .card {
+            display: inline-block;
+            width: 100%;
+        }
+</style>
+
+<PageTitle>Notification Settings</PageTitle>
+<h1>Notification Settings</h1>
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-2">
+            <div class="card-body">
+                Notify Legendary Rapport Items <button type="button" class="btn btn-icon @(NotificationSettings.NotifyLegendaryRapport ? "btn-warning":"")" @onclick="@(() => UpdateLegendaryRapport())"><span class="oi oi-bell"></span></button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="card-columns">
+        @foreach (var merchant in StaticData.Merchants)
+        {
+            <div class="card ">
+                <div class="card-body">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td colspan="2">
+                                    @merchant.Value.Name - @merchant.Value.Region
+                                </td>
+                            </tr>
+                            @foreach (var card in merchant.Value.Cards)
+                            {
+                                var favorited = NotificationSettings.CardList.Contains(card.Name);
+
+                                <tr>
+                                    <td>
+                                        <ItemDisplay Item="@card" />
+                                    </td>
+                                    <td class="text-end">
+                                        <button type="button" class="btn btn-icon @(favorited ? "btn-warning":"")" @onclick="@(() => UpdateCardSetting(card.Name))"><span class="oi oi-bell"></span></button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+
+    private List<ActiveMerchantGroup> _activeMerchantGroups = new();
+    private Timer? _timer;
+
+    private NotificationSettings _notificationSettings;
+    private NotificationSettings NotificationSettings
+    {
+        get
+        {
+            if (_notificationSettings == null)
+            {
+                _notificationSettings = new NotificationSettings();
+            }
+            return _notificationSettings;
+        }
+        set
+        {
+            _notificationSettings = value;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await StaticData.Init();
+
+        var localNotificationSettings = await LocalStorage.GetItemAsync<NotificationSettings>(nameof(NotificationSettings));
+        if (localNotificationSettings != null)
+        {
+            NotificationSettings = localNotificationSettings;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+
+    }
+
+    private async Task UpdateCardSetting(string cardName)
+    {
+        if (!NotificationSettings.CardList.Contains(cardName))
+        {
+            NotificationSettings.CardList.Add(cardName);
+        }
+        else
+        {
+            NotificationSettings.CardList.Remove(cardName);
+        }
+
+        await LocalStorage.SetItemAsync<NotificationSettings>(nameof(NotificationSettings), NotificationSettings);
+    }
+
+    private async Task UpdateLegendaryRapport()
+    {
+        NotificationSettings.NotifyLegendaryRapport = !NotificationSettings.NotifyLegendaryRapport;
+
+        await LocalStorage.SetItemAsync<NotificationSettings>(nameof(NotificationSettings), NotificationSettings);
+    }
+}

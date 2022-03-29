@@ -3,6 +3,7 @@
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject ClientStaticDataController StaticData
 @inject MerchantHubClient HubClient
+@inject IJSRuntime js;
 
 @implements IAsyncDisposable
 
@@ -15,7 +16,7 @@
         <label for="severRegion">Server Region: </label>
         <select class="form-select" id="severRegion" @bind="@ServerRegion">
             <option></option>
-            @foreach(var datacenter in StaticData.ServerRegions)
+            @foreach (var datacenter in StaticData.ServerRegions)
             {
                 <option value="@datacenter.Key">@datacenter.Value.Name</option>
             }
@@ -37,13 +38,13 @@
     </div>
 </div>
 
-@if(string.IsNullOrWhiteSpace(ServerRegion) || string.IsNullOrWhiteSpace(Server))
+@if (string.IsNullOrWhiteSpace(ServerRegion) || string.IsNullOrWhiteSpace(Server))
 {
     <h3 class="mt-3">Select a Server</h3>
 }
-else if(_activeMerchantGroups.Count > 0)
+else if (_activeMerchantGroups.Count > 0)
 {
-    @if(_activeMerchantGroups.Any(m => m.IsActive))
+    @if (_activeMerchantGroups.Any(m => m.IsActive))
     {
         <h3 class="mt-3">Active Merchants</h3>
         <ActiveMerchantsGrid Server="@Server" MerchantGroups="@_activeMerchantGroups" ActiveOnly="true" />
@@ -51,6 +52,12 @@ else if(_activeMerchantGroups.Count > 0)
     <h3 class="mt-3">Upcoming Merchants</h3>
     <ActiveMerchantsGrid Server="@Server" MerchantGroups="@_activeMerchantGroups" />
 }
+
+<audio id="player">
+    <source id="playerSource" src="" />
+</audio>
+
+
 
 @code {
     private string? _serverRegion;
@@ -86,12 +93,13 @@ else if(_activeMerchantGroups.Count > 0)
 
     private List<ActiveMerchantGroup> _activeMerchantGroups = new();
     private Timer? _timer;
+    private NotificationSettings? _notificationSettings = null;
 
     protected override async Task OnInitializedAsync()
     {
         await StaticData.Init();
 
-        _activeMerchantGroups = StaticData.Merchants.Values.Select(m => new ActiveMerchantGroup() { MerchantData = m}).ToList();
+        _activeMerchantGroups = StaticData.Merchants.Values.Select(m => new ActiveMerchantGroup() { MerchantData = m }).ToList();
 
         _timer = new Timer(TimerTick, null, 1, 1000);
 
@@ -99,12 +107,40 @@ else if(_activeMerchantGroups.Count > 0)
         ServerRegion = savedData?.Region;
         Server = savedData?.Server;
 
+        _notificationSettings = await LocalStorage.GetItemAsync<NotificationSettings>(nameof(NotificationSettings));
+
         HubClient.OnUpdateMerchantGroup((server, merchantGroup) =>
         {
-            if(Server != server) return;
+            if (Server != server) return;
             if (_activeMerchantGroups.FirstOrDefault(m => m.MerchantName == merchantGroup.MerchantName) is ActiveMerchantGroup existing)
             {
                 existing.ReplaceInstances(merchantGroup.ActiveMerchants);
+
+                if(_notificationSettings != null)
+                {
+                    bool notify = false;
+
+                    if(_notificationSettings.NotifyLegendaryRapport && merchantGroup.ActiveMerchants.Any(x=> x.RapportRarity == Rarity.Legendary))
+                    {
+                        notify = true;
+                    }
+
+                    var activeCards = merchantGroup.ActiveMerchants.Select(x => x.Card.Name);
+                    foreach (var activeCard in activeCards)
+                    {
+                        if (_notificationSettings.CardList.Contains(activeCard))
+                        {
+                            notify = true;
+                        }
+                    }
+
+                    if (notify)
+                    {
+                        js.InvokeVoidAsync("PlayAudioFile", "/media/notification.mp3");
+                    }
+
+                }
+                
             }
             InvokeAsync(StateHasChanged);
         });
