@@ -6,6 +6,5 @@ namespace WanderLost.Client
     {
         public bool Enabled { get; set; }
         public HashSet<string> Cards { get; set; } = new();
-        public HashSet<Rarity> RapportRarities { get; set; } = new();
     }
 }
