@@ -10,6 +10,7 @@ namespace WanderLost.Client.Pages
         [Inject] public ClientStaticDataController StaticData { get; init; } = default!;
         [Inject] public MerchantHubClient HubClient { get; init; } = default!;
         [Inject] public ClientNotificationService Notifications { get; init; } = default!;
+        [Inject] public NavigationManager NavigationManager { get; init; } = default!;
 
         private string? _serverRegion;
         private string? ServerRegion

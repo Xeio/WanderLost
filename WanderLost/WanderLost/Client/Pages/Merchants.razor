@@ -2,6 +2,13 @@
 
 <PageTitle>Merchants</PageTitle>
 
+@if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.HubConnectionState.Disconnected)
+{
+    <div class="alert alert-danger">
+        Disconnected from server. <a href="" class="alert-link" @onclick="@(() => { NavigationManager.NavigateTo("", true); })">Try to Reload.</a>
+    </div>
+}
+
 <h1>Wandering Merchants</h1>
 
 <div class="row">
