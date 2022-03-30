@@ -68,7 +68,7 @@ namespace WanderLost.Client.Pages
         {
             if (!ClientSettings.Notifications.TryGetValue(merchant, out var notificationSetting))
             {
-                notificationSetting = ClientSettings.Notifications[merchant] = new();
+                notificationSetting = ClientSettings.Notifications[merchant] = new() { Enabled = true };
             }
 
             if (category == NotificationSettingType.Merchant)
@@ -94,11 +94,8 @@ namespace WanderLost.Client.Pages
 
         protected bool IsMerchantNotified(string name)
         {
-            if(ClientSettings.Notifications.TryGetValue(name, out var setting))
-            {
-                return setting.Enabled;
-            }
-            return false;
+            //Default merchants to enabled
+            return !ClientSettings.Notifications.TryGetValue(name, out var setting) || setting.Enabled;
         }
 
         protected bool IsMerchantValueNotified(string name, NotificationSettingType category, object value)

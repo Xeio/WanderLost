@@ -120,8 +120,8 @@ namespace WanderLost.Client.Services
             if (merchantGroup == null) return ValueTask.CompletedTask;
             if (!_clientSettings.NotifyMerchantAppearance) return ValueTask.CompletedTask;
 
-            if(!_clientSettings.Notifications.TryGetValue(merchantGroup.MerchantName, out var notificationSetting)) return ValueTask.CompletedTask;
-            if(!notificationSetting.Enabled) return ValueTask.CompletedTask;
+            //Default to enabled for any merchant
+            if(_clientSettings.Notifications.TryGetValue(merchantGroup.MerchantName, out var notificationSetting) && !notificationSetting.Enabled) return ValueTask.CompletedTask;
 
             string body = $"Wandering Merchant \"{merchantGroup.MerchantName}\" is waiting for you somewhere.";
             return _notifications.CreateAsync($"Wandering Merchant \"{merchantGroup.MerchantName}\" appeared", new NotificationOptions { Body = body, Renotify = true, Tag = "spawn_merchant", Icon = "images/notifications/QuestionMark.png" });
