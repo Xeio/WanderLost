@@ -10,6 +10,7 @@ namespace WanderLost.Client.Services
         public string Server { get; private set; } = string.Empty;
         public bool NotificationsEnabled { get; private set; }
         public bool NotifyMerchantAppearance { get; private set; }
+        public bool NotifyLegendaryRapport { get; private set; }
         public Dictionary<string, MerchantNotificationSetting> Notifications { get; private set; } = new();
 
         private bool _initialized = false;
@@ -29,6 +30,7 @@ namespace WanderLost.Client.Services
                 Server = await _localStorageService.GetItemAsync<string?>(nameof(Server)) ?? string.Empty;
                 NotificationsEnabled = await _localStorageService.GetItemAsync<bool?>(nameof(NotificationsEnabled)) ?? false;
                 NotifyMerchantAppearance = await _localStorageService.GetItemAsync<bool?>(nameof(NotifyMerchantAppearance)) ?? false;
+                NotifyLegendaryRapport = await _localStorageService.GetItemAsync<bool?>(nameof(NotifyLegendaryRapport)) ?? false;
                 Notifications = await _localStorageService.GetItemAsync<Dictionary<string, MerchantNotificationSetting>?>(nameof(Notifications)) ?? new();
                 _initialized = true;
             }
@@ -56,6 +58,12 @@ namespace WanderLost.Client.Services
         {
             NotifyMerchantAppearance = notifyMerchantAppearance;
             await _localStorageService.SetItemAsync(nameof(NotifyMerchantAppearance), notifyMerchantAppearance);
+        }
+
+        public async Task SetNotifyLegendaryRapport(bool notifyLegendaryRapport)
+        {
+            NotifyLegendaryRapport = notifyLegendaryRapport;
+            await _localStorageService.SetItemAsync(nameof(NotifyLegendaryRapport), notifyLegendaryRapport);
         }
 
         public async Task SaveNotificationSettings()

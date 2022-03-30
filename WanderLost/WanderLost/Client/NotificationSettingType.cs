@@ -4,6 +4,5 @@
     {
         Merchant,
         Card,
-        Rapport,
     }
 }

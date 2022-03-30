@@ -24,6 +24,11 @@ namespace WanderLost.Client.Pages
             await ClientSettings.SetNotifyMerchantAppearance(!ClientSettings.NotifyMerchantAppearance);
         }
 
+        protected async Task ToggleNotifyLegendaryRapport()
+        {
+            await ClientSettings.SetNotifyLegendaryRapport(!ClientSettings.NotifyLegendaryRapport);
+        }
+
         protected async Task OnTestMerchantSpawnClicked()
         {
             var dummyData = new MerchantData
@@ -82,10 +87,6 @@ namespace WanderLost.Client.Pages
                     //Also force-enable the merchant, if a user is trying to notify based on an item that merchant carries
                     if (!notificationSetting.Enabled) notificationSetting.Enabled = true;
                 }
-            }
-            else if(category == NotificationSettingType.Rapport)
-            {
-                throw new NotImplementedException();
             }
 
             await ClientSettings.SaveNotificationSettings();

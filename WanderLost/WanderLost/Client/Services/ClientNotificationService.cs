@@ -67,7 +67,11 @@ namespace WanderLost.Client.Services
             {
                 if (notificationSetting.Cards.Contains(card.Name)) return true;
             }
-            //TODO: Rapport
+
+            if (_clientSettings.NotifyLegendaryRapport && merchantGroup.ActiveMerchants.Any(m => m.RapportRarity == Rarity.Legendary))
+            {
+                return true;
+            }
 
             return false;
         }
