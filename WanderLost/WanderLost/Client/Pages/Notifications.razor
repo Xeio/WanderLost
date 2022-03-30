@@ -48,7 +48,7 @@ else
         {
             <div class="card" style="width: 20rem;">
                 <div class="card-header">
-                    <NotificationIcon Enabled="IsMerchantNotified(merchant.Key)" StateChanged="@(x => OnNotificationToggle(x, NotificationSettingType.Merchant, merchant.Key, merchant.Key))" />
+                    <NotificationIcon Enabled="IsMerchantNotified(merchant.Key)" StateChanged="@(_ => OnNotificationToggle(NotificationSettingType.Merchant, merchant.Key, merchant.Key))" />
                     @merchant.Key
                 </div>
                 <ul class="list-group list-group-flush">
@@ -58,7 +58,7 @@ else
                             @foreach (var item in merchant.Value.Cards)
                             {
                                 <li class="d-block">
-                                    <NotificationIcon Enabled="IsMerchantValueNotified(merchant.Key, NotificationSettingType.Card, item)" StateChanged="@(x => OnNotificationToggle(x, NotificationSettingType.Card, merchant.Key, item))" />
+                                    <NotificationIcon Enabled="IsMerchantValueNotified(merchant.Key, NotificationSettingType.Card, item)" StateChanged="@(_ => OnNotificationToggle(NotificationSettingType.Card, merchant.Key, item))" />
                                     <ItemDisplay Item="@item" />
                                 </li>
                             }

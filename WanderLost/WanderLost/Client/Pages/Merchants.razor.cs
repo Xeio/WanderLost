@@ -23,7 +23,6 @@ namespace WanderLost.Client.Pages
                     _serverRegion = value;
                     Server = null;
                     Task.Run(() => ClientSettings.SetRegion(_serverRegion ?? string.Empty));
-                    ServerRegionChanged();
                 }
             }
         }
@@ -59,23 +58,19 @@ namespace WanderLost.Client.Pages
             ServerRegion = ClientSettings.Region;
             Server = ClientSettings.Server;
 
-            HubClient.OnUpdateMerchantGroup((server, merchantGroup) =>
+            HubClient.OnUpdateMerchantGroup(async (server, merchantGroup) =>
             {
                 if (Server != server) return;
                 if (_activeMerchantGroups.FirstOrDefault(m => m.MerchantName == merchantGroup.MerchantName) is ActiveMerchantGroup existing)
                 {
                     if (merchantGroup.HasDifferentMerchantsTo(existing) && merchantGroup.ActiveMerchants.Any())
                     {
-                        Notifications.RequestMerchantFoundNotification(merchantGroup);
-                    }
-                    else if (!merchantGroup.ActiveMerchants.Any())
-                    {
-
+                        await Notifications.RequestMerchantFoundNotification(merchantGroup);
                     }
 
                     existing.ReplaceInstances(merchantGroup.ActiveMerchants);
                 }
-                InvokeAsync(StateHasChanged);
+                await InvokeAsync(StateHasChanged);
             });
 
             if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.HubConnectionState.Disconnected)
@@ -90,6 +85,7 @@ namespace WanderLost.Client.Pages
             {
                 await _timer.DisposeAsync();
             }
+            GC.SuppressFinalize(this);
         }
 
         private async Task ServerChanged(string? oldServer)
@@ -106,7 +102,6 @@ namespace WanderLost.Client.Pages
                 _activeMerchantGroups.ForEach(m => m.ClearInstances());
                 foreach (var serverMerchantGroup in await HubClient.GetKnownActiveMerchantGroups(Server))
                 {
-                    serverMerchantGroup.CalculateNextAppearance(StaticData.ServerRegions[ServerRegion].UtcOffset);
                     if (_activeMerchantGroups.FirstOrDefault(mg => mg.MerchantName == serverMerchantGroup.MerchantName) is ActiveMerchantGroup existing)
                     {
                         existing.ReplaceInstances(serverMerchantGroup.ActiveMerchants);
@@ -116,18 +111,13 @@ namespace WanderLost.Client.Pages
             }
         }
 
-        private void ServerRegionChanged()
-        {
-            UpdateMerchants(true);
-        }
-
         async void TimerTick(object? _)
         {
-            UpdateMerchants();
+            await UpdateMerchants();
             await InvokeAsync(StateHasChanged);
         }
 
-        private void UpdateMerchants(bool force = false)
+        private async Task UpdateMerchants(bool force = false)
         {
             if (string.IsNullOrWhiteSpace(_serverRegion)) return;
             if (_activeMerchantGroups.Count == 0) return;
@@ -147,8 +137,7 @@ namespace WanderLost.Client.Pages
             //Notify appearance of merchants who are 1 second away from spawning.
             foreach (var merchantGroup in _activeMerchantGroups.Where(x => !x.IsActive && x.NextAppearance < (DateTimeOffset.UtcNow.AddSeconds(1))))
             {
-                Notifications.RequestMerchantSpawnNotification(merchantGroup);
-
+                await Notifications.RequestMerchantSpawnNotification(merchantGroup);
             }
 
             if (resort)

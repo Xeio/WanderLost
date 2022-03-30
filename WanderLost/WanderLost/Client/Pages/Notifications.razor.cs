@@ -64,7 +64,7 @@ namespace WanderLost.Client.Pages
             await ClientNotifications.ForceMerchantFoundNotification(dummyMerchantGroup);
         }
 
-        protected async Task OnNotificationToggle(bool setActive, NotificationSettingType category, string merchant, object value)
+        protected async Task OnNotificationToggle(NotificationSettingType category, string merchant, object value)
         {
             if (!ClientSettings.Notifications.TryGetValue(merchant, out var notificationSetting))
             {
