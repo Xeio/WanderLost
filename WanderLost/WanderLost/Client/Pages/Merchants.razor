@@ -8,6 +8,12 @@
         Disconnected from server. <a href="" class="alert-link" @onclick="@(() => { NavigationManager.NavigateTo("", true); })">Try to Reload.</a>
     </div>
 }
+else if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.HubConnectionState.Reconnecting)
+{
+    <div class="alert alert-warning">
+        Disconnected from server, automatically attempting to reconnect... <a href="" class="alert-link" @onclick="@(() => { NavigationManager.NavigateTo("", true); })">Or you can try to reload.</a>
+    </div>
+}
 
 <h1>Wandering Merchants</h1>
 
