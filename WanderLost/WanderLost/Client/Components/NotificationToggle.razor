@@ -2,6 +2,7 @@
 @using Blazored.LocalStorage
 @inject ClientSettingsController ClientSettings
 @inject ClientNotificationService Notifications
+@inject NavigationManager NavigationManager
 @inject ILocalStorageService LocalStorage
 
 <div class="d-flex p-1 border rounded cursor-pointer" @onclick="OnNotificationToggleClicked">
@@ -45,6 +46,11 @@
             {
                 await ClientSettings.SetNotificationsEnabled(true);
                 await NotificationStateChanged.InvokeAsync();
+                if(!ClientSettings.NotifyLegendaryRapport && !ClientSettings.NotifyMerchantAppearance && !ClientSettings.Notifications.Any())
+                {
+                    //Client has no notifications enabled, send them not the notifications page
+                    NavigationManager.NavigateTo("/Notifications");
+                }
             }
         }
         else
