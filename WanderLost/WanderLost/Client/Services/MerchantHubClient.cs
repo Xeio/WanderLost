@@ -13,7 +13,13 @@ namespace WanderLost.Client.Services
         {
             HubConnection = new HubConnectionBuilder()
                 .WithUrl(configuration["SocketEndpoint"])
-                .WithAutomaticReconnect()
+                .WithAutomaticReconnect(new[] {
+                    TimeSpan.FromSeconds(10),
+                    TimeSpan.FromSeconds(30),
+                    TimeSpan.FromMinutes(1), 
+                    TimeSpan.FromMinutes(5),
+                    TimeSpan.FromMinutes(5),
+                })
                 .Build();
         }
 
