@@ -84,6 +84,11 @@ namespace WanderLost.Server.Controllers
 
         private string GetClientIp()
         {
+#if DEBUG
+            //In debug mode, allow using the connection ID to simulate multiple clients
+            return Context.ConnectionId;
+#endif
+
             //Check for header added by Nginx proxy
             //Potential security concern if this is not hosted behind a proxy that sets X-Real-IP,
             //that a malicious user could inject this header to fake address. Maybe make this configurable?
