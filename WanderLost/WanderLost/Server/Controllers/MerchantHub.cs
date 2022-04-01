@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using WanderLost.Server.Data;
 using WanderLost.Shared.Data;
 using WanderLost.Shared.Interfaces;
 
@@ -9,12 +10,10 @@ namespace WanderLost.Server.Controllers
         public static string Path { get; } = "MerchantHub";
 
         private readonly DataController _dataController;
-        private readonly ILogger _logger;
 
-        public MerchantHub(DataController dataController, ILogger<MerchantHub> logger)
+        public MerchantHub(DataController dataController)
         {
             _dataController = dataController;
-            _logger = logger;
         }
 
         public async Task UpdateMerchant(string server, ActiveMerchant merchant)
@@ -37,24 +36,50 @@ namespace WanderLost.Server.Controllers
             //Only allow a user to upload one entry for a merchant. If they submit another, delete the original
             serverMerchantGroup.ActiveMerchants.RemoveAll(m => m.UploadedBy == clientIp); 
 
-            merchant.UploadedBy = clientIp;
             foreach(var existingMerchant in serverMerchantGroup.ActiveMerchants)
             {
                 if (existingMerchant.IsEqualTo(merchant))
                 {
                     //Found an existing matching merchant, so just upvote it instead
-                    existingMerchant.Votes++;
-                    await Clients.Group(server).UpdateMerchantGroup(server, serverMerchantGroup);
+                    await Vote(server, existingMerchant.Id, VoteType.Upvote);
                     return;
                 }
             }
 
-            //Didn't find an existing entry
+            //Didn't find an existing entry, initialize the server entry and vote totals
+            merchant.UploadedBy = clientIp;
             merchant.Id = Guid.NewGuid();
             merchant.Votes = 1;
+            await _dataController.InitVoteGroup(server, merchant, new Vote() { ClientId = clientIp, VoteType = VoteType.Upvote });
             serverMerchantGroup.ActiveMerchants.Add(merchant);
 
             await Clients.Group(server).UpdateMerchantGroup(server, serverMerchantGroup);
+        }
+
+        public async Task Vote(string server, Guid merchantId, VoteType voteType)
+        {
+            if(_dataController.TryGetVoteGroupByMerchantId(merchantId, out var voteGroup))
+            {
+                var clientId = GetClientIp();
+                var existingVote = voteGroup.Votes.FirstOrDefault(v => v.ClientId == clientId);
+                if (existingVote is not null && existingVote.VoteType != voteType)
+                {
+                    existingVote.VoteType = voteType;
+                    voteGroup.Merchant.Votes = voteGroup.Votes.Sum(v => (int)v.VoteType);
+                    await Clients.Group(server).UpdateVoteTotal(merchantId, voteGroup.Merchant.Votes);
+                }
+                else if (existingVote is null)
+                {
+                    var newVote = new Vote()
+                    {
+                        ClientId = clientId,
+                        VoteType = voteType
+                    };
+                    voteGroup.Votes.Add(newVote);
+                    voteGroup.Merchant.Votes = voteGroup.Votes.Sum(v => (int)v.VoteType);
+                    await Clients.Group(server).UpdateVoteTotal(merchantId, voteGroup.Merchant.Votes);
+                }
+            }
         }
 
         public async Task SubscribeToServer(string server)

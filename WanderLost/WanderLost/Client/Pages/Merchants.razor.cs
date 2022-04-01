@@ -44,6 +44,7 @@ namespace WanderLost.Client.Pages
         }
 
         private List<ActiveMerchantGroup> _activeMerchantGroups = new();
+        private readonly Dictionary<Guid, ActiveMerchant> _activeMerchantDictionary = new();
         private Timer? _timer;
 
         protected override async Task OnInitializedAsync()
@@ -61,6 +62,10 @@ namespace WanderLost.Client.Pages
             HubClient.OnUpdateMerchantGroup(async (server, merchantGroup) =>
             {
                 if (Server != server) return;
+                
+                //Client is already aware of all the merchants, ignore
+                if (merchantGroup.ActiveMerchants.All(am => _activeMerchantDictionary.ContainsKey(am.Id))) return;
+                
                 if (_activeMerchantGroups.FirstOrDefault(m => m.MerchantName == merchantGroup.MerchantName) is ActiveMerchantGroup existing)
                 {
                     if (merchantGroup.HasDifferentMerchantsTo(existing) && merchantGroup.ActiveMerchants.Any())
@@ -69,6 +74,21 @@ namespace WanderLost.Client.Pages
                     }
 
                     existing.ReplaceInstances(merchantGroup.ActiveMerchants);
+                }
+
+                foreach (var merchant in merchantGroup.ActiveMerchants)
+                {
+                    _activeMerchantDictionary[merchant.Id] = merchant;
+                }
+
+                await InvokeAsync(StateHasChanged);
+            });
+
+            HubClient.OnUpdateVoteTotal(async (merchantId, voteTotal) =>
+            {
+                if(_activeMerchantDictionary.TryGetValue(merchantId, out var merchant))
+                {
+                    merchant.Votes = voteTotal;
                 }
                 await InvokeAsync(StateHasChanged);
             });
@@ -106,6 +126,10 @@ namespace WanderLost.Client.Pages
                     {
                         existing.ReplaceInstances(serverMerchantGroup.ActiveMerchants);
                     }
+                    foreach (var merchant in serverMerchantGroup.ActiveMerchants)
+                    {
+                        _activeMerchantDictionary[merchant.Id] = merchant;
+                    }
                 }
                 StateHasChanged();
             }
@@ -130,6 +154,7 @@ namespace WanderLost.Client.Pages
                 {
                     merchantGroup.CalculateNextAppearance(StaticData.ServerRegions[_serverRegion].UtcOffset);
                     merchantGroup.ClearInstances();
+                    _activeMerchantDictionary.Clear();
                     resort = true;
                 }
             }

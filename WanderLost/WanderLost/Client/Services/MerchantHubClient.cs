@@ -67,5 +67,24 @@ namespace WanderLost.Client.Services
         {
             return await HubConnection.InvokeAsync<IEnumerable<ActiveMerchantGroup>>(nameof(GetKnownActiveMerchantGroups), server);
         }
+
+        public async Task Vote(string server, Guid merchantId, VoteType voteType)
+        {
+            await HubConnection.SendAsync(nameof(Vote), server, merchantId, voteType);
+        }
+
+        public Task UpdateVoteTotal(Guid merchantId, int voteTotal)
+        {
+            //Todo: Maybe this class should be constructed by a code generator so we don't need these sorts of methods
+            //There's a repeated pattern of an "On" method for server calls, and a SendAsync/InvokeAsync for client calls
+            throw new NotImplementedException();
+        }
+
+        public delegate void UpdateVoteTotalHandler(Guid merchantId, int voteTotal);
+        public void OnUpdateVoteTotal(UpdateVoteTotalHandler handler)
+        {
+            var action = new Action<Guid, int>(handler);
+            HubConnection.On(nameof(UpdateVoteTotal), action);
+        }
     }
 }

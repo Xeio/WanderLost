@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using System.Text.Json;
+using WanderLost.Server.Data;
 using WanderLost.Shared;
 using WanderLost.Shared.Data;
 
@@ -70,6 +71,24 @@ namespace WanderLost.Server.Controllers
             }
 
             return activeMerchantGroups;
+        }
+
+        public bool TryGetVoteGroupByMerchantId(Guid merchantId, out VoteGroup voteGroup)
+        {
+            return _memoryCache.TryGetValue(merchantId, out voteGroup);
+        }
+
+        public async Task InitVoteGroup(string server, ActiveMerchant merchant, Vote vote) 
+        {
+            using var cacheEntry = _memoryCache.CreateEntry(merchant.Id);
+            cacheEntry.Value = new VoteGroup()
+            {
+                Merchant = merchant,
+                Votes = { vote },
+            };
+            //Expire the entry at same time as active merchant cache expires
+            var activeMerchants = await GetActiveMerchantGroups(server);
+            cacheEntry.AbsoluteExpiration = activeMerchants.Min(m => m.AppearanceExpires);
         }
     }
 }

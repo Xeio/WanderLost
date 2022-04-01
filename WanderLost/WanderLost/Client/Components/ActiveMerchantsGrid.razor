@@ -1,4 +1,6 @@
-﻿@{
+﻿@inject MerchantHubClient HubClient
+
+@{
     bool anyMerchantActive = GetVisibleMerchantGroups().Any(mg => mg.IsActive);
 }
 <table class="table">
@@ -56,7 +58,11 @@
                     <td><ZoneDisplay ZoneName="@merchant.Zone" /></td>
                     <td><ItemDisplay Item="@merchant.Card" /></td>
                     <td><ItemDisplay Item="@(new Item() { Name = merchant.RapportRarity?.ToString() ?? "", Rarity = merchant.RapportRarity ?? Rarity.Rare})" /></td>
-                    <td>@merchant.Votes</td>
+                    <td>
+                        @merchant.Votes 
+                        <button class="btn btn-outline-light" alt="Upvote" @onclick="@(async m => await Upvote(merchant.Id))" ><span class="oi oi-thumb-up"></span></button> 
+                        <button class="btn btn-outline-light" alt="Downvote" @onclick="@(async m => await Downvote(merchant.Id))"><span class="oi oi-thumb-down"></span></button>
+                    </td>
                     <td rowspan="@rowSpan"><a class="link-danger" href="/UpdateMerchant/@Server/@merchantGroup.MerchantName">Suggest Replacement</a></td>
                 }         
             </tr>
@@ -66,7 +72,11 @@
                     <td><ZoneDisplay ZoneName="@merchant.Zone" /></td>
                     <td><ItemDisplay Item="@merchant.Card" /></td>
                     <td><ItemDisplay Item="@(new Item() { Name = merchant.RapportRarity?.ToString() ?? "", Rarity = merchant.RapportRarity ?? Rarity.Rare})" /></td>
-                    <td>@merchant.Votes</td>
+                    <td>
+                        @merchant.Votes
+                        <button class="btn btn-outline-light" alt="Upvote" @onclick="@(async m => await Upvote(merchant.Id))" ><span class="oi oi-thumb-up"></span></button> 
+                        <button class="btn btn-outline-light" alt="Downvote" @onclick="@(async m => await Downvote(merchant.Id))"><span class="oi oi-thumb-down"></span></button>
+                    </td>
                 </tr>
             }
         }
@@ -86,5 +96,14 @@
     private IEnumerable<ActiveMerchantGroup> GetVisibleMerchantGroups()
     {
         return MerchantGroups.Where(mg => mg.IsActive ^ !ActiveOnly);
+    }
+
+    public async Task Upvote(Guid merchantId)
+    {
+        await HubClient.Vote(Server, merchantId, VoteType.Upvote);
+    }
+    public async Task Downvote(Guid merchantId)
+    {
+        await HubClient.Vote(Server, merchantId, VoteType.Downvote);
     }
 }
