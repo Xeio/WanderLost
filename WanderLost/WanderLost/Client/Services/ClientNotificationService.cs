@@ -58,14 +58,17 @@ namespace WanderLost.Client.Services
         {
             if (merchantGroup.ActiveMerchants.Count == 0) return false;
 
-            if (!_clientSettings.Notifications.TryGetValue(merchantGroup.MerchantName, out var notificationSetting))
+            if (_clientSettings.Notifications.TryGetValue(merchantGroup.MerchantName, out var notificationSetting) && !notificationSetting.Enabled)
             {
                 return false;
             }
 
-            foreach(var card in merchantGroup.ActiveMerchants.Select(m => m.Card))
+            if (notificationSetting is not null)
             {
-                if (notificationSetting.Cards.Contains(card.Name)) return true;
+                foreach (var card in merchantGroup.ActiveMerchants.Select(m => m.Card))
+                {
+                    if (notificationSetting.Cards.Contains(card.Name)) return true;
+                }
             }
 
             if (_clientSettings.NotifyLegendaryRapport && merchantGroup.ActiveMerchants.Any(m => m.RapportRarity == Rarity.Legendary))
