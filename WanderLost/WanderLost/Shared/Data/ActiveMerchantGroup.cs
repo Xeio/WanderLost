@@ -59,18 +59,6 @@ namespace WanderLost.Shared.Data
             AppearanceExpires = nextAppearanceTime + expiresAfter;
         }
 
-        public void UpdateOrAddMerchant(ActiveMerchant merchant)
-        {
-            if (ActiveMerchants.FirstOrDefault(x => x.IsEqualTo(merchant)) is ActiveMerchant existing)
-            {
-                existing.Votes++;
-            }
-            else
-            {
-                ActiveMerchants.Add(merchant);
-            }
-        }
-
         public void ClearInstances()
         {
             ActiveMerchants.Clear();

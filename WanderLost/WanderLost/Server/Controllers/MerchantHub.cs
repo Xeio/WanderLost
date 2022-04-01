@@ -38,9 +38,21 @@ namespace WanderLost.Server.Controllers
             serverMerchantGroup.ActiveMerchants.RemoveAll(m => m.UploadedBy == clientIp); 
 
             merchant.UploadedBy = clientIp;
-            serverMerchantGroup.UpdateOrAddMerchant(merchant);
+            foreach(var existingMerchant in serverMerchantGroup.ActiveMerchants)
+            {
+                if (existingMerchant.IsEqualTo(merchant))
+                {
+                    //Found an existing matching merchant, so just upvote it instead
+                    existingMerchant.Votes++;
+                    await Clients.Group(server).UpdateMerchantGroup(server, serverMerchantGroup);
+                    return;
+                }
+            }
 
-            _logger.LogInformation("Updated server {server} merchant {Merchant}. Zone:{Zone}, Card:{Card}", server, merchant.Name, merchant.Zone, merchant.Card.Name);
+            //Didn't find an existing entry
+            merchant.Id = Guid.NewGuid();
+            merchant.Votes = 1;
+            serverMerchantGroup.ActiveMerchants.Add(merchant);
 
             await Clients.Group(server).UpdateMerchantGroup(server, serverMerchantGroup);
         }

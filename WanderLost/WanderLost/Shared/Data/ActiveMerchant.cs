@@ -4,6 +4,7 @@ namespace WanderLost.Shared.Data
 {
     public class ActiveMerchant
     {
+        public Guid Id { get; set; }
         public string Name { get; init; } = string.Empty;
         public string Zone { get; set; } = string.Empty;
         public Item Card { get; set; } = new();
