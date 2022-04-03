@@ -94,10 +94,17 @@ namespace WanderLost.Client.Pages
                 await InvokeAsync(StateHasChanged);
             }));
 
+            HubClient.HubConnection.Reconnected += HubConnection_Reconnected;
+
             if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.HubConnectionState.Disconnected)
             {
                 await HubClient.HubConnection.StartAsync();
             }
+        }
+
+        private async Task HubConnection_Reconnected(string? arg)
+        {
+            await SynchronizeServer();
         }
 
         public async ValueTask DisposeAsync()
@@ -113,6 +120,8 @@ namespace WanderLost.Client.Pages
             }
             _hubEvents.Clear();
 
+            HubClient.HubConnection.Reconnected -= HubConnection_Reconnected;
+
             GC.SuppressFinalize(this);
         }
 
@@ -125,9 +134,17 @@ namespace WanderLost.Client.Pages
             if (!string.IsNullOrWhiteSpace(Server) && !string.IsNullOrWhiteSpace(ServerRegion))
             {
                 await HubClient.SubscribeToServer(Server);
+                await SynchronizeServer();
+            }
+        }
 
-                //Sync with the server's current data
-                _activeMerchantGroups.ForEach(m => m.ClearInstances());
+        private async Task SynchronizeServer()
+        {
+            //Sync with the server's current data
+            _activeMerchantDictionary.Clear();
+            _activeMerchantGroups.ForEach(m => m.ClearInstances());
+            if (!string.IsNullOrWhiteSpace(Server))
+            {
                 foreach (var serverMerchantGroup in await HubClient.GetKnownActiveMerchantGroups(Server))
                 {
                     if (_activeMerchantGroups.FirstOrDefault(mg => mg.MerchantName == serverMerchantGroup.MerchantName) is ActiveMerchantGroup existing)
@@ -139,8 +156,8 @@ namespace WanderLost.Client.Pages
                         _activeMerchantDictionary[merchant.Id] = merchant;
                     }
                 }
-                StateHasChanged();
             }
+            StateHasChanged();
         }
 
         async void TimerTick(object? _)
