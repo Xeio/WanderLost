@@ -21,6 +21,8 @@ namespace WanderLost.Client.Services
                     TimeSpan.FromMinutes(5),
                 })
                 .Build();
+            HubConnection.ServerTimeout = TimeSpan.FromMinutes(2);
+            HubConnection.KeepAliveInterval = TimeSpan.FromMinutes(1);
         }
 
         public async ValueTask DisposeAsync()

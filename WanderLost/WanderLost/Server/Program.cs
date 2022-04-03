@@ -7,7 +7,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(hubOptions=>
+{
+    hubOptions.ClientTimeoutInterval = TimeSpan.FromMinutes(2);
+    hubOptions.KeepAliveInterval = TimeSpan.FromMinutes(1);
+});
 builder.Services.AddMemoryCache();
 
 builder.Services.AddScoped<DataController>();
