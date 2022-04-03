@@ -55,14 +55,14 @@ namespace WanderLost.Client.Services
             throw new NotImplementedException();
         }
 
-        public void OnUpdateMerchant(Action<string, ActiveMerchant> action)
+        public IDisposable OnUpdateMerchant(Action<string, ActiveMerchant> action)
         {
-            HubConnection.On(nameof(UpdateMerchant), action);
+            return HubConnection.On(nameof(UpdateMerchant), action);
         }
 
-        public void OnUpdateMerchantGroup(Action<string, ActiveMerchantGroup> action)
+        public IDisposable OnUpdateMerchantGroup(Action<string, ActiveMerchantGroup> action)
         {
-            HubConnection.On(nameof(IMerchantHubClient.UpdateMerchantGroup), action);
+            return HubConnection.On(nameof(IMerchantHubClient.UpdateMerchantGroup), action);
         }
 
         public async Task<IEnumerable<ActiveMerchantGroup>> GetKnownActiveMerchantGroups(string server)
@@ -83,10 +83,10 @@ namespace WanderLost.Client.Services
         }
 
         public delegate void UpdateVoteTotalHandler(Guid merchantId, int voteTotal);
-        public void OnUpdateVoteTotal(UpdateVoteTotalHandler handler)
+        public IDisposable OnUpdateVoteTotal(UpdateVoteTotalHandler handler)
         {
             var action = new Action<Guid, int>(handler);
-            HubConnection.On(nameof(UpdateVoteTotal), action);
+            return HubConnection.On(nameof(UpdateVoteTotal), action);
         }
     }
 }

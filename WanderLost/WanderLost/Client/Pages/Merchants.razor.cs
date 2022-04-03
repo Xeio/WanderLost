@@ -46,6 +46,7 @@ namespace WanderLost.Client.Pages
         private List<ActiveMerchantGroup> _activeMerchantGroups = new();
         private readonly Dictionary<Guid, ActiveMerchant> _activeMerchantDictionary = new();
         private Timer? _timer;
+        private readonly List<IDisposable> _hubEvents = new();
 
         protected override async Task OnInitializedAsync()
         {
@@ -59,7 +60,7 @@ namespace WanderLost.Client.Pages
             ServerRegion = ClientSettings.Region;
             Server = ClientSettings.Server;
 
-            HubClient.OnUpdateMerchantGroup(async (server, merchantGroup) =>
+            _hubEvents.Add(HubClient.OnUpdateMerchantGroup(async (server, merchantGroup) =>
             {
                 if (Server != server) return;
                 
@@ -82,16 +83,16 @@ namespace WanderLost.Client.Pages
                 }
 
                 await InvokeAsync(StateHasChanged);
-            });
+            }));
 
-            HubClient.OnUpdateVoteTotal(async (merchantId, voteTotal) =>
+            _hubEvents.Add(HubClient.OnUpdateVoteTotal(async (merchantId, voteTotal) =>
             {
                 if(_activeMerchantDictionary.TryGetValue(merchantId, out var merchant))
                 {
                     merchant.Votes = voteTotal;
                 }
                 await InvokeAsync(StateHasChanged);
-            });
+            }));
 
             if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.HubConnectionState.Disconnected)
             {
@@ -105,6 +106,13 @@ namespace WanderLost.Client.Pages
             {
                 await _timer.DisposeAsync();
             }
+
+            foreach (var hubEvent in _hubEvents)
+            {
+                hubEvent.Dispose();
+            }
+            _hubEvents.Clear();
+
             GC.SuppressFinalize(this);
         }
 

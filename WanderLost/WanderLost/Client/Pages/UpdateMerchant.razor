@@ -5,6 +5,8 @@
 @inject MerchantHubClient HubClient
 @inject NavigationManager NavigationManager
 
+@implements IAsyncDisposable
+
 <PageTitle>Submit Merchant Location</PageTitle>
 <h1>Submit Location for @ActiveMerchant.Name - @MerchantData?.Region</h1>
 
@@ -73,6 +75,8 @@
     public MerchantData? MerchantData { get; set; }
 
     public ActiveMerchant ActiveMerchant { get; set; } = new();
+    private readonly List<IDisposable> _hubEvents = new();
+
 
     public string CardName
     {
@@ -93,14 +97,14 @@
 
         MerchantData = StaticData.Merchants[MerchantName];
 
-        HubClient.OnUpdateMerchant((server, merchant) =>
+        _hubEvents.Add(HubClient.OnUpdateMerchant((server, merchant) =>
         {
-            if(Server == server && merchant.Name == MerchantName)
+            if (Server == server && merchant.Name == MerchantName)
             {
                 //Someone else beat us to submitting the merchant, just go back to index
                 NavigationManager.NavigateTo("/");
             }
-        });
+        }));
 
         if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.HubConnectionState.Disconnected)
         {
@@ -116,5 +120,16 @@
     {
         await HubClient.UpdateMerchant(Server, ActiveMerchant);
         NavigationManager.NavigateTo("/");
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        foreach(var hubEvent in _hubEvents)
+        {
+            hubEvent.Dispose();
+        }
+        _hubEvents.Clear();
+
+        return ValueTask.CompletedTask;
     }
 }
