@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 using WanderLost.Shared.Data;
 using WanderLost.Shared.Interfaces;
+using HubClientSourceGenerator;
 
 namespace WanderLost.Client.Services
 {
     //Implements client for incoming calls, and server to act as a proxy for outgoing calls
-    public class MerchantHubClient : IMerchantHubServer, IMerchantHubClient, IAsyncDisposable
+    [AutoHubClient(typeof(IMerchantHubClient))]
+    //[AutoHubClient(typeof(IMerchantHubClient))]
+    public partial class MerchantHubClient : IMerchantHubServer, IAsyncDisposable
     {
         public HubConnection HubConnection { get; init; }
 
@@ -53,20 +56,9 @@ namespace WanderLost.Client.Services
             await HubConnection.SendAsync(nameof(UpdateMerchant), server, merchant);
         }
 
-        Task IMerchantHubClient.UpdateMerchantGroup(string server, ActiveMerchantGroup merchantGroup)
-        {
-            //Not a callable server method
-            throw new NotImplementedException();
-        }
-
         public IDisposable OnUpdateMerchant(Action<string, ActiveMerchant> action)
         {
             return HubConnection.On(nameof(UpdateMerchant), action);
-        }
-
-        public IDisposable OnUpdateMerchantGroup(Action<string, ActiveMerchantGroup> action)
-        {
-            return HubConnection.On(nameof(IMerchantHubClient.UpdateMerchantGroup), action);
         }
 
         public async Task<IEnumerable<ActiveMerchantGroup>> GetKnownActiveMerchantGroups(string server)

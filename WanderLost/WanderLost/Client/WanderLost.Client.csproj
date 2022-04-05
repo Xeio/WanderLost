@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+	  <ProjectReference Include="..\..\HubClientSourceGenerator\HubClientSourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="True" />
     <ProjectReference Include="..\Shared\WanderLost.Shared.csproj" />
   </ItemGroup>
 
