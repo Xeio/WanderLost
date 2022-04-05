@@ -56,11 +56,6 @@ namespace WanderLost.Client.Services
             await HubConnection.SendAsync(nameof(UpdateMerchant), server, merchant);
         }
 
-        public IDisposable OnUpdateMerchant(Action<string, ActiveMerchant> action)
-        {
-            return HubConnection.On(nameof(UpdateMerchant), action);
-        }
-
         public async Task<IEnumerable<ActiveMerchantGroup>> GetKnownActiveMerchantGroups(string server)
         {
             return await HubConnection.InvokeAsync<IEnumerable<ActiveMerchantGroup>>(nameof(GetKnownActiveMerchantGroups), server);

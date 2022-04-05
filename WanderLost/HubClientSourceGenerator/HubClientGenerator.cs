@@ -64,8 +64,12 @@ namespace HubClientSourceGenerator
             if(targetInterfaceType.TypeKind == TypeKind.Interface)
             {
                 var taskType = context.Compilation.GetTypeByMetadataName("System.Threading.Tasks.Task");
-                //var foo = context.Compilation.GetTypeByMetadataName(targetInterfaceType.Name);
-                var methods = targetInterfaceType.GetMembers().OfType<IMethodSymbol>();
+                var methods = targetInterfaceType
+                    .GetMembers()
+                    .OfType<IMethodSymbol>()
+                    //Also include inherited members
+                    .Concat(targetInterfaceType.AllInterfaces.SelectMany(inherited => inherited.GetMembers().OfType<IMethodSymbol>()));
+                
 
                 StringBuilder sb = new StringBuilder();
 
