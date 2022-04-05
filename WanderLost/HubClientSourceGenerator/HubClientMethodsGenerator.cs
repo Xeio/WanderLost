@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using HubClientSourceGenerator;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
 
 namespace SourceGeneratorSamples
 {
     [Generator]
-    public class HubClientGenerator : ISourceGenerator
+    public class HubClientMethodsGenerator : ISourceGenerator
     {
         private const string attributeText = @"
 using System;
@@ -32,29 +28,22 @@ namespace HubClientSourceGenerator
 
         public void Initialize(GeneratorInitializationContext context)
         {
-            //Debugger.Launch();
-            // Register the attribute source
             context.RegisterForPostInitialization((i) => i.AddSource("AutoHubClientAttribute", attributeText));
-            // Register a syntax receiver that will be created for each generation pass
-            context.RegisterForSyntaxNotifications(() => new HubClientGeneratorReciever());
+            context.RegisterForSyntaxNotifications(() => new HubGeneratorReciever("HubClientSourceGenerator.AutoHubClientAttribute"));
         }
 
         public void Execute(GeneratorExecutionContext context)
         {
-            // retrieve the populated receiver 
-            if (!(context.SyntaxContextReceiver is HubClientGeneratorReciever receiver))
+            if (!(context.SyntaxContextReceiver is HubGeneratorReciever receiver))
                 return;
 
 
             var attributeSymbol = context.Compilation.GetTypeByMetadataName("HubClientSourceGenerator.AutoHubClientAttribute");
 
-            //Debugger.Launch();
-
             foreach (var type in receiver.Classes)
             {
                 ProcessClass(type, attributeSymbol, context);
             }
-
         }
 
         private void ProcessClass(ITypeSymbol clientClass, ISymbol attributeSymbol, GeneratorExecutionContext context)
@@ -80,8 +69,10 @@ namespace HubClientSourceGenerator
 using System;
 using Microsoft.AspNetCore.SignalR.Client;
 
-namespace {ns} {{
-    public partial class {className} {{
+namespace {ns}
+{{
+    public partial class {className}
+    {{
 ");
 
                 foreach (var method in methods)
@@ -91,7 +82,7 @@ namespace {ns} {{
                         if (method.Parameters.Any())
                         {
                             var parsedParemeters = method.Parameters.Select(p =>
-                                new Parameter()
+                                new MethodParameter()
                                 {
                                     Name = p.Name,
                                     FullyQualifiedTypeName = p.Type.ToDisplayString(),
@@ -110,26 +101,26 @@ namespace {ns} {{
 }}
 ");
 
-                context.AddSource($"{className}_client", sb.ToString());
+                context.AddSource($"{className}_clientMethods", sb.ToString());
             }
         }
 
         private string BuildClientMethod(string name)
         {
-            string s = $@"
+            return $@"
         public IDisposable On{name}(Action action)
         {{
             return HubConnection.On(""{name}"", action);
         }}
 ";
-            return s;
         }
 
-        private string BuildClientMethod(string name, IEnumerable<Parameter> parameters)
+        private string BuildClientMethod(string name, IEnumerable<MethodParameter> parameters)
         {
             string typeAndNameLine = string.Join(", ", parameters.Select(p => $"{p.FullyQualifiedTypeName} {p.Name}"));
             string typeLine = string.Join(", ", parameters.Select(p => p.FullyQualifiedTypeName));
-            string s = $@"
+
+            return $@"
         public delegate void {name}Handler({typeAndNameLine});
 
         public IDisposable On{name}({name}Handler handler)
@@ -138,38 +129,6 @@ namespace {ns} {{
             return HubConnection.On(""{name}"", action);
         }}
 ";
-            return s;
-        }
-
-        private class Parameter
-        {
-            public string FullyQualifiedTypeName { get; set; }
-            public string Name { get; set; }
-        }
-
-        /// <summary>
-        /// Created on demand before each generation pass
-        /// </summary>
-        class HubClientGeneratorReciever : ISyntaxContextReceiver
-        {
-            public List<ITypeSymbol> Classes { get; } = new List<ITypeSymbol>();
-
-            /// <summary>
-            /// Called for every syntax node in the compilation, we can inspect the nodes and save any information useful for generation
-            /// </summary>
-            public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
-            {
-                // any field with at least one attribute is a candidate for property generation
-                if (context.Node is TypeDeclarationSyntax typeDeclarationSyntax
-                    && typeDeclarationSyntax.AttributeLists.Count > 0)
-                {
-                    var type = context.SemanticModel.GetDeclaredSymbol(typeDeclarationSyntax) as ITypeSymbol;
-                    if (type.GetAttributes().Any(att => att.AttributeClass.ToString() == "HubClientSourceGenerator.AutoHubClientAttribute"))
-                    {
-                        Classes.Add(type);
-                    }
-                }
-            }
-        }
+        }       
     }
 }
