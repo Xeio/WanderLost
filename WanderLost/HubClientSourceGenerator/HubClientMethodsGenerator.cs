@@ -101,7 +101,7 @@ namespace {ns}
 }}
 ");
 
-                context.AddSource($"{className}_clientMethods", sb.ToString());
+                context.AddSource($"{className}_ClientMethods", sb.ToString());
             }
         }
 

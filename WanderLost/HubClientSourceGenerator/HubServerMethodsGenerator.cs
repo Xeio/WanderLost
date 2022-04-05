@@ -123,7 +123,7 @@ namespace {ns}
 }}
 ");
 
-                context.AddSource($"{className}_serverMethods", sb.ToString());
+                context.AddSource($"{className}_ServerMethods", sb.ToString());
             }
         }
 
