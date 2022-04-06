@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.EntityFrameworkCore;
 using WanderLost.Server.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,11 @@ builder.Services.AddResponseCompression(opts =>
 {
     opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
         new[] { "application/octet-stream" });
+});
+
+builder.Services.AddDbContext<MerchantsDbContext>(opts =>
+{
+    opts.UseSqlServer(builder.Configuration["SqlConnectionString"]);
 });
 
 builder.Logging.ClearProviders();
