@@ -33,7 +33,7 @@ namespace WanderLost.Shared.Data
                     return _merchantName;
                 }
             }
-            init
+            set
             {
                 _merchantName = value;
             }
