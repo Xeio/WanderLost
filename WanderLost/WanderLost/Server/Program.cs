@@ -60,4 +60,11 @@ app.MapHub<MerchantHub>($"/{MerchantHub.Path}");
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
+using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
+{
+    //Ensure model is created and up to date on startup
+    using var context = serviceScope.ServiceProvider.GetService<MerchantsDbContext>();
+    context?.Database.Migrate();
+}
+
 app.Run();

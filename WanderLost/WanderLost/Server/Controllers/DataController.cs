@@ -78,7 +78,7 @@ namespace WanderLost.Server.Controllers
             return _memoryCache.TryGetValue(merchantId, out voteGroup);
         }
 
-        public async Task InitVoteGroup(string server, ActiveMerchant merchant, Vote vote) 
+        public async Task InitVoteGroup(string server, ActiveMerchant merchant, Data.Vote vote) 
         {
             using var cacheEntry = _memoryCache.CreateEntry(merchant.Id);
             cacheEntry.Value = new VoteGroup()

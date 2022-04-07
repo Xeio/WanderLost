@@ -1,13 +1,24 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace WanderLost.Shared.Data
 {
     public class ActiveMerchantGroup
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key]
+        public int Id { get; set; }
+
+        [MaxLength(20)]
+        public string Server { get; set; } = string.Empty;
+
+        [NotMapped]
         [JsonIgnore]
         public MerchantData MerchantData { get; init; } = new();
 
         private string _merchantName = string.Empty;
+        [MaxLength(20)]
         public string MerchantName
         {
             get
@@ -32,9 +43,11 @@ namespace WanderLost.Shared.Data
 
         [JsonIgnore]
         public DateTimeOffset NextAppearance { get; private set; }
+
         [JsonIgnore]
         public DateTimeOffset AppearanceExpires { get; private set; }
 
+        [NotMapped]
         public bool IsActive => DateTimeOffset.UtcNow > NextAppearance && DateTimeOffset.UtcNow < AppearanceExpires;
 
         public void CalculateNextAppearance(TimeSpan serverUtcOffset)
