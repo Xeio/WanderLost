@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using WanderLost.Server.Data;
+using Microsoft.EntityFrameworkCore;
 using WanderLost.Shared.Data;
 using WanderLost.Shared.Interfaces;
 
@@ -10,10 +10,12 @@ namespace WanderLost.Server.Controllers
         public static string Path { get; } = "MerchantHub";
 
         private readonly DataController _dataController;
+        private readonly MerchantsDbContext _merchantsDbContext;
 
-        public MerchantHub(DataController dataController)
+        public MerchantHub(DataController dataController, MerchantsDbContext merchantsDbContext)
         {
             _dataController = dataController;
+            _merchantsDbContext = merchantsDbContext;
         }
 
         public async Task UpdateMerchant(string server, ActiveMerchant merchant)
@@ -25,18 +27,31 @@ namespace WanderLost.Server.Controllers
             var allMerchantData = await _dataController.GetMerchantData();
             if (!merchant.IsValid(allMerchantData)) return;
 
-            var activeMerchantGroups = await _dataController.GetActiveMerchantGroups(server);
+            var merchantGroup = await _merchantsDbContext.MerchantGroups
+                .Include(g => g.ActiveMerchants)
+                .SingleOrDefaultAsync(g => g.Server == server && g.MerchantName == merchant.Name && g.AppearanceExpires > DateTimeOffset.Now);
 
-            var serverMerchantGroup = activeMerchantGroups.FirstOrDefault(m => m.MerchantName == merchant.Name);
+            if(merchantGroup == null)
+            {
+                //Merchant hasn't been saved to DB yet, get the in-memory one with expiration data calculated
+                var activeMerchantGroups = await _dataController.GetActiveMerchantGroups(server);
+                merchantGroup = activeMerchantGroups.FirstOrDefault(m => m.MerchantName == merchant.Name);
 
-            if (serverMerchantGroup is null) return; //Failed to find matching merchant
-            if (!serverMerchantGroup.IsActive) return; //Don't allow updating merchants that aren't active
+                //Don't allow modifying inactive merchants
+                if (merchantGroup is null || !merchantGroup.IsActive) return;
+
+                //Add it to the DB context to save later
+                merchantGroup.Server = server;
+                merchantGroup.MerchantName = merchant.Name;
+                _merchantsDbContext.MerchantGroups.Add(merchantGroup);
+            }
 
             var clientIp = GetClientIp();
-            //Only allow a user to upload one entry for a merchant. If they submit another, delete the original
-            serverMerchantGroup.ActiveMerchants.RemoveAll(m => m.UploadedBy == clientIp); 
 
-            foreach(var existingMerchant in serverMerchantGroup.ActiveMerchants)
+            //If a client already uploaded a merchant, ignore further uploads and just skip out
+            if (merchantGroup.ActiveMerchants.Any(m => m.UploadedBy == clientIp)) return;
+
+            foreach (var existingMerchant in merchantGroup.ActiveMerchants)
             {
                 if (existingMerchant.IsEqualTo(merchant))
                 {
@@ -46,39 +61,49 @@ namespace WanderLost.Server.Controllers
                 }
             }
 
-            //Didn't find an existing entry, initialize the server entry and vote totals
             merchant.UploadedBy = clientIp;
-            merchant.Id = Guid.NewGuid();
-            merchant.Votes = 1;
-            await _dataController.InitVoteGroup(server, merchant, new Data.Vote() { ClientId = clientIp, VoteType = VoteType.Upvote });
-            serverMerchantGroup.ActiveMerchants.Add(merchant);
+            merchantGroup.ActiveMerchants.Add(merchant);
 
-            await Clients.Group(server).UpdateMerchantGroup(server, serverMerchantGroup);
+            await _merchantsDbContext.SaveChangesAsync();
+
+            await Clients.Group(server).UpdateMerchantGroup(server, merchantGroup);
         }
 
         public async Task Vote(string server, Guid merchantId, VoteType voteType)
         {
-            if(_dataController.TryGetVoteGroupByMerchantId(merchantId, out var voteGroup))
+            var activeMerchant = await _merchantsDbContext.ActiveMerchants
+                .Include(m => m.ClientVotes)
+                .SingleOrDefaultAsync(m => m.Id == merchantId);
+            if (activeMerchant == null) return;
+
+            var clientId = GetClientIp();
+
+            //Don't let a user vote on their own submission to make some aggregation stuff easier later
+            if(activeMerchant.UploadedBy == clientId) return;
+
+            var existingVote = activeMerchant.ClientVotes.FirstOrDefault(v => v.ClientId == clientId);
+            if(existingVote == null)
             {
-                var clientId = GetClientIp();
-                var existingVote = voteGroup.Votes.FirstOrDefault(v => v.ClientId == clientId);
-                if (existingVote is not null && existingVote.VoteType != voteType)
+                activeMerchant.ClientVotes.Add(new Vote()
                 {
-                    existingVote.VoteType = voteType;
-                    voteGroup.Merchant.Votes = voteGroup.Votes.Sum(v => (int)v.VoteType);
-                    await Clients.Group(server).UpdateVoteTotal(merchantId, voteGroup.Merchant.Votes);
-                }
-                else if (existingVote is null)
-                {
-                    var newVote = new Data.Vote()
-                    {
-                        ClientId = clientId,
-                        VoteType = voteType
-                    };
-                    voteGroup.Votes.Add(newVote);
-                    voteGroup.Merchant.Votes = voteGroup.Votes.Sum(v => (int)v.VoteType);
-                    await Clients.Group(server).UpdateVoteTotal(merchantId, voteGroup.Merchant.Votes);
-                }
+                    ActiveMerchant = activeMerchant,
+                    ClientId = clientId,
+                    VoteType = voteType,
+                });
+                activeMerchant.Votes = activeMerchant.ClientVotes.Sum(v => (int)v.VoteType);
+
+                await _merchantsDbContext.SaveChangesAsync();
+
+                await Clients.Group(server).UpdateVoteTotal(merchantId, activeMerchant.Votes);
+            }
+            else if(existingVote.VoteType != voteType)
+            {
+                existingVote.VoteType = voteType;
+                activeMerchant.Votes = activeMerchant.ClientVotes.Sum(v => (int)v.VoteType);
+
+                await _merchantsDbContext.SaveChangesAsync();
+
+                await Clients.Group(server).UpdateVoteTotal(merchantId, activeMerchant.Votes);
             }
         }
 
@@ -103,8 +128,10 @@ namespace WanderLost.Server.Controllers
 
         public async Task<IEnumerable<ActiveMerchantGroup>> GetKnownActiveMerchantGroups(string server)
         {
-            var activeMerchants = await _dataController.GetActiveMerchantGroups(server);
-            return activeMerchants.Where(m => m.ActiveMerchants.Any());
+            return await _merchantsDbContext.MerchantGroups
+                .Include(g => g.ActiveMerchants)
+                .Where(g => g.Server == server && g.AppearanceExpires > DateTimeOffset.Now)
+                .ToArrayAsync();
         }
 
         private string GetClientIp()

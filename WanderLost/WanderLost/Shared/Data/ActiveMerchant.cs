@@ -20,7 +20,7 @@ namespace WanderLost.Shared.Data
 
         public Rarity? RapportRarity { get; set; }
 
-        public int Votes { get; set; } = 1;
+        public int Votes { get; set; }
 
         [JsonIgnore]
         public List<Vote> ClientVotes { get; set; } = new();
