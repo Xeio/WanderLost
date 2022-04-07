@@ -50,7 +50,7 @@ namespace WanderLost.Server.Controllers
             merchant.UploadedBy = clientIp;
             merchant.Id = Guid.NewGuid();
             merchant.Votes = 1;
-            await _dataController.InitVoteGroup(server, merchant, new Vote() { ClientId = clientIp, VoteType = VoteType.Upvote });
+            await _dataController.InitVoteGroup(server, merchant, new Data.Vote() { ClientId = clientIp, VoteType = VoteType.Upvote });
             serverMerchantGroup.ActiveMerchants.Add(merchant);
 
             await Clients.Group(server).UpdateMerchantGroup(server, serverMerchantGroup);
@@ -70,7 +70,7 @@ namespace WanderLost.Server.Controllers
                 }
                 else if (existingVote is null)
                 {
-                    var newVote = new Vote()
+                    var newVote = new Data.Vote()
                     {
                         ClientId = clientId,
                         VoteType = voteType

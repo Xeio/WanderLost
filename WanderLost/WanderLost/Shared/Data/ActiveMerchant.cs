@@ -1,15 +1,29 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace WanderLost.Shared.Data
 {
     public class ActiveMerchant
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key]
         public Guid Id { get; set; }
+
+        [MaxLength(20)]
         public string Name { get; init; } = string.Empty;
+
+        [MaxLength(40)]
         public string Zone { get; set; } = string.Empty;
+
         public Item Card { get; set; } = new();
+
         public Rarity? RapportRarity { get; set; }
+
         public int Votes { get; set; } = 1;
+
+        [JsonIgnore]
+        public List<Vote> ClientVotes { get; set; } = new();
 
         /// <summary>
         /// Identifier for client on the server, may be IP or later an account identifier
