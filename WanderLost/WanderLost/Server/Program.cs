@@ -28,8 +28,10 @@ builder.Services.AddDbContext<MerchantsDbContext>(opts =>
     opts.UseSqlServer(builder.Configuration["SqlConnectionString"]);
 });
 
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
+#if !DEBUG
+    builder.Logging.ClearProviders();
+    builder.Logging.AddConsole();
+#endif
 
 var app = builder.Build();
 
