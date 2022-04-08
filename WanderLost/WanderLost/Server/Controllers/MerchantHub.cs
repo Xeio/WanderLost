@@ -131,6 +131,7 @@ namespace WanderLost.Server.Controllers
             return await _merchantsDbContext.MerchantGroups
                 .Include(g => g.ActiveMerchants)
                 .Where(g => g.Server == server && g.AppearanceExpires > DateTimeOffset.Now)
+                .AsNoTracking()
                 .ToArrayAsync();
         }
 
