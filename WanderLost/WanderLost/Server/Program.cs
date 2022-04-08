@@ -30,7 +30,10 @@ builder.Services.AddDbContext<MerchantsDbContext>(opts =>
 
 #if !DEBUG
     builder.Logging.ClearProviders();
-    builder.Logging.AddConsole();
+    builder.Logging.AddSimpleConsole(o =>
+    {
+        o.SingleLine = true;
+    });
 #endif
 
 var app = builder.Build();
