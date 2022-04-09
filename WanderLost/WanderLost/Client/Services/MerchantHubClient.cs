@@ -7,7 +7,7 @@ namespace WanderLost.Client.Services
     //Implements client for incoming calls, and server to act as a proxy for outgoing calls
     public class MerchantHubClient : IMerchantHubServer, IMerchantHubClient, IAsyncDisposable
     {
-        public HubConnection HubConnection {get; init; }
+        public HubConnection HubConnection { get; init; }
 
         public MerchantHubClient(IConfiguration configuration)
         {
@@ -17,7 +17,7 @@ namespace WanderLost.Client.Services
                     //Stargger reconnections a bit so server doesn't get hammered after a restart
                     TimeSpan.FromSeconds(Random.Shared.Next(5,120)),
                     TimeSpan.FromSeconds(Random.Shared.Next(10,120)),
-                    TimeSpan.FromSeconds(Random.Shared.Next(30,120)), 
+                    TimeSpan.FromSeconds(Random.Shared.Next(30,120)),
                     TimeSpan.FromMinutes(5),
                     TimeSpan.FromMinutes(5),
                 })
@@ -28,7 +28,7 @@ namespace WanderLost.Client.Services
 
         public async ValueTask DisposeAsync()
         {
-            if(HubConnection is not null)
+            if (HubConnection is not null)
             {
                 await HubConnection.DisposeAsync();
             }
@@ -88,6 +88,11 @@ namespace WanderLost.Client.Services
         {
             var action = new Action<Guid, int>(handler);
             return HubConnection.On(nameof(UpdateVoteTotal), action);
+        }
+
+        public async Task<bool> HasNewerClient(int version)
+        {
+            return await HubConnection.InvokeAsync<bool>(nameof(HasNewerClient), version);
         }
     }
 }

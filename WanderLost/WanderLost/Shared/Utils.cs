@@ -7,6 +7,12 @@ namespace WanderLost.Shared
 {
     public static class Utils
     {
+        /// <summary>
+        /// Used for synchronization between client and server.
+        /// Only needed for either breaking changes or in cases where a client update needs to be forced.
+        /// </summary>
+        public const int ClientVersion = 1;
+
         public static JsonSerializerOptions JsonOptions { get; } = new JsonSerializerOptions(JsonSerializerDefaults.Web)
         {
             AllowTrailingCommas = true,
@@ -38,5 +44,5 @@ namespace WanderLost.Shared
                 AppearanceTimes = times,
             });
         }
-    }    
+    }
 }

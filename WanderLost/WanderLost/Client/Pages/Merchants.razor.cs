@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using WanderLost.Client.Services;
+using WanderLost.Shared;
 using WanderLost.Shared.Data;
 
 namespace WanderLost.Client.Pages
@@ -99,6 +100,12 @@ namespace WanderLost.Client.Pages
 
         private async Task HubConnection_Reconnected(string? arg)
         {
+            if(await HubClient.HasNewerClient(Utils.ClientVersion))
+            {
+                //Force client to reload to match server
+                NavigationManager.NavigateTo("", true);
+                return;
+            }
             await SynchronizeServer();
         }
 

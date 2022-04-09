@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using WanderLost.Server.Data;
+using WanderLost.Shared;
 using WanderLost.Shared.Data;
 using WanderLost.Shared.Interfaces;
 
@@ -216,6 +217,11 @@ namespace WanderLost.Server.Controllers
             //Fallback for dev environment
             var remoteAddr = Context.GetHttpContext()?.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
             return remoteAddr;
+        }
+
+        public Task<bool> HasNewerClient(int version)
+        {
+            return Task.FromResult(version < Utils.ClientVersion);
         }
     }
 }
