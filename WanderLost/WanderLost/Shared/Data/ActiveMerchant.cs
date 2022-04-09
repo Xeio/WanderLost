@@ -28,6 +28,7 @@ namespace WanderLost.Shared.Data
         /// <summary>
         /// Identifier for client on the server, may be IP or later an account identifier
         /// </summary>
+        [MaxLength(60)]
         [JsonIgnore]
         public string UploadedBy { get;set; } = string.Empty;
 

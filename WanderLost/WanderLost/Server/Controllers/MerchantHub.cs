@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using WanderLost.Server.Data;
 using WanderLost.Shared.Data;
 using WanderLost.Shared.Interfaces;
 
@@ -61,12 +62,54 @@ namespace WanderLost.Server.Controllers
                 }
             }
 
+            //Special handling case for banned users
+            if (await HandleBans(clientIp, server, merchantGroup, merchant)) return;
+
             merchant.UploadedBy = clientIp;
             merchantGroup.ActiveMerchants.Add(merchant);
 
             await _merchantsDbContext.SaveChangesAsync();
 
             await Clients.Group(server).UpdateMerchantGroup(server, merchantGroup);
+        }
+
+        private async Task<bool> HandleBans(string clientId, string server, ActiveMerchantGroup group, ActiveMerchant merchant)
+        {            
+            //Skip out if no bans
+            if (!_merchantsDbContext.Bans.Any(b => b.ClientId == clientId && b.ExpiresAt > DateTimeOffset.Now)) return false;
+
+            //Create a hidden merchant only visible to this client
+            var hiddenMerchant = new HiddenMerchant()
+            {
+                Card = merchant.Card,
+                Name = merchant.Name,
+                RapportRarity = merchant.RapportRarity,
+                UploadedBy = clientId,
+                Zone = merchant.Zone,
+            };
+
+            group.ActiveMerchants.Add(hiddenMerchant);
+
+            await _merchantsDbContext.SaveChangesAsync();
+
+            await Clients.Caller.UpdateMerchantGroup(server, group);
+
+            //Fake some votes over the next couple minutes, probably overkill
+            await Task.Delay(30 + Random.Shared.Next(1, 15) * 1000);
+
+            int maxVotes = Random.Shared.Next(4, 13);
+            for (int i = 0; i < maxVotes; i++)
+            {
+                hiddenMerchant.Votes--;
+
+                await _merchantsDbContext.SaveChangesAsync();
+
+                await Clients.Caller.UpdateVoteTotal(hiddenMerchant.Id, hiddenMerchant.Votes);
+
+                await Task.Delay(Random.Shared.Next(5, 30) * 1000);
+            }
+
+            return true;
         }
 
         public async Task Vote(string server, Guid merchantId, VoteType voteType)
@@ -128,11 +171,19 @@ namespace WanderLost.Server.Controllers
 
         public async Task<IEnumerable<ActiveMerchantGroup>> GetKnownActiveMerchantGroups(string server)
         {
+            var clientIp = GetClientIp();
             return await _merchantsDbContext.MerchantGroups
-                .Include(g => g.ActiveMerchants)
                 .Where(g => g.Server == server && g.AppearanceExpires > DateTimeOffset.Now)
+                .Select(mg => new ActiveMerchantGroup
+                {
+                     Server = mg.Server,
+                     MerchantName = mg.MerchantName,
+                     ActiveMerchants = mg.ActiveMerchants
+                                            .Where(m => !(m is HiddenMerchant) || m.UploadedBy == clientIp)
+                                            .ToList(),
+                })
                 .AsNoTracking()
-                .ToArrayAsync();
+                .ToListAsync();
         }
 
         private string GetClientIp()

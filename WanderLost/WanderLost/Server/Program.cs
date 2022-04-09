@@ -12,6 +12,7 @@ builder.Services.AddSignalR(hubOptions=>
 {
     hubOptions.ClientTimeoutInterval = TimeSpan.FromMinutes(2);
     hubOptions.KeepAliveInterval = TimeSpan.FromMinutes(1);
+    hubOptions.MaximumParallelInvocationsPerClient = 3;
 });
 builder.Services.AddMemoryCache();
 
