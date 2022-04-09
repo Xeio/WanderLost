@@ -14,9 +14,10 @@ namespace WanderLost.Client.Services
             HubConnection = new HubConnectionBuilder()
                 .WithUrl(configuration["SocketEndpoint"])
                 .WithAutomaticReconnect(new[] {
-                    TimeSpan.FromSeconds(10),
-                    TimeSpan.FromSeconds(30),
-                    TimeSpan.FromMinutes(1), 
+                    //Stargger reconnections a bit so server doesn't get hammered after a restart
+                    TimeSpan.FromSeconds(Random.Shared.Next(5,120)),
+                    TimeSpan.FromSeconds(Random.Shared.Next(10,120)),
+                    TimeSpan.FromSeconds(Random.Shared.Next(30,120)), 
                     TimeSpan.FromMinutes(5),
                     TimeSpan.FromMinutes(5),
                 })
