@@ -42,10 +42,10 @@ namespace WanderLost.Shared.Data
         public List<ActiveMerchant> ActiveMerchants { get; init; } = new List<ActiveMerchant>();
 
         [JsonIgnore]
-        public DateTimeOffset NextAppearance { get; private set; }
+        public DateTimeOffset NextAppearance { get; set; }
 
         [JsonIgnore]
-        public DateTimeOffset AppearanceExpires { get; private set; }
+        public DateTimeOffset AppearanceExpires { get; set; }
 
         [NotMapped]
         public bool IsActive => DateTimeOffset.UtcNow > NextAppearance && DateTimeOffset.UtcNow < AppearanceExpires;

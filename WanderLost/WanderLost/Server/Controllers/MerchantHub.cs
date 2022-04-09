@@ -29,8 +29,17 @@ namespace WanderLost.Server.Controllers
             if (!merchant.IsValid(allMerchantData)) return;
 
             var merchantGroup = await _merchantsDbContext.MerchantGroups
-                .Include(g => g.ActiveMerchants)
-                .SingleOrDefaultAsync(g => g.Server == server && g.MerchantName == merchant.Name && g.AppearanceExpires > DateTimeOffset.Now);
+                .Where(g => g.Server == server && g.MerchantName == merchant.Name && g.AppearanceExpires > DateTimeOffset.Now)
+                .Select(g => new ActiveMerchantGroup()
+                {
+                    Id = g.Id,
+                    MerchantName = g.MerchantName,
+                    AppearanceExpires = g.AppearanceExpires,
+                    NextAppearance = g.NextAppearance,
+                    Server = g.Server,
+                    ActiveMerchants = g.ActiveMerchants.Where(m => !(m is HiddenMerchant)).ToList(),
+                })
+                .FirstOrDefaultAsync();
 
             if(merchantGroup == null)
             {
@@ -44,7 +53,6 @@ namespace WanderLost.Server.Controllers
                 //Add it to the DB context to save later
                 merchantGroup.Server = server;
                 merchantGroup.MerchantName = merchant.Name;
-                _merchantsDbContext.MerchantGroups.Add(merchantGroup);
             }
 
             var clientIp = GetClientIp();
@@ -61,6 +69,9 @@ namespace WanderLost.Server.Controllers
                     return;
                 }
             }
+
+            //Because we did a custom select, the entity won't be attached by default, attach before modifying
+            _merchantsDbContext.Attach(merchantGroup);
 
             //Special handling case for banned users
             if (await HandleBans(clientIp, server, merchantGroup, merchant)) return;
