@@ -76,12 +76,5 @@ namespace WanderLost.Shared.Data
         {
             ActiveMerchants.Clear();
         }
-
-        public void ReplaceInstances(List<ActiveMerchant> activeMerchants)
-        {
-            ActiveMerchants.Clear();
-            ActiveMerchants.AddRange(activeMerchants);
-            ActiveMerchants.Sort((a, b) => b.Votes - a.Votes);
-        }
     }
 }

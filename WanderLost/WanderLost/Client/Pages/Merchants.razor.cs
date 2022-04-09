@@ -60,26 +60,21 @@ namespace WanderLost.Client.Pages
             ServerRegion = ClientSettings.Region;
             Server = ClientSettings.Server;
 
-            _hubEvents.Add(HubClient.OnUpdateMerchantGroup(async (server, merchantGroup) =>
+            _hubEvents.Add(HubClient.OnUpdateMerchantGroup(async (server, serverMerchantGroup) =>
             {
                 if (Server != server) return;
                 
-                //Client is already aware of all the merchants, ignore
-                if (merchantGroup.ActiveMerchants.All(am => _activeMerchantDictionary.ContainsKey(am.Id))) return;
-                
-                if (_activeMerchantGroups.FirstOrDefault(m => m.MerchantName == merchantGroup.MerchantName) is ActiveMerchantGroup existing)
+                if (_activeMerchantGroups.FirstOrDefault(m => m.MerchantName == serverMerchantGroup.MerchantName) is ActiveMerchantGroup clientGroup)
                 {
-                    if (merchantGroup.HasDifferentMerchantsTo(existing) && merchantGroup.ActiveMerchants.Any())
+                    foreach (var merchant in serverMerchantGroup.ActiveMerchants)
                     {
-                        await Notifications.RequestMerchantFoundNotification(merchantGroup);
+                        if (_activeMerchantDictionary.TryAdd(merchant.Id, merchant))
+                        {
+                            //Only need to notify/process new merchants
+                            clientGroup.ActiveMerchants.Add(merchant);
+                            await Notifications.RequestMerchantFoundNotification(clientGroup);
+                        }
                     }
-
-                    existing.ReplaceInstances(merchantGroup.ActiveMerchants);
-                }
-
-                foreach (var merchant in merchantGroup.ActiveMerchants)
-                {
-                    _activeMerchantDictionary[merchant.Id] = merchant;
                 }
 
                 await InvokeAsync(StateHasChanged);
@@ -142,18 +137,22 @@ namespace WanderLost.Client.Pages
         {
             //Sync with the server's current data
             _activeMerchantDictionary.Clear();
-            _activeMerchantGroups.ForEach(m => m.ClearInstances());
+
             if (!string.IsNullOrWhiteSpace(Server))
             {
                 foreach (var serverMerchantGroup in await HubClient.GetKnownActiveMerchantGroups(Server))
                 {
-                    if (_activeMerchantGroups.FirstOrDefault(mg => mg.MerchantName == serverMerchantGroup.MerchantName) is ActiveMerchantGroup existing)
+                    if (_activeMerchantGroups.FirstOrDefault(mg => mg.MerchantName == serverMerchantGroup.MerchantName) is ActiveMerchantGroup clientGroup)
                     {
-                        existing.ReplaceInstances(serverMerchantGroup.ActiveMerchants);
-                    }
-                    foreach (var merchant in serverMerchantGroup.ActiveMerchants)
-                    {
-                        _activeMerchantDictionary[merchant.Id] = merchant;
+                        foreach (var merchant in serverMerchantGroup.ActiveMerchants)
+                        {
+                            if (_activeMerchantDictionary.TryAdd(merchant.Id, merchant))
+                            {
+                                //Only need to notify/process new merchants
+                                clientGroup.ActiveMerchants.Add(merchant);
+                                await Notifications.RequestMerchantFoundNotification(clientGroup);
+                            }
+                        }
                     }
                 }
             }
