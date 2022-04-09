@@ -53,12 +53,15 @@ namespace HubClientSourceGenerator
             if(targetInterfaceType.TypeKind == TypeKind.Interface)
             {
                 var taskType = context.Compilation.GetTypeByMetadataName("System.Threading.Tasks.Task");
+
                 var methods = targetInterfaceType
                     .GetMembers()
                     .OfType<IMethodSymbol>()
                     //Also include inherited members
                     .Concat(targetInterfaceType.AllInterfaces.SelectMany(inherited => inherited.GetMembers().OfType<IMethodSymbol>()));
-                
+
+                var hubPropertyName = Helpers.FindHubConnectionProperty(clientClass, context);
+                if (string.IsNullOrWhiteSpace(hubPropertyName)) return;
 
                 StringBuilder sb = new StringBuilder();
 
@@ -87,11 +90,11 @@ namespace {ns}
                                     Name = p.Name,
                                     FullyQualifiedTypeName = p.Type.ToDisplayString(),
                                 });
-                            sb.Append(BuildClientMethod(method.Name, parsedParemeters));
+                            sb.Append(BuildClientMethod(hubPropertyName, method.Name, parsedParemeters));
                         }
                         else
                         {
-                            sb.Append(BuildClientMethod(method.Name));
+                            sb.Append(BuildClientMethod(hubPropertyName, method.Name));
                         }
                     }
                 }
@@ -105,17 +108,17 @@ namespace {ns}
             }
         }
 
-        private string BuildClientMethod(string name)
+        private string BuildClientMethod(string hubPropertyName, string name)
         {
             return $@"
         public IDisposable On{name}(Action action)
         {{
-            return HubConnection.On(""{name}"", action);
+            return {hubPropertyName}.On(""{name}"", action);
         }}
 ";
         }
 
-        private string BuildClientMethod(string name, IEnumerable<MethodParameter> parameters)
+        private string BuildClientMethod(string hubPropertyName, string name, IEnumerable<MethodParameter> parameters)
         {
             string typeAndNameLine = string.Join(", ", parameters.Select(p => $"{p.FullyQualifiedTypeName} {p.Name}"));
             string typeLine = string.Join(", ", parameters.Select(p => p.FullyQualifiedTypeName));
@@ -126,7 +129,7 @@ namespace {ns}
         public IDisposable On{name}({name}Handler handler)
         {{
             var action = new Action<{typeLine}>(handler);
-            return HubConnection.On(""{name}"", action);
+            return {hubPropertyName}.On(""{name}"", action);
         }}
 ";
         }       

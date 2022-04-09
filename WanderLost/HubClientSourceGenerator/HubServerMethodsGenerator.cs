@@ -59,7 +59,9 @@ namespace HubClientSourceGenerator
                     .OfType<IMethodSymbol>()
                     //Also include inherited members
                     .Concat(targetInterfaceType.AllInterfaces.SelectMany(inherited => inherited.GetMembers().OfType<IMethodSymbol>()));
-                
+
+                var hubPropertyName = Helpers.FindHubConnectionProperty(clientClass, context);
+                if (string.IsNullOrWhiteSpace(hubPropertyName)) return;
 
                 StringBuilder sb = new StringBuilder();
 
@@ -90,11 +92,11 @@ namespace {ns}
                                     Name = p.Name,
                                     FullyQualifiedTypeName = p.Type.ToDisplayString(),
                                 });
-                            sb.Append(BuildServerMethod(method.Name, parsedParemeters));
+                            sb.Append(BuildServerMethod(hubPropertyName, method.Name, parsedParemeters));
                         }
                         else
                         {
-                            sb.Append(BuildServerMethod(method.Name));
+                            sb.Append(BuildServerMethod(hubPropertyName, method.Name));
                         }
                     }
                     else if (SymbolEqualityComparer.Default.Equals(method.ReturnType.OriginalDefinition, genericTaskType) && method.ReturnType is INamedTypeSymbol genericNamedType)
@@ -109,11 +111,11 @@ namespace {ns}
                                     Name = p.Name,
                                     FullyQualifiedTypeName = p.Type.ToDisplayString(),
                                 });
-                            sb.Append(BuildServerMethod(method.Name, returnType.ToDisplayString(), parsedParemeters));
+                            sb.Append(BuildServerMethod(hubPropertyName, method.Name, returnType.ToDisplayString(), parsedParemeters));
                         }
                         else
                         {
-                            sb.Append(BuildServerMethod(method.Name, returnType.ToDisplayString()));
+                            sb.Append(BuildServerMethod(hubPropertyName, method.Name, returnType.ToDisplayString()));
                         }
                     }
                 }
@@ -127,17 +129,17 @@ namespace {ns}
             }
         }
 
-        private string BuildServerMethod(string name)
+        private string BuildServerMethod(string hubPropertyName, string name)
         {
             return $@"
         public async Task {name}()
         {{
-            await HubConnection.SendAsync(""{name}"");
+            await {hubPropertyName}.SendAsync(""{name}"");
         }}
 ";
         }
 
-        private string BuildServerMethod(string name, IEnumerable<MethodParameter> parameters)
+        private string BuildServerMethod(string hubPropertyName, string name, IEnumerable<MethodParameter> parameters)
         {
             string typeAndNameLine = string.Join(", ", parameters.Select(p => $"{p.FullyQualifiedTypeName} {p.Name}"));
             string nameLine = string.Join(", ", parameters.Select(p => p.Name));
@@ -145,22 +147,22 @@ namespace {ns}
             return $@"
         public async Task {name}({typeAndNameLine})
         {{
-            await HubConnection.SendAsync(""{name}"", {nameLine});
+            await {hubPropertyName}.SendAsync(""{name}"", {nameLine});
         }}
 ";
         }
 
-        private string BuildServerMethod(string name, string returnType)
+        private string BuildServerMethod(string hubPropertyName, string name, string returnType)
         {
             return $@"
         public async Task<{returnType}> {name}()
         {{
-            return await HubConnection.InvokeAsync<{returnType}>(""{name}"");
+            return await {hubPropertyName}.InvokeAsync<{returnType}>(""{name}"");
         }}
 ";
         }
 
-        private string BuildServerMethod(string name, string returnType, IEnumerable<MethodParameter> parameters)
+        private string BuildServerMethod(string hubPropertyName, string name, string returnType, IEnumerable<MethodParameter> parameters)
         {
             string typeAndNameLine = string.Join(", ", parameters.Select(p => $"{p.FullyQualifiedTypeName} {p.Name}"));
             string nameLine = string.Join(", ", parameters.Select(p => p.Name));
@@ -168,7 +170,7 @@ namespace {ns}
             return $@"
         public async Task<{returnType}> {name}({typeAndNameLine})
         {{
-            return await HubConnection.InvokeAsync<{returnType}>(""{name}"", {nameLine});
+            return await {hubPropertyName}.InvokeAsync<{returnType}>(""{name}"", {nameLine});
         }}
 ";
         }
