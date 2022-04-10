@@ -29,6 +29,11 @@ namespace WanderLost.Client.Pages
             await ClientSettings.SetNotifyLegendaryRapport(!ClientSettings.NotifyLegendaryRapport);
         }
 
+        protected async Task ToggleNotifyBrowserSoundEnabled()
+        {
+            await ClientSettings.SetNotifyBrowserSoundEnabled(!ClientSettings.NotifyBrowserSoundEnabled);
+        }
+
         protected async Task OnTestMerchantSpawnClicked()
         {
             var dummyData = new MerchantData
