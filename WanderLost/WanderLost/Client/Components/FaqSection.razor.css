@@ -1,5 +1,4 @@
-﻿
-.faq-section {
+﻿.faq-section {
     margin-top: .5rem;
 }
 
@@ -8,9 +7,10 @@
     justify-content: space-between;
     cursor: pointer;
 }
-    .faq-header:hover {
-        color: #808080;
-    }
+
+.faq-header:hover {
+    color: #808080;
+}
 
 .faq-content {
     display: block;
