@@ -12,7 +12,10 @@ namespace WanderLost.Client.Services
         public MerchantHubClient(IConfiguration configuration)
         {
             HubConnection = new HubConnectionBuilder()
-                .WithUrl(configuration["SocketEndpoint"])
+                .WithUrl(configuration["SocketEndpoint"], options => { 
+                    options.SkipNegotiation = true;
+                    options.Transports = Microsoft.AspNetCore.Http.Connections.HttpTransportType.WebSockets;
+                })
                 .WithAutomaticReconnect(new[] {
                     //Stargger reconnections a bit so server doesn't get hammered after a restart
                     TimeSpan.FromSeconds(Random.Shared.Next(5,120)),
