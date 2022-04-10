@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Folder Include="Services\" />
+    <Folder Include="wwwroot\images\notificationshelp\" />
   </ItemGroup>
 
 </Project>

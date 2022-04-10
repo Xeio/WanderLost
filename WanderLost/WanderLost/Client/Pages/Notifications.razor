@@ -1,12 +1,13 @@
 ﻿@page "/notifications"
 
-<h1>Notification settings</h1>
-@if (!string.IsNullOrWhiteSpace(ClientSettings.Server))
-{
-    <div class="d-flex justify-content-end">
+
+<div class="d-flex justify-content-between">
+    <h1>Notification settings</h1>
+    @if (!string.IsNullOrWhiteSpace(ClientSettings.Server))
+    {
         <NotificationToggle NotificationStateChanged="@StateHasChanged" />
-    </div>
-}
+    }
+</div>
 
 @if (!ClientSettings.NotificationsEnabled)
 {

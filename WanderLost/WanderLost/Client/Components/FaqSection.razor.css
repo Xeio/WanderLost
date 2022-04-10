@@ -1,0 +1,21 @@
+﻿
+.faq-section {
+    margin-top: .5rem;
+}
+
+.faq-header {
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+}
+    .faq-header:hover {
+        color: #808080;
+    }
+
+.faq-content {
+    display: block;
+}
+
+.faq-content.disabled {
+    display: none;
+}

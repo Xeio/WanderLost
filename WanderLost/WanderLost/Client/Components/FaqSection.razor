@@ -1,0 +1,33 @@
+﻿
+<div class="faq-section">
+    <div class="faq-header" @onclick="@(_ => _showBody = !_showBody)">
+        <h3>@Header</h3>
+        @if (_showBody)
+        {
+            <span class="oi oi-minus"></span>
+        }
+        else
+        {
+            <span class="oi oi-plus"></span>
+        }
+    </div>
+    <div class="faq-content @GetCss()">
+        @ChildContent
+    </div>
+    <hr />
+</div>
+
+@code {
+    [Parameter] public string Header { get; set; } = "";
+    [Parameter] public RenderFragment ChildContent { get; set; } = default!;
+
+    private bool _showBody = false;
+
+    private string GetCss()
+    {
+        if (!_showBody)
+            return "disabled";
+        else
+            return "";
+    }
+}
