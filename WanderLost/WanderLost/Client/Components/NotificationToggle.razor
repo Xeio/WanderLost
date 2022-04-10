@@ -5,26 +5,35 @@
 @inject NavigationManager NavigationManager
 @inject ILocalStorageService LocalStorage
 
-<div class="d-flex p-1 border rounded cursor-pointer" @onclick="OnNotificationToggleClicked">
-    <span>Merchant notifications: </span>
-    <div >
-        @if (ClientSettings.NotificationsEnabled)
-        {
-            <span class="text-success mx-1">
-                <span>on</span>
-                <span class="oi oi-circle-check"></span>
-            </span>
+<div class="position-relative">
+    <div class="d-flex p-1 border rounded cursor-pointer" @onclick="OnNotificationToggleClicked">
+        <span>Merchant notifications: </span>
+        <div>
+            @if (ClientSettings.NotificationsEnabled)
+            {
+                <span class="text-success mx-1">
+                    <span>on</span>
+                    <span class="oi oi-circle-check"></span>
+                </span>
 
-        }
-        else
-        {
-            <span class="text-danger mx-1">
-                <span>off</span>
-                <span class="oi oi-ban"></span>
-            </span>
-        }
+            }
+            else
+            {
+                <span class="text-danger mx-1">
+                    <span>off</span>
+                    <span class="oi oi-ban"></span>
+                </span>
+            }
+        </div>
+    </div>
+    <div class="position-absolute">
+        <small>Not working? See <a href="notificationshelp">help</a></small>
     </div>
 </div>
+
+
+
+
 
 @code {
     [Parameter] public EventCallback<bool> NotificationStateChanged { get; set; }
@@ -46,7 +55,7 @@
             {
                 await ClientSettings.SetNotificationsEnabled(true);
                 await NotificationStateChanged.InvokeAsync();
-                if(!ClientSettings.NotifyLegendaryRapport && !ClientSettings.NotifyMerchantAppearance && !ClientSettings.Notifications.Any())
+                if (!ClientSettings.NotifyLegendaryRapport && !ClientSettings.NotifyMerchantAppearance && !ClientSettings.Notifications.Any())
                 {
                     //Client has no notifications enabled, send them not the notifications page
                     NavigationManager.NavigateTo("/Notifications");
