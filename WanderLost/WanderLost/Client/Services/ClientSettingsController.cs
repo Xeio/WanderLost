@@ -11,6 +11,7 @@ namespace WanderLost.Client.Services
         public bool NotificationsEnabled { get; private set; }
         public bool NotifyMerchantAppearance { get; private set; }
         public bool NotifyLegendaryRapport { get; private set; }
+        public bool NotifyBrowserSoundEnabled { get; private set; }
         public Dictionary<string, MerchantNotificationSetting> Notifications { get; private set; } = new();
 
         private bool _initialized = false;
@@ -31,6 +32,7 @@ namespace WanderLost.Client.Services
                 NotificationsEnabled = await _localStorageService.GetItemAsync<bool?>(nameof(NotificationsEnabled)) ?? false;
                 NotifyMerchantAppearance = await _localStorageService.GetItemAsync<bool?>(nameof(NotifyMerchantAppearance)) ?? false;
                 NotifyLegendaryRapport = await _localStorageService.GetItemAsync<bool?>(nameof(NotifyLegendaryRapport)) ?? false;
+                NotifyBrowserSoundEnabled = await _localStorageService.GetItemAsync<bool?>(nameof(NotifyBrowserSoundEnabled)) ?? false;
                 Notifications = await _localStorageService.GetItemAsync<Dictionary<string, MerchantNotificationSetting>?>(nameof(Notifications)) ?? new();
                 _initialized = true;
             }
@@ -64,6 +66,12 @@ namespace WanderLost.Client.Services
         {
             NotifyLegendaryRapport = notifyLegendaryRapport;
             await _localStorageService.SetItemAsync(nameof(NotifyLegendaryRapport), notifyLegendaryRapport);
+        }
+
+        public async Task SetNotifyBrowserSoundEnabled(bool soundEnabled)
+        {
+            NotifyBrowserSoundEnabled = soundEnabled;
+            await _localStorageService.SetItemAsync(nameof(NotifyBrowserSoundEnabled), soundEnabled);
         }
 
         public async Task SaveNotificationSettings()

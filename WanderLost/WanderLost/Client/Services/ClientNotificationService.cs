@@ -1,4 +1,5 @@
 ﻿using Append.Blazor.Notifications;
+using Microsoft.JSInterop;
 using WanderLost.Shared.Data;
 
 namespace WanderLost.Client.Services
@@ -7,11 +8,13 @@ namespace WanderLost.Client.Services
     {
         private readonly ClientSettingsController _clientSettings;
         private readonly INotificationService _notifications;
+        private readonly IJSRuntime _jsRuntime;
 
-        public ClientNotificationService(INotificationService notif, ClientSettingsController clientSettings)
+        public ClientNotificationService(INotificationService notif, ClientSettingsController clientSettings, IJSRuntime js)
         {
             _notifications = notif;
             _clientSettings = clientSettings;
+            _jsRuntime = js;
         }
 
         public async Task Init()
@@ -98,6 +101,8 @@ namespace WanderLost.Client.Services
         /// <returns></returns>
         public ValueTask ForceMerchantFoundNotification(ActiveMerchantGroup merchantGroup)
         {
+            requestBrowserNotificationSound();
+
             string body = "";
             if (merchantGroup.ActiveMerchants.Count > 1)
             {
@@ -137,8 +142,25 @@ namespace WanderLost.Client.Services
         /// <returns></returns>
         public ValueTask ForceMerchantSpawnNotification(ActiveMerchantGroup merchantGroup)
         {
+            requestBrowserNotificationSound();
+
             string body = $"Wandering Merchant \"{merchantGroup.MerchantName}\" is waiting for you somewhere.";
             return _notifications.CreateAsync($"Wandering Merchant \"{merchantGroup.MerchantName}\" appeared", new NotificationOptions { Body = body, Renotify = true, Tag = "spawn_merchant", Icon = "images/notifications/QuestionMark.png" });
+        }
+
+        private async void requestBrowserNotificationSound()
+        {
+            if (!_clientSettings.NotifyBrowserSoundEnabled) return;
+
+            try
+            {
+                await _jsRuntime.InvokeAsync<string>("PlayNotificationSound"); //call Interop.js function to play a sound
+            }
+            catch (Exception)
+            {
+                //ignore
+                //if the sound doesn't play... whatever. No need to let the whole session crash.
+            }
         }
     }
 }
