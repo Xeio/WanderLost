@@ -1,0 +1,48 @@
+﻿
+.sound-popup-wrapper {
+    position: absolute;
+    left: 24px;
+    right: 24px;
+    bottom: 24px;
+
+    display: flex;
+}
+
+.sound-popup {
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    padding: .5rem;
+    background-color: rgba(var(--bs-danger-rgb));
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+/* The animation code */
+@keyframes blink {
+    0%, 50%, 100% {
+        opacity: 1;
+    }
+
+    25%, 75% {
+        opacity: 0;
+    }
+}
+
+/* The element to apply the animation to */
+.blinking {
+    animation: blink 2s 1 both;
+}
+
+@keyframes fade-out {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+.fade-out {
+    animation: fade-out .5s 1 normal;
+}

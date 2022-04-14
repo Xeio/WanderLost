@@ -1,5 +1,6 @@
 ﻿
 @page "/NotificationsHelp"
+@page "/NotificationsHelp/{Section}"
 
 <div class="d-flex justify-content-between">
     <h1>Notification help</h1>
@@ -8,36 +9,45 @@
 <p class="mb-3">Can't get notifications to work? Here are some solutions to common issues.</p>
 
 
-<FaqSection Header="How to enable notifications?">
+<FaqSection Header="How to enable notifications?" IsOpen="@_initialSectionState["enableNotif"]">
     <p>To enable notifications, simply click on the <b>Merchant notifications</b> toggle at the top right of the page. On the first time you need to grant permission to this website to send notifications to you, see GIF below:</p>
     <div class="imgbox">
         <img class="center-fit" src="images/notificationshelp/EnableNotifications.gif" alt="how to enable notifications" />
     </div>
 </FaqSection>
 
-<FaqSection Header="I want to enable notifications, but nothing happens?!">
-    <p>We need your permission to display notifications. If you have denied permission for notifications to this page in your browser, you will be unable to turn on (and receive) notifications from us. For Chrome, to see your notification permission head over to <a href="chrome://settings/content/notifications" target="_blank">Settings</a>. The GIF below will show you how to clear and grant permission again.</p>
+<FaqSection Header="I want to enable notifications, but nothing happens?!"  IsOpen="@_initialSectionState["unresponsiveNotif"]">
+    <p>We need your permission to display notifications. If you have denied permission for notifications to this page in your browser, you will be unable to turn on (and receive) notifications from us. The GIF below will show you how to clear and grant permission again.</p>
     <div class="imgbox">
         <img class="center-fit" src="images/notificationshelp/UnblockNotificationsBrowser.gif" alt="how to clear browser permission" />
     </div>
 </FaqSection>
 
-<FaqSection Header="I have enabled notifications, but do not receive any?!">
+<FaqSection Header="I have enabled notifications, but do not receive any?!"  IsOpen="@_initialSectionState["noNotif"]">
     <p>To test notifications you can head over to <a href="notifications">Notifications</a> and click on <b>Test merchant spawn notification</b> / <b>Test item found notification</b>. If no notifications appear in <u>Windows</u>, check your systems notification settings (win + i and search for "notifications"):</p>
     <div class="imgbox">
         <img class="center-fit" src="images/notificationshelp/UnblockNotificationsWindows1.jpg" alt="enable windows notifications" />
     </div>
 </FaqSection>
 
-<FaqSection Header="I am missing some notifications?!">
+<FaqSection Header="I am missing some notifications?!"  IsOpen="@_initialSectionState["missingNotif"]">
     <p>Make sure you don't accidentally filter out the notification you want to see (<a href="notifications">Notifications</a>). If the issue still persists, the test notifications work but you are still missing them sometimes, make sure to check <u>Windows</u> notification assistant settings and <b>turn off</b> active filters ("When im playing a game", "When im in fullscreen"):</p>
     <div class="imgbox">
         <img class="center-fit" src="images/notificationshelp/UnblockNotificationsWindows2.jpg" alt="turn off notification assistant" />
     </div>
 </FaqSection>
 
-<FaqSection Header="How to setup notifications?">
+<FaqSection Header="How to setup notifications?"  IsOpen="@_initialSectionState["setupNotif"]">
     <p>Once you have enabled notifications, head over to <a href="notifications">Notifications</a> to set up filters for merchants and loot.</p>
 </FaqSection>
 
+<FaqSection Header="Why am I seeing &quot;Click to enable notification sounds&quot;?" IsOpen="@_initialSectionState["notifsoundpopup"]">
+    <p>If you have enabled <b>Play additional notification sound in browser</b> in <a href="notifications">Notifications</a>, a sound will play when you receive a notification. Modern browsers disable all sound of a website if you have not clicked on anything in it (to prevent annoying autoplay ads). The popup is here to remind you to click somewhere to allow your browser to play sounds.</p>
+    <div class="imgbox">
+        <img class="center-fit" src="images/notificationshelp/enableNotificationSound.jpg" alt="enable notification sound" />
+    </div>
+</FaqSection>
+
 <p class="mt-3">Still having issues? Head over to <a href="https://github.com/Xeio/WanderLost/issues">Github Issues</a> to seek help.</p>
+
+

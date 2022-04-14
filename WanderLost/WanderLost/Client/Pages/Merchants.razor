@@ -2,6 +2,11 @@
 
 <PageTitle>Merchants</PageTitle>
 
+@if (ClientSettings.NotificationsEnabled && ClientSettings.NotifyBrowserSoundEnabled)
+{
+    <BrowserSoundDisabledPopup/>
+}
+
 @if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.HubConnectionState.Disconnected)
 {
     <div class="alert alert-danger">
