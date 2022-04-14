@@ -1,8 +1,8 @@
 ﻿
 <div class="faq-section">
-    <div class="faq-header" @onclick="@(_ => _showBody = !_showBody)">
+    <div class="faq-header" @onclick="@(_ => IsOpen = !IsOpen)">
         <h3>@Header</h3>
-        @if (_showBody)
+        @if (IsOpen)
         {
             <span class="oi oi-minus"></span>
         }
@@ -20,12 +20,11 @@
 @code {
     [Parameter] public string Header { get; set; } = "";
     [Parameter] public RenderFragment ChildContent { get; set; } = default!;
-
-    private bool _showBody = false;
+    [Parameter] public bool IsOpen { get; set; } = false;
 
     private string GetCss()
     {
-        if (!_showBody)
+        if (!IsOpen)
             return "disabled";
         else
             return "";

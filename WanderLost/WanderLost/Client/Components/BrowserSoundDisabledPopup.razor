@@ -1,0 +1,48 @@
+﻿
+@implements IDisposable
+
+@if (_showPopup)
+{
+    <div class="sound-popup-wrapper @_wrapperCss">
+        <div class="sound-popup">
+            <div>
+                <span class="oi oi-bell blinking"></span>
+                <span class="mx-2">Click to enable notification sounds</span>
+                <a href="notificationsHelp/notifsoundpopup">Why am I seeing this?</a>
+            </div>
+        </div>
+    </div>
+}
+
+
+@code {
+
+    [CascadingParameter] public ClickTrap ClickTrap { get; set; } = default!;
+
+    private bool _showPopup = false;
+    private string _wrapperCss = "";
+
+    protected override void OnInitialized()
+    {
+        _showPopup = !ClickTrap.HasClicked;
+        ClickTrap.HasChanged += handleClickTrap;
+        base.OnInitialized();
+    }
+
+    private async void handleClickTrap(object? sender, bool val)
+    {
+        if (val == true) //user has clicked
+        {
+            _wrapperCss = "fade-out";
+            await InvokeAsync(StateHasChanged);
+            await Task.Delay(500); //wait 1 second for animation to finish
+            _showPopup = false;
+            _ = InvokeAsync(StateHasChanged);
+        }
+    }
+
+    public void Dispose()
+    {
+        ClickTrap.HasChanged -= handleClickTrap;
+    }
+}
