@@ -170,6 +170,8 @@ namespace WanderLost.Client.Pages
                         }
                     }
                 }
+                //no need to wait, ActiveMerchantsGrid will handle the requests.
+                _ = HubClient.RequestClientVotes(Server);
             }
 
             StateHasChanged();

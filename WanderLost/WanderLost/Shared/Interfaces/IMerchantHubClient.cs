@@ -6,5 +6,6 @@ namespace WanderLost.Shared.Interfaces
     {
         Task UpdateMerchantGroup(string server, ActiveMerchantGroup merchantGroup);
         Task UpdateVoteTotal(Guid merchantId, int voteTotal);
+        Task UpdateVoteSelf(Guid merchantId, VoteType voteType);
     }
 }

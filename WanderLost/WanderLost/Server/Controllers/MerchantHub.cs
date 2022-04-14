@@ -134,7 +134,7 @@ namespace WanderLost.Server.Controllers
             var clientId = GetClientIp();
 
             //Don't let a user vote on their own submission to make some aggregation stuff easier later
-            if(activeMerchant.UploadedBy == clientId) return;
+            if (activeMerchant.UploadedBy == clientId) return;
 
             var existingVote = activeMerchant.ClientVotes.FirstOrDefault(v => v.ClientId == clientId);
             if(existingVote == null)
@@ -150,6 +150,7 @@ namespace WanderLost.Server.Controllers
                 await _merchantsDbContext.SaveChangesAsync();
 
                 await Clients.Group(server).UpdateVoteTotal(merchantId, activeMerchant.Votes);
+                await Clients.Caller.UpdateVoteSelf(merchantId, voteType);
             }
             else if(existingVote.VoteType != voteType)
             {
@@ -159,6 +160,7 @@ namespace WanderLost.Server.Controllers
                 await _merchantsDbContext.SaveChangesAsync();
 
                 await Clients.Group(server).UpdateVoteTotal(merchantId, activeMerchant.Votes);
+                await Clients.Caller.UpdateVoteSelf(merchantId, voteType);
             }
         }
 
@@ -196,6 +198,17 @@ namespace WanderLost.Server.Controllers
                 })
                 .AsNoTracking()
                 .ToListAsync();
+        }
+
+        public async Task RequestClientVotes(string server)
+        {
+            var clientIp = GetClientIp();
+            foreach (var vote in _merchantsDbContext.MerchantGroups
+                .Where(g => g.Server == server && g.AppearanceExpires > DateTimeOffset.Now)
+                .SelectMany(mg => mg.ActiveMerchants.SelectMany(m => m.ClientVotes.Where(vote => vote.ClientId == clientIp))))
+            {
+                await Clients.Caller.UpdateVoteSelf(vote.ActiveMerchantId, vote.VoteType);
+            }
         }
 
         private string GetClientIp()

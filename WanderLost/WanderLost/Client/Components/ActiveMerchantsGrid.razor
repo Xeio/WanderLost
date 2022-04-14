@@ -58,10 +58,10 @@
                     <td><ZoneDisplay ZoneName="@merchant.Zone" /></td>
                     <td><ItemDisplay Item="@merchant.Card" /></td>
                     <td><ItemDisplay Item="@(new Item() { Name = merchant.RapportRarity?.ToString() ?? "", Rarity = merchant.RapportRarity ?? Rarity.Rare})" /></td>
-                    <td>
+                    <td style="white-space: nowrap;">
                         @merchant.Votes 
-                        <button class="btn btn-outline-light" alt="Upvote" @onclick="@(async m => await Upvote(merchant.Id))" ><span class="oi oi-thumb-up"></span></button> 
-                        <button class="btn btn-outline-light" alt="Downvote" @onclick="@(async m => await Downvote(merchant.Id))"><span class="oi oi-thumb-down"></span></button>
+                        <button class="btn @GetVoteButtonCss(merchant.Id, VoteType.Upvote)" alt="Upvote" @onclick="@(async m => await Upvote(merchant.Id))" ><span class="oi oi-thumb-up"></span></button> 
+                        <button class="btn @GetVoteButtonCss(merchant.Id, VoteType.Downvote)" alt="Downvote" @onclick="@(async m => await Downvote(merchant.Id))"><span class="oi oi-thumb-down"></span></button>
                     </td>
                     <td rowspan="@rowSpan"><a class="link-danger" href="/UpdateMerchant/@Server/@merchantGroup.MerchantName">Suggest Replacement</a></td>
                 }         
@@ -72,10 +72,10 @@
                     <td><ZoneDisplay ZoneName="@merchant.Zone" /></td>
                     <td><ItemDisplay Item="@merchant.Card" /></td>
                     <td><ItemDisplay Item="@(new Item() { Name = merchant.RapportRarity?.ToString() ?? "", Rarity = merchant.RapportRarity ?? Rarity.Rare})" /></td>
-                    <td>
+                    <td style="white-space: nowrap;">
                         @merchant.Votes
-                        <button class="btn btn-outline-light" alt="Upvote" @onclick="@(async m => await Upvote(merchant.Id))" ><span class="oi oi-thumb-up"></span></button> 
-                        <button class="btn btn-outline-light" alt="Downvote" @onclick="@(async m => await Downvote(merchant.Id))"><span class="oi oi-thumb-down"></span></button>
+                        <button class="btn @GetVoteButtonCss(merchant.Id, VoteType.Upvote)" alt="Upvote" @onclick="@(async m => await Upvote(merchant.Id))" ><span class="oi oi-thumb-up"></span></button> 
+                        <button class="btn @GetVoteButtonCss(merchant.Id, VoteType.Downvote)" alt="Downvote" @onclick="@(async m => await Downvote(merchant.Id))"><span class="oi oi-thumb-down"></span></button>
                     </td>
                 </tr>
             }
@@ -92,6 +92,39 @@
 
     [Parameter, EditorRequired]
     public string Server { get; init; } = string.Empty;
+
+    private Dictionary<Guid, VoteType> _clientVotes = new ();
+
+    protected override Task OnInitializedAsync()
+    {
+        HubClient.OnUpdateVoteSelf(async (merchantId, voteType) =>
+        {
+            if (MerchantGroups.Any(mg => mg.ActiveMerchants.Any(m => m.Id == merchantId)))
+            {
+                _clientVotes[merchantId] = voteType;
+            }
+            await InvokeAsync(StateHasChanged);
+        });
+        return base.OnInitializedAsync();
+    }
+
+    private string GetVoteButtonCss(Guid merchantId, VoteType type)
+    {
+        if (_clientVotes.TryGetValue(merchantId, out VoteType clientVote))
+        {
+            if (type == VoteType.Upvote && clientVote == type)
+            {
+                return "btn-success";
+
+            }
+            else if (type == VoteType.Downvote && clientVote == type)
+            {
+                return "btn-danger";
+            }
+        }
+        //fallback
+        return "btn-outline-light";
+    }
 
     private IEnumerable<ActiveMerchantGroup> GetVisibleMerchantGroups()
     {
