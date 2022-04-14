@@ -1,4 +1,6 @@
-﻿@inject MerchantHubClient HubClient
+﻿@implements IDisposable
+
+@inject MerchantHubClient HubClient
 
 @{
     bool anyMerchantActive = GetVisibleMerchantGroups().Any(mg => mg.IsActive);
@@ -94,10 +96,10 @@
     public string Server { get; init; } = string.Empty;
 
     private Dictionary<Guid, VoteType> _clientVotes = new ();
-
+    private IDisposable? voteUpdateHandler;
     protected override Task OnInitializedAsync()
     {
-        HubClient.OnUpdateVoteSelf(async (merchantId, voteType) =>
+        voteUpdateHandler = HubClient.OnUpdateVoteSelf(async (merchantId, voteType) =>
         {
             if (MerchantGroups.Any(mg => mg.ActiveMerchants.Any(m => m.Id == merchantId)))
             {
@@ -138,5 +140,10 @@
     public async Task Downvote(Guid merchantId)
     {
         await HubClient.Vote(Server, merchantId, VoteType.Downvote);
+    }
+
+    public void Dispose()
+    {
+        if (voteUpdateHandler is not null) voteUpdateHandler.Dispose();
     }
 }
