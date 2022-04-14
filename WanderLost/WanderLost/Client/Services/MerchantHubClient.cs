@@ -93,9 +93,26 @@ namespace WanderLost.Client.Services
             return HubConnection.On(nameof(UpdateVoteTotal), action);
         }
 
+        public Task UpdateVoteSelf(Guid merchantId, VoteType voteType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public delegate void UpdateVoteSelfHandler(Guid merchantId, VoteType voteType);
+        public IDisposable OnUpdateVoteSelf(UpdateVoteSelfHandler handler)
+        {
+            var action = new Action<Guid, VoteType>(handler);
+            return HubConnection.On(nameof(UpdateVoteSelf), action);
+        }
+
         public async Task<bool> HasNewerClient(int version)
         {
             return await HubConnection.InvokeAsync<bool>(nameof(HasNewerClient), version);
+        }
+
+        public async Task RequestClientVotes(string server)
+        {
+            await HubConnection.InvokeAsync<IEnumerable<Vote>>(nameof(RequestClientVotes), server);
         }
     }
 }
