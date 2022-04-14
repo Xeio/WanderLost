@@ -136,14 +136,19 @@ namespace WanderLost.Client.Pages
             if (!string.IsNullOrWhiteSpace(Server) && !string.IsNullOrWhiteSpace(ServerRegion))
             {
                 await HubClient.SubscribeToServer(Server);
-                await SynchronizeServer();
+                await SynchronizeServer(true);
             }
         }
 
-        private async Task SynchronizeServer()
+        private async Task SynchronizeServer(bool forceClear = false)
         {
-            //Sync with the server's current data
-            _activeMerchantDictionary.Clear();
+            if (forceClear)
+            {
+                foreach (var group in _activeMerchantGroups)
+                {
+                    group.ClearInstances();
+                }
+            }
 
             if (!string.IsNullOrWhiteSpace(Server))
             {
@@ -155,14 +160,20 @@ namespace WanderLost.Client.Pages
                         {
                             if (_activeMerchantDictionary.TryAdd(merchant.Id, merchant))
                             {
-                                //Only need to notify/process new merchants
+                                //Normally only want to add/notify newly discovered merchants
                                 clientGroup.ActiveMerchants.Add(merchant);
                                 await Notifications.RequestMerchantFoundNotification(clientGroup);
+                            }
+                            else if(forceClear)
+                            {
+                                //...unless we force cleared the groups such as swapping servers
+                                clientGroup.ActiveMerchants.Add(merchant);
                             }
                         }
                     }
                 }
             }
+
             StateHasChanged();
         }
 
