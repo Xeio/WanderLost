@@ -12,6 +12,7 @@ namespace WanderLost.Client.Pages
         [Inject] public MerchantHubClient HubClient { get; init; } = default!;
         [Inject] public ClientNotificationService Notifications { get; init; } = default!;
         [Inject] public NavigationManager NavigationManager { get; init; } = default!;
+        [Inject] public ActiveDataController ActiveData { get; init; } = default!;
 
         private string? _serverRegion;
         private string? ServerRegion
@@ -44,8 +45,6 @@ namespace WanderLost.Client.Pages
             }
         }
 
-        private List<ActiveMerchantGroup> _activeMerchantGroups = new();
-        private readonly Dictionary<Guid, ActiveMerchant> _activeMerchantDictionary = new();
         private Timer? _timer;
         private readonly List<IDisposable> _hubEvents = new();
 
@@ -53,8 +52,7 @@ namespace WanderLost.Client.Pages
         {
             await StaticData.Init();
             await ClientSettings.Init();
-
-            _activeMerchantGroups = StaticData.Merchants.Values.Select(m => new ActiveMerchantGroup() { MerchantData = m }).ToList();
+            await ActiveData.Init();
 
             _timer = new Timer(TimerTick, null, 1, 1000);
 
@@ -65,11 +63,11 @@ namespace WanderLost.Client.Pages
             {
                 if (Server != server) return;
                 
-                if (_activeMerchantGroups.FirstOrDefault(m => m.MerchantName == serverMerchantGroup.MerchantName) is ActiveMerchantGroup clientGroup)
+                if (ActiveData.MerchantGroups.FirstOrDefault(m => m.MerchantName == serverMerchantGroup.MerchantName) is ActiveMerchantGroup clientGroup)
                 {
                     foreach (var merchant in serverMerchantGroup.ActiveMerchants)
                     {
-                        if (_activeMerchantDictionary.TryAdd(merchant.Id, merchant))
+                        if (ActiveData.MerchantDictionary.TryAdd(merchant.Id, merchant))
                         {
                             //Only need to notify/process new merchants
                             clientGroup.ActiveMerchants.Add(merchant);
@@ -83,7 +81,7 @@ namespace WanderLost.Client.Pages
 
             _hubEvents.Add(HubClient.OnUpdateVoteTotal(async (merchantId, voteTotal) =>
             {
-                if(_activeMerchantDictionary.TryGetValue(merchantId, out var merchant))
+                if(ActiveData.MerchantDictionary.TryGetValue(merchantId, out var merchant))
                 {
                     merchant.Votes = voteTotal;
                 }
@@ -144,7 +142,7 @@ namespace WanderLost.Client.Pages
         {
             if (forceClear)
             {
-                foreach (var group in _activeMerchantGroups)
+                foreach (var group in ActiveData.MerchantGroups)
                 {
                     group.ClearInstances();
                 }
@@ -154,11 +152,11 @@ namespace WanderLost.Client.Pages
             {
                 foreach (var serverMerchantGroup in await HubClient.GetKnownActiveMerchantGroups(Server))
                 {
-                    if (_activeMerchantGroups.FirstOrDefault(mg => mg.MerchantName == serverMerchantGroup.MerchantName) is ActiveMerchantGroup clientGroup)
+                    if (ActiveData.MerchantGroups.FirstOrDefault(mg => mg.MerchantName == serverMerchantGroup.MerchantName) is ActiveMerchantGroup clientGroup)
                     {
                         foreach (var merchant in serverMerchantGroup.ActiveMerchants)
                         {
-                            if (_activeMerchantDictionary.TryAdd(merchant.Id, merchant))
+                            if (ActiveData.MerchantDictionary.TryAdd(merchant.Id, merchant))
                             {
                                 //Normally only want to add/notify newly discovered merchants
                                 clientGroup.ActiveMerchants.Add(merchant);
@@ -186,30 +184,37 @@ namespace WanderLost.Client.Pages
         private async Task UpdateMerchants(bool force = false)
         {
             if (string.IsNullOrWhiteSpace(_serverRegion)) return;
-            if (_activeMerchantGroups.Count == 0) return;
+            if (ActiveData.MerchantGroups.Count == 0) return;
 
             bool resort = false;
 
-            foreach (var merchantGroup in _activeMerchantGroups)
+            foreach (var merchantGroup in ActiveData.MerchantGroups)
             {
                 if (force || merchantGroup.AppearanceExpires < DateTimeOffset.UtcNow)
                 {
                     merchantGroup.CalculateNextAppearance(StaticData.ServerRegions[_serverRegion].UtcOffset);
                     merchantGroup.ClearInstances();
-                    _activeMerchantDictionary.Clear();
+                    ActiveData.MerchantDictionary.Clear();
                     resort = true;
                 }
             }
 
             //Notify appearance of merchants who are 1 second away from spawning.
-            foreach (var merchantGroup in _activeMerchantGroups.Where(x => !x.IsActive && x.NextAppearance < (DateTimeOffset.UtcNow.AddSeconds(1))))
+            foreach (var merchantGroup in ActiveData.MerchantGroups.Where(x => !x.IsActive && x.NextAppearance < (DateTimeOffset.UtcNow.AddSeconds(1))))
             {
                 await Notifications.RequestMerchantSpawnNotification(merchantGroup);
             }
 
             if (resort)
             {
-                _activeMerchantGroups = _activeMerchantGroups.OrderBy(m => m.NextAppearance).ThenBy(m => m.MerchantData.Region).ToList();
+                ActiveData.MerchantGroups.Sort((x, y) => {
+                    var compare = x.NextAppearance.CompareTo(y.NextAppearance);
+                    if(compare == 0)
+                    {
+                        compare = x.MerchantData.Region.CompareTo(y.MerchantData.Region);
+                    }
+                    return compare;
+                });
             }
         }
     }

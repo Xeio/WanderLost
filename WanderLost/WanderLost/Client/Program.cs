@@ -16,6 +16,7 @@ builder.Services.AddScoped<ClientNotificationService>();
 builder.Services.AddScoped<MerchantHubClient>();
 builder.Services.AddScoped<ClientStaticDataController>();
 builder.Services.AddScoped<ClientSettingsController>();
+builder.Services.AddScoped<ActiveDataController>();
 
 builder.Services.AddBlazoredLocalStorage();
 
