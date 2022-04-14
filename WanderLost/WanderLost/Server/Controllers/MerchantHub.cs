@@ -139,13 +139,20 @@ namespace WanderLost.Server.Controllers
             var existingVote = activeMerchant.ClientVotes.FirstOrDefault(v => v.ClientId == clientId);
             if(existingVote == null)
             {
-                activeMerchant.ClientVotes.Add(new Vote()
+                if(activeMerchant.ClientVotes.Count(v => v.VoteType == VoteType.Downvote) > 30)
                 {
-                    ActiveMerchant = activeMerchant,
-                    ClientId = clientId,
-                    VoteType = voteType,
-                });
-                activeMerchant.Votes = activeMerchant.ClientVotes.Sum(v => (int)v.VoteType);
+                    _merchantsDbContext.Remove(activeMerchant);
+                }
+                else
+                {
+                    activeMerchant.ClientVotes.Add(new Vote()
+                    {
+                        ActiveMerchant = activeMerchant,
+                        ClientId = clientId,
+                        VoteType = voteType,
+                    });
+                    activeMerchant.Votes = activeMerchant.ClientVotes.Sum(v => (int)v.VoteType);
+                }
 
                 await _merchantsDbContext.SaveChangesAsync();
 
