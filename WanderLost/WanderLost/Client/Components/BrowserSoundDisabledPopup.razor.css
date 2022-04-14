@@ -1,6 +1,6 @@
 ﻿
 .sound-popup-wrapper {
-    position: absolute;
+    position: fixed;
     left: 24px;
     right: 24px;
     bottom: 24px;
