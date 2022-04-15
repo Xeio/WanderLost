@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Net.Http.Headers;
 using WanderLost.Server.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -64,7 +65,30 @@ app.MapFallbackToFile("index.html");
 app.MapHub<MerchantHub>($"/{MerchantHub.Path}");
 
 app.UseBlazorFrameworkFiles();
-app.UseStaticFiles();
+
+app.UseStaticFiles(new StaticFileOptions()
+{
+    OnPrepareResponse = (staticFileContext) =>
+    {
+        if (staticFileContext.Context.Request.Path.StartsWithSegments(PathString.FromUriComponent("/media")) ||
+            staticFileContext.Context.Request.Path.StartsWithSegments(PathString.FromUriComponent("/images")))
+        {
+            staticFileContext.Context.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue()
+            {
+                Public = true,
+                MaxAge = TimeSpan.FromDays(7)
+            };
+        }
+        else if (staticFileContext.Context.Request.Path.StartsWithSegments(PathString.FromUriComponent("/data")))
+        {
+            staticFileContext.Context.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue()
+            {
+                Public = true,
+                MaxAge = TimeSpan.FromHours(1)
+            };
+        }
+    }
+});
 
 using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
 {
