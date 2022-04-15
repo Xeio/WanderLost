@@ -77,6 +77,9 @@ namespace WanderLost.Server.Controllers
             //Special handling case for banned users
             if (await HandleBans(clientIp, server, merchantGroup, merchant)) return;
 
+            //If this client is uploading to multiple servers, ignore them
+            if (await ClientHasOtherServerUploads(server, clientIp)) return;
+
             merchant.UploadedBy = clientIp;
             merchantGroup.ActiveMerchants.Add(merchant);
 
@@ -122,6 +125,14 @@ namespace WanderLost.Server.Controllers
             }
 
             return true;
+        }
+
+        private async Task<bool> ClientHasOtherServerUploads(string originalServer, string clientId)
+        {
+            return await _merchantsDbContext.MerchantGroups
+                .Where(g => g.Server != originalServer && g.AppearanceExpires > DateTimeOffset.Now)
+                .SelectMany(g => g.ActiveMerchants.Where(m => m.UploadedBy == clientId))
+                .AnyAsync();
         }
 
         public async Task Vote(string server, Guid merchantId, VoteType voteType)
