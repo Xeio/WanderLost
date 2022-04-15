@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-	  <ProjectReference Include="..\..\HubClientSourceGenerator\HubClientSourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="True" />
+	  <ProjectReference Include="..\HubClientSourceGenerator\HubClientSourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="True" />
     <ProjectReference Include="..\Shared\WanderLost.Shared.csproj" />
   </ItemGroup>
 
