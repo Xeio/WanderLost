@@ -171,6 +171,7 @@ namespace WanderLost.Client.Pages
                             else if(forceClear)
                             {
                                 //...unless we force cleared the groups such as swapping servers
+                                ActiveData.MerchantDictionary[merchant.Id] = merchant;
                                 clientGroup.ActiveMerchants.Add(merchant);
                             }
                         }
