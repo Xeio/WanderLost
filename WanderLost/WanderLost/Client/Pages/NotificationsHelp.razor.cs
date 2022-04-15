@@ -4,14 +4,13 @@ namespace WanderLost.Client.Pages
 {
     public partial class NotificationsHelp
     {
-        [Inject] public NavigationManager NavigationManager { get; set; } = default!;
-
         [Parameter] public string? Section { get; set; }
 
-        private Dictionary<string, bool> _initialSectionState = new Dictionary<string, bool>();
+        private readonly Dictionary<string, bool> _initialSectionState = new();
+
         protected override void OnInitialized()
         {
-            initSections();
+            InitSections();
             if (!string.IsNullOrEmpty(Section))
             {
                 _initialSectionState[Section] = true;
@@ -19,7 +18,7 @@ namespace WanderLost.Client.Pages
             base.OnInitialized();
         }
 
-        private void initSections()
+        private void InitSections()
         {
             _initialSectionState.Add("enableNotif", false);
             _initialSectionState.Add("unresponsiveNotif", false);

@@ -1,5 +1,4 @@
-﻿
-@implements IDisposable
+﻿@implements IDisposable
 
 @if (_showPopup)
 {
@@ -14,9 +13,7 @@
     </div>
 }
 
-
 @code {
-
     [CascadingParameter] public ClickTrap ClickTrap { get; set; } = default!;
 
     private bool _showPopup = false;
@@ -25,24 +22,24 @@
     protected override void OnInitialized()
     {
         _showPopup = !ClickTrap.HasClicked;
-        ClickTrap.HasChanged += handleClickTrap;
+        ClickTrap.HasChanged += HandleClickTrap;
         base.OnInitialized();
     }
 
-    private async void handleClickTrap(object? sender, bool val)
+    private async void HandleClickTrap(object? sender, bool val)
     {
-        if (val == true) //user has clicked
+        if (val) //user has clicked
         {
             _wrapperCss = "fade-out";
             await InvokeAsync(StateHasChanged);
-            await Task.Delay(500); //wait 1 second for animation to finish
+            await Task.Delay(500); //wait for animation to finish
             _showPopup = false;
-            _ = InvokeAsync(StateHasChanged);
+            await InvokeAsync(StateHasChanged);
         }
     }
 
     public void Dispose()
     {
-        ClickTrap.HasChanged -= handleClickTrap;
+        ClickTrap.HasChanged -= HandleClickTrap;
     }
 }
