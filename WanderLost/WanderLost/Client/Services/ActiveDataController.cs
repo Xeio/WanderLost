@@ -6,6 +6,8 @@ namespace WanderLost.Client.Services
     {
         public List<ActiveMerchantGroup> MerchantGroups { get; private set; } = new();
         public Dictionary<Guid, ActiveMerchant> MerchantDictionary { get; private set; } = new();
+        public Dictionary<Guid, VoteType> Votes { get; private set; } = new();
+
         private readonly ClientStaticDataController StaticData;
 
         public ActiveDataController(ClientStaticDataController staticData)

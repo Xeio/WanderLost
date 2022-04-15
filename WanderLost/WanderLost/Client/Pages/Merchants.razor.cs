@@ -79,6 +79,12 @@ namespace WanderLost.Client.Pages
                 await InvokeAsync(StateHasChanged);
             }));
 
+            _hubEvents.Add(HubClient.OnUpdateVoteSelf(async (merchantId, voteType) =>
+            {
+                ActiveData.Votes[merchantId] = voteType;
+                await InvokeAsync(StateHasChanged);
+            }));
+
             _hubEvents.Add(HubClient.OnUpdateVoteTotal(async (merchantId, voteTotal) =>
             {
                 if(ActiveData.MerchantDictionary.TryGetValue(merchantId, out var merchant))
@@ -170,11 +176,17 @@ namespace WanderLost.Client.Pages
                         }
                     }
                 }
-                //no need to wait, ActiveMerchantsGrid will handle the requests.
-                _ = HubClient.RequestClientVotes(Server);
+
+                if (ActiveData.MerchantDictionary.Count > 0)
+                {
+                    foreach (var vote in await HubClient.RequestClientVotes(Server))
+                    {
+                        ActiveData.Votes[vote.ActiveMerchantId] = vote.VoteType;
+                    }
+                }
             }
 
-            StateHasChanged();
+            await InvokeAsync(StateHasChanged);
         }
 
         async void TimerTick(object? _)
@@ -197,6 +209,7 @@ namespace WanderLost.Client.Pages
                     merchantGroup.CalculateNextAppearance(StaticData.ServerRegions[_serverRegion].UtcOffset);
                     merchantGroup.ClearInstances();
                     ActiveData.MerchantDictionary.Clear();
+                    ActiveData.Votes.Clear();
                     resort = true;
                 }
             }

@@ -200,15 +200,13 @@ namespace WanderLost.Server.Controllers
                 .ToListAsync();
         }
 
-        public async Task RequestClientVotes(string server)
+        public async Task<IEnumerable<Vote>> RequestClientVotes(string server)
         {
             var clientIp = GetClientIp();
-            foreach (var vote in _merchantsDbContext.MerchantGroups
+            return await _merchantsDbContext.MerchantGroups
                 .Where(g => g.Server == server && g.AppearanceExpires > DateTimeOffset.Now)
-                .SelectMany(mg => mg.ActiveMerchants.SelectMany(m => m.ClientVotes.Where(vote => vote.ClientId == clientIp))))
-            {
-                await Clients.Caller.UpdateVoteSelf(vote.ActiveMerchantId, vote.VoteType);
-            }
+                .SelectMany(mg => mg.ActiveMerchants.SelectMany(m => m.ClientVotes.Where(vote => vote.ClientId == clientIp)))
+                .ToListAsync();
         }
 
         private string GetClientIp()

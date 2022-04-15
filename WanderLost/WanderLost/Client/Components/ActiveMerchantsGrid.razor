@@ -1,6 +1,4 @@
-﻿@implements IDisposable
-
-@inject MerchantHubClient HubClient
+﻿@inject MerchantHubClient HubClient
 
 @{
     bool anyMerchantActive = GetVisibleMerchantGroups().Any(mg => mg.IsActive);
@@ -87,7 +85,7 @@
 
 @code {
     [Parameter, EditorRequired]
-    public IEnumerable<ActiveMerchantGroup> MerchantGroups { get; init; } = Enumerable.Empty<ActiveMerchantGroup>();
+    public ActiveDataController ActiveData { get; set; } = default!;
 
     [Parameter]
     public bool ActiveOnly { get; init; }
@@ -95,24 +93,9 @@
     [Parameter, EditorRequired]
     public string Server { get; init; } = string.Empty;
 
-    private Dictionary<Guid, VoteType> _clientVotes = new ();
-    private IDisposable? voteUpdateHandler;
-    protected override Task OnInitializedAsync()
-    {
-        voteUpdateHandler = HubClient.OnUpdateVoteSelf(async (merchantId, voteType) =>
-        {
-            if (MerchantGroups.Any(mg => mg.ActiveMerchants.Any(m => m.Id == merchantId)))
-            {
-                _clientVotes[merchantId] = voteType;
-            }
-            await InvokeAsync(StateHasChanged);
-        });
-        return base.OnInitializedAsync();
-    }
-
     private string GetVoteButtonCss(Guid merchantId, VoteType type)
     {
-        if (_clientVotes.TryGetValue(merchantId, out VoteType clientVote))
+        if (ActiveData.Votes.TryGetValue(merchantId, out VoteType clientVote))
         {
             if (type == VoteType.Upvote && clientVote == type)
             {
@@ -130,20 +113,16 @@
 
     private IEnumerable<ActiveMerchantGroup> GetVisibleMerchantGroups()
     {
-        return MerchantGroups.Where(mg => mg.IsActive ^ !ActiveOnly);
+        return ActiveData.MerchantGroups.Where(mg => mg.IsActive ^ !ActiveOnly);
     }
 
     public async Task Upvote(Guid merchantId)
     {
         await HubClient.Vote(Server, merchantId, VoteType.Upvote);
     }
+
     public async Task Downvote(Guid merchantId)
     {
         await HubClient.Vote(Server, merchantId, VoteType.Downvote);
-    }
-
-    public void Dispose()
-    {
-        if (voteUpdateHandler is not null) voteUpdateHandler.Dispose();
     }
 }
