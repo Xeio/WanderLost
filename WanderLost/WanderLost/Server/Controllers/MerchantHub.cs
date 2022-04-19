@@ -38,7 +38,7 @@ namespace WanderLost.Server.Controllers
                     AppearanceExpires = g.AppearanceExpires,
                     NextAppearance = g.NextAppearance,
                     Server = g.Server,
-                    ActiveMerchants = g.ActiveMerchants.Where(m => !(m is HiddenMerchant)).ToList(),
+                    ActiveMerchants = g.ActiveMerchants.Where(m => !m.Hidden).ToList(),
                 })
                 .FirstOrDefaultAsync();
 
@@ -94,13 +94,14 @@ namespace WanderLost.Server.Controllers
             if (!_merchantsDbContext.Bans.Any(b => b.ClientId == clientId && b.ExpiresAt > DateTimeOffset.Now)) return false;
 
             //Create a hidden merchant only visible to this client
-            var hiddenMerchant = new HiddenMerchant()
+            var hiddenMerchant = new ActiveMerchant()
             {
                 Card = merchant.Card,
                 Name = merchant.Name,
                 RapportRarity = merchant.RapportRarity,
                 UploadedBy = clientId,
                 Zone = merchant.Zone,
+                Hidden = true,
             };
 
             group.ActiveMerchants.Add(hiddenMerchant);
@@ -204,7 +205,7 @@ namespace WanderLost.Server.Controllers
                      Server = mg.Server,
                      MerchantName = mg.MerchantName,
                      ActiveMerchants = mg.ActiveMerchants
-                                            .Where(m => !(m is HiddenMerchant) || m.UploadedBy == clientIp)
+                                            .Where(m => !m.Hidden || m.UploadedBy == clientIp)
                                             .ToList(),
                 })
                 .AsNoTracking()

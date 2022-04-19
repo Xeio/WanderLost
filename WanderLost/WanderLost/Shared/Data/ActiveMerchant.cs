@@ -25,6 +25,9 @@ namespace WanderLost.Shared.Data
         [JsonIgnore]
         public List<Vote> ClientVotes { get; set; } = new();
 
+        [JsonIgnore]
+        public bool Hidden { get; set; }
+
         /// <summary>
         /// Identifier for client on the server, may be IP or later an account identifier
         /// </summary>
