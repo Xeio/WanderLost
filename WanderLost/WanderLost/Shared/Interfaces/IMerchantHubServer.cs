@@ -2,8 +2,9 @@
 
 namespace WanderLost.Shared.Interfaces
 {
-    public interface IMerchantHubServer : IMerchantHubShared
+    public interface IMerchantHubServer
     {
+        Task UpdateMerchant(string server, ActiveMerchant merchant);
         Task SubscribeToServer(string server);
         Task UnsubscribeFromServer(string server);
         Task<IEnumerable<ActiveMerchantGroup>> GetKnownActiveMerchantGroups(string server);
