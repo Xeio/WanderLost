@@ -91,7 +91,7 @@ namespace WanderLost.Server.Controllers
         private async Task<bool> HandleBans(string clientId, string server, ActiveMerchantGroup group, ActiveMerchant merchant)
         {            
             //Skip out if no bans
-            if (!_merchantsDbContext.Bans.Any(b => b.ClientId == clientId && b.ExpiresAt > DateTimeOffset.Now)) return false;
+            if (!await HasActiveBan(clientId)) return false;
 
             //Create a hidden merchant only visible to this client
             var hiddenMerchant = new ActiveMerchant()
@@ -163,6 +163,8 @@ namespace WanderLost.Server.Controllers
 
                 await Clients.Group(server).UpdateVoteTotal(merchantId, activeMerchant.Votes);
                 await Clients.Caller.UpdateVoteSelf(merchantId, voteType);
+
+                await CheckAutobans(activeMerchant);
             }
             else if(existingVote.VoteType != voteType)
             {
@@ -245,6 +247,53 @@ namespace WanderLost.Server.Controllers
         public Task<bool> HasNewerClient(int version)
         {
             return Task.FromResult(version < Utils.ClientVersion);
+        }
+
+        private async Task CheckAutobans(ActiveMerchant merchant)
+        {
+            if (merchant.Hidden) return; //Don't need to check already hidden merchants
+
+            if (merchant.Votes < -3 && merchant.Card.Name == "Wei")
+            {
+                merchant.Hidden = true;
+                if (!await HasActiveBan(merchant.UploadedBy))
+                {
+                    var newBan = new Ban()
+                    {
+                        ClientId = merchant.UploadedBy,
+                        ExpiresAt = DateTimeOffset.Now.AddDays(30),
+                    };
+                    _merchantsDbContext.Add(newBan);
+                }
+                _merchantsDbContext.Attach(merchant);
+                await _merchantsDbContext.SaveChangesAsync();
+            }
+            else if (merchant.Votes < -5 && merchant.RapportRarity == Rarity.Legendary)
+            {
+                merchant.Hidden = true;
+
+                //Try to avoid banning for rapport misclicks if user is mostly upvoted
+                var allSubmissionTotal = await _merchantsDbContext.ActiveMerchants.Where(m => m.UploadedBy == merchant.UploadedBy).SumAsync(m => m.Votes);
+                if (allSubmissionTotal < 0) 
+                {
+                    if (!await HasActiveBan(merchant.UploadedBy))
+                    {
+                        var newBan = new Ban()
+                        {
+                            ClientId = merchant.UploadedBy,
+                            ExpiresAt = DateTimeOffset.Now.AddDays(14),
+                        };
+                        _merchantsDbContext.Add(newBan);
+                    }
+                }
+                _merchantsDbContext.Attach(merchant);
+                await _merchantsDbContext.SaveChangesAsync();
+            }
+        }
+        
+        private async Task<bool> HasActiveBan(string clientId)
+        {
+            return await _merchantsDbContext.Bans.AnyAsync(b => b.ClientId == clientId && b.ExpiresAt > DateTimeOffset.Now);
         }
     }
 }
