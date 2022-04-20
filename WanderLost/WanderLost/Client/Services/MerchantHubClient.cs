@@ -6,7 +6,7 @@ namespace WanderLost.Client.Services
 {
     [AutoHubClient(typeof(IMerchantHubClient))]
     [AutoHubServer(typeof(IMerchantHubServer))]
-    public partial class MerchantHubClient : IAsyncDisposable
+    public sealed partial class MerchantHubClient : IAsyncDisposable
     {
         public HubConnection HubConnection { get; init; }
 
@@ -36,7 +36,6 @@ namespace WanderLost.Client.Services
             {
                 await HubConnection.DisposeAsync();
             }
-            GC.SuppressFinalize(this);
         }
     }
 }
