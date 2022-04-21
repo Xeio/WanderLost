@@ -47,7 +47,7 @@ namespace WanderLost.Client.Pages
 
         private Timer? _timer;
         private readonly List<IDisposable> _hubEvents = new();
-        private bool _spawnNotified;
+        private bool _spawnNotified = true;
 
         protected override async Task OnInitializedAsync()
         {
@@ -59,9 +59,6 @@ namespace WanderLost.Client.Pages
 
             ServerRegion = ClientSettings.Region;
             Server = ClientSettings.Server;
-
-            await UpdateMerchants();
-            _spawnNotified = true; //Set to true so we don't notify on open of page if a merchant is already active
 
             _hubEvents.Add(HubClient.OnUpdateMerchantGroup(async (server, serverMerchantGroup) =>
             {
@@ -228,6 +225,8 @@ namespace WanderLost.Client.Pages
 
             if (resort)
             {
+                if(ActiveData.MerchantGroups.Any(mg => mg.IsActive)) _spawnNotified = true;
+
                 ActiveData.MerchantGroups.Sort((x, y) => {
                     var compare = x.NextAppearance.CompareTo(y.NextAppearance);
                     if(compare == 0)
