@@ -129,6 +129,8 @@ namespace WanderLost.Client.Pages
 
             HubClient.HubConnection.Reconnected -= HubConnection_Reconnected;
 
+            await Notifications.ClearNotifications();
+
             GC.SuppressFinalize(this);
         }
 
@@ -149,6 +151,7 @@ namespace WanderLost.Client.Pages
         {
             if (forceClear)
             {
+                await Notifications.ClearNotifications();
                 foreach (var group in ActiveData.MerchantGroups)
                 {
                     group.ClearInstances();
@@ -220,6 +223,9 @@ namespace WanderLost.Client.Pages
                     ActiveData.Votes.Clear();
                     _spawnNotified = false;
                     resort = true;
+
+                    //Clear previous notifications that are no longer relevant
+                    await Notifications.ClearNotifications();
                 }
             }
 

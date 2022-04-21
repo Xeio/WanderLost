@@ -1,18 +1,16 @@
-﻿using Append.Blazor.Notifications;
-using Microsoft.JSInterop;
+﻿using Microsoft.JSInterop;
 using WanderLost.Shared.Data;
 
 namespace WanderLost.Client.Services
 {
-    public class ClientNotificationService
+    public sealed class ClientNotificationService : IAsyncDisposable
     {
         private readonly ClientSettingsController _clientSettings;
-        private readonly INotificationService _notifications;
         private readonly IJSRuntime _jsRuntime;
+        private readonly List<IJSObjectReference> _notifications = new();
 
-        public ClientNotificationService(INotificationService notif, ClientSettingsController clientSettings, IJSRuntime js)
+        public ClientNotificationService(ClientSettingsController clientSettings, IJSRuntime js)
         {
-            _notifications = notif;
             _clientSettings = clientSettings;
             _jsRuntime = js;
         }
@@ -23,29 +21,12 @@ namespace WanderLost.Client.Services
         }
 
         /// <summary>
-        /// Check if user has granted permission for Browser-Notifications.
-        /// </summary>
-        /// <returns></returns>
-        public async Task<bool> IsPermissionGrantedByUser()
-        {
-            if (await _notifications.IsSupportedByBrowserAsync())
-            {
-                if (_notifications.PermissionStatus == PermissionType.Granted)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>
         /// Check if browser supports notifications.
         /// </summary>
         /// <returns></returns>
         public ValueTask<bool> IsSupportedByBrowser()
         {
-            return _notifications.IsSupportedByBrowserAsync();
+            return _jsRuntime.InvokeAsync<bool>("SupportsNotifications");
         }
 
         /// <summary>
@@ -54,7 +35,8 @@ namespace WanderLost.Client.Services
         /// <returns></returns>
         public async ValueTask<bool> RequestPermission()
         {
-            return await _notifications.RequestPermissionAsync() is PermissionType answer && answer == PermissionType.Granted;
+            var permissionResult = await _jsRuntime.InvokeAsync<string>("RequestPermission");
+            return permissionResult == "granted";
         }
 
         private bool IsAllowedForMerchantFoundNotifications(ActiveMerchantGroup merchantGroup)
@@ -112,8 +94,9 @@ namespace WanderLost.Client.Services
                 body += $"Rapport: {merchantGroup.ActiveMerchants[0].Rapport.Name}\n";
             }
 
-            return _notifications.CreateAsync($"Wandering Merchant \"{merchantGroup.MerchantName}\" found", new NotificationOptions { Body = body, Renotify = true, Tag = $"found_{merchantGroup.MerchantName}", Icon = "images/notifications/ExclamationMark.png" });
+            return CreateNotification($"Wandering Merchant \"{merchantGroup.MerchantName}\" found", new { Body = body, Renotify = true, Tag = $"found_{merchantGroup.MerchantName}", Icon = "images/notifications/ExclamationMark.png" });
         }
+
         /// <summary>
         /// Request a "merchant appeared" Browser-Notification for the given merchantGroup, rules from usersettings are applied; the request can be denied.
         /// </summary>
@@ -130,7 +113,7 @@ namespace WanderLost.Client.Services
 
                 //Only showing the first enabled "spawn" notification, then returning
                 string body = $"Wandering Merchant \"{merchantGroup.MerchantName}\" is waiting for you somewhere.";
-                return _notifications.CreateAsync($"Wandering Merchant \"{merchantGroup.MerchantName}\" appeared", new NotificationOptions { Body = body, Renotify = true, Tag = "spawn_merchant", Icon = "images/notifications/QuestionMark.png" });
+                return CreateNotification($"Wandering Merchant \"{merchantGroup.MerchantName}\" appeared", new { Body = body, Renotify = true, Tag = "spawn_merchant", Icon = "images/notifications/QuestionMark.png" });
             }
 
             return ValueTask.CompletedTask;
@@ -146,7 +129,13 @@ namespace WanderLost.Client.Services
             RequestBrowserNotificationSound();
 
             string body = $"Wandering Merchant \"{merchantGroup.MerchantName}\" is waiting for you somewhere.";
-            return _notifications.CreateAsync($"Wandering Merchant \"{merchantGroup.MerchantName}\" appeared", new NotificationOptions { Body = body, Renotify = true, Tag = "spawn_merchant", Icon = "images/notifications/QuestionMark.png" });
+            return CreateNotification($"Wandering Merchant \"{merchantGroup.MerchantName}\" appeared", new { Body = body, Renotify = true, Tag = "spawn_merchant", Icon = "images/notifications/QuestionMark.png" });
+        }
+
+        private async ValueTask CreateNotification(string title, object parameters)
+        {
+            var notification = await _jsRuntime.InvokeAsync<IJSObjectReference>("Create", title, parameters);
+            _notifications.Add(notification);
         }
 
         private async void RequestBrowserNotificationSound()
@@ -162,6 +151,25 @@ namespace WanderLost.Client.Services
                 //ignore
                 //if the sound doesn't play... whatever. No need to let the whole session crash.
             }
+        }
+
+        public async ValueTask ClearNotifications()
+        {
+            foreach(var notification in _notifications)
+            {
+                await _jsRuntime.InvokeVoidAsync("Dismiss", notification);
+                await notification.DisposeAsync();
+            }
+            _notifications.Clear();
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            foreach (var notification in _notifications)
+            {
+                await notification.DisposeAsync();
+            }
+            _notifications.Clear();
         }
     }
 }
