@@ -26,6 +26,9 @@ namespace WanderLost.Server.Controllers
 
             if (!await IsValidServer(server)) return;
 
+            //Temp compatability fix
+            if (merchant.Card.Name == "Eohl") merchant.Card = new Item() { Name = "Eolh", Rarity = Rarity.Epic };
+
             var allMerchantData = await _dataController.GetMerchantData();
             if (!merchant.IsValid(allMerchantData)) return;
 
