@@ -74,7 +74,7 @@ namespace WanderLost.Client.Services
                 }
             }
 
-            if (_clientSettings.NotifyLegendaryRapport && merchantGroup.ActiveMerchants.Any(m => m.RapportRarity == Rarity.Legendary))
+            if (_clientSettings.NotifyLegendaryRapport && merchantGroup.ActiveMerchants.Any(m => m.Rapport.Rarity == Rarity.Legendary))
             {
                 return true;
             }
@@ -112,7 +112,7 @@ namespace WanderLost.Client.Services
             {
                 body += $"Location: {merchantGroup.ActiveMerchants[0].Zone}\n";
                 body += $"Card: {merchantGroup.ActiveMerchants[0].Card.Name}\n";
-                body += $"Rapport: {merchantGroup.ActiveMerchants[0].RapportRarity?.ToString() ?? "_unknown"}\n";
+                body += $"Rapport: {merchantGroup.ActiveMerchants[0].Rapport.Name}\n";
             }
 
             return _notifications.CreateAsync($"Wandering Merchant \"{merchantGroup.MerchantName}\" found", new NotificationOptions { Body = body, Renotify = true, Tag = $"found_{merchantGroup.MerchantName}", Icon = "images/notifications/ExclamationMark.png" });

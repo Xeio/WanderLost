@@ -59,12 +59,13 @@ namespace WanderLost.Client.Pages
                 Name = "Lailai",
                 Zones = new List<string> { "Punika" },
                 Cards = new List<Item> { new Item { Name = "Shut up!!", Rarity = Rarity.Rare } },
+                Rapports = new List<Item> { new Item { Name = "Flower", Rarity = Rarity.Rare } },
             };
             var dummyMerchantGroup = new ActiveMerchantGroup
             {
                 MerchantData = dummyData,
                 MerchantName = "Lailai",
-                ActiveMerchants = new List<ActiveMerchant> { new ActiveMerchant { Name = "Lailai", Card = dummyData.Cards[0], Zone = dummyData.Zones[0], RapportRarity = Rarity.Rare } },
+                ActiveMerchants = new List<ActiveMerchant> { new ActiveMerchant { Name = "Lailai", Card = dummyData.Cards[0], Zone = dummyData.Zones[0], Rapport = dummyData.Rapports[0] } },
             };
             await ClientNotifications.ForceMerchantFoundNotification(dummyMerchantGroup);
         }

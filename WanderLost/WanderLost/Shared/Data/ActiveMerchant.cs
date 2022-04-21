@@ -18,7 +18,7 @@ namespace WanderLost.Shared.Data
 
         public Item Card { get; set; } = new();
 
-        public Rarity? RapportRarity { get; set; }
+        public Item Rapport { get; set; } = new();
 
         public int Votes { get; set; }
 
@@ -39,7 +39,7 @@ namespace WanderLost.Shared.Data
         {
             Zone = string.Empty;
             Card = new();
-            RapportRarity = null;
+            Rapport = new();
         }
 
         public void CopyInstance(ActiveMerchant other)
@@ -47,33 +47,30 @@ namespace WanderLost.Shared.Data
             //Copies only data sent between client and server
             Zone = other.Zone;
             Card = other.Card;
-            RapportRarity = other.RapportRarity;
+            Rapport = other.Rapport;
         }
 
         public bool IsValid(Dictionary<string, MerchantData> allMerchantData)
         {
             if (string.IsNullOrWhiteSpace(Name) ||
-                string.IsNullOrWhiteSpace(Zone) ||
-                RapportRarity is null)
+                string.IsNullOrWhiteSpace(Zone))
             {
                 return false;
             }
 
-            if (!allMerchantData.ContainsKey(Name)) return false;
-
-            var data = allMerchantData[Name];
+            if (!allMerchantData.TryGetValue(Name, out var data)) return false;
 
             return data.Zones.Contains(Zone) &&
-                    data.Cards.Any(c => c.Name == Card.Name && c.Rarity == Card.Rarity);
+                    data.Cards.Contains(Card) &&
+                    data.Rapports.Contains(Rapport);
         }
 
         public bool IsEqualTo(ActiveMerchant merchant)
         {
             return Name == merchant.Name &&
                 Zone == merchant.Zone &&
-                Card.Name == merchant.Card.Name &&
-                Card.Rarity == merchant.Card.Rarity &&
-                RapportRarity == merchant.RapportRarity;
+                Card.Equals(merchant.Card) &&
+                Rapport.Equals(merchant.Rapport);
         }
     }
 }

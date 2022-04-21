@@ -48,15 +48,14 @@
             <div class="card border-secondary mb-3">
                 <div class="card-header">Rapport Item</div>
                 <div class="card-body">
-                    <InputRadioGroup @bind-Value="ActiveMerchant.RapportRarity">
-                        <div class="form-check">
-                            <InputRadio class="form-check-input" Value="@Rarity.Epic" id="EpicRapport"/>
-                            <label class="form-check-label" for="EpicRapport"><ItemDisplay Item="@(new Item(){ Name="Epic", Rarity= Rarity.Epic })" /></label>
-                        </div>
-                        <div class="form-check">
-                            <InputRadio class="form-check-input" Value="@Rarity.Legendary" id="LegendaryRapport"/>
-                            <label class="form-check-label" for="LegendaryRapport"><ItemDisplay Item="@(new Item(){ Name="Legendary", Rarity= Rarity.Legendary })" /></label>
-                        </div>
+                    <InputRadioGroup @bind-Value="RapportName">
+                        @foreach(var item in MerchantData?.Rapports ?? Enumerable.Empty<Item>())
+                        {
+                            <div class="form-check">
+                                <InputRadio class="form-check-input" Value="@item.Name" id="@item.Name"/>
+                                <label class="form-check-label" for="@item.Name"><ItemDisplay Item="@item" /></label>
+                            </div>
+                        }
                     </InputRadioGroup>
                 </div>
             </div>
@@ -87,6 +86,19 @@
             if(card is not null)
             {
                 ActiveMerchant.Card = card;
+            }
+        }
+    }
+
+    public string RapportName
+    {
+        get{ return ActiveMerchant.Rapport.Name; }
+        set 
+        {
+            var rapport = MerchantData?.Rapports?.FirstOrDefault(c => value == c.Name);
+            if(rapport is not null)
+            {
+                ActiveMerchant.Rapport = rapport;
             }
         }
     }

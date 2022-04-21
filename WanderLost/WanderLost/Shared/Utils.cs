@@ -41,6 +41,11 @@ namespace WanderLost.Shared
                     new Item() { Name = "Jack O'Neill", Rarity = Rarity.Relic },
                     new Item() { Name = "Jaffa", Rarity = Rarity.Normal },
                 },
+                Rapports =
+                {
+                    new Item() { Name = "Lightsaber", Rarity = Rarity.Legendary },
+                    new Item() { Name = "Half-Eaten Cookie", Rarity = Rarity.Normal },
+                },
                 AppearanceTimes = times,
             });
         }
