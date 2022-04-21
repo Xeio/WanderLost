@@ -119,16 +119,21 @@ namespace WanderLost.Client.Services
         /// </summary>
         /// <param name="merchantGroup"></param>
         /// <returns></returns>
-        public ValueTask RequestMerchantSpawnNotification(ActiveMerchantGroup merchantGroup)
+        public ValueTask CheckMerchantSpawnNotification(IEnumerable<ActiveMerchantGroup> merchantGroups)
         {
             if (!_clientSettings.NotificationsEnabled) return ValueTask.CompletedTask;
-            if (merchantGroup == null) return ValueTask.CompletedTask;
-            
-            //Check if spawn notification is enabled
-            if (!_clientSettings.Notifications.TryGetValue(merchantGroup.MerchantName, out var notificationSetting) || !notificationSetting.NotifySpawn) return ValueTask.CompletedTask;
 
-            string body = $"Wandering Merchant \"{merchantGroup.MerchantName}\" is waiting for you somewhere.";
-            return _notifications.CreateAsync($"Wandering Merchant \"{merchantGroup.MerchantName}\" appeared", new NotificationOptions { Body = body, Renotify = true, Tag = "spawn_merchant", Icon = "images/notifications/QuestionMark.png" });
+            foreach (var merchantGroup in merchantGroups)
+            {
+                //Check if spawn notification is enabled
+                if (!_clientSettings.Notifications.TryGetValue(merchantGroup.MerchantName, out var notificationSetting) || !notificationSetting.NotifySpawn) continue;
+
+                //Only showing the first enabled "spawn" notification, then returning
+                string body = $"Wandering Merchant \"{merchantGroup.MerchantName}\" is waiting for you somewhere.";
+                return _notifications.CreateAsync($"Wandering Merchant \"{merchantGroup.MerchantName}\" appeared", new NotificationOptions { Body = body, Renotify = true, Tag = "spawn_merchant", Icon = "images/notifications/QuestionMark.png" });
+            }
+
+            return ValueTask.CompletedTask;
         }
 
         /// <summary>

@@ -47,6 +47,7 @@ namespace WanderLost.Client.Pages
 
         private Timer? _timer;
         private readonly List<IDisposable> _hubEvents = new();
+        private bool _spawnNotified;
 
         protected override async Task OnInitializedAsync()
         {
@@ -58,6 +59,9 @@ namespace WanderLost.Client.Pages
 
             ServerRegion = ClientSettings.Region;
             Server = ClientSettings.Server;
+
+            await UpdateMerchants();
+            _spawnNotified = true; //Set to true so we don't notify on open of page if a merchant is already active
 
             _hubEvents.Add(HubClient.OnUpdateMerchantGroup(async (server, serverMerchantGroup) =>
             {
@@ -203,6 +207,12 @@ namespace WanderLost.Client.Pages
 
             bool resort = false;
 
+            if (!_spawnNotified && ActiveData.MerchantGroups.Any(mg => mg.IsActive))
+            {
+                await Notifications.CheckMerchantSpawnNotification(ActiveData.MerchantGroups.Where(mg => mg.IsActive));
+                _spawnNotified = true;
+            }
+
             foreach (var merchantGroup in ActiveData.MerchantGroups)
             {
                 if (force || merchantGroup.AppearanceExpires < DateTimeOffset.UtcNow)
@@ -211,14 +221,9 @@ namespace WanderLost.Client.Pages
                     merchantGroup.ClearInstances();
                     ActiveData.MerchantDictionary.Clear();
                     ActiveData.Votes.Clear();
+                    _spawnNotified = false;
                     resort = true;
                 }
-            }
-
-            //Notify appearance of merchants who are 1 second away from spawning.
-            foreach (var merchantGroup in ActiveData.MerchantGroups.Where(x => !x.IsActive && x.NextAppearance < (DateTimeOffset.UtcNow.AddSeconds(1))))
-            {
-                await Notifications.RequestMerchantSpawnNotification(merchantGroup);
             }
 
             if (resort)
