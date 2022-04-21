@@ -101,7 +101,7 @@ namespace WanderLost.Server.Controllers
             {
                 Card = merchant.Card,
                 Name = merchant.Name,
-                RapportRarity = merchant.RapportRarity,
+                Rapport = merchant.Rapport,
                 UploadedBy = clientId,
                 Zone = merchant.Zone,
                 Hidden = true,
@@ -272,7 +272,7 @@ namespace WanderLost.Server.Controllers
                 _merchantsDbContext.Attach(merchant);
                 await _merchantsDbContext.SaveChangesAsync();
             }
-            else if (merchant.Votes < -5 && merchant.RapportRarity == Rarity.Legendary)
+            else if (merchant.Votes < -5 && merchant.Rapport.Rarity == Rarity.Legendary)
             {
                 merchant.Hidden = true;
 

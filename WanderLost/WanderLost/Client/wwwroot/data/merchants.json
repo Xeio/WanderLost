@@ -18,6 +18,24 @@
         "Rarity": "Epic"
       }
     ],
+    "Rapports": [
+      {
+        "Name": "Book of Survival",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Broken Dagger",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Desiccated Wooden Statue",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Red Moon Tears",
+        "Rarity": "Legendary"
+      }
+    ]
   },
   "Morris": {
     "Name": "Morris",
@@ -42,6 +60,24 @@
         "Rarity": "Epic"
       }
     ],
+    "Rapports": [
+      {
+        "Name": "Azenaporium Brooch",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Dyorika Straw Hat",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Model of Luterra's Sword",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Chain War Chronicles",
+        "Rarity": "Legendary"
+      }
+    ]
   },
   "Lucas": {
     "Name": "Lucas",
@@ -62,6 +98,20 @@
         "Rarity": "Rare"
       }
     ],
+    "Rapports": [
+      {
+        "Name": "Yudia Natural Salt",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Yudia Spellbook",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Sky Reflection Oil",
+        "Rarity": "Legendary"
+      }
+    ]
   },
   "Mac": {
     "Name": "Mac",
@@ -86,6 +136,16 @@
         "Rarity": "Legendary"
       }
     ],
+    "Rapports": [
+      {
+        "Name": "Tournament Entrance Stamp",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Angler's Fishing Pole",
+        "Rarity": "Legendary"
+      }
+    ]
   },
   "Jeffrey": {
     "Name": "Jeffrey",
@@ -106,8 +166,17 @@
         "Rarity": "Epic"
       }
     ],
+    "Rapports": [
+      {
+        "Name": "Shimmering Essence",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Sirius's Holy Book",
+        "Rarity": "Legendary"
+      }
+    ]
   },
-
   "Ben": {
     "Name": "Ben",
     "Region": "Rethramis",
@@ -127,6 +196,24 @@
         "Rarity": "Rare"
       }
     ],
+    "Rapports": [
+      {
+        "Name": "Fancier Bouquet",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Prideholme Potato",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Rethramis Holy Water",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Surprise Chest",
+        "Rarity": "Legendary"
+      }
+    ]
   },
   "Laitir": {
     "Name": "Laitir",
@@ -147,6 +234,16 @@
         "Rarity": "Epic"
       }
     ],
+    "Rapports": [
+      {
+        "Name": "Piyer's Secret Textbook",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Fargar's Beer",
+        "Rarity": "Legendary"
+      }
+    ]
   },
   "Peter": {
     "Name": "Peter",
@@ -167,8 +264,33 @@
         "Rarity": "Epic"
       }
     ],
+    "Rapports": [
+      {
+        "Name": "Crystallized Magick",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Exquisite Music Box",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Goblin Yam",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Magick Cloth",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Queen's Knights Application",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Vern's Founding Coin",
+        "Rarity": "Legendary"
+      }
+    ]
   },
-
   "Malone": {
     "Name": "Malone",
     "Region": "West Luterra",
@@ -188,6 +310,24 @@
         "Rarity": "Rare"
       }
     ],
+    "Rapports": [
+      {
+        "Name": "Black Rose",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Lakebar Tomato Juice",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Stalwart Cage",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Chain War Chronicles",
+        "Rarity": "Legendary"
+      }
+    ]
   },
   "Burt": {
     "Name": "Burt",
@@ -208,6 +348,24 @@
         "Rarity": "Epic"
       }
     ],
+    "Rapports": [
+      {
+        "Name": "Azenaporium Brooch",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Dyorika Straw Hat",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Model of Luterra's Sword",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Chain War Chronicles",
+        "Rarity": "Legendary"
+      }
+    ]
   },
   "Oliver": {
     "Name": "Oliver",
@@ -228,6 +386,24 @@
         "Rarity": "Epic"
       }
     ],
+    "Rapports": [
+      {
+        "Name": "Mokoko Carrot",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Oversized Ladybug Doll",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Round Glass Piece",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Shy Wind Flower Pollen",
+        "Rarity": "Legendary"
+      }
+    ]
   },
   "Nox": {
     "Name": "Nox",
@@ -248,6 +424,16 @@
         "Rarity": "Epic"
       }
     ],
+    "Rapports": [
+      {
+        "Name": "Energy X7 Capsule",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Fine Gramophone",
+        "Rarity": "Legendary"
+      }
+    ]
   },
   "Aricer": {
     "Name": "Aricer",
@@ -268,6 +454,24 @@
         "Rarity": "Epic"
       }
     ],
+    "Rapports": [
+      {
+        "Name": "Danube's Earrings",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Elemental's Feather",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Soundstone of Dawn",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Sylvain Queens' Blessing",
+        "Rarity": "Legendary"
+      }
+    ]
   },
   "Rayni": {
     "Name": "Rayni",
@@ -292,5 +496,23 @@
         "Rarity": "Epic"
       }
     ],
+    "Rapports": [
+      {
+        "Name": "Hollowfruit",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Pinata Crafting Set",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Rainbow Tikatika Flower",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Oreha Viewing Stone",
+        "Rarity": "Legendary"
+      }
+    ]
   }
 }

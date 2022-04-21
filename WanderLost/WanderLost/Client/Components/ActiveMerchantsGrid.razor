@@ -57,7 +57,7 @@
                     var merchant = merchantGroup.ActiveMerchants.First();
                     <td><ZoneDisplay ZoneName="@merchant.Zone" /></td>
                     <td><ItemDisplay Item="@merchant.Card" /></td>
-                    <td><ItemDisplay Item="@(new Item() { Name = merchant.RapportRarity?.ToString() ?? "", Rarity = merchant.RapportRarity ?? Rarity.Rare})" /></td>
+                    <td><ItemDisplay Item="@merchant.Rapport" /></td>
                     <td style="white-space: nowrap;">
                         @merchant.Votes 
                         <button class="btn @GetVoteButtonCss(merchant.Id, VoteType.Upvote)" alt="Upvote" @onclick="@(async m => await Upvote(merchant.Id))" ><span class="oi oi-thumb-up"></span></button> 
@@ -71,7 +71,7 @@
                 <tr>
                     <td><ZoneDisplay ZoneName="@merchant.Zone" /></td>
                     <td><ItemDisplay Item="@merchant.Card" /></td>
-                    <td><ItemDisplay Item="@(new Item() { Name = merchant.RapportRarity?.ToString() ?? "", Rarity = merchant.RapportRarity ?? Rarity.Rare})" /></td>
+                    <td><ItemDisplay Item="@merchant.Rapport" /></td>
                     <td style="white-space: nowrap;">
                         @merchant.Votes
                         <button class="btn @GetVoteButtonCss(merchant.Id, VoteType.Upvote)" alt="Upvote" @onclick="@(async m => await Upvote(merchant.Id))" ><span class="oi oi-thumb-up"></span></button> 
