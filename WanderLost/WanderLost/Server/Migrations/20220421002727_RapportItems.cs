@@ -8,10 +8,6 @@ namespace WanderLost.Server.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "RapportRarity",
-                table: "ActiveMerchants");
-
             migrationBuilder.AddColumn<string>(
                 name: "Rapport_Name",
                 table: "ActiveMerchants",
@@ -26,10 +22,24 @@ namespace WanderLost.Server.Migrations
                 type: "int",
                 nullable: false,
                 defaultValue: 0);
+
+            migrationBuilder.Sql("UPDATE ActiveMerchants SET Rapport_Rarity = RapportRarity");
+
+            migrationBuilder.DropColumn(
+                name: "RapportRarity",
+                table: "ActiveMerchants");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AddColumn<int>(
+                name: "RapportRarity",
+                table: "ActiveMerchants",
+                type: "int",
+                nullable: true);
+
+            migrationBuilder.Sql("UPDATE ActiveMerchants SET RapportRarity = Rapport_Rarity");
+
             migrationBuilder.DropColumn(
                 name: "Rapport_Name",
                 table: "ActiveMerchants");
@@ -38,11 +48,6 @@ namespace WanderLost.Server.Migrations
                 name: "Rapport_Rarity",
                 table: "ActiveMerchants");
 
-            migrationBuilder.AddColumn<int>(
-                name: "RapportRarity",
-                table: "ActiveMerchants",
-                type: "int",
-                nullable: true);
         }
     }
 }
