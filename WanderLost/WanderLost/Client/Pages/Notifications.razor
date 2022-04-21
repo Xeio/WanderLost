@@ -18,21 +18,12 @@ else
     <div class="container mx-1">
         <div class="row my-2">
             <div class="form-check col-6">
-                <input class="form-check-input" type="checkbox" checked="@ClientSettings.NotifyMerchantAppearance" id="merchantSpawn" @onclick="@ToggleNotifyAppearance">
-                <label class="form-check-label" for="merchantSpawn">
-                    Notify when selected merchants have spawned
-                </label>
-            </div>
-            <button class="btn btn-dark col-auto" @onclick="OnTestMerchantSpawnClicked">Test merchant spawn notification</button>
-        </div>
-        <div class="row my-2">
-            <div class="form-check col-6">
                 <input class="form-check-input" type="checkbox" id="merchantFound" checked disabled>
                 <label class="form-check-label" for="merchantFound">
                     Notify when selected items appear
                 </label>
             </div>
-            <button class="btn btn-dark col-auto" @onclick="OnTestMerchantFoundClicked">Test item found notification</button>
+            <button class="btn btn-dark col-auto" @onclick="OnTestMerchantSpawnClicked">Test merchant spawn notification</button>
         </div>
         <div class="row my-2">
             <div class="form-check col-6">
@@ -41,6 +32,7 @@ else
                     Play additional notification sound in browser
                 </label>
             </div>
+            <button class="btn btn-dark col-auto" @onclick="OnTestMerchantFoundClicked">Test item found notification</button>
         </div>
     </div>
     <div class="d-flex overflow-hidden flex-wrap">
@@ -48,11 +40,20 @@ else
         {
             <div class="card" style="width: 20rem;">
                 <div class="card-header">
-                    <NotificationIcon Enabled="IsMerchantNotified(merchant.Key)" StateChanged="@(_ => OnNotificationToggle(NotificationSettingType.Merchant, merchant.Key, merchant.Key))" />
                     @merchant.Key
                 </div>
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item" style="min-height: 137px;">
+                    <li class="list-group-item">
+                        <ul>
+                            <li class="d-block">
+                                <NotificationIcon Enabled="IsMerchantValueNotified(merchant.Key, NotificationSettingType.Spawn, merchant.Key)" StateChanged="@(_ => OnNotificationToggle(NotificationSettingType.Spawn, merchant.Key, merchant.Key))" />
+                                <span>Notify on Spawn</span>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item" style="min-height: 8.5em;">
                         <h6 class="card-subtitle mb-2 text-muted">Cards</h6>
                         <ul>
                             @foreach (var item in merchant.Value.Cards)
@@ -66,7 +67,7 @@ else
                     </li>
                 </ul>
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item" style="min-height: 137px;">
+                    <li class="list-group-item">
                         <h6 class="card-subtitle mb-2 text-muted">Rapports</h6>
                         <ul>
                             @foreach (var item in merchant.Value.Rapports)

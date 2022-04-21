@@ -19,11 +19,6 @@ namespace WanderLost.Client.Pages
             await base.OnInitializedAsync();
         }
 
-        protected async Task ToggleNotifyAppearance()
-        {
-            await ClientSettings.SetNotifyMerchantAppearance(!ClientSettings.NotifyMerchantAppearance);
-        }
-
         protected async Task ToggleNotifyBrowserSoundEnabled()
         {
             await ClientSettings.SetNotifyBrowserSoundEnabled(!ClientSettings.NotifyBrowserSoundEnabled);
@@ -45,7 +40,6 @@ namespace WanderLost.Client.Pages
             };
             await ClientNotifications.ForceMerchantSpawnNotification(dummyMerchantGroup);
         }
-
 
         protected async Task OnTestMerchantFoundClicked()
         {
@@ -69,12 +63,12 @@ namespace WanderLost.Client.Pages
         {
             if (!ClientSettings.Notifications.TryGetValue(merchant, out var notificationSetting))
             {
-                notificationSetting = ClientSettings.Notifications[merchant] = new() { Enabled = true };
+                notificationSetting = ClientSettings.Notifications[merchant] = new();
             }
 
-            if (category == NotificationSettingType.Merchant)
+            if (category == NotificationSettingType.Spawn)
             {
-                notificationSetting.Enabled = !notificationSetting.Enabled;
+                notificationSetting.NotifySpawn = !notificationSetting.NotifySpawn;
             }
             else if (category == NotificationSettingType.Card && value is Item card)
             {
@@ -85,8 +79,6 @@ namespace WanderLost.Client.Pages
                 else
                 {
                     notificationSetting.Cards.Add(card.Name);
-                    //Also force-enable the merchant, if a user is trying to notify based on an item that merchant carries
-                    if (!notificationSetting.Enabled) notificationSetting.Enabled = true;
                 }
             }
             else if (category == NotificationSettingType.Rapport && value is Item rapport)
@@ -98,18 +90,15 @@ namespace WanderLost.Client.Pages
                 else
                 {
                     notificationSetting.Rapports.Add(rapport.Name);
-                    //Also force-enable the merchant, if a user is trying to notify based on an item that merchant carries
-                    if (!notificationSetting.Enabled) notificationSetting.Enabled = true;
                 }
             }
 
             await ClientSettings.SaveNotificationSettings();
         }
 
-        protected bool IsMerchantNotified(string name)
+        protected bool IsSpawnNotified(string name)
         {
-            //Default merchants to enabled
-            return !ClientSettings.Notifications.TryGetValue(name, out var setting) || setting.Enabled;
+            return ClientSettings.Notifications.TryGetValue(name, out var setting) && setting.NotifySpawn;
         }
 
         protected bool IsMerchantValueNotified(string name, NotificationSettingType category, object value)
@@ -117,6 +106,11 @@ namespace WanderLost.Client.Pages
             if (!ClientSettings.Notifications.TryGetValue(name, out var setting))
             {
                 return false;
+            }
+
+            if (category == NotificationSettingType.Spawn)
+            {
+                return setting.NotifySpawn;
             }
 
             if (category == NotificationSettingType.Card && value is Item card)

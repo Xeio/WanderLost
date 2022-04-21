@@ -9,7 +9,6 @@ namespace WanderLost.Client.Services
         public string Region { get; private set; } = string.Empty;
         public string Server { get; private set; } = string.Empty;
         public bool NotificationsEnabled { get; private set; }
-        public bool NotifyMerchantAppearance { get; private set; }
         public bool NotifyBrowserSoundEnabled { get; private set; }
         public Dictionary<string, MerchantNotificationSetting> Notifications { get; private set; } = new();
 
@@ -33,18 +32,17 @@ namespace WanderLost.Client.Services
                 Region = await _localStorageService.GetItemAsync<string?>(nameof(Region)) ?? string.Empty;
                 Server = await _localStorageService.GetItemAsync<string?>(nameof(Server)) ?? string.Empty;
                 NotificationsEnabled = await _localStorageService.GetItemAsync<bool?>(nameof(NotificationsEnabled)) ?? false;
-                NotifyMerchantAppearance = await _localStorageService.GetItemAsync<bool?>(nameof(NotifyMerchantAppearance)) ?? false;
                 NotifyBrowserSoundEnabled = await _localStorageService.GetItemAsync<bool?>(nameof(NotifyBrowserSoundEnabled)) ?? false;
                 Notifications = await _localStorageService.GetItemAsync<Dictionary<string, MerchantNotificationSetting>?>(nameof(Notifications)) ?? new();
 
-                //Compatability convert old setting to items
+                //Compatability to convert/remove old settings to items
                 if(await _localStorageService.GetItemAsync<bool?>("NotifyLegendaryRapport") ?? false)
                 {
                     foreach(var merchant in _staticData.Merchants.Values)
                     {
                         if(!Notifications.TryGetValue(merchant.Name, out var notificationSetting))
                         {
-                            Notifications[merchant.Name] = notificationSetting = new MerchantNotificationSetting() { Enabled = true };
+                            Notifications[merchant.Name] = notificationSetting = new();
                         }
                         foreach (var rapport in merchant.Rapports.Where(r => r.Rarity == Rarity.Legendary))
                         {
@@ -52,8 +50,10 @@ namespace WanderLost.Client.Services
                         }
                     }
                     await SaveNotificationSettings();
-                    await _localStorageService.RemoveItemAsync("NotifyLegendaryRapport");
                 }
+                await _localStorageService.RemoveItemAsync("NotifyLegendaryRapport");
+                await _localStorageService.RemoveItemAsync("NotifyMerchantAppearance");
+
 
                 _initialized = true;
             }
@@ -75,12 +75,6 @@ namespace WanderLost.Client.Services
         {
             NotificationsEnabled = notificationsEnabled;
             await _localStorageService.SetItemAsync(nameof(NotificationsEnabled), notificationsEnabled);
-        }
-
-        public async Task SetNotifyMerchantAppearance(bool notifyMerchantAppearance)
-        {
-            NotifyMerchantAppearance = notifyMerchantAppearance;
-            await _localStorageService.SetItemAsync(nameof(NotifyMerchantAppearance), notifyMerchantAppearance);
         }
 
         public async Task SetNotifyBrowserSoundEnabled(bool soundEnabled)

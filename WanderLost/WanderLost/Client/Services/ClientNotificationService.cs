@@ -61,22 +61,19 @@ namespace WanderLost.Client.Services
         {
             if (merchantGroup.ActiveMerchants.Count == 0) return false;
 
-            if (_clientSettings.Notifications.TryGetValue(merchantGroup.MerchantName, out var notificationSetting) && !notificationSetting.Enabled)
+            if (!_clientSettings.Notifications.TryGetValue(merchantGroup.MerchantName, out var notificationSetting))
             {
                 return false;
             }
 
-            if (notificationSetting is not null)
+            foreach (var card in merchantGroup.ActiveMerchants.Select(m => m.Card))
             {
-                foreach (var card in merchantGroup.ActiveMerchants.Select(m => m.Card))
-                {
-                    if (notificationSetting.Cards.Contains(card.Name)) return true;
-                }
+                if (notificationSetting.Cards.Contains(card.Name)) return true;
+            }
 
-                foreach (var rapport in merchantGroup.ActiveMerchants.Select(m => m.Rapport))
-                {
-                    if (notificationSetting.Rapports.Contains(rapport.Name)) return true;
-                }
+            foreach (var rapport in merchantGroup.ActiveMerchants.Select(m => m.Rapport))
+            {
+                if (notificationSetting.Rapports.Contains(rapport.Name)) return true;
             }
 
             return false;
@@ -126,10 +123,9 @@ namespace WanderLost.Client.Services
         {
             if (!_clientSettings.NotificationsEnabled) return ValueTask.CompletedTask;
             if (merchantGroup == null) return ValueTask.CompletedTask;
-            if (!_clientSettings.NotifyMerchantAppearance) return ValueTask.CompletedTask;
-
-            //Default to enabled for any merchant
-            if(_clientSettings.Notifications.TryGetValue(merchantGroup.MerchantName, out var notificationSetting) && !notificationSetting.Enabled) return ValueTask.CompletedTask;
+            
+            //Check if spawn notification is enabled
+            if (!_clientSettings.Notifications.TryGetValue(merchantGroup.MerchantName, out var notificationSetting) || !notificationSetting.NotifySpawn) return ValueTask.CompletedTask;
 
             string body = $"Wandering Merchant \"{merchantGroup.MerchantName}\" is waiting for you somewhere.";
             return _notifications.CreateAsync($"Wandering Merchant \"{merchantGroup.MerchantName}\" appeared", new NotificationOptions { Body = body, Renotify = true, Tag = "spawn_merchant", Icon = "images/notifications/QuestionMark.png" });

@@ -2,8 +2,8 @@
 {
     public enum NotificationSettingType
     {
-        Merchant,
         Card,
         Rapport,
+        Spawn,
     }
 }
