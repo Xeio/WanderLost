@@ -221,6 +221,7 @@ namespace WanderLost.Server.Controllers
         {
             var clientIp = GetClientIp();
             return await _merchantsDbContext.MerchantGroups
+                .AsNoTracking()
                 .Where(g => g.Server == server && g.AppearanceExpires > DateTimeOffset.Now)
                 .SelectMany(mg => mg.ActiveMerchants.SelectMany(m => m.ClientVotes.Where(vote => vote.ClientId == clientIp)))
                 .ToListAsync();
