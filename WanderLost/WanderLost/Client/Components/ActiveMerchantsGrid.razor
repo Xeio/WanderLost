@@ -1,4 +1,5 @@
 ﻿@inject MerchantHubClient HubClient
+@inject ClientSettingsController ClientSettings
 
 @{
     bool anyMerchantActive = GetVisibleMerchantGroups().Any(mg => mg.IsActive);
@@ -27,7 +28,7 @@
     <tbody>
         @foreach (var merchantGroup in GetVisibleMerchantGroups())
         {
-            int rowSpan = merchantGroup.ActiveMerchants.Count > 0 ? merchantGroup.ActiveMerchants.Count : 1; 
+            int rowSpan = merchantGroup.ActiveMerchants.Count > 0 ? merchantGroup.ActiveMerchants.Count : 1;
             <tr>
                 <td rowspan="@rowSpan">@merchantGroup.MerchantName</td>
                 <td rowspan="@rowSpan">@merchantGroup.MerchantData.Region</td>
@@ -35,7 +36,7 @@
                 {
                     <td rowspan="@rowSpan">@((merchantGroup.AppearanceExpires - DateTimeOffset.UtcNow).ToString(@"hh\:mm\:ss"))</td>
                 }
-                else if(!anyMerchantActive && merchantGroup.NextAppearance > DateTimeOffset.UtcNow)
+                else if (!anyMerchantActive && merchantGroup.NextAppearance > DateTimeOffset.UtcNow)
                 {
                     <td>@((merchantGroup.NextAppearance - DateTimeOffset.UtcNow).ToString(@"hh\:mm\:ss"))</td>
                 }
@@ -44,37 +45,61 @@
                     <td>Active</td>
                 }
 
-                @if(anyMerchantActive && merchantGroup.ActiveMerchants.Count == 0)
+                @if (anyMerchantActive && merchantGroup.ActiveMerchants.Count == 0)
                 {
                     <td>?</td>
                     <td>?</td>
                     <td>?</td>
-                    <td/>
+                    <td />
                     <td><a href="/UpdateMerchant/@Server/@merchantGroup.MerchantName">Submit Location</a></td>
                 }
-                else if(anyMerchantActive)
+                else if (anyMerchantActive)
                 {
                     var merchant = merchantGroup.ActiveMerchants.First();
                     <td><ZoneDisplay ZoneName="@merchant.Zone" /></td>
-                    <td><ItemDisplay Item="@merchant.Card" /></td>
-                    <td><ItemDisplay Item="@merchant.Rapport" /></td>
+                    <td>
+                        @if (ClientSettings.Notifications[merchant.Name].Cards.Contains(merchant.Card.Name))
+                        {
+                            <span class="oi oi-star text-warning mx-1"></span>
+                        }
+                        <ItemDisplay Item="@merchant.Card" />
+                    </td>
+                    <td>
+                        @if (ClientSettings.Notifications[merchant.Name].Rapports.Contains(merchant.Rapport.Name))
+                        {
+                            <span class="oi oi-star text-warning mx-1"></span>
+                        }
+                        <ItemDisplay Item="@merchant.Rapport" />
+                    </td>
                     <td style="white-space: nowrap;">
-                        @merchant.Votes 
-                        <button class="btn @GetVoteButtonCss(merchant.Id, VoteType.Upvote)" alt="Upvote" @onclick="@(async m => await Upvote(merchant.Id))" ><span class="oi oi-thumb-up"></span></button> 
+                        @merchant.Votes
+                        <button class="btn @GetVoteButtonCss(merchant.Id, VoteType.Upvote)" alt="Upvote" @onclick="@(async m => await Upvote(merchant.Id))"><span class="oi oi-thumb-up"></span></button>
                         <button class="btn @GetVoteButtonCss(merchant.Id, VoteType.Downvote)" alt="Downvote" @onclick="@(async m => await Downvote(merchant.Id))"><span class="oi oi-thumb-down"></span></button>
                     </td>
                     <td rowspan="@rowSpan"><a class="link-danger" href="/UpdateMerchant/@Server/@merchantGroup.MerchantName">Suggest Replacement</a></td>
-                }         
+                }
             </tr>
             @foreach (var merchant in merchantGroup.ActiveMerchants.Skip(1))
             {
                 <tr>
                     <td><ZoneDisplay ZoneName="@merchant.Zone" /></td>
-                    <td><ItemDisplay Item="@merchant.Card" /></td>
-                    <td><ItemDisplay Item="@merchant.Rapport" /></td>
+                    <td>
+                        @if (ClientSettings.Notifications[merchant.Name].Cards.Contains(merchant.Card.Name))
+                        {
+                            <span class="oi oi-star text-warning mx-1"></span>
+                        }
+                        <ItemDisplay Item="@merchant.Card" />
+                    </td>
+                    <td>
+                        @if (ClientSettings.Notifications[merchant.Name].Rapports.Contains(merchant.Rapport.Name))
+                        {
+                            <span class="oi oi-star text-warning mx-1"></span>
+                        }
+                        <ItemDisplay Item="@merchant.Rapport" />
+                    </td>
                     <td style="white-space: nowrap;">
                         @merchant.Votes
-                        <button class="btn @GetVoteButtonCss(merchant.Id, VoteType.Upvote)" alt="Upvote" @onclick="@(async m => await Upvote(merchant.Id))" ><span class="oi oi-thumb-up"></span></button> 
+                        <button class="btn @GetVoteButtonCss(merchant.Id, VoteType.Upvote)" alt="Upvote" @onclick="@(async m => await Upvote(merchant.Id))"><span class="oi oi-thumb-up"></span></button>
                         <button class="btn @GetVoteButtonCss(merchant.Id, VoteType.Downvote)" alt="Downvote" @onclick="@(async m => await Downvote(merchant.Id))"><span class="oi oi-thumb-down"></span></button>
                     </td>
                 </tr>
