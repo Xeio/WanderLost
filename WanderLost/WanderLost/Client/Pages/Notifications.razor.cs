@@ -24,11 +24,6 @@ namespace WanderLost.Client.Pages
             await ClientSettings.SetNotifyMerchantAppearance(!ClientSettings.NotifyMerchantAppearance);
         }
 
-        protected async Task ToggleNotifyLegendaryRapport()
-        {
-            await ClientSettings.SetNotifyLegendaryRapport(!ClientSettings.NotifyLegendaryRapport);
-        }
-
         protected async Task ToggleNotifyBrowserSoundEnabled()
         {
             await ClientSettings.SetNotifyBrowserSoundEnabled(!ClientSettings.NotifyBrowserSoundEnabled);
@@ -94,6 +89,19 @@ namespace WanderLost.Client.Pages
                     if (!notificationSetting.Enabled) notificationSetting.Enabled = true;
                 }
             }
+            else if (category == NotificationSettingType.Rapport && value is Item rapport)
+            {
+                if (notificationSetting.Rapports.Contains(rapport.Name))
+                {
+                    notificationSetting.Rapports.Remove(rapport.Name);
+                }
+                else
+                {
+                    notificationSetting.Rapports.Add(rapport.Name);
+                    //Also force-enable the merchant, if a user is trying to notify based on an item that merchant carries
+                    if (!notificationSetting.Enabled) notificationSetting.Enabled = true;
+                }
+            }
 
             await ClientSettings.SaveNotificationSettings();
         }
@@ -114,6 +122,11 @@ namespace WanderLost.Client.Pages
             if (category == NotificationSettingType.Card && value is Item card)
             {
                 return setting.Cards.Contains(card.Name);
+            }
+
+            if (category == NotificationSettingType.Rapport && value is Item rapport)
+            {
+                return setting.Rapports.Contains(rapport.Name);
             }
 
             return false;

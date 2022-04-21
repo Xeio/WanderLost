@@ -51,7 +51,7 @@
             {
                 await ClientSettings.SetNotificationsEnabled(true);
                 await NotificationStateChanged.InvokeAsync();
-                if (!ClientSettings.NotifyLegendaryRapport && !ClientSettings.NotifyMerchantAppearance && !ClientSettings.Notifications.Any())
+                if (!ClientSettings.NotifyMerchantAppearance && !ClientSettings.Notifications.Any())
                 {
                     //Client has no notifications enabled, send them not the notifications page
                     NavigationManager.NavigateTo("/Notifications");

@@ -72,11 +72,11 @@ namespace WanderLost.Client.Services
                 {
                     if (notificationSetting.Cards.Contains(card.Name)) return true;
                 }
-            }
 
-            if (_clientSettings.NotifyLegendaryRapport && merchantGroup.ActiveMerchants.Any(m => m.Rapport.Rarity == Rarity.Legendary))
-            {
-                return true;
+                foreach (var rapport in merchantGroup.ActiveMerchants.Select(m => m.Rapport))
+                {
+                    if (notificationSetting.Rapports.Contains(rapport.Name)) return true;
+                }
             }
 
             return false;
