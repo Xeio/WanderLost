@@ -79,7 +79,8 @@ app.UseStaticFiles(new StaticFileOptions()
                 MaxAge = TimeSpan.FromDays(7)
             };
         }
-        else if (staticFileContext.Context.Request.Path.StartsWithSegments(PathString.FromUriComponent("/data")))
+        else if (staticFileContext.Context.Request.Path.StartsWithSegments(PathString.FromUriComponent("/data")) ||
+                    staticFileContext.Context.Request.Path.Value?.EndsWith("Interop.js") == true)
         {
             staticFileContext.Context.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue()
             {
