@@ -1,12 +1,31 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
 using WanderLost.Server.Controllers;
+using WanderLost.Server.Data;
 using WanderLost.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+var connectionString = builder.Configuration["SqlConnectionString"];
+builder.Services.AddDbContext<AuthDbContext>(options =>
+    options.UseSqlServer(connectionString));
+
+builder.Services.AddDefaultIdentity<WanderlostUser>()
+    .AddEntityFrameworkStores<AuthDbContext>();
+
+builder.Services.AddIdentityServer()
+    .AddApiAuthorization<WanderlostUser, AuthDbContext>();
+
+builder.Services.AddAuthentication()
+    .AddIdentityServerJwt()
+    .AddDiscord(discordOptions =>
+    {
+        discordOptions.ClientSecret = builder.Configuration["DiscordClientSecret"];
+        discordOptions.ClientId = builder.Configuration["DiscordClientId"];
+        discordOptions.Scope.Add("identity");
+    });
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
@@ -28,7 +47,7 @@ builder.Services.AddResponseCompression(opts =>
 
 builder.Services.AddDbContext<MerchantsDbContext>(opts =>
 {
-    opts.UseSqlServer(builder.Configuration["SqlConnectionString"]);
+    opts.UseSqlServer(connectionString);
 });
 
 #if !DEBUG
@@ -55,8 +74,11 @@ else
 
 app.UseHttpsRedirection();
 
-
 app.UseRouting();
+
+app.UseIdentityServer();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseResponseCompression();
 
@@ -95,8 +117,11 @@ app.UseStaticFiles(new StaticFileOptions()
 using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
 {
     //Ensure model is created and up to date on startup
-    using var context = serviceScope.ServiceProvider.GetService<MerchantsDbContext>();
-    context?.Database.Migrate();
+    using var merchantsContext = serviceScope.ServiceProvider.GetService<MerchantsDbContext>();
+    merchantsContext?.Database.Migrate();
+
+    using var authContext = serviceScope.ServiceProvider.GetService<AuthDbContext>();
+    authContext?.Database.Migrate();
 }
 
 app.Run();
