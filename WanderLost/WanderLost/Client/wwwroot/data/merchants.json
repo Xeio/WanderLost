@@ -514,5 +514,51 @@
         "Rarity": "Legendary"
       }
     ]
+  },
+  "Evan": {
+    "Name": "Evan",
+    "Region": "South Vern",
+    "AppearanceTimes": [ "00:30:00", "03:30:00", "04:30:00", "06:30:00", "07:30:00", "10:30:00", "12:30:00", "15:30:00", "16:30:00", "18:30:00", "19:30:00", "22:30:00" ],
+    "Zones": [ "Bellion Ruins", "Candaria Territory" ],
+    "Cards": [
+      {
+        "Name": "Killian",
+        "Rarity": "Uncommon"
+      },
+      {
+        "Name": "Satra",
+        "Rarity": "Uncommon"
+      },
+      {
+        "Name": "Lujean",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Vern Zenlord",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Xereon",
+        "Rarity": "Rare"
+      }
+    ],
+    "Rapports": [
+      {
+        "Name": "Feather Fan",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Febre Potion",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Mockup Firefly",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Necromancer's Records",
+        "Rarity": "Legendary"
+      }
+    ]
   }
 }
