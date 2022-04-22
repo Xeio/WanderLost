@@ -11,7 +11,7 @@ namespace WanderLost.Shared
         /// Used for synchronization between client and server.
         /// Only needed for either breaking changes or in cases where a client update needs to be forced.
         /// </summary>
-        public const int ClientVersion = 2;
+        public const int ClientVersion = 4;
 
         public static JsonSerializerOptions JsonOptions { get; } = new JsonSerializerOptions(JsonSerializerDefaults.Web)
         {
