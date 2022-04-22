@@ -18,4 +18,6 @@ builder.Services.AddScoped<ActiveDataController>();
 
 builder.Services.AddBlazoredLocalStorage();
 
+builder.Services.AddApiAuthorization();
+
 await builder.Build().RunAsync();
