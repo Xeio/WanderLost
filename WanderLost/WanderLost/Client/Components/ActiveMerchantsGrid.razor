@@ -58,7 +58,7 @@
                 else if (anyMerchantActive)
                 {
                     var merchant = merchantGroup.ActiveMerchants.OrderByDescending(m => m.Votes).First();
-                    <td><ZoneDisplay ZoneName="@merchant.Zone" /></td>
+                    <td><ZoneDisplay ZoneName="@merchant.Zone" AllowClick="true"/></td>
                     <td>
                         @if (ClientSettings.Notifications[merchant.Name].Cards.Contains(merchant.Card.Name))
                         {
@@ -85,7 +85,7 @@
             {
                 string opacityStyle = @GetRowStyleForActiveMerchant(merchant);
                 <tr>
-                    <td><ZoneDisplay ZoneName="@merchant.Zone" Style="@opacityStyle"/></td>
+                    <td><ZoneDisplay ZoneName="@merchant.Zone" AllowClick="true" Style="@opacityStyle"/></td>
                     <td style="@opacityStyle">
                         @if (ClientSettings.Notifications[merchant.Name].Cards.Contains(merchant.Card.Name))
                         {

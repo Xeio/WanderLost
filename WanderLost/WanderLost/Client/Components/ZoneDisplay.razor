@@ -1,5 +1,12 @@
 ﻿<div class="zone @_imageClass">
-    <span style="@Style">@ZoneName</span>
+    @if (AllowClick)
+    {
+        <a class="imglink" style="@Style" href="@_imageUrl" target="_blank">@ZoneName</a>
+    }
+    else
+    {
+        <span style="@Style">@ZoneName</span>
+    }
 </div>
 
 @if (!string.IsNullOrWhiteSpace(_imageUrl))
@@ -8,12 +15,16 @@
         .@(_imageClass).zone:hover::after {
             content: url(@_imageUrl);
         }
+        .imglink:not(:hover) {
+            color: white;
+        }
     </style>
 }
 
 @code {
     [Parameter, EditorRequired] public string ZoneName { get; init; } = string.Empty;
     [Parameter] public string Style { get; set; } = "";
+    [Parameter] public bool AllowClick { get; set; } = false;
 
     private string? _imageUrl;
     private string _imageClass = string.Empty;
