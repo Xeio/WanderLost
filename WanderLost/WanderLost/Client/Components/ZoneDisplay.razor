@@ -1,4 +1,6 @@
-﻿<span class="zone @_imageClass">@ZoneName</span>
+﻿<div class="zone @_imageClass">
+    <span style="@Style">@ZoneName</span>
+</div>
 
 @if (!string.IsNullOrWhiteSpace(_imageUrl))
 {
@@ -10,8 +12,8 @@
 }
 
 @code {
-    [Parameter, EditorRequired]
-    public string ZoneName { get; init; } = string.Empty;
+    [Parameter, EditorRequired] public string ZoneName { get; init; } = string.Empty;
+    [Parameter] public string Style { get; set; } = "";
 
     private string? _imageUrl;
     private string _imageClass = string.Empty;

@@ -91,7 +91,12 @@ namespace WanderLost.Client.Pages
                 if(ActiveData.MerchantDictionary.TryGetValue(merchantId, out var merchant))
                 {
                     merchant.Votes = voteTotal;
+                    //if (ActiveData.MerchantGroups.FirstOrDefault(x => x.MerchantName == merchant.Name) is ActiveMerchantGroup mGroup)
+                    //{
+                    //    mGroup.ActiveMerchants.Sort(delegate (ActiveMerchant a, ActiveMerchant b) { a.votes return a.CompareTo(b); })
+                    //}
                 }
+
                 await InvokeAsync(StateHasChanged);
             }));
 

@@ -1,6 +1,8 @@
 ﻿@inject MerchantHubClient HubClient
 @inject ClientSettingsController ClientSettings
 
+@using System.Globalization
+
 @{
     bool anyMerchantActive = GetVisibleMerchantGroups().Any(mg => mg.IsActive);
 }
@@ -55,7 +57,7 @@
                 }
                 else if (anyMerchantActive)
                 {
-                    var merchant = merchantGroup.ActiveMerchants.First();
+                    var merchant = merchantGroup.ActiveMerchants.OrderByDescending(m => m.Votes).First();
                     <td><ZoneDisplay ZoneName="@merchant.Zone" /></td>
                     <td>
                         @if (ClientSettings.Notifications[merchant.Name].Cards.Contains(merchant.Card.Name))
@@ -72,37 +74,42 @@
                         <ItemDisplay Item="@merchant.Rapport" />
                     </td>
                     <td style="white-space: nowrap;">
-                        @merchant.Votes
-                        <button class="btn @GetVoteButtonCss(merchant.Id, VoteType.Upvote)" alt="Upvote" @onclick="@(async m => await Upvote(merchant.Id))"><span class="oi oi-thumb-up"></span></button>
-                        <button class="btn @GetVoteButtonCss(merchant.Id, VoteType.Downvote)" alt="Downvote" @onclick="@(async m => await Downvote(merchant.Id))"><span class="oi oi-thumb-down"></span></button>
+                        <span class="votes">@merchant.Votes</span>
+                        <button class="btn btn-sm @GetVoteButtonCss(merchant.Id, VoteType.Upvote)" alt="Upvote" @onclick="@(async m => await Upvote(merchant.Id))"><span class="oi oi-thumb-up"></span></button>
+                        <button class="btn btn-sm @GetVoteButtonCss(merchant.Id, VoteType.Downvote)" alt="Downvote" @onclick="@(async m => await Downvote(merchant.Id))"><span class="oi oi-thumb-down"></span></button>
                     </td>
                     <td rowspan="@rowSpan"><a class="link-danger" href="/UpdateMerchant/@Server/@merchantGroup.MerchantName">Suggest Replacement</a></td>
                 }
             </tr>
-            @foreach (var merchant in merchantGroup.ActiveMerchants.Skip(1))
+            @foreach (var merchant in merchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).Skip(1))
             {
+                string opacityStyle = @GetRowStyleForActiveMerchant(merchant);
                 <tr>
-                    <td><ZoneDisplay ZoneName="@merchant.Zone" /></td>
-                    <td>
+                    <td><ZoneDisplay ZoneName="@merchant.Zone" Style="@opacityStyle"/></td>
+                    <td style="@opacityStyle">
                         @if (ClientSettings.Notifications[merchant.Name].Cards.Contains(merchant.Card.Name))
                         {
                             <span class="oi oi-star text-warning mx-1"></span>
                         }
                         <ItemDisplay Item="@merchant.Card" />
                     </td>
-                    <td>
+                    <td style="@opacityStyle">
                         @if (ClientSettings.Notifications[merchant.Name].Rapports.Contains(merchant.Rapport.Name))
                         {
                             <span class="oi oi-star text-warning mx-1"></span>
                         }
                         <ItemDisplay Item="@merchant.Rapport" />
                     </td>
-                    <td style="white-space: nowrap;">
-                        @merchant.Votes
-                        <button class="btn @GetVoteButtonCss(merchant.Id, VoteType.Upvote)" alt="Upvote" @onclick="@(async m => await Upvote(merchant.Id))"><span class="oi oi-thumb-up"></span></button>
-                        <button class="btn @GetVoteButtonCss(merchant.Id, VoteType.Downvote)" alt="Downvote" @onclick="@(async m => await Downvote(merchant.Id))"><span class="oi oi-thumb-down"></span></button>
+                    <td style="white-space: nowrap; @opacityStyle">
+                        <span class="votes">@merchant.Votes</span>
+                        <button class="btn btn-sm @GetVoteButtonCss(merchant.Id, VoteType.Upvote)" alt="Upvote" @onclick="@(async m => await Upvote(merchant.Id))"><span class="oi oi-thumb-up"></span></button>
+                        <button class="btn btn-sm @GetVoteButtonCss(merchant.Id, VoteType.Downvote)" alt="Downvote" @onclick="@(async m => await Downvote(merchant.Id))"><span class="oi oi-thumb-down"></span></button>
                     </td>
                 </tr>
+            }
+            @if (merchantGroup.IsActive)
+            {
+                <tr class="separator"><td colspan="99"></td></tr>
             }
         }
     </tbody>
@@ -117,6 +124,27 @@
 
     [Parameter, EditorRequired]
     public string Server { get; init; } = string.Empty;
+
+    private string GetRowStyleForActiveMerchant(ActiveMerchant merchant)
+    {
+        if (merchant.Votes < 0)
+        {
+            var opacityVal = MapDecimal(merchant.Votes, ActiveData.DownvoteThresholdUntilRemoved, 0, (decimal).125, 1);
+            return $"opacity: {opacityVal.ToString(CultureInfo.GetCultureInfo("en-GB"))};";
+        }
+        else
+        {
+            return "";
+        }
+    }
+
+    private decimal MapDecimal(decimal value, decimal fromSource, decimal toSource, decimal fromTarget, decimal toTarget)
+    {
+        if (value < fromSource)
+            value = fromSource;
+
+        return (value - fromSource) / (toSource - fromSource) * (toTarget - fromTarget) + fromTarget;
+    }
 
     private string GetVoteButtonCss(Guid merchantId, VoteType type)
     {
