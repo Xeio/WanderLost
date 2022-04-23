@@ -125,11 +125,13 @@
     [Parameter, EditorRequired]
     public string Server { get; init; } = string.Empty;
 
+    private int _maxDownvoteThreshold = -5;
+
     private string GetRowStyleForActiveMerchant(ActiveMerchant merchant)
     {
         if (merchant.Votes < 0)
         {
-            var opacityVal = MapDecimal(merchant.Votes, ActiveData.DownvoteThresholdUntilRemoved, 0, (decimal).125, 1);
+            var opacityVal = MapDecimal(merchant.Votes, _maxDownvoteThreshold, 0, (decimal).125, 1);
             return $"opacity: {opacityVal.ToString(CultureInfo.GetCultureInfo("en-GB"))};";
         }
         else
