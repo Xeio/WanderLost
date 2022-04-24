@@ -58,16 +58,17 @@
                 else if (anyMerchantActive)
                 {
                     var merchant = merchantGroup.ActiveMerchants.OrderByDescending(m => m.Votes).First();
+                    ClientSettings.Notifications.TryGetValue(merchant.Name, out var merchantNotificationSettings);
                     <td><ZoneDisplay ZoneName="@merchant.Zone" AllowClick="true"/></td>
                     <td>
-                        @if (ClientSettings.Notifications[merchant.Name].Cards.Contains(merchant.Card.Name))
+                        @if (merchantNotificationSettings?.Cards.Contains(merchant.Card.Name) == true)
                         {
                             <span class="oi oi-star text-warning mx-1"></span>
                         }
                         <ItemDisplay Item="@merchant.Card" />
                     </td>
                     <td>
-                        @if (ClientSettings.Notifications[merchant.Name].Rapports.Contains(merchant.Rapport.Name))
+                        @if (merchantNotificationSettings?.Rapports.Contains(merchant.Rapport.Name) == true)
                         {
                             <span class="oi oi-star text-warning mx-1"></span>
                         }
@@ -84,17 +85,18 @@
             @foreach (var merchant in merchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).Skip(1))
             {
                 string opacityStyle = @GetRowStyleForActiveMerchant(merchant);
+                ClientSettings.Notifications.TryGetValue(merchant.Name, out var merchantNotificationSettings);
                 <tr>
                     <td><ZoneDisplay ZoneName="@merchant.Zone" AllowClick="true" Style="@opacityStyle"/></td>
                     <td style="@opacityStyle">
-                        @if (ClientSettings.Notifications[merchant.Name].Cards.Contains(merchant.Card.Name))
+                        @if (merchantNotificationSettings?.Cards.Contains(merchant.Card.Name) == true)
                         {
                             <span class="oi oi-star text-warning mx-1"></span>
                         }
                         <ItemDisplay Item="@merchant.Card" />
                     </td>
                     <td style="@opacityStyle">
-                        @if (ClientSettings.Notifications[merchant.Name].Rapports.Contains(merchant.Rapport.Name))
+                        @if (merchantNotificationSettings?.Rapports.Contains(merchant.Rapport.Name) == true)
                         {
                             <span class="oi oi-star text-warning mx-1"></span>
                         }
