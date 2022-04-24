@@ -24,7 +24,6 @@ builder.Services.AddAuthentication()
     {
         discordOptions.ClientSecret = builder.Configuration["DiscordClientSecret"];
         discordOptions.ClientId = builder.Configuration["DiscordClientId"];
-        discordOptions.Scope.Add("identity");
     });
 
 builder.Services.AddControllersWithViews();
