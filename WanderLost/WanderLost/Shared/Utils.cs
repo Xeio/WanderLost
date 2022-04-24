@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using MessagePack;
+using Microsoft.AspNetCore.SignalR;
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using WanderLost.Shared.Data;
@@ -22,6 +24,20 @@ namespace WanderLost.Shared
                 new JsonStringEnumConverter()
             },
         };
+
+        /// <summary>
+        /// Build message pack options shared by both client and server
+        /// </summary>
+        public static void BuildMessagePackOptions(MessagePackHubProtocolOptions messagePackOptions)
+        {
+            messagePackOptions.SerializerOptions = MessagePackSerializerOptions.Standard
+                .WithResolver(MessagePack.Resolvers.CompositeResolver.Create(
+                        MessagePack.Resolvers.NativeGuidResolver.Instance,
+                        MessagePack.Resolvers.StandardResolver.Instance
+                    ))
+                .WithSecurity(MessagePackSecurity.UntrustedData)
+                .WithCompression(MessagePackCompression.Lz4Block);
+        }
 
         [Conditional("DEBUG")]
         public static void GenerateDebugTestMerchant(Dictionary<string, MerchantData> merchants)

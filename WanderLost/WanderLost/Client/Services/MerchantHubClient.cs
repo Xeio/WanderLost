@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 using WanderLost.Shared.Interfaces;
 using HubClientSourceGenerator;
+using WanderLost.Shared;
 
 namespace WanderLost.Client.Services
 {
@@ -25,6 +26,7 @@ namespace WanderLost.Client.Services
                     TimeSpan.FromMinutes(5),
                     TimeSpan.FromMinutes(5),
                 })
+                .AddMessagePackProtocol(Utils.BuildMessagePackOptions)
                 .Build();
             HubConnection.ServerTimeout = TimeSpan.FromMinutes(2);
             HubConnection.KeepAliveInterval = TimeSpan.FromMinutes(1);
