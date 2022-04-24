@@ -1,3 +1,4 @@
+using Duende.IdentityServer.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
@@ -74,6 +75,14 @@ else
 app.UseHttpsRedirection();
 
 app.UseRouting();
+
+//Since Identity Server delpoyed behind a reverse proxy, need to give it a specific origin
+var identityServerOrigin = builder.Configuration["IdentityServerOrigin"];
+app.Use((context, next) =>
+{
+    context.SetIdentityServerOrigin(identityServerOrigin);
+    return next(context);
+});
 
 app.UseIdentityServer();
 app.UseAuthentication();
