@@ -1,5 +1,4 @@
 ﻿using Blazored.LocalStorage;
-using Microsoft.AspNetCore.Components;
 using WanderLost.Shared.Data;
 
 namespace WanderLost.Client.Services
