@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
 using WanderLost.Server.Controllers;
+using WanderLost.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,12 +10,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
-builder.Services.AddSignalR(hubOptions=>
+builder.Services.AddSignalR(hubOptions =>
 {
     hubOptions.ClientTimeoutInterval = TimeSpan.FromMinutes(2);
     hubOptions.KeepAliveInterval = TimeSpan.FromMinutes(1);
     hubOptions.MaximumParallelInvocationsPerClient = 3;
-});
+}).AddMessagePackProtocol(Utils.BuildMessagePackOptions);
 builder.Services.AddMemoryCache();
 
 builder.Services.AddScoped<DataController>();

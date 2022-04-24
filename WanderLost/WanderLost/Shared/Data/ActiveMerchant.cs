@@ -4,28 +4,37 @@ using System.Text.Json.Serialization;
 
 namespace WanderLost.Shared.Data
 {
+    [MessagePack.MessagePackObject]
     public class ActiveMerchant
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
+        [MessagePack.Key(0)]
         public Guid Id { get; set; }
 
         [MaxLength(20)]
+        [MessagePack.Key(1)]
         public string Name { get; init; } = string.Empty;
 
         [MaxLength(40)]
+        [MessagePack.Key(2)]
         public string Zone { get; set; } = string.Empty;
 
+        [MessagePack.Key(3)]
         public Item Card { get; set; } = new();
 
+        [MessagePack.Key(4)]
         public Item Rapport { get; set; } = new();
 
+        [MessagePack.Key(5)]
         public int Votes { get; set; }
 
         [JsonIgnore]
+        [MessagePack.IgnoreMember]
         public List<Vote> ClientVotes { get; set; } = new();
 
         [JsonIgnore]
+        [MessagePack.IgnoreMember]
         public bool Hidden { get; set; }
 
         /// <summary>
@@ -33,6 +42,7 @@ namespace WanderLost.Shared.Data
         /// </summary>
         [MaxLength(60)]
         [JsonIgnore]
+        [MessagePack.IgnoreMember]
         public string UploadedBy { get;set; } = string.Empty;
 
         public void ClearInstance()
