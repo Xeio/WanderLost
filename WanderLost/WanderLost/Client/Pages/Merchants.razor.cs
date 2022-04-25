@@ -238,7 +238,7 @@ namespace WanderLost.Client.Pages
                     var compare = x.NextAppearance.CompareTo(y.NextAppearance);
                     if(compare == 0)
                     {
-                        compare = x.MerchantData.Region.CompareTo(y.MerchantData.Region);
+                        compare = x.MerchantData.SortOrder.CompareTo(y.MerchantData.SortOrder);
                     }
                     return compare;
                 });

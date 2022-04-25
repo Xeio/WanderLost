@@ -8,5 +8,24 @@
         public List<string> Zones { get; init; } = new();
         public List<Item> Cards { get; init; } = new();
         public List<Item> Rapports { get; init; } = new();
+
+        private static readonly List<string> RegionOrder = new()
+        {
+            "Rethramis",
+            "Yudia",
+            "West Luterra",
+            "East Luterra",
+            "Tortoyk",
+            "Anikka",
+            "Arthetine",
+            "North Vern",
+            "Shushire",
+            "Rohendel",
+            "Yorn",
+            "Feiton",
+            "Punika",
+            "South Vern",
+        };
+        public int SortOrder => RegionOrder.IndexOf(Region);
     }
 }
