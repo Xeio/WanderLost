@@ -2,19 +2,11 @@
 
 <CascadingValue Value="_clicktrap">
     <div class="page" @onclick="ActivateClicktrap">
-        <div class="sidebar">
-            <NavMenu />
+        <NavMenu />
+        <div class="container-fluid" style="padding-top: 5em">
+            <audio id="notifsound" src="/media/notification.mp3" />
+            @Body
         </div>
-
-        <main>
-            <div class="top-row px-4 auth">
-                <LoginDisplay />
-            </div>
-            <article class="content px-4">
-                <audio id="notifsound" src="/media/notification.mp3" />
-                @Body
-            </article>
-        </main>
     </div>
 </CascadingValue>
 
