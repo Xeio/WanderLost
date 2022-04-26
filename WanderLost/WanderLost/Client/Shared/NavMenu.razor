@@ -25,13 +25,15 @@
             <ul class="navbar-nav ms-md-auto">
                 <AuthorizeView>
                     <Authorized>
-                        <li class="nav-item"><a class="nav-link" href="authentication/profile">Hello, @context.User.Identity?.Name!</a></li>
+                        <li class="nav-item">Hello, @context.User.Identity?.Name!</li>
                         <li class="nav-item"><button class="nav-link btn btn-link" @onclick="BeginSignOut">Log out</button></li>
                     </Authorized>
                     <NotAuthorized>
-                        <li class="nav-item"><a class="nav-link" href="authentication/register">Register</a></li>
-                        <li class="nav-item"><a class="nav-link" href="authentication/login">Log in</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/Authentication/@RemoteAuthenticationActions.LogIn">Log in with Discord</a></li>
                     </NotAuthorized>
+                    <Authorizing>
+                        <li class="nav-item">Checking login status...</li>
+                    </Authorizing>
                 </AuthorizeView>
             </ul>
         </div>
@@ -51,6 +53,6 @@
     private async Task BeginSignOut(MouseEventArgs args)
     {
         await SignOutManager.SetSignOutState();
-        Navigation.NavigateTo("authentication/logout");
+        Navigation.NavigateTo($"Authentication/{RemoteAuthenticationActions.LogOut}");
     }
 }

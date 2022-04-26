@@ -1,0 +1,13 @@
+﻿@page "/ErrorMessage/{Error}"
+
+<div class="container">
+    <p class="text-danger">
+      @Error
+    </p>
+</div>
+
+@code{
+    [Parameter]
+    //[SupplyParameterFromQuery]
+    public string? Error { get; set; } = string.Empty;
+}

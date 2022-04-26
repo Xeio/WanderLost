@@ -1,6 +1,7 @@
 using Duende.IdentityServer.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -15,19 +16,31 @@ var connectionString = builder.Configuration["SqlConnectionString"];
 builder.Services.AddDbContext<AuthDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-builder.Services.AddDefaultIdentity<WanderlostUser>()
+builder.Services.AddIdentityCore<WanderlostUser>(opts => {
+    opts.User.AllowedUserNameCharacters += "#"; //Allow hash for Discord ID + discriminator
+})
+    .AddSignInManager()
+    .AddDefaultTokenProviders()
     .AddEntityFrameworkStores<AuthDbContext>();
 
 builder.Services.AddIdentityServer()
     .AddApiAuthorization<WanderlostUser, AuthDbContext>();
 
-builder.Services.AddAuthentication()
+builder.Services.AddAuthentication(authenticationOptions =>
+{
+    authenticationOptions.DefaultScheme = IdentityConstants.ApplicationScheme;
+    authenticationOptions.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+})
     .AddIdentityServerJwt()
     .AddDiscord(discordOptions =>
     {
         discordOptions.ClientSecret = builder.Configuration["DiscordClientSecret"];
         discordOptions.ClientId = builder.Configuration["DiscordClientId"];
-    });
+        discordOptions.Scope.Add("email");
+        discordOptions.ClaimActions.MapJsonKey("verified", "verified");
+        discordOptions.AccessDeniedPath = new PathString("/ErrorMessage/User denied access from Discord authentication.");
+    })
+    .AddIdentityCookies();
 
 builder.Services.AddSingleton<IPostConfigureOptions<JwtBearerOptions>, JwtPostConfiguration>();
 
