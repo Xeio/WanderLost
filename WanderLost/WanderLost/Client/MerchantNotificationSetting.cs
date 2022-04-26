@@ -1,4 +1,6 @@
-﻿namespace WanderLost.Client
+﻿using WanderLost.Shared.Data;
+
+namespace WanderLost.Client
 {
     public class MerchantNotificationSetting
     {

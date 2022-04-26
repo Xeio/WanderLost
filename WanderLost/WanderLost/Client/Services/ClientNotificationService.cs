@@ -9,6 +9,7 @@ namespace WanderLost.Client.Services
         private readonly IJSRuntime _jsRuntime;
         private readonly List<IJSObjectReference> _notifications = new();
 
+        private Dictionary<string, DateTimeOffset> _merchantFoundNotificationCooldown = new();
         public ClientNotificationService(ClientSettingsController clientSettings, IJSRuntime js)
         {
             _clientSettings = clientSettings;
@@ -39,6 +40,23 @@ namespace WanderLost.Client.Services
             return permissionResult == "granted";
         }
 
+        private bool IsMerchantCardVoteThresholdReached(ActiveMerchant merchant)
+        {
+            _clientSettings.CardVoteThresholdForNotification.TryGetValue(merchant.Card.Rarity, out int voteThreshold); //if TryGetValue fails, voteThreshold will be 0, actual true/false result does no matter in this case
+            return merchant.Votes >= voteThreshold;
+        }
+
+        private bool IsMerchantRapportVoteThresholdReached(ActiveMerchant merchant)
+        {
+            _clientSettings.RapportVoteThresholdForNotification.TryGetValue(merchant.Rapport.Rarity, out int voteThreshold); //if TryGetValue fails, voteThreshold will be 0, actual true/false result does no matter in this case
+            return merchant.Votes >= voteThreshold;
+        }
+
+        private bool IsMerchantFoundNotificationOnCooldown(ActiveMerchantGroup merchantGroup)
+        {
+            return _merchantFoundNotificationCooldown.TryGetValue(merchantGroup.MerchantName, out DateTimeOffset cooldown) && DateTime.Now < cooldown;
+        }
+
         private bool IsAllowedForMerchantFoundNotifications(ActiveMerchantGroup merchantGroup)
         {
             if (merchantGroup.ActiveMerchants.Count == 0) return false;
@@ -47,15 +65,27 @@ namespace WanderLost.Client.Services
             {
                 return false;
             }
-
-            foreach (var card in merchantGroup.ActiveMerchants.Select(m => m.Card))
+            //check cards
+            foreach (var merchant in merchantGroup.ActiveMerchants.Where(m => notificationSetting.Cards.Contains(m.Card.Name)))
             {
-                if (notificationSetting.Cards.Contains(card.Name)) return true;
+                if (IsMerchantCardVoteThresholdReached(merchant))
+                {
+                    if (!IsMerchantFoundNotificationOnCooldown(merchantGroup))
+                    {
+                        return true;
+                    }
+                }
             }
-
-            foreach (var rapport in merchantGroup.ActiveMerchants.Select(m => m.Rapport))
+            //check rapports
+            foreach (var merchant in merchantGroup.ActiveMerchants.Where(m => notificationSetting.Rapports.Contains(m.Rapport.Name)))
             {
-                if (notificationSetting.Rapports.Contains(rapport.Name)) return true;
+                if (IsMerchantRapportVoteThresholdReached(merchant))
+                {
+                    if (!IsMerchantFoundNotificationOnCooldown(merchantGroup))
+                    {
+                        return true;
+                    }
+                }
             }
 
             return false;
@@ -71,6 +101,7 @@ namespace WanderLost.Client.Services
             if (!_clientSettings.NotificationsEnabled) return ValueTask.CompletedTask;
             if (!IsAllowedForMerchantFoundNotifications(merchantGroup)) return ValueTask.CompletedTask;
 
+            _merchantFoundNotificationCooldown[merchantGroup.MerchantName] = merchantGroup.AppearanceExpires;
             return ForceMerchantFoundNotification(merchantGroup);
         }
         /// <summary>
