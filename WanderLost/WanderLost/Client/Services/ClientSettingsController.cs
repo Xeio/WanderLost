@@ -10,6 +10,8 @@ namespace WanderLost.Client.Services
         public bool NotificationsEnabled { get; private set; }
         public bool NotifyBrowserSoundEnabled { get; private set; }
         public Dictionary<string, MerchantNotificationSetting> Notifications { get; private set; } = new();
+        public Dictionary<Rarity, int> CardVoteThresholdForNotification { get; set; } = new();
+        public Dictionary<Rarity, int> RapportVoteThresholdForNotification { get; set; } = new();
 
         private bool _initialized = false;
 
@@ -33,9 +35,11 @@ namespace WanderLost.Client.Services
                 NotificationsEnabled = await _localStorageService.GetItemAsync<bool?>(nameof(NotificationsEnabled)) ?? false;
                 NotifyBrowserSoundEnabled = await _localStorageService.GetItemAsync<bool?>(nameof(NotifyBrowserSoundEnabled)) ?? false;
                 Notifications = await _localStorageService.GetItemAsync<Dictionary<string, MerchantNotificationSetting>?>(nameof(Notifications)) ?? new();
+                CardVoteThresholdForNotification = await _localStorageService.GetItemAsync<Dictionary<Rarity, int>?>(nameof(CardVoteThresholdForNotification)) ?? new();
+                RapportVoteThresholdForNotification = await _localStorageService.GetItemAsync<Dictionary<Rarity, int>?>(nameof(RapportVoteThresholdForNotification)) ?? new();
 
                 //Compatability to convert/remove old settings to items
-                if(await _localStorageService.GetItemAsync<bool?>("NotifyLegendaryRapport") ?? false)
+                if (await _localStorageService.GetItemAsync<bool?>("NotifyLegendaryRapport") ?? false)
                 {
                     foreach(var merchant in _staticData.Merchants.Values)
                     {
@@ -85,6 +89,16 @@ namespace WanderLost.Client.Services
         public async Task SaveNotificationSettings()
         {
             await _localStorageService.SetItemAsync(nameof(Notifications), Notifications);
+        }
+
+        public async Task SaveCardVoteThresholdForNotification()
+        {
+            await _localStorageService.SetItemAsync(nameof(CardVoteThresholdForNotification), CardVoteThresholdForNotification);
+        }
+
+        public async Task SaveRapportVoteThresholdForNotification()
+        {
+            await _localStorageService.SetItemAsync(nameof(RapportVoteThresholdForNotification), RapportVoteThresholdForNotification);
         }
     }
 }

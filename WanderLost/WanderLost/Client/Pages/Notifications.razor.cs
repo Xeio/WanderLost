@@ -16,6 +16,8 @@ namespace WanderLost.Client.Pages
             await StaticData.Init();
             await ClientSettings.Init();
 
+            _cardVoteThresholdWrapper = ClientSettings.CardVoteThresholdForNotification.GetValueOrDefault(Rarity.Legendary);
+            _rapportVoteThresholdWrapper = ClientSettings.RapportVoteThresholdForNotification.GetValueOrDefault(Rarity.Legendary);
             await base.OnInitializedAsync();
         }
 
@@ -125,5 +127,44 @@ namespace WanderLost.Client.Pages
 
             return false;
         }
+
+        private async void SetCardVoteThreshold(Rarity rarity, int newThreshold)
+        {
+            ClientSettings.CardVoteThresholdForNotification[rarity] = newThreshold;
+            await ClientSettings.SaveCardVoteThresholdForNotification();
+        }
+
+        private async void SetRapportVoteThreshold(Rarity rarity, int newThreshold)
+        {
+            ClientSettings.RapportVoteThresholdForNotification[rarity] = newThreshold;
+            await ClientSettings.SaveRapportVoteThresholdForNotification();
+        }
+
+        private int _cardVoteThresholdWrapper;
+
+        public int CardVoteThresholdWrapper
+        {
+            get { return _cardVoteThresholdWrapper; }
+            set 
+            {
+                if (value < 0) value = 0;
+                _cardVoteThresholdWrapper = value;
+                SetCardVoteThreshold(Rarity.Legendary, value);
+            }
+        }
+
+        private int _rapportVoteThresholdWrapper;
+
+        public int RapportVoteThresholdWrapper
+        {
+            get { return _rapportVoteThresholdWrapper; }
+            set
+            {
+                if (value < 0) value = 0;
+                _rapportVoteThresholdWrapper = value;
+                SetRapportVoteThreshold(Rarity.Legendary, value);
+            }
+        }
+
     }
 }

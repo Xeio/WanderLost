@@ -92,6 +92,10 @@ namespace WanderLost.Client.Pages
                 {
                     merchant.Votes = voteTotal;
                 }
+                if (ActiveData.MerchantGroups.FirstOrDefault(mg => mg.ActiveMerchants.Any(m => m.Id == merchantId)) is ActiveMerchantGroup merchantGroup)
+                {
+                    await Notifications.RequestMerchantFoundNotification(merchantGroup);
+                }
 
                 await InvokeAsync(StateHasChanged);
             }));
