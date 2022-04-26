@@ -25,7 +25,7 @@
             <ul class="navbar-nav ms-md-auto">
                 <AuthorizeView>
                     <Authorized>
-                        <li class="nav-item">Hello, @context.User.Identity?.Name!</li>
+                        <li class="nav-item"><a class="nav-link" href="">@context.User.Identity?.Name</a></li>
                         <li class="nav-item"><button class="nav-link btn btn-link" @onclick="BeginSignOut">Log out</button></li>
                     </Authorized>
                     <NotAuthorized>
