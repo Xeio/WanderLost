@@ -29,14 +29,8 @@ namespace WanderLost.Server.Pages.Account
 
         const string LOGIN_PROVIDER = "Discord";
 
-        public IActionResult OnGet(string? returnUrl = null, string? error = null)
+        public IActionResult OnGet(string? returnUrl = null)
         {
-            if (!string.IsNullOrWhiteSpace(error))
-            {
-                ModelState.AddModelError(string.Empty, error);
-                return Page();
-            }
-            // Request a redirect to the external login provider.
             var redirectUrl = Url.Page("./Login", pageHandler: "Callback", values: new { returnUrl });
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(LOGIN_PROVIDER, redirectUrl);
             return new ChallengeResult(LOGIN_PROVIDER, properties);
@@ -44,22 +38,16 @@ namespace WanderLost.Server.Pages.Account
 
         public async Task<IActionResult> OnGetCallbackAsync(string? returnUrl = null, string? remoteError = null)
         {
-            returnUrl = returnUrl ?? Url.Content("~/");
+            returnUrl ??= Url.Content("~/");
             if (remoteError != null)
             {
                 return GetErrorRedirect($"Error from external provider: {remoteError}");
-                //ModelState.AddModelError(string.Empty, $"Error from external provider: {remoteError}");
-                //return Page();
-                //return Redirect("/ErrorMessage");
             }
 
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
             {
                 return GetErrorRedirect("Error loading external login information.");
-                //ModelState.AddModelError(string.Empty, "Error loading external login information.");
-                //return Page();
-                //return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
 
             var loginResult = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
