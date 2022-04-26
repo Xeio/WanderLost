@@ -1,7 +1,9 @@
 using Duende.IdentityServer.Extensions;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using WanderLost.Server.Controllers;
 using WanderLost.Server.Data;
@@ -26,6 +28,8 @@ builder.Services.AddAuthentication()
         discordOptions.ClientSecret = builder.Configuration["DiscordClientSecret"];
         discordOptions.ClientId = builder.Configuration["DiscordClientId"];
     });
+
+builder.Services.AddSingleton<IPostConfigureOptions<JwtBearerOptions>, JwtPostConfiguration>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
