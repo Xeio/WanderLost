@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BlazorAuthServerTest.Server.Controllers
+namespace WanderLost.Server.Controllers
 {
     public class OidcConfigurationController : Controller
     {
