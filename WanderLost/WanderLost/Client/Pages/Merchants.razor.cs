@@ -155,6 +155,7 @@ namespace WanderLost.Client.Pages
 
         private async Task SynchronizeServer(bool forceClear = false)
         {
+            var serverMerchants = await HubClient.GetKnownActiveMerchantGroups(Server);
             if (forceClear)
             {
                 await Notifications.ClearNotifications();
@@ -166,7 +167,7 @@ namespace WanderLost.Client.Pages
 
             if (!string.IsNullOrWhiteSpace(Server))
             {
-                foreach (var serverMerchantGroup in await HubClient.GetKnownActiveMerchantGroups(Server))
+                foreach (var serverMerchantGroup in serverMerchants)
                 {
                     if (ActiveData.MerchantGroups.FirstOrDefault(mg => mg.MerchantName == serverMerchantGroup.MerchantName) is ActiveMerchantGroup clientGroup)
                     {
