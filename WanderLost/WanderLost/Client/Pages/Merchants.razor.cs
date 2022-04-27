@@ -25,6 +25,7 @@ namespace WanderLost.Client.Pages
                     _serverRegion = value;
                     Server = null;
                     Task.Run(() => ClientSettings.SetRegion(_serverRegion ?? string.Empty));
+                    Task.Run(() => UpdateMerchants(true));
                 }
             }
         }
