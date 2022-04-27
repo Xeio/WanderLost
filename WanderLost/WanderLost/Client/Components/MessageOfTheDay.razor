@@ -1,0 +1,30 @@
+﻿@inject ClientSettingsController ClientSettings
+
+@if (_showMessage)
+{
+    <div class="alert alert-dismissible alert-info">
+        <button type="button" class="btn-close" aria-label="Dismiss" @onclick=CloseMessage></button>
+        <strong>New!</strong> Enable voting thresholds on card/rapport notifications in <a href="/Notifications">Notifications settings</a>.
+    </div>
+}
+
+@code {
+    /// <summary>
+    /// Increment this to track new message.
+    /// </summary>
+    private const int MESSAGE_ID = 1;
+
+    private bool _showMessage = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ClientSettings.Init();
+        _showMessage = MESSAGE_ID > ClientSettings.LastDisplayedMessageId;
+    }
+
+    private async Task CloseMessage()
+    {
+        _showMessage = false;
+        await ClientSettings.SetLastDisplayedMessageId(MESSAGE_ID);
+    }
+}

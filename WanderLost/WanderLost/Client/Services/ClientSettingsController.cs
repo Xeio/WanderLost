@@ -12,6 +12,7 @@ namespace WanderLost.Client.Services
         public Dictionary<string, MerchantNotificationSetting> Notifications { get; private set; } = new();
         public Dictionary<Rarity, int> CardVoteThresholdForNotification { get; set; } = new();
         public Dictionary<Rarity, int> RapportVoteThresholdForNotification { get; set; } = new();
+        public int LastDisplayedMessageId { get; private set; }
 
         private bool _initialized = false;
 
@@ -37,6 +38,7 @@ namespace WanderLost.Client.Services
                 Notifications = await _localStorageService.GetItemAsync<Dictionary<string, MerchantNotificationSetting>?>(nameof(Notifications)) ?? new();
                 CardVoteThresholdForNotification = await _localStorageService.GetItemAsync<Dictionary<Rarity, int>?>(nameof(CardVoteThresholdForNotification)) ?? new();
                 RapportVoteThresholdForNotification = await _localStorageService.GetItemAsync<Dictionary<Rarity, int>?>(nameof(RapportVoteThresholdForNotification)) ?? new();
+                LastDisplayedMessageId = await _localStorageService.GetItemAsync<int?>(nameof(LastDisplayedMessageId)) ?? 0;
 
                 //Compatability to convert/remove old settings to items
                 if (await _localStorageService.GetItemAsync<bool?>("NotifyLegendaryRapport") ?? false)
@@ -84,6 +86,12 @@ namespace WanderLost.Client.Services
         {
             NotifyBrowserSoundEnabled = soundEnabled;
             await _localStorageService.SetItemAsync(nameof(NotifyBrowserSoundEnabled), soundEnabled);
+        }
+
+        public async Task SetLastDisplayedMessageId(int messageId)
+        {
+            LastDisplayedMessageId = messageId;
+            await _localStorageService.SetItemAsync(nameof(LastDisplayedMessageId), messageId);
         }
 
         public async Task SaveNotificationSettings()
