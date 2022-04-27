@@ -81,12 +81,15 @@ app.UseStaticFiles(new StaticFileOptions()
             };
         }
         else if (staticFileContext.Context.Request.Path.StartsWithSegments(PathString.FromUriComponent("/data")) ||
-                    staticFileContext.Context.Request.Path.Value?.EndsWith("Interop.js") == true)
+                    staticFileContext.File.Name.EndsWith(".js") ||
+                    staticFileContext.File.Name.EndsWith(".css"))
         {
+            //App specific data that may change after a deployment
             staticFileContext.Context.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue()
             {
                 Public = true,
-                MaxAge = TimeSpan.FromMinutes(5)
+                MaxAge = TimeSpan.FromMinutes(5),
+                SharedMaxAge = TimeSpan.FromDays(1),
             };
         }
     }

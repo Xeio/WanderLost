@@ -12,7 +12,7 @@ namespace WanderLost.Server.Controllers
             _configuration = configuration;
         }
 
-        [ResponseCache(Duration = 120)]
+        [ResponseCache(Duration = 300)]
         [Route("/appsettings.json")]
         public IActionResult Index()
         {
