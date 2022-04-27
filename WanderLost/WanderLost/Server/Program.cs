@@ -31,6 +31,14 @@ builder.Services.AddIdentityCore<WanderlostUser>(opts => {
 builder.Services.AddIdentityServer()
     .AddApiAuthorization<WanderlostUser, AuthDbContext>();
 
+builder.Services.AddAuthorization(authorizationOptions =>
+{
+    authorizationOptions.AddPolicy(nameof(RareCombinationRestricted), policy =>
+    {
+        policy.Requirements.Add(new RareCombinationRestricted());
+    });
+});
+
 builder.Services.AddAuthentication(authenticationOptions =>
 {
     authenticationOptions.DefaultScheme = IdentityConstants.ApplicationScheme;

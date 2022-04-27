@@ -38,12 +38,22 @@ namespace WanderLost.Shared.Data
         public bool Hidden { get; set; }
 
         /// <summary>
-        /// Identifier for client on the server, may be IP or later an account identifier
+        /// Identifier for client on the server
         /// </summary>
         [MaxLength(60)]
         [JsonIgnore]
         [MessagePack.IgnoreMember]
         public string UploadedBy { get;set; } = string.Empty;
+
+        [JsonIgnore]
+        [MessagePack.IgnoreMember]
+        public bool IsRareCombination
+        {
+            get
+            {
+                return Card.Rarity >= Rarity.Legendary || Rapport.Rarity >= Rarity.Legendary;
+            }
+        }
 
         public void ClearInstance()
         {

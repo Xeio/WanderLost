@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using WanderLost.Server.Data;
 using WanderLost.Shared;
@@ -20,6 +22,7 @@ namespace WanderLost.Server.Controllers
             _merchantsDbContext = merchantsDbContext;
         }
 
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = nameof(RareCombinationRestricted))]
         public async Task UpdateMerchant(string server, ActiveMerchant merchant)
         {
             if (merchant is null) return;
