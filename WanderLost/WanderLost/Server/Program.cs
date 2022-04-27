@@ -1,6 +1,7 @@
 using Duende.IdentityServer.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,10 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration["SqlConnectionString"];
 builder.Services.AddDbContext<AuthDbContext>(options =>
     options.UseSqlServer(connectionString));
+
+builder.Services.AddDataProtection()
+    .SetApplicationName("Wanderlost")
+    .PersistKeysToDbContext<AuthDbContext>();
 
 builder.Services.AddIdentityCore<WanderlostUser>(opts => {
     opts.User.AllowedUserNameCharacters += "#"; //Allow hash for Discord ID + discriminator
