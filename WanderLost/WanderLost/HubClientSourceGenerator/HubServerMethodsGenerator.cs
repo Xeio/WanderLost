@@ -134,7 +134,7 @@ namespace {ns}
             return $@"
         public async Task {name}()
         {{
-            await {hubPropertyName}.SendAsync(""{name}"");
+            await {hubPropertyName}.InvokeAsync(""{name}"");
         }}
 ";
         }
@@ -147,7 +147,7 @@ namespace {ns}
             return $@"
         public async Task {name}({typeAndNameLine})
         {{
-            await {hubPropertyName}.SendAsync(""{name}"", {nameLine});
+            await {hubPropertyName}.InvokeAsync(""{name}"", {nameLine});
         }}
 ";
         }
