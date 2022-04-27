@@ -110,21 +110,6 @@ namespace WanderLost.Server.Controllers
 
             await Clients.Caller.UpdateMerchantGroup(server, group);
 
-            //Fake some votes over the next couple minutes, probably overkill
-            await Task.Delay(30 + Random.Shared.Next(1, 15) * 1000);
-
-            int maxVotes = Random.Shared.Next(4, 13);
-            for (int i = 0; i < maxVotes; i++)
-            {
-                hiddenMerchant.Votes--;
-
-                await _merchantsDbContext.SaveChangesAsync();
-
-                await Clients.Caller.UpdateVoteTotal(hiddenMerchant.Id, hiddenMerchant.Votes);
-
-                await Task.Delay(Random.Shared.Next(5, 30) * 1000);
-            }
-
             return true;
         }
 
