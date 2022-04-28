@@ -45,6 +45,11 @@ namespace WanderLost.Shared.Data
         [MessagePack.IgnoreMember]
         public string UploadedBy { get;set; } = string.Empty;
 
+        [MaxLength(60)]
+        [JsonIgnore]
+        [MessagePack.IgnoreMember]
+        public string? UploadedByUserId { get; set; }
+
         [JsonIgnore]
         [MessagePack.IgnoreMember]
         public bool IsRareCombination
