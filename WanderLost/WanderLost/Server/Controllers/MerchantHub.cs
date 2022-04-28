@@ -23,7 +23,7 @@ namespace WanderLost.Server.Controllers
             _merchantsDbContext = merchantsDbContext;
         }
 
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = nameof(RareCombinationRestricted))]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = nameof(RareCombinationRestricted))]
         public async Task UpdateMerchant(string server, ActiveMerchant merchant)
         {
             if (merchant is null) return;
