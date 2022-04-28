@@ -33,6 +33,7 @@ namespace WanderLost.Server.Controllers
             if (!merchant.IsValid(allMerchantData)) return;
 
             var merchantGroup = await _merchantsDbContext.MerchantGroups
+                .TagWithCallSite()
                 .Where(g => g.Server == server && g.MerchantName == merchant.Name && g.AppearanceExpires > DateTimeOffset.Now)
                 .Select(g => new ActiveMerchantGroup()
                 {
@@ -119,6 +120,7 @@ namespace WanderLost.Server.Controllers
         private async Task<bool> ClientHasOtherServerUploads(string originalServer, string clientId)
         {
             return await _merchantsDbContext.MerchantGroups
+                .TagWithCallSite()
                 .Where(g => g.Server != originalServer && g.AppearanceExpires > DateTimeOffset.Now)
                 .SelectMany(g => g.ActiveMerchants.Where(m => m.UploadedBy == clientId))
                 .AnyAsync();
@@ -127,6 +129,7 @@ namespace WanderLost.Server.Controllers
         public async Task Vote(string server, Guid merchantId, VoteType voteType)
         {
             var activeMerchant = await _merchantsDbContext.ActiveMerchants
+                .TagWithCallSite()
                 .Include(m => m.ClientVotes)
                 .SingleOrDefaultAsync(m => m.Id == merchantId);
             if (activeMerchant == null) return;
@@ -189,6 +192,7 @@ namespace WanderLost.Server.Controllers
         {
             var clientIp = GetClientIp();
             return await _merchantsDbContext.MerchantGroups
+                .TagWithCallSite()
                 .Where(g => g.Server == server && g.AppearanceExpires > DateTimeOffset.Now)
                 .Select(mg => new ActiveMerchantGroup
                 {
@@ -206,6 +210,7 @@ namespace WanderLost.Server.Controllers
         {
             var clientIp = GetClientIp();
             return await _merchantsDbContext.MerchantGroups
+                .TagWithCallSite()
                 .AsNoTracking()
                 .Where(g => g.Server == server && g.AppearanceExpires > DateTimeOffset.Now)
                 .SelectMany(mg => mg.ActiveMerchants.SelectMany(m => m.ClientVotes.Where(vote => vote.ClientId == clientIp)))
@@ -262,7 +267,7 @@ namespace WanderLost.Server.Controllers
                 merchant.Hidden = true;
 
                 //Try to avoid banning for rapport misclicks if user is mostly upvoted
-                var allSubmissionTotal = await _merchantsDbContext.ActiveMerchants.Where(m => m.UploadedBy == merchant.UploadedBy).SumAsync(m => m.Votes);
+                var allSubmissionTotal = await _merchantsDbContext.ActiveMerchants.TagWithCallSite().Where(m => m.UploadedBy == merchant.UploadedBy).SumAsync(m => m.Votes);
                 if (allSubmissionTotal < 0) 
                 {
                     if (!await HasActiveBan(merchant.UploadedBy))
@@ -282,7 +287,9 @@ namespace WanderLost.Server.Controllers
         
         private async Task<bool> HasActiveBan(string clientId)
         {
-            return await _merchantsDbContext.Bans.AnyAsync(b => b.ClientId == clientId && b.ExpiresAt > DateTimeOffset.Now);
+            return await _merchantsDbContext.Bans
+                .TagWithCallSite()
+                .AnyAsync(b => b.ClientId == clientId && b.ExpiresAt > DateTimeOffset.Now);
         }
     }
 }
