@@ -22,7 +22,7 @@ builder.Services.AddDataProtection()
     .PersistKeysToDbContext<AuthDbContext>();
 
 builder.Services.AddIdentityCore<WanderlostUser>(opts => {
-    opts.User.AllowedUserNameCharacters += "#"; //Allow hash for Discord ID + discriminator
+    opts.User.AllowedUserNameCharacters = string.Empty;
 })
     .AddSignInManager()
     .AddDefaultTokenProviders()
