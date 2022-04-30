@@ -24,9 +24,9 @@ namespace WanderLost.Client.Services
                 })
                 .WithAutomaticReconnect(new[] {
                     //Stargger reconnections a bit so server doesn't get hammered after a restart
-                    TimeSpan.FromSeconds(Random.Shared.Next(5,120)),
-                    TimeSpan.FromSeconds(Random.Shared.Next(10,120)),
-                    TimeSpan.FromSeconds(Random.Shared.Next(30,120)),
+                    TimeSpan.FromSeconds(Random.Shared.Next(5,360)),
+                    TimeSpan.FromMinutes(6),
+                    TimeSpan.FromMinutes(5),
                     TimeSpan.FromMinutes(5),
                     TimeSpan.FromMinutes(5),
                 })
