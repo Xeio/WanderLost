@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -7,12 +7,13 @@
     <UserSecretsId>80ad86ac-2395-4fe2-b474-62e5a3c29a62</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..</DockerfileContext>
-	<TrimMode>copyused</TrimMode>
 	<GenerateRuntimeConfigurationFiles>True</GenerateRuntimeConfigurationFiles>
+	<RenameDllsTo>wasm</RenameDllsTo>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AspNet.Security.OAuth.Discord" Version="6.0.6" />
+    <PackageReference Include="BlazorWasmAntivirusProtection" Version="1.7.1" />
     <PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="6.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="6.0.4" />
