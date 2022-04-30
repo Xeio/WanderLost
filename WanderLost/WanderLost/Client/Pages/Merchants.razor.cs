@@ -155,9 +155,11 @@ namespace WanderLost.Client.Pages
 
         private async Task SynchronizeServer(bool forceClear = false)
         {
-            var serverMerchants = string.IsNullOrWhiteSpace(Server) ? 
+            var serverMerchants = string.IsNullOrWhiteSpace(Server) || ActiveData.MerchantGroups.All(m => !m.IsActive) ?
+                                        //Don't need to check server if no server or all merchants are inactive
                                         Enumerable.Empty<ActiveMerchantGroup>() :
                                         await HubClient.GetKnownActiveMerchantGroups(Server);
+
             if (forceClear)
             {
                 await Notifications.ClearNotifications();
