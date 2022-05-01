@@ -122,9 +122,9 @@
 
         MerchantData = StaticData.Merchants[MerchantName];
 
-        _hubEvents.Add(HubClient.OnUpdateMerchant((server, merchant) =>
+        _hubEvents.Add(HubClient.OnUpdateMerchantGroup((server, merchantGroup) =>
         {
-            if (Server == server && merchant.Name == MerchantName)
+            if (Server == server && merchantGroup.MerchantName == MerchantName)
             {
                 //Someone else beat us to submitting the merchant, just go back to index
                 NavigationManager.NavigateTo("/");
