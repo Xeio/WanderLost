@@ -13,6 +13,7 @@ namespace WanderLost.Client.Pages
         [Inject] public ClientNotificationService Notifications { get; init; } = default!;
         [Inject] public NavigationManager NavigationManager { get; init; } = default!;
         [Inject] public ActiveDataController ActiveData { get; init; } = default!;
+        [Inject] public IConfiguration Configuration { get; init; } = default!;
 
         private string? _serverRegion;
         private string? ServerRegion
@@ -111,11 +112,14 @@ namespace WanderLost.Client.Pages
 
         private async Task HubConnection_Reconnected(string? arg)
         {
-            if(await HubClient.HasNewerClient(Utils.ClientVersion))
+            if (int.TryParse(Configuration["ClientVersion"], out var version))
             {
-                //Force client to reload to match server
-                NavigationManager.NavigateTo("", true);
-                return;
+                if (await HubClient.HasNewerClient(version))
+                {
+                    //Force client to reload to match server
+                    NavigationManager.NavigateTo("", true);
+                    return;
+                }
             }
             await SynchronizeServer();
         }

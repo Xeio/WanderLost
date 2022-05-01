@@ -24,7 +24,8 @@ namespace WanderLost.Server.Controllers
             }
             return Json(new
             {
-                SocketEndpoint = socketEndpint
+                SocketEndpoint = socketEndpint,
+                ClientVersion = _configuration["ClientVersion"]
             });
         }
     }

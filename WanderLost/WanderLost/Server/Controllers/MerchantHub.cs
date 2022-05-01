@@ -16,11 +16,13 @@ namespace WanderLost.Server.Controllers
 
         private readonly DataController _dataController;
         private readonly MerchantsDbContext _merchantsDbContext;
+        private readonly IConfiguration _configuration;
 
-        public MerchantHub(DataController dataController, MerchantsDbContext merchantsDbContext)
+        public MerchantHub(DataController dataController, MerchantsDbContext merchantsDbContext, IConfiguration configuration)
         {
             _dataController = dataController;
             _merchantsDbContext = merchantsDbContext;
+            _configuration = configuration;
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = nameof(RareCombinationRestricted))]
@@ -236,7 +238,12 @@ namespace WanderLost.Server.Controllers
 
         public Task<bool> HasNewerClient(int version)
         {
-            return Task.FromResult(version < Utils.ClientVersion);
+            if (int.TryParse(_configuration["ClientVersion"], out var currentVersion))
+            {
+                return Task.FromResult(version < currentVersion);
+            }
+            //If the config is missing for some reason default to false
+            return Task.FromResult(false);
         }
 
         private async Task CheckAutobans(ActiveMerchant merchant)
@@ -265,7 +272,7 @@ namespace WanderLost.Server.Controllers
 
                 //Try to avoid banning for rapport misclicks if user is mostly upvoted
                 var allSubmissionTotal = await UserVoteTotal(merchant.UploadedBy, merchant.UploadedByUserId);
-                if (allSubmissionTotal < 0) 
+                if (allSubmissionTotal < 0)
                 {
                     if (!await HasActiveBan(merchant.UploadedBy, merchant.UploadedByUserId))
                     {
