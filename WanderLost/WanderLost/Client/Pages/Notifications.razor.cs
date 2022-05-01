@@ -166,5 +166,14 @@ namespace WanderLost.Client.Pages
             }
         }
 
+        public async Task ChangeVolumeAndPlayTestSound(ChangeEventArgs args)
+        {
+            if (args.Value is string s && int.TryParse(s, out var i))
+            {
+                float volume = i / 100f;
+                await ClientSettings.SetSoundVolume(volume);
+                await ClientNotifications.RequestBrowserNotificationSound();
+            }
+        }
     }
 }

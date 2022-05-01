@@ -109,9 +109,9 @@ namespace WanderLost.Client.Services
         /// </summary>
         /// <param name="merchantGroup"></param>
         /// <returns></returns>
-        public ValueTask ForceMerchantFoundNotification(ActiveMerchantGroup merchantGroup)
+        public async ValueTask ForceMerchantFoundNotification(ActiveMerchantGroup merchantGroup)
         {
-            RequestBrowserNotificationSound();
+            await RequestBrowserNotificationSound();
 
             string body = "";
             if (merchantGroup.ActiveMerchants.Count > 1)
@@ -125,7 +125,7 @@ namespace WanderLost.Client.Services
                 body += $"Rapport: {merchantGroup.ActiveMerchants[0].Rapport.Name}\n";
             }
 
-            return CreateNotification($"Wandering Merchant \"{merchantGroup.MerchantName}\" found", new { Body = body, Renotify = true, Tag = $"found_{merchantGroup.MerchantName}", Icon = "images/notifications/ExclamationMark.png" });
+            await CreateNotification($"Wandering Merchant \"{merchantGroup.MerchantName}\" found", new { Body = body, Renotify = true, Tag = $"found_{merchantGroup.MerchantName}", Icon = "images/notifications/ExclamationMark.png" });
         }
 
         /// <summary>
@@ -155,12 +155,12 @@ namespace WanderLost.Client.Services
         /// </summary>
         /// <param name="merchantGroup"></param>
         /// <returns></returns>
-        public ValueTask ForceMerchantSpawnNotification(ActiveMerchantGroup merchantGroup)
+        public async ValueTask ForceMerchantSpawnNotification(ActiveMerchantGroup merchantGroup)
         {
-            RequestBrowserNotificationSound();
+            await RequestBrowserNotificationSound();
 
             string body = $"Wandering Merchant \"{merchantGroup.MerchantName}\" is waiting for you somewhere.";
-            return CreateNotification($"Wandering Merchant \"{merchantGroup.MerchantName}\" appeared", new { Body = body, Renotify = true, Tag = "spawn_merchant", Icon = "images/notifications/QuestionMark.png" });
+            await CreateNotification($"Wandering Merchant \"{merchantGroup.MerchantName}\" appeared", new { Body = body, Renotify = true, Tag = "spawn_merchant", Icon = "images/notifications/QuestionMark.png" });
         }
 
         private async ValueTask CreateNotification(string title, object parameters)
@@ -169,13 +169,13 @@ namespace WanderLost.Client.Services
             _notifications.Add(notification);
         }
 
-        private async void RequestBrowserNotificationSound()
+        public async ValueTask RequestBrowserNotificationSound()
         {
             if (!_clientSettings.NotifyBrowserSoundEnabled) return;
 
             try
             {
-                await _jsRuntime.InvokeAsync<string>("PlayNotificationSound"); //call Interop.js function to play a sound
+                await _jsRuntime.InvokeAsync<string>("PlayNotificationSound", _clientSettings.SoundVolume);
             }
             catch (Exception)
             {

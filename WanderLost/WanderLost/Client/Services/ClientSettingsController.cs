@@ -13,6 +13,7 @@ namespace WanderLost.Client.Services
         public Dictionary<Rarity, int> CardVoteThresholdForNotification { get; set; } = new();
         public Dictionary<Rarity, int> RapportVoteThresholdForNotification { get; set; } = new();
         public int LastDisplayedMessageId { get; private set; }
+        public float SoundVolume { get; private set; }
 
         private bool _initialized = false;
 
@@ -39,6 +40,7 @@ namespace WanderLost.Client.Services
                 CardVoteThresholdForNotification = await _localStorageService.GetItemAsync<Dictionary<Rarity, int>?>(nameof(CardVoteThresholdForNotification)) ?? new();
                 RapportVoteThresholdForNotification = await _localStorageService.GetItemAsync<Dictionary<Rarity, int>?>(nameof(RapportVoteThresholdForNotification)) ?? new();
                 LastDisplayedMessageId = await _localStorageService.GetItemAsync<int?>(nameof(LastDisplayedMessageId)) ?? 0;
+                SoundVolume = await _localStorageService.GetItemAsync<float?>(nameof(SoundVolume)) ?? 1f;
 
                 //Compatability to convert/remove old settings to items
                 if (await _localStorageService.GetItemAsync<bool?>("NotifyLegendaryRapport") ?? false)
@@ -92,6 +94,12 @@ namespace WanderLost.Client.Services
         {
             LastDisplayedMessageId = messageId;
             await _localStorageService.SetItemAsync(nameof(LastDisplayedMessageId), messageId);
+        }
+
+        public async Task SetSoundVolume(float volume)
+        {
+            SoundVolume = volume;
+            await _localStorageService.SetItemAsync(nameof(SoundVolume), volume);
         }
 
         public async Task SaveNotificationSettings()

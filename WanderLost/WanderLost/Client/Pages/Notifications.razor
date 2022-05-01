@@ -29,8 +29,9 @@ else
             <div class="form-check col-6">
                 <input class="form-check-input" type="checkbox" checked="@ClientSettings.NotifyBrowserSoundEnabled" id="browserSound" @onclick="@ToggleNotifyBrowserSoundEnabled">
                 <label class="form-check-label" for="browserSound">
-                    Play additional notification sound in browser
+                    Play additional sound in browser. Volume:
                 </label>
+                <input type="range" value="@(ClientSettings.SoundVolume * 100)" @onchange="@ChangeVolumeAndPlayTestSound"/>
             </div>
             <div class="col-auto">
                 <button class="btn btn-dark" @onclick="OnTestMerchantFoundClicked">Test item found notification</button>
