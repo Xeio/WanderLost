@@ -148,7 +148,7 @@ app.UseStaticFiles(new StaticFileOptions()
             staticFileContext.Context.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue()
             {
                 Public = true,
-                MaxAge = TimeSpan.FromMinutes(5),
+                MaxAge = TimeSpan.FromMinutes(2),
                 SharedMaxAge = TimeSpan.FromDays(1),
             };
         }
