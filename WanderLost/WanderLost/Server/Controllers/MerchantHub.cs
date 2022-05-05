@@ -92,6 +92,7 @@ namespace WanderLost.Server.Controllers
 
             merchant.UploadedBy = clientIp;
             merchant.UploadedByUserId = Context.UserIdentifier;
+            merchant.RequiresProcessing = true;
             //Add an auto-upvote so the user can see their own submissions by default
             merchant.ClientVotes.Add(new Vote() { ClientId = clientIp, UserId = Context.UserIdentifier, VoteType = VoteType.Upvote });
             merchantGroup.ActiveMerchants.Add(merchant);
@@ -151,6 +152,8 @@ namespace WanderLost.Server.Controllers
                 });
                 RecalculateVoteTotal(activeMerchant);
 
+                activeMerchant.RequiresProcessing = true;
+
                 await _merchantsDbContext.SaveChangesAsync();
 
                 await Clients.Group(server).UpdateVoteTotal(merchantId, activeMerchant.Votes);
@@ -162,6 +165,8 @@ namespace WanderLost.Server.Controllers
             {
                 existingVote.VoteType = voteType;
                 RecalculateVoteTotal(activeMerchant);
+
+                activeMerchant.RequiresProcessing = true;
 
                 await _merchantsDbContext.SaveChangesAsync();
 
@@ -315,6 +320,40 @@ namespace WanderLost.Server.Controllers
                 return await _merchantsDbContext.ActiveMerchants.TagWithCallSite().Where(m => m.UploadedByUserId == userId).SumAsync(m => m.Votes);
             }
             return await _merchantsDbContext.ActiveMerchants.TagWithCallSite().Where(m => m.UploadedBy == clientIp).SumAsync(m => m.Votes);
+        }
+
+        public async Task<PushSubscription?> GetPushSubscription(string clientToken)
+        {
+            return await _merchantsDbContext.PushSubscriptions
+                .TagWithCallSite()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.Token == clientToken);
+        }
+
+        public async Task UpdatePushSubscription(PushSubscription subscription)
+        {
+            bool exists = await _merchantsDbContext.PushSubscriptions
+                            .TagWithCallSite()
+                            .AnyAsync(s => s.Token == subscription.Token);
+            if (exists)
+            {
+                _merchantsDbContext.Entry(subscription).State = EntityState.Modified;
+            }
+            else
+            {
+                _merchantsDbContext.Add(subscription);
+            }
+            _merchantsDbContext.SaveChanges();
+        }
+
+        public async Task RemovePushSubscription(string clientToken)
+        {
+            var subscription = new PushSubscription()
+            {
+                Token = clientToken,
+            };
+            _merchantsDbContext.Entry(subscription).State = EntityState.Deleted;
+            await _merchantsDbContext.SaveChangesAsync();
         }
     }
 }

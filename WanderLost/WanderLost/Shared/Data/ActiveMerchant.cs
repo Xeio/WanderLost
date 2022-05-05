@@ -60,6 +60,17 @@ namespace WanderLost.Shared.Data
             }
         }
 
+        [JsonIgnore]
+        [MessagePack.IgnoreMember]
+        public int ActiveMerchantGroupId { get; set; }
+
+        [JsonIgnore]
+        [MessagePack.IgnoreMember]
+        public ActiveMerchantGroup ActiveMerchantGroup { get; set; } = new();
+
+        [MessagePack.IgnoreMember]
+        public bool RequiresProcessing { get; set; }
+
         public void ClearInstance()
         {
             Zone = string.Empty;

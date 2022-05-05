@@ -11,5 +11,8 @@ namespace WanderLost.Shared.Interfaces
         Task<IEnumerable<Vote>> RequestClientVotes(string server);
         Task Vote(string server, Guid merchantId, VoteType voteType);
         Task<bool> HasNewerClient(int version);
+        Task<PushSubscription?> GetPushSubscription(string clientToken);
+        Task UpdatePushSubscription(PushSubscription subscription);
+        Task RemovePushSubscription(string clientToken);
     }
 }

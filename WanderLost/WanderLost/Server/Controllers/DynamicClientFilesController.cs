@@ -3,18 +3,18 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WanderLost.Server.Controllers
 {
-    public class ClientAppSettingsController : Controller
+    public class DynamicClientFilesController : Controller
     {
         private readonly IConfiguration _configuration;
 
-        public ClientAppSettingsController(IConfiguration configuration)
+        public DynamicClientFilesController(IConfiguration configuration)
         {
             _configuration = configuration;
         }
 
         [ResponseCache(Duration = 120)]
         [Route("/appsettings.json")]
-        public IActionResult Index()
+        public IActionResult AppSettings()
         {
             var socketEndpint = _configuration["SocketEndpoint"];
             if (string.IsNullOrWhiteSpace(socketEndpint))
@@ -27,6 +27,14 @@ namespace WanderLost.Server.Controllers
                 SocketEndpoint = socketEndpint,
                 ClientVersion = _configuration["ClientVersion"]
             });
+        }
+
+        [ResponseCache(Duration = 120)]
+        [Route("/js/FirebaseConfig.js")]
+        public IActionResult FirebaseConfig()
+        {
+            var stream = System.IO.File.OpenRead(_configuration["FirebaseClientConfig"]);
+            return File(stream, "application/javascript");
         }
     }
 }

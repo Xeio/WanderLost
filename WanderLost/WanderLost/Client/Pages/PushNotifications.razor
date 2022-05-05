@@ -1,0 +1,149 @@
+﻿@page "/PushNotifications"
+
+@inject ClientSettingsController ClientSettings
+@inject ClientNotificationService NotificationService
+@inject MerchantHubClient HubClient
+
+
+@if (!string.IsNullOrWhiteSpace(Error))
+{
+    <div class="container alert alert-danger">
+        @Error
+    </div>
+}
+else if (!string.IsNullOrWhiteSpace(Message))
+{
+    <div class="container alert alert-info">
+        @Message
+    </div>
+}
+
+
+<div class="container">
+    @if(!string.IsNullOrWhiteSpace(PushSubscription.Token))
+    {
+        <span>Subscription Server: <strong>@PushSubscription.Server</strong></span>
+        <EditForm EditContext="@_editContext">
+            <div class="form-group form-check form-switch m-3">
+                <InputCheckbox class="form-check-input" id="chkWei" @bind-Value="PushSubscription.WeiNotify"/>
+                <label class="form-check-label" for="chkWei"> <ItemDisplay Item="@(new Item { Name = "Wei", Rarity = Rarity.Legendary })" /> card</label>
+            </div>
+            @if (PushSubscription.WeiNotify)
+            {
+                <div class="form-group form-check form-switch col-lg-3 m-3">
+                    <label class="form-label" for="rapportVoteThreshold">Minimum upvotes</label>
+                    <InputNumber class="form-control col-2" id="rapportVoteThreshold" @bind-Value="PushSubscription.WeiVoteThreshold" />
+                </div>
+            } 
+
+            <div class="form-group form-check form-switch m-3">
+                <InputCheckbox class="form-check-input" id="chkRapport" @bind-Value="PushSubscription.LegendaryRapportNotify"/>
+                <label class="form-check-label" for="chkRapport"> <ItemDisplay Item="@(new Item { Name = "Legendary", Rarity = Rarity.Legendary })" /> Rapport</label>
+            </div>
+            @if (PushSubscription.LegendaryRapportNotify)
+            {
+                <div class="form-group form-check form-switch col-lg-3 m-3">
+                    <label class="form-label" for="rapportVoteThreshold">Minimum upvotes</label>
+                    <InputNumber class="form-control col-2" id="rapportVoteThreshold" @bind-Value="PushSubscription.RapportVoteThreshold" />
+                </div>
+            }
+
+            <button class="btn btn-success m-2" @onclick="AddUpdateSubcription" disabled="@(!_editContext.IsModified())">Update/Add subscription</button>
+            <button class="btn btn-danger m-2" @onclick="DeleteSubcription" disabled="@(!_hasServerSubscription)">Delete subscription</button>
+
+            <button class="btn btn-info m-2" @onclick="SetTestSubscription">Send Test Push Notification</button>
+        </EditForm>
+    }
+</div>
+
+@code{
+    public string Error { get; set; } = string.Empty;
+    public string Message { get; set; } = "Loading push subscription settings...";
+
+    private PushSubscription PushSubscription { get; set; } = new();
+    private EditContext _editContext = new(true);
+    private bool _hasServerSubscription = false;
+
+    protected async override Task OnInitializedAsync()
+    {
+        await ClientSettings.Init();
+        await HubClient.Connect();
+
+        if (!await NotificationService.IsSupportedByBrowser())
+        {
+            Error = "Notifications do not appear to be supported by your browser.";
+            return;
+        }
+
+        if (!await NotificationService.RequestPermission())
+        {
+            Error = "You must grant notification permission for push notifications.";
+            return;
+        }
+
+        _editContext = new(PushSubscription);
+
+        if (string.IsNullOrWhiteSpace(ClientSettings.Server))
+        {
+            Error = "Select server on main page to subscribe to push notifications";
+            return;
+        }
+
+        PushSubscription.Server = ClientSettings.Server;
+        PushSubscription.Token = await NotificationService.GetFCMToken();
+
+        if (string.IsNullOrWhiteSpace(PushSubscription.Token))
+        {
+            Error = "Failed to retrieve push token from browser service worker.";
+            return;
+        }
+
+        var serverSubscription = await HubClient.GetPushSubscription(PushSubscription.Token);
+        if(serverSubscription != null)
+        {
+            PushSubscription = serverSubscription;
+            _editContext = new(PushSubscription);
+            _hasServerSubscription = true;
+            if(ClientSettings.Server != PushSubscription.Server)
+            {
+                Error = $"Your current subscription to '{PushSubscription.Server}' does not match your selected game server '{ClientSettings.Server}'. Update your subscription to correct.";
+                _editContext.NotifyFieldChanged(_editContext.Field(nameof(PushSubscription.Server)));
+            }
+        }
+
+        Message = string.Empty;
+    }
+
+    private async Task AddUpdateSubcription()
+    {
+        PushSubscription.Server = ClientSettings.Server;
+        await HubClient.UpdatePushSubscription(PushSubscription);
+        _editContext.MarkAsUnmodified();
+        _hasServerSubscription = true;
+
+        Error = string.Empty;
+        Message = "Subscription updated";
+    }
+
+    private async Task DeleteSubcription()
+    {
+        await HubClient.RemovePushSubscription(PushSubscription.Token);
+        _hasServerSubscription = false;
+        Error = string.Empty;
+        Message = "Subscription deleted";
+        _editContext.NotifyFieldChanged(_editContext.Field(nameof(PushSubscription.Server)));
+    }
+
+    private async Task SetTestSubscription()
+    {
+        PushSubscription.SendTestNotification = true;
+        await HubClient.UpdatePushSubscription(PushSubscription);
+        _editContext.MarkAsUnmodified();
+        _hasServerSubscription = true;
+
+        Error = string.Empty;
+        Message = @"Subscription set to send push notification. Should take around 30 seconds.
+
+Note: Push messages are only delivered in the background. You should close this browser tab, or activate a different tab in the same window.";
+    }
+}

@@ -21,4 +21,8 @@
     <ProjectReference Include="..\Shared\WanderLost.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ServiceWorker Include="wwwroot\ServiceWorker.js" />
+  </ItemGroup>
+
 </Project>
