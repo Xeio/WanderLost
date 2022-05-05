@@ -76,8 +76,8 @@
                     </td>
                     <td style="white-space: nowrap;">
                         <span class="votes">@merchant.Votes</span>
-                        <button class="btn btn-sm @GetVoteButtonCss(merchant.Id, VoteType.Upvote)" alt="Upvote" @onclick="@(async m => await Upvote(merchant.Id))"><span class="oi oi-thumb-up"></span></button>
-                        <button class="btn btn-sm @GetVoteButtonCss(merchant.Id, VoteType.Downvote)" alt="Downvote" @onclick="@(async m => await Downvote(merchant.Id))"><span class="oi oi-thumb-down"></span></button>
+                        <button class="btn btn-sm @GetVoteButtonCss(merchant.Id, VoteType.Upvote)" alt="Upvote" @onclick="@(async m => await SubmitVote(merchant.Id, VoteType.Upvote))"><span class="oi oi-thumb-up"></span></button>
+                        <button class="btn btn-sm @GetVoteButtonCss(merchant.Id, VoteType.Downvote)" alt="Downvote" @onclick="@(async m => await SubmitVote(merchant.Id, VoteType.Downvote))"><span class="oi oi-thumb-down"></span></button>
                     </td>
                     <td rowspan="@rowSpan"><a class="link-danger" href="/UpdateMerchant/@Server/@merchantGroup.MerchantName">Suggest Replacement</a></td>
                 }
@@ -104,8 +104,8 @@
                     </td>
                     <td style="white-space: nowrap; @opacityStyle">
                         <span class="votes">@merchant.Votes</span>
-                        <button class="btn btn-sm @GetVoteButtonCss(merchant.Id, VoteType.Upvote)" alt="Upvote" @onclick="@(async m => await Upvote(merchant.Id))"><span class="oi oi-thumb-up"></span></button>
-                        <button class="btn btn-sm @GetVoteButtonCss(merchant.Id, VoteType.Downvote)" alt="Downvote" @onclick="@(async m => await Downvote(merchant.Id))"><span class="oi oi-thumb-down"></span></button>
+                        <button class="btn btn-sm @GetVoteButtonCss(merchant.Id, VoteType.Upvote)" alt="Upvote" @onclick="@(async m => await SubmitVote(merchant.Id, VoteType.Upvote))"><span class="oi oi-thumb-up"></span></button>
+                        <button class="btn btn-sm @GetVoteButtonCss(merchant.Id, VoteType.Downvote)" alt="Downvote" @onclick="@(async m => await SubmitVote(merchant.Id, VoteType.Downvote))"><span class="oi oi-thumb-down"></span></button>
                     </td>
                 </tr>
             }
@@ -173,13 +173,9 @@
         return ActiveData.MerchantGroups.Where(mg => mg.IsActive ^ !ActiveOnly);
     }
 
-    public async Task Upvote(Guid merchantId)
+    public async Task SubmitVote(Guid merchantId, VoteType newVote)
     {
-        await HubClient.Vote(Server, merchantId, VoteType.Upvote);
-    }
-
-    public async Task Downvote(Guid merchantId)
-    {
-        await HubClient.Vote(Server, merchantId, VoteType.Downvote);
+        ActiveData.Votes.TryGetValue(merchantId, out var currentVote);
+        await HubClient.Vote(Server, merchantId, currentVote == newVote ? VoteType.Unvote : newVote);
     }
 }
