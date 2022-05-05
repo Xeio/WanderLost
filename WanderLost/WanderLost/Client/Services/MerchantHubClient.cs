@@ -50,5 +50,13 @@ namespace WanderLost.Client.Services
                 await HubConnection.DisposeAsync();
             }
         }
+
+        public async Task Connect()
+        {
+            if (HubConnection.State == HubConnectionState.Disconnected)
+            {
+                await HubConnection.StartAsync();
+            }
+        }
     }
 }

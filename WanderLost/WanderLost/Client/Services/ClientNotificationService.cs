@@ -27,7 +27,14 @@ namespace WanderLost.Client.Services
         /// <returns></returns>
         public ValueTask<bool> IsSupportedByBrowser()
         {
-            return _jsRuntime.InvokeAsync<bool>("SupportsNotifications");
+            try
+            {
+                return _jsRuntime.InvokeAsync<bool>("SupportsNotifications");
+            }
+            catch
+            {
+                return ValueTask.FromResult(false);
+            }
         }
 
         /// <summary>
@@ -36,8 +43,20 @@ namespace WanderLost.Client.Services
         /// <returns></returns>
         public async ValueTask<bool> RequestPermission()
         {
-            var permissionResult = await _jsRuntime.InvokeAsync<string>("RequestPermission");
-            return permissionResult == "granted";
+            try
+            {
+                var permissionResult = await _jsRuntime.InvokeAsync<string>("RequestPermission");
+                return permissionResult == "granted";
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public ValueTask<string> GetFCMToken()
+        {
+            return _jsRuntime.InvokeAsync<string>("GetServiceWorkerToken");
         }
 
         private bool IsMerchantCardVoteThresholdReached(ActiveMerchant merchant)

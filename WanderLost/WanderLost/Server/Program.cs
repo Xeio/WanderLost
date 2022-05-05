@@ -1,4 +1,6 @@
 using Duende.IdentityServer.Extensions;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
@@ -86,6 +88,18 @@ builder.Services.AddDbContext<MerchantsDbContext>(opts =>
 {
     opts.UseSqlServer(connectionString);
 });
+
+builder.Services.AddScoped<PushMessageProcessor>();
+builder.Services.AddHostedService<PushWorkerService>();
+
+if (!string.IsNullOrWhiteSpace(builder.Configuration["FirebaseSecretFile"]))
+{
+    var firebaseCredential = GoogleCredential.FromFile(builder.Configuration["FirebaseSecretFile"]);
+    FirebaseApp.Create(new AppOptions()
+    {
+        Credential = firebaseCredential,
+    });
+}
 
 #if !DEBUG
     builder.Logging.ClearProviders();
