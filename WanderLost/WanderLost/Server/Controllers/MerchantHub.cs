@@ -89,6 +89,8 @@ namespace WanderLost.Server.Controllers
 
             merchant.UploadedBy = clientIp;
             merchant.UploadedByUserId = Context.UserIdentifier;
+            //Add an auto-upvote so the user can see their own submissions by default
+            merchant.ClientVotes.Add(new Vote() { ClientId = clientIp, UserId = Context.UserIdentifier, VoteType = VoteType.Upvote });
             merchantGroup.ActiveMerchants.Add(merchant);
 
             await _merchantsDbContext.SaveChangesAsync();
@@ -104,6 +106,8 @@ namespace WanderLost.Server.Controllers
             merchant.UploadedBy = clientIp;
             merchant.UploadedByUserId = Context.UserIdentifier;
             merchant.Hidden = true;
+            //Add an auto-upvote so the user can see their own submissions by default
+            merchant.ClientVotes.Add(new Vote() { ClientId = clientIp, UserId = Context.UserIdentifier, VoteType = VoteType.Upvote });
 
             group.ActiveMerchants.Add(merchant);
 
@@ -133,9 +137,6 @@ namespace WanderLost.Server.Controllers
 
             var clientId = GetClientIp();
 
-            //Don't let a user vote on their own submission to make some aggregation stuff easier later
-            if (activeMerchant.UploadedBy == clientId || (Context.UserIdentifier != null && activeMerchant.UploadedByUserId == Context.UserIdentifier)) return;
-
             var existingVote = activeMerchant.ClientVotes.FirstOrDefault(v => v.ClientId == clientId || (Context.UserIdentifier != null && v.UserId == Context.UserIdentifier));
             if(existingVote == null)
             {
@@ -146,7 +147,7 @@ namespace WanderLost.Server.Controllers
                     UserId = Context.UserIdentifier,
                     VoteType = voteType,
                 });
-                activeMerchant.Votes = activeMerchant.ClientVotes.Sum(v => (int)v.VoteType);
+                RecalculateVoteTotal(activeMerchant);
 
                 await _merchantsDbContext.SaveChangesAsync();
 
@@ -158,13 +159,21 @@ namespace WanderLost.Server.Controllers
             else if(existingVote.VoteType != voteType)
             {
                 existingVote.VoteType = voteType;
-                activeMerchant.Votes = activeMerchant.ClientVotes.Sum(v => (int)v.VoteType);
+                RecalculateVoteTotal(activeMerchant);
 
                 await _merchantsDbContext.SaveChangesAsync();
 
                 await Clients.Group(server).UpdateVoteTotal(merchantId, activeMerchant.Votes);
                 await Clients.Caller.UpdateVoteSelf(merchantId, voteType);
             }
+        }
+
+        private static void RecalculateVoteTotal(ActiveMerchant merchant)
+        {
+            //Small special case here, we won't count the submitter's vote, but track it so they can see they already "voted"
+            merchant.Votes = merchant.ClientVotes
+                .Where(v => v.ClientId != merchant.UploadedBy && (merchant.UploadedByUserId == null || v.UserId != merchant.UploadedByUserId))
+                .Sum(v => (int)v.VoteType);
         }
 
         public async Task SubscribeToServer(string server)
