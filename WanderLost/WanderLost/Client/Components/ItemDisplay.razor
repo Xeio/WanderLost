@@ -1,4 +1,11 @@
-﻿<span class="@Item.Rarity">@Item.Name</span>
+﻿@inject ClientStaticDataController StaticData
+
+<span class="item @Item.Rarity">@Item.Name
+    @if (StaticData.Tooltips.TryGetValue(Item.Name, out var itemText))
+    {
+        <span class="itemText">@((MarkupString)itemText)</span>
+    }
+</span>
 
 @code {
     [Parameter, EditorRequired]

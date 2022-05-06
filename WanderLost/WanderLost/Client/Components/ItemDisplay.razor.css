@@ -21,3 +21,25 @@
 .Relic {
     color: orangered;
 }
+
+.item {
+    position: relative;
+}
+
+.item:hover .itemText {
+    display: block;
+}
+
+.itemText {
+    z-index: 100;
+    position: absolute;
+    top: -80%;
+    transform: translateY(-100%);
+    width: 15em;
+    padding: .5em;
+    border-radius: .5em;
+    background: #000;
+    color: #fff;
+    text-align: center;
+    display: none;
+}
