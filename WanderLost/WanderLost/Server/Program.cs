@@ -53,7 +53,14 @@ builder.Services.AddAuthentication(authenticationOptions =>
         discordOptions.ClaimActions.MapJsonKey("verified", "verified");
         discordOptions.AccessDeniedPath = new PathString("/ErrorMessage/User denied access from Discord authentication.");
     })
-    .AddIdentityCookies();
+    .AddIdentityCookies(identityCookieBuilder =>
+    {
+        identityCookieBuilder.ApplicationCookie.Configure(cokieAuthOptions =>
+        {
+            cokieAuthOptions.SlidingExpiration = true;
+            cokieAuthOptions.ExpireTimeSpan = TimeSpan.FromDays(30);
+        });
+    });
 
 builder.Services.AddSingleton<IPostConfigureOptions<JwtBearerOptions>, JwtPostConfiguration>();
 

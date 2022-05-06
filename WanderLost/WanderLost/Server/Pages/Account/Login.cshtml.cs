@@ -50,7 +50,7 @@ namespace WanderLost.Server.Pages.Account
                 return GetErrorRedirect("Error loading external login information.");
             }
 
-            var loginResult = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
+            var loginResult = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: true, bypassTwoFactor: true);
             if (loginResult.Succeeded)
             {
                 //User already has account
@@ -85,7 +85,7 @@ namespace WanderLost.Server.Pages.Account
                 {
                     _logger.LogInformation("User {userId} an account using {Name} provider.", user.Id, info.LoginProvider);
 
-                    await _signInManager.SignInAsync(user, isPersistent: false, info.LoginProvider);
+                    await _signInManager.SignInAsync(user, isPersistent: true, info.LoginProvider);
                     return LocalRedirect(returnUrl);
                 }
             }
