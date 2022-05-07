@@ -121,6 +121,10 @@ namespace WanderLost.Client.Pages
                     return;
                 }
             }
+            if (!string.IsNullOrWhiteSpace(Server))
+            {
+                await HubClient.SubscribeToServer(Server);
+            }
             await SynchronizeServer();
         }
 
