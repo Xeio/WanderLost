@@ -154,7 +154,7 @@ namespace WanderLost.Server.Controllers
                 await Clients.Group(server).UpdateVoteTotal(merchantId, activeMerchant.Votes);
                 await Clients.Caller.UpdateVoteSelf(merchantId, voteType);
 
-                await CheckAutobans(activeMerchant);
+                //await CheckAutobans(activeMerchant);
             }
             else if(existingVote.VoteType != voteType)
             {
