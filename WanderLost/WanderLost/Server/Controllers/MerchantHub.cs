@@ -32,6 +32,9 @@ namespace WanderLost.Server.Controllers
 
             if (!await IsValidServer(server)) return;
 
+            //Temporary compatability shim for croconys
+            if (merchant.Zone == "Croconys Seashore(South)") merchant.Zone = "Croconys Seashore";
+
             var allMerchantData = await _dataController.GetMerchantData();
             if (!merchant.IsValid(allMerchantData)) return;
 
