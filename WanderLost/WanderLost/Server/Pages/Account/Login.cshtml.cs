@@ -88,6 +88,10 @@ namespace WanderLost.Server.Pages.Account
                     await _signInManager.SignInAsync(user, isPersistent: true, info.LoginProvider);
                     return LocalRedirect(returnUrl);
                 }
+                else
+                {
+                    await _userManager.DeleteAsync(user);
+                }
             }
 
             _logger.LogError("Failed to create user. {reason}", createUserResult.Errors.FirstOrDefault()?.Description);
