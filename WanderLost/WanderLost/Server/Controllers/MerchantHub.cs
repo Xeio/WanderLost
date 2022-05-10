@@ -126,8 +126,7 @@ namespace WanderLost.Server.Controllers
             return await _merchantsDbContext.MerchantGroups
                 .TagWithCallSite()
                 .Where(g => g.Server != originalServer && g.AppearanceExpires > DateTimeOffset.Now)
-                .SelectMany(g => g.ActiveMerchants.Where(m => m.UploadedBy == clientId || (userId != null && m.UploadedByUserId == userId)))
-                .AnyAsync();
+                .AnyAsync(g => g.ActiveMerchants.Any(m => m.UploadedBy == clientId || (userId != null && m.UploadedByUserId == userId)));
         }
 
         public async Task Vote(string server, Guid merchantId, VoteType voteType)

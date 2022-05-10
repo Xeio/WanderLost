@@ -21,6 +21,12 @@ namespace WanderLost.Server.Controllers
             modelBuilder.Entity<ActiveMerchantGroup>()
                 .HasAlternateKey(g => new { g.Server, g.MerchantName, g.AppearanceExpires });
 
+            modelBuilder.Entity<ActiveMerchant>()
+                .HasIndex(g => g.UploadedBy);
+
+            modelBuilder.Entity<ActiveMerchant>()
+                .HasIndex(g => g.UploadedByUserId);
+
             modelBuilder.Entity<Vote>()
                 .HasKey(v => new { v.ActiveMerchantId, v.ClientId });
 
