@@ -104,10 +104,7 @@ namespace WanderLost.Client.Pages
 
             HubClient.HubConnection.Reconnected += HubConnection_Reconnected;
 
-            if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.HubConnectionState.Disconnected)
-            {
-                await HubClient.HubConnection.StartAsync();
-            }
+            await HubClient.Connect();
         }
 
         private async Task HubConnection_Reconnected(string? arg)

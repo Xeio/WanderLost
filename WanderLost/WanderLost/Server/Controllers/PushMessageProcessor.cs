@@ -60,7 +60,7 @@ namespace WanderLost.Server.Controllers
                     }
                 };
 
-                _logger.LogInformation("Sending {successCount} test FCM messages.", chunk.Length);
+                _logger.LogInformation("Sending {attemptCount} test FCM messages.", chunk.Length);
 
                 var batchResponse = await FirebaseMessaging.DefaultInstance.SendMulticastAsync(message, stoppingToken);
 
@@ -191,7 +191,7 @@ namespace WanderLost.Server.Controllers
                     Webpush = webPush
                 };
 
-                _logger.LogInformation("Sending {successCount} FCM messages.", chunk.Length);
+                _logger.LogInformation("Sending {attemptCount} FCM messages.", chunk.Length);
 
                 var batchResponse = await FirebaseMessaging.DefaultInstance.SendMulticastAsync(message);
 

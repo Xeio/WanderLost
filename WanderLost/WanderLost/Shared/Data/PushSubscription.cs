@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace WanderLost.Shared.Data
 {
@@ -14,6 +15,7 @@ namespace WanderLost.Shared.Data
         public string Token { get; set; } = string.Empty;
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [JsonIgnore]
         [MessagePack.IgnoreMember]
         public int Id { get; set; }
 
@@ -38,6 +40,7 @@ namespace WanderLost.Shared.Data
         [MessagePack.Key(6)]
         public bool SendTestNotification { get; set; }
 
+        [JsonIgnore]
         [MessagePack.IgnoreMember]
         public DateTimeOffset LastModified { get; set; } = DateTimeOffset.Now;
     }
