@@ -44,26 +44,6 @@ namespace WanderLost.Client.Services
                 SoundVolume = await _localStorageService.GetItemAsync<float?>(nameof(SoundVolume)) ?? 1f;
                 SavedPushSubscription = await _localStorageService.GetItemAsync<PushSubscription?>(nameof(SavedPushSubscription));
 
-                //Compatability to convert/remove old settings to items
-                if (await _localStorageService.GetItemAsync<bool?>("NotifyLegendaryRapport") ?? false)
-                {
-                    foreach(var merchant in _staticData.Merchants.Values)
-                    {
-                        if(!Notifications.TryGetValue(merchant.Name, out var notificationSetting))
-                        {
-                            Notifications[merchant.Name] = notificationSetting = new();
-                        }
-                        foreach (var rapport in merchant.Rapports.Where(r => r.Rarity == Rarity.Legendary))
-                        {
-                            notificationSetting.Rapports.Add(rapport.Name);
-                        }
-                    }
-                    await SaveNotificationSettings();
-                }
-                await _localStorageService.RemoveItemAsync("NotifyLegendaryRapport");
-                await _localStorageService.RemoveItemAsync("NotifyMerchantAppearance");
-
-
                 _initialized = true;
             }
         }
