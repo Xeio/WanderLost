@@ -54,6 +54,15 @@ else if (!string.IsNullOrWhiteSpace(Message))
             <button class="btn btn-info m-2" @onclick="SetTestSubscription">Send Test Push Notification</button>
         </EditForm>
     }
+    
+    <div class="mt-5">
+        <p>Push notifications are designed to work in the background or on a mobile device, and will not fire if this site is opened and in the foreground window at the time. Use the standard notifications settings if you have the site open in a visible browser tab.</p>
+        <h4>Browser Compatability:</h4>
+        <p><strong>Windows</strong>: Seems to work well in Firefox, Chrome, and Edge.</p>
+        <p><strong>Android</strong>: Chrome seems to work. Edge and Firefox on android <strong>do not</strong> appear to work and never recieve push notifications (still investigating this, but may be a browser issue since these both work on Desktop).</p>
+        <p><strong>Other</strong>: Unknown, you'll want to test yourself.</p>
+        <p>You should make sure to run a Test on your device, which will push a notification in the next polling window (usually delivered in around 30 seconds). You can click the button again to run another test.</p>
+    </div>
 </div>
 
 @code{
