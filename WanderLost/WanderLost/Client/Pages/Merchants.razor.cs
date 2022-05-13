@@ -105,6 +105,8 @@ namespace WanderLost.Client.Pages
             HubClient.HubConnection.Reconnected += HubConnection_Reconnected;
 
             await HubClient.Connect();
+
+            await Notifications.ValidatePushSubscription(HubClient);
         }
 
         private async Task HubConnection_Reconnected(string? arg)

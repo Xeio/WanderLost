@@ -22,7 +22,7 @@ else if (!string.IsNullOrWhiteSpace(Message))
 <div class="container">
     @if(!string.IsNullOrWhiteSpace(PushSubscription.Token))
     {
-        <span>Subscription Server: <strong>@PushSubscription.Server</strong></span>
+        <h3>Subscribed to server: <strong>@PushSubscription.Server</strong></h3>
         <EditForm EditContext="@_editContext">
             <div class="form-group form-check form-switch m-3">
                 <InputCheckbox class="form-check-input" id="chkWei" @bind-Value="PushSubscription.WeiNotify"/>
@@ -89,16 +89,17 @@ else if (!string.IsNullOrWhiteSpace(Message))
             return;
         }
 
-        PushSubscription.Server = ClientSettings.Server;
-        PushSubscription.Token = await NotificationService.GetFCMToken();
+        var currentToken = await NotificationService.GetFCMToken();
 
-        if (string.IsNullOrWhiteSpace(PushSubscription.Token))
+        await NotificationService.ValidatePushSubscription(HubClient, currentToken);
+
+        if (string.IsNullOrWhiteSpace(currentToken))
         {
             Error = "Failed to retrieve push token from browser service worker.";
             return;
         }
 
-        var serverSubscription = await HubClient.GetPushSubscription(PushSubscription.Token);
+        var serverSubscription = await HubClient.GetPushSubscription(currentToken);
         if(serverSubscription != null)
         {
             PushSubscription = serverSubscription;
@@ -110,6 +111,11 @@ else if (!string.IsNullOrWhiteSpace(Message))
                 _editContext.NotifyFieldChanged(_editContext.Field(nameof(PushSubscription.Server)));
             }
         }
+        else
+        {
+            PushSubscription.Server = ClientSettings.Server;
+            PushSubscription.Token = currentToken;
+        }
 
         Message = string.Empty;
     }
@@ -117,7 +123,11 @@ else if (!string.IsNullOrWhiteSpace(Message))
     private async Task AddUpdateSubcription()
     {
         PushSubscription.Server = ClientSettings.Server;
+
         await HubClient.UpdatePushSubscription(PushSubscription);
+
+        await ClientSettings.SetSavedPushSubscription(PushSubscription);
+
         _editContext.MarkAsUnmodified();
         _hasServerSubscription = true;
 
@@ -128,22 +138,29 @@ else if (!string.IsNullOrWhiteSpace(Message))
     private async Task DeleteSubcription()
     {
         await HubClient.RemovePushSubscription(PushSubscription.Token);
+
+        await ClientSettings.SetSavedPushSubscription(null);
+
         _hasServerSubscription = false;
+        _editContext.NotifyFieldChanged(_editContext.Field(nameof(PushSubscription.Server)));
+
         Error = string.Empty;
         Message = "Subscription deleted";
-        _editContext.NotifyFieldChanged(_editContext.Field(nameof(PushSubscription.Server)));
     }
 
     private async Task SetTestSubscription()
     {
         PushSubscription.SendTestNotification = true;
+
         await HubClient.UpdatePushSubscription(PushSubscription);
+
+        PushSubscription.SendTestNotification = false; //Don't want to save the test setting
+        await ClientSettings.SetSavedPushSubscription(PushSubscription);
+
         _editContext.MarkAsUnmodified();
         _hasServerSubscription = true;
 
         Error = string.Empty;
-        Message = @"Subscription set to send push notification. Should take around 30 seconds.
-
-Note: Push messages are only delivered in the background. You should close this browser tab, or activate a different tab in the same window.";
+        Message = @"Sending test notification... Should take around 30 seconds. Close this tab, or focus a different tab in the same window.";
     }
 }
