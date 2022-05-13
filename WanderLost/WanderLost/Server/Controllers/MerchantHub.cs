@@ -152,7 +152,7 @@ namespace WanderLost.Server.Controllers
                 });
                 RecalculateVoteTotal(activeMerchant);
 
-                if (activeMerchant.IsRareCombination && activeMerchant.Votes > 0)
+                if (activeMerchant.IsRareCombination && !activeMerchant.Hidden && activeMerchant.Votes > 0)
                 {
                     activeMerchant.RequiresProcessing = true;
                 }
@@ -169,7 +169,7 @@ namespace WanderLost.Server.Controllers
                 existingVote.VoteType = voteType;
                 RecalculateVoteTotal(activeMerchant);
 
-                if (activeMerchant.IsRareCombination && activeMerchant.Votes > 0)
+                if (activeMerchant.IsRareCombination && !activeMerchant.Hidden && activeMerchant.Votes > 0)
                 {
                     activeMerchant.RequiresProcessing = true;
                 }
