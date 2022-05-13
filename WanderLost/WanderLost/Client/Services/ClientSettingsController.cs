@@ -15,6 +15,7 @@ namespace WanderLost.Client.Services
         public int LastDisplayedMessageId { get; private set; }
         public float SoundVolume { get; private set; }
         public PushSubscription? SavedPushSubscription { get; private set; }
+        public bool BrowserNotifications { get; private set; }
 
         private bool _initialized = false;
 
@@ -43,6 +44,17 @@ namespace WanderLost.Client.Services
                 LastDisplayedMessageId = await _localStorageService.GetItemAsync<int?>(nameof(LastDisplayedMessageId)) ?? 0;
                 SoundVolume = await _localStorageService.GetItemAsync<float?>(nameof(SoundVolume)) ?? 1f;
                 SavedPushSubscription = await _localStorageService.GetItemAsync<PushSubscription?>(nameof(SavedPushSubscription));
+
+                var browserNotifications = await _localStorageService.GetItemAsync<bool?>(nameof(BrowserNotifications));
+                if(browserNotifications != null)
+                {
+                    BrowserNotifications = (bool)browserNotifications;
+                }
+                else
+                {
+                    //Compatability to transfer old setting
+                    BrowserNotifications = NotifyBrowserSoundEnabled;
+                }
 
                 _initialized = true;
             }
@@ -96,6 +108,12 @@ namespace WanderLost.Client.Services
                 SavedPushSubscription = subscription;
                 await _localStorageService.SetItemAsync(nameof(SavedPushSubscription), subscription);
             }
+        }
+
+        public async Task SetBrowserNotifications(bool browserNotifications)
+        {
+            BrowserNotifications = browserNotifications;
+            await _localStorageService.SetItemAsync(nameof(BrowserNotifications), browserNotifications);
         }
 
         public async Task SaveNotificationSettings()

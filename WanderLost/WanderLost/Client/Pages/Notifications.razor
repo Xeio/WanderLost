@@ -6,100 +6,95 @@
     <NotificationToggle NotificationStateChanged="@StateHasChanged" />
 </div>
 
-@if (!ClientSettings.NotificationsEnabled)
-{
-    <p><span class="oi oi-ban text-danger mx-2"></span>Notifications disabled.</p>
-}
-else
-{
-    <p class="text-nowrap">Edit notification alarms. Click on <NotificationIcon Enabled="true" />/<NotificationIcon Enabled="false" /> to disable/enable notifications for an item.</p>
-    <div class="container mx-1">
-        <div class="row my-2">
-            <div class="form-check col-6">
-                <input class="form-check-input" type="checkbox" id="merchantFound" checked disabled>
-                <label class="form-check-label" for="merchantFound">
-                    Notify when selected items appear
-                </label>
-            </div>
-            <div class="col-auto">
-                <button class="btn btn-dark" @onclick="OnTestMerchantSpawnClicked">Test merchant spawn notification</button>
-            </div>
+<p class="text-nowrap">Edit notification alarms. Click on <NotificationIcon Enabled="true" />/<NotificationIcon Enabled="false" /> to disable/enable notifications for an item.</p>
+
+<div class="container mx-1">
+    <div class="form-check col-6 m-3">
+        <input class="form-check-input" type="checkbox" checked="@ClientSettings.NotifyBrowserSoundEnabled" id="browserSound" @onclick="@ToggleNotifyBrowserSoundEnabled">
+        <label class="form-check-label" for="browserSound">
+            Play sound when matching item found. Volume:
+        </label>
+        <input type="range" value="@(ClientSettings.SoundVolume * 100)" @onchange="@ChangeVolumeAndPlayTestSound"/>
+    </div>
+</div>
+
+<div class="container mx-1">
+    <div class="form-check col-6 m-3">
+        <input class="form-check-input" type="checkbox" checked="@ClientSettings.BrowserNotifications" id="browserNotification" @onclick="@ToggleBrowserNotifications">
+        <label class="form-check-label" for="browserNotification">
+            Use In-Browser Notifications
+        </label>
+    </div>
+    <div class="row my-2">
+        <div class="col-auto">
+            <button class="btn btn-dark" disabled="@(!ClientSettings.BrowserNotifications)" @onclick="OnTestMerchantFoundClicked">Test item found browser notification</button>
         </div>
-        <div class="row my-2">
-            <div class="form-check col-6">
-                <input class="form-check-input" type="checkbox" checked="@ClientSettings.NotifyBrowserSoundEnabled" id="browserSound" @onclick="@ToggleNotifyBrowserSoundEnabled">
-                <label class="form-check-label" for="browserSound">
-                    Play additional sound in browser. Volume:
-                </label>
-                <input type="range" value="@(ClientSettings.SoundVolume * 100)" @onchange="@ChangeVolumeAndPlayTestSound"/>
-            </div>
-            <div class="col-auto">
-                <button class="btn btn-dark" @onclick="OnTestMerchantFoundClicked">Test item found notification</button>
-            </div>
+        <div class="col-auto">
+            <button class="btn btn-dark" disabled="@(!ClientSettings.BrowserNotifications)" @onclick="OnTestMerchantSpawnClicked">Test merchant spawn browser notification</button>        </div>
+    </div>
+    <div class="row my-2">
+        <div class="col-6">
+            <span class="form-control-plaintext">Minimum upvotes for alert on <ItemDisplay Item="@(new Item { Name = "legendary Card", Rarity = Rarity.Legendary })" /> </span>
         </div>
-        <div class="row my-2">
-            <div class="col-6">
-                <span class="form-control-plaintext">Minimum upvotes for notification on <ItemDisplay Item="@(new Item { Name = "legendary Card", Rarity = Rarity.Legendary })" /> </span>
-            </div>
-            <div class="col-auto">
-                <input type="number" class="form-control" @bind="CardVoteThresholdWrapper" />
-            </div>
-        </div>
-        <div class="row my-2">
-            <div class="col-6">
-                <span class="form-control-plaintext">Minimum upvotes for notification on <ItemDisplay Item="@(new Item { Name = "legendary Rapport", Rarity = Rarity.Legendary })" /> </span>
-            </div>
-            <div class="col-auto">
-                <input type="number" class="form-control" @bind="RapportVoteThresholdWrapper" />
-            </div>
+        <div class="col-auto">
+            <input type="number" class="form-control" @bind="CardVoteThresholdWrapper" />
         </div>
     </div>
-    <div class="d-flex overflow-hidden flex-wrap">
-        @foreach (var (key, merchant) in StaticData.Merchants.OrderBy(x => x.Value.SortOrder))
-        {
-            <div class="card" style="width: 20rem;">
-                <div class="card-header">
-                    @merchant.Name (@merchant.Region)
-                </div>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">
-                        <ul>
+    <div class="row my-2">
+        <div class="col-6">
+            <span class="form-control-plaintext">Minimum upvotes for alert on <ItemDisplay Item="@(new Item { Name = "legendary Rapport", Rarity = Rarity.Legendary })" /> </span>
+        </div>
+        <div class="col-auto">
+            <input type="number" class="form-control" @bind="RapportVoteThresholdWrapper" />
+        </div>
+    </div>
+</div>
+
+<div class="d-flex overflow-hidden flex-wrap">
+    @foreach (var (key, merchant) in StaticData.Merchants.OrderBy(x => x.Value.SortOrder))
+    {
+        <div class="card" style="width: 20rem;">
+            <div class="card-header">
+                @merchant.Name (@merchant.Region)
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <ul>
+                        <li class="d-block">
+                            <NotificationIcon Enabled="IsMerchantValueNotified(key, NotificationSettingType.Spawn, key)" StateChanged="@(_ => OnNotificationToggle(NotificationSettingType.Spawn, key, key))" />
+                            <span>Notify on Spawn</span>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item" style="min-height: 8.5em;">
+                    <h6 class="card-subtitle mb-2 text-muted">Cards</h6>
+                    <ul>
+                        @foreach (var item in merchant.Cards)
+                        {
                             <li class="d-block">
-                                <NotificationIcon Enabled="IsMerchantValueNotified(key, NotificationSettingType.Spawn, key)" StateChanged="@(_ => OnNotificationToggle(NotificationSettingType.Spawn, key, key))" />
-                                <span>Notify on Spawn</span>
+                                <NotificationIcon Enabled="IsMerchantValueNotified(key, NotificationSettingType.Card, item)" StateChanged="@(_ => OnNotificationToggle(NotificationSettingType.Card, key, item))" />
+                                <ItemDisplay Item="@item" />
                             </li>
-                        </ul>
-                    </li>
-                </ul>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item" style="min-height: 8.5em;">
-                        <h6 class="card-subtitle mb-2 text-muted">Cards</h6>
-                        <ul>
-                            @foreach (var item in merchant.Cards)
-                            {
-                                <li class="d-block">
-                                    <NotificationIcon Enabled="IsMerchantValueNotified(key, NotificationSettingType.Card, item)" StateChanged="@(_ => OnNotificationToggle(NotificationSettingType.Card, key, item))" />
-                                    <ItemDisplay Item="@item" />
-                                </li>
-                            }
-                        </ul>
-                    </li>
-                </ul>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">
-                        <h6 class="card-subtitle mb-2 text-muted">Rapports</h6>
-                        <ul>
-                            @foreach (var item in merchant.Rapports)
-                            {
-                                <li class="d-block">
-                                    <NotificationIcon Enabled="IsMerchantValueNotified(key, NotificationSettingType.Rapport, item)" StateChanged="@(_ => OnNotificationToggle(NotificationSettingType.Rapport, key, item))" />
-                                    <ItemDisplay Item="@item" />
-                                </li>
-                            }
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        }
-    </div>
-}
+                        }
+                    </ul>
+                </li>
+            </ul>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <h6 class="card-subtitle mb-2 text-muted">Rapports</h6>
+                    <ul>
+                        @foreach (var item in merchant.Rapports)
+                        {
+                            <li class="d-block">
+                                <NotificationIcon Enabled="IsMerchantValueNotified(key, NotificationSettingType.Rapport, item)" StateChanged="@(_ => OnNotificationToggle(NotificationSettingType.Rapport, key, item))" />
+                                <ItemDisplay Item="@item" />
+                            </li>
+                        }
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    }
+</div>

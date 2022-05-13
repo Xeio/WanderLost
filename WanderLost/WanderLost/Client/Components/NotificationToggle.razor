@@ -44,24 +44,12 @@
 
     private async Task OnNotificationToggleClicked()
     {
-        var oldValue = ClientSettings.NotificationsEnabled;
-        if (!oldValue)
+        await ClientSettings.SetNotificationsEnabled(!ClientSettings.NotificationsEnabled);
+        await NotificationStateChanged.InvokeAsync();
+        if (!ClientSettings.Notifications.Any())
         {
-            if (await Notifications.IsSupportedByBrowser() && await Notifications.RequestPermission())
-            {
-                await ClientSettings.SetNotificationsEnabled(true);
-                await NotificationStateChanged.InvokeAsync();
-                if (!ClientSettings.Notifications.Any())
-                {
-                    //Client has no notifications enabled, send them not the notifications page
-                    NavigationManager.NavigateTo("/Notifications");
-                }
-            }
-        }
-        else
-        {
-            await ClientSettings.SetNotificationsEnabled(false);
-            await NotificationStateChanged.InvokeAsync();
+            //Client has no notifications enabled, send them not the notifications page
+            NavigationManager.NavigateTo("/Notifications");
         }
         StateHasChanged();
     }

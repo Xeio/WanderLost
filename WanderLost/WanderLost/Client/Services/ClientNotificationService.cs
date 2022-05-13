@@ -84,15 +84,18 @@ namespace WanderLost.Client.Services
             {
                 return false;
             }
+
+            if (IsMerchantFoundNotificationOnCooldown(merchantGroup))
+            {
+                return false;
+            }
+
             //check cards
             foreach (var merchant in merchantGroup.ActiveMerchants.Where(m => notificationSetting.Cards.Contains(m.Card.Name)))
             {
                 if (IsMerchantCardVoteThresholdReached(merchant))
                 {
-                    if (!IsMerchantFoundNotificationOnCooldown(merchantGroup))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
             //check rapports
@@ -100,10 +103,7 @@ namespace WanderLost.Client.Services
             {
                 if (IsMerchantRapportVoteThresholdReached(merchant))
                 {
-                    if (!IsMerchantFoundNotificationOnCooldown(merchantGroup))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
 
@@ -115,22 +115,25 @@ namespace WanderLost.Client.Services
         /// </summary>
         /// <param name="merchantGroup"></param>
         /// <returns></returns>
-        public ValueTask RequestMerchantFoundNotification(ActiveMerchantGroup merchantGroup)
+        public async ValueTask CheckItemNotification(ActiveMerchantGroup merchantGroup)
         {
-            if (!_clientSettings.NotificationsEnabled) return ValueTask.CompletedTask;
-            if (!IsAllowedForMerchantFoundNotifications(merchantGroup)) return ValueTask.CompletedTask;
+            if (!_clientSettings.NotificationsEnabled) return;
+            if (!IsAllowedForMerchantFoundNotifications(merchantGroup)) return;
 
             _merchantFoundNotificationCooldown[merchantGroup.MerchantName] = merchantGroup.AppearanceExpires;
-            return ForceMerchantFoundNotification(merchantGroup);
+
+            await CheckBrowserNotificationSound();
+            await CheckBrowserNotification(merchantGroup);
         }
+
         /// <summary>
         /// Force a "merchant found" Browser-Notification for the given merchantGroup, rules from usersettings are NOT applied.
         /// </summary>
         /// <param name="merchantGroup"></param>
         /// <returns></returns>
-        public async ValueTask ForceMerchantFoundNotification(ActiveMerchantGroup merchantGroup)
+        public async ValueTask CheckBrowserNotification(ActiveMerchantGroup merchantGroup)
         {
-            await RequestBrowserNotificationSound();
+            if (!_clientSettings.BrowserNotifications) return;
 
             string body = "";
             if (merchantGroup.ActiveMerchants.Count > 1)
@@ -176,7 +179,7 @@ namespace WanderLost.Client.Services
         /// <returns></returns>
         public async ValueTask ForceMerchantSpawnNotification(ActiveMerchantGroup merchantGroup)
         {
-            await RequestBrowserNotificationSound();
+            await CheckBrowserNotificationSound();
 
             string body = $"Wandering Merchant \"{merchantGroup.MerchantName}\" is waiting for you somewhere.";
             await CreateNotification($"Wandering Merchant \"{merchantGroup.MerchantName}\" appeared", new { Body = body, Renotify = true, Tag = "spawn_merchant", Icon = "images/notifications/QuestionMark.png" });
@@ -188,7 +191,7 @@ namespace WanderLost.Client.Services
             _notifications.Add(notification);
         }
 
-        public async ValueTask RequestBrowserNotificationSound()
+        public async ValueTask CheckBrowserNotificationSound()
         {
             if (!_clientSettings.NotifyBrowserSoundEnabled) return;
 

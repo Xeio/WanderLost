@@ -26,6 +26,21 @@ namespace WanderLost.Client.Pages
             await ClientSettings.SetNotifyBrowserSoundEnabled(!ClientSettings.NotifyBrowserSoundEnabled);
         }
 
+        public async Task ToggleBrowserNotifications()
+        {
+            if (ClientSettings.BrowserNotifications)
+            {
+                await ClientSettings.SetBrowserNotifications(false);
+            }
+            else
+            {
+                if (await ClientNotifications.IsSupportedByBrowser() && await ClientNotifications.RequestPermission())
+                {
+                    await ClientSettings.SetBrowserNotifications(true);
+                }
+            }
+        }
+
         protected async Task OnTestMerchantSpawnClicked()
         {
             var dummyData = new MerchantData
@@ -58,7 +73,7 @@ namespace WanderLost.Client.Pages
                 MerchantName = "Lailai",
                 ActiveMerchants = new List<ActiveMerchant> { new ActiveMerchant { Name = "Lailai", Card = dummyData.Cards[0], Zone = dummyData.Zones[0], Rapport = dummyData.Rapports[0] } },
             };
-            await ClientNotifications.ForceMerchantFoundNotification(dummyMerchantGroup);
+            await ClientNotifications.CheckBrowserNotification(dummyMerchantGroup);
         }
 
         protected async Task OnNotificationToggle(NotificationSettingType category, string merchant, object value)
@@ -145,7 +160,7 @@ namespace WanderLost.Client.Pages
         public int CardVoteThresholdWrapper
         {
             get { return _cardVoteThresholdWrapper; }
-            set 
+            set
             {
                 if (value < 0) value = 0;
                 _cardVoteThresholdWrapper = value;
@@ -172,7 +187,7 @@ namespace WanderLost.Client.Pages
             {
                 float volume = i / 100f;
                 await ClientSettings.SetSoundVolume(volume);
-                await ClientNotifications.RequestBrowserNotificationSound();
+                await ClientNotifications.CheckBrowserNotificationSound();
             }
         }
     }

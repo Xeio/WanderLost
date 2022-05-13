@@ -73,7 +73,7 @@ namespace WanderLost.Client.Pages
                         {
                             //Only need to notify/process new merchants
                             clientGroup.ActiveMerchants.Add(merchant);
-                            await Notifications.RequestMerchantFoundNotification(clientGroup);
+                            await Notifications.CheckItemNotification(clientGroup);
                         }
                     }
                 }
@@ -95,7 +95,7 @@ namespace WanderLost.Client.Pages
                 }
                 if (ActiveData.MerchantGroups.FirstOrDefault(mg => mg.ActiveMerchants.Any(m => m.Id == merchantId)) is ActiveMerchantGroup merchantGroup)
                 {
-                    await Notifications.RequestMerchantFoundNotification(merchantGroup);
+                    await Notifications.CheckItemNotification(merchantGroup);
                 }
 
                 await InvokeAsync(StateHasChanged);
@@ -187,7 +187,7 @@ namespace WanderLost.Client.Pages
                             {
                                 //Normally only want to add/notify newly discovered merchants
                                 clientGroup.ActiveMerchants.Add(merchant);
-                                await Notifications.RequestMerchantFoundNotification(clientGroup);
+                                await Notifications.CheckItemNotification(clientGroup);
                             }
                             else if(forceClear)
                             {
