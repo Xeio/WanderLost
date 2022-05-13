@@ -1,5 +1,4 @@
-﻿using FirebaseAdmin;
-using FirebaseAdmin.Messaging;
+﻿using FirebaseAdmin.Messaging;
 using Microsoft.EntityFrameworkCore;
 using WanderLost.Server.Data;
 using WanderLost.Shared.Data;

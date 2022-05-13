@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
 using WanderLost.Client.Services;
-using WanderLost.Shared;
 using WanderLost.Shared.Data;
 
 namespace WanderLost.Client.Pages

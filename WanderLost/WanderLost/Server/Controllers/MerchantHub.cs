@@ -2,9 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 using WanderLost.Server.Data;
-using WanderLost.Shared;
 using WanderLost.Shared.Data;
 using WanderLost.Shared.Interfaces;
 
