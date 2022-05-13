@@ -300,7 +300,7 @@ namespace WanderLost.Server.Controllers
                 Headers = new Dictionary<string, string>()
                 {
                     { "TTL", ttl.ToString() },
-                    { "Urgency", isWei ? "high" : "normal" }
+                    { "Urgency", "high" }
                 }
             };
         }
