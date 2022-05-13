@@ -62,12 +62,13 @@ namespace WanderLost.Shared.Data
 
         [JsonIgnore]
         [MessagePack.IgnoreMember]
-        public int ActiveMerchantGroupId { get; set; }
+        public int? ActiveMerchantGroupId { get; set; }
 
         [JsonIgnore]
         [MessagePack.IgnoreMember]
         public ActiveMerchantGroup ActiveMerchantGroup { get; set; } = new();
 
+        [JsonIgnore]
         [MessagePack.IgnoreMember]
         public bool RequiresProcessing { get; set; }
 

@@ -131,10 +131,7 @@
             }
         }));
 
-        if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.HubConnectionState.Disconnected)
-        {
-            await HubClient.HubConnection.StartAsync();
-        }
+        await HubClient.Connect();
 
         await HubClient.SubscribeToServer(Server);
 

@@ -152,7 +152,10 @@ namespace WanderLost.Server.Controllers
                 });
                 RecalculateVoteTotal(activeMerchant);
 
-                activeMerchant.RequiresProcessing = true;
+                if (activeMerchant.IsRareCombination && activeMerchant.Votes > 0)
+                {
+                    activeMerchant.RequiresProcessing = true;
+                }
 
                 await _merchantsDbContext.SaveChangesAsync();
 
@@ -166,7 +169,10 @@ namespace WanderLost.Server.Controllers
                 existingVote.VoteType = voteType;
                 RecalculateVoteTotal(activeMerchant);
 
-                activeMerchant.RequiresProcessing = true;
+                if (activeMerchant.IsRareCombination && activeMerchant.Votes > 0)
+                {
+                    activeMerchant.RequiresProcessing = true;
+                }
 
                 await _merchantsDbContext.SaveChangesAsync();
 
