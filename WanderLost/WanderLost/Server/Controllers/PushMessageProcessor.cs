@@ -205,11 +205,11 @@ namespace WanderLost.Server.Controllers
 
                 if (batchResponse.SuccessCount > 0)
                 {
-                    _logger.LogInformation("{successCount} successful test messages sent.", batchResponse.SuccessCount);
+                    _logger.LogInformation("{successCount} successful messages sent.", batchResponse.SuccessCount);
                 }
                 if (batchResponse.FailureCount > 0)
                 {
-                    _logger.LogInformation("{failureCount} test messages failed to send.", batchResponse.FailureCount);
+                    _logger.LogInformation("{failureCount} messages failed to send.", batchResponse.FailureCount);
                 }
 
                 var sentNotifications = new List<SentPushNotification>(chunk.Length);
