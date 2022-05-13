@@ -14,6 +14,7 @@ namespace WanderLost.Client.Services
         public Dictionary<Rarity, int> RapportVoteThresholdForNotification { get; set; } = new();
         public int LastDisplayedMessageId { get; private set; }
         public float SoundVolume { get; private set; }
+        public PushSubscription? SavedPushSubscription { get; private set; }
 
         private bool _initialized = false;
 
@@ -41,6 +42,7 @@ namespace WanderLost.Client.Services
                 RapportVoteThresholdForNotification = await _localStorageService.GetItemAsync<Dictionary<Rarity, int>?>(nameof(RapportVoteThresholdForNotification)) ?? new();
                 LastDisplayedMessageId = await _localStorageService.GetItemAsync<int?>(nameof(LastDisplayedMessageId)) ?? 0;
                 SoundVolume = await _localStorageService.GetItemAsync<float?>(nameof(SoundVolume)) ?? 1f;
+                SavedPushSubscription = await _localStorageService.GetItemAsync<PushSubscription?>(nameof(SavedPushSubscription));
 
                 //Compatability to convert/remove old settings to items
                 if (await _localStorageService.GetItemAsync<bool?>("NotifyLegendaryRapport") ?? false)
@@ -100,6 +102,20 @@ namespace WanderLost.Client.Services
         {
             SoundVolume = volume;
             await _localStorageService.SetItemAsync(nameof(SoundVolume), volume);
+        }
+
+        public async Task SetSavedPushSubscription(PushSubscription? subscription)
+        {
+            if (subscription == null)
+            {
+                await _localStorageService.RemoveItemAsync(nameof(SavedPushSubscription));
+            }
+            else
+            {
+                subscription.SendTestNotification = false; //Don't allow saving a "test" setting, in case it's ever set
+                SavedPushSubscription = subscription;
+                await _localStorageService.SetItemAsync(nameof(SavedPushSubscription), subscription);
+            }
         }
 
         public async Task SaveNotificationSettings()

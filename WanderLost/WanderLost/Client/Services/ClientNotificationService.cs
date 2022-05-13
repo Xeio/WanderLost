@@ -54,9 +54,9 @@ namespace WanderLost.Client.Services
             }
         }
 
-        public ValueTask<string> GetFCMToken()
+        public ValueTask<string?> GetFCMToken()
         {
-            return _jsRuntime.InvokeAsync<string>("GetServiceWorkerToken");
+            return _jsRuntime.InvokeAsync<string?>("GetServiceWorkerToken");
         }
 
         private bool IsMerchantCardVoteThresholdReached(ActiveMerchant merchant)
@@ -220,6 +220,26 @@ namespace WanderLost.Client.Services
                 await notification.DisposeAsync();
             }
             _notifications.Clear();
+        }
+
+        /// <summary>
+        /// Synchronize our subscription if our FCM token has changed
+        /// </summary>
+        public async Task ValidatePushSubscription(MerchantHubClient hubClient, string? currentToken = null)
+        {
+            currentToken ??= await GetFCMToken();
+
+            if (_clientSettings.SavedPushSubscription != null && 
+                !string.IsNullOrWhiteSpace(currentToken) && 
+                _clientSettings.SavedPushSubscription.Token != currentToken)
+            {
+                //Our token changed since we last subscribed
+                //Remove the old subscription, then use the new token to re-subscribe
+                await hubClient.RemovePushSubscription(_clientSettings.SavedPushSubscription.Token);
+                _clientSettings.SavedPushSubscription.Token = currentToken;
+                await hubClient.UpdatePushSubscription(_clientSettings.SavedPushSubscription);
+                await _clientSettings.SetSavedPushSubscription(_clientSettings.SavedPushSubscription);
+            }
         }
     }
 }
