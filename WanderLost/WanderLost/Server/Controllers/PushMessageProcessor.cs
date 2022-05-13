@@ -83,7 +83,7 @@ namespace WanderLost.Server.Controllers
                             case MessagingErrorCode.Unavailable:
                                 //Ignore and retry later?
                                 break;
-                            case MessagingErrorCode.SenderIdMismatch:
+
                             case MessagingErrorCode.ThirdPartyAuthError:
                                 //Should probably only happen because of code or config issues
                                 _logger.LogCritical(firebaseException, "FCM send failed");
@@ -92,18 +92,20 @@ namespace WanderLost.Server.Controllers
                                     return;
                                 }
                                 break;
+
                             case MessagingErrorCode.InvalidArgument:
 #if DEBUG
                                 //Invalid could be due to the server code/config, but could also be an invalid token
                                 //If we get here in debug, throw, otherwise fall-through and remove the registration
                                 throw response.Exception;
 #endif
+                            case MessagingErrorCode.SenderIdMismatch:
                             case MessagingErrorCode.Unregistered:
-                                //Push token no longer valid, remove from server
+                                //Push token no longer valid or is for another FCM subscription, remove from server
                                 _merchantContext.Entry(subscription).State = EntityState.Deleted;
                                 break;
-                            case MessagingErrorCode.QuotaExceeded:
 
+                            case MessagingErrorCode.QuotaExceeded:
                             default:
                                 subscription.SendTestNotification = false;
                                 break;
@@ -223,7 +225,7 @@ namespace WanderLost.Server.Controllers
                             case MessagingErrorCode.QuotaExceeded:
                                 //Ignore and retry later?
                                 break;
-                            case MessagingErrorCode.SenderIdMismatch:
+
                             case MessagingErrorCode.ThirdPartyAuthError:
                                 //Should probably only happen because of code or config issues
                                 _logger.LogCritical(firebaseException, "FCM send failed");
@@ -232,14 +234,16 @@ namespace WanderLost.Server.Controllers
                                     return;
                                 }
                                 break;
+
                             case MessagingErrorCode.InvalidArgument:
 #if DEBUG
                                 //Invalid could be due to the server code/config, but could also be an invalid token from client
                                 //If we get here in debug, throw, otherwise fall-through and remove the registration
                                 throw response.Exception;
 #endif
+                            case MessagingErrorCode.SenderIdMismatch:
                             case MessagingErrorCode.Unregistered:
-                                //Push token no longer valid, remove from server
+                                //Push token no longer valid or is for another FCM subscription, remove from server
                                 _merchantContext.Entry(subscription).State = EntityState.Deleted;
                                 break;
                             default:
