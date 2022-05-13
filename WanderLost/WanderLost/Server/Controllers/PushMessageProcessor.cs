@@ -142,7 +142,7 @@ namespace WanderLost.Server.Controllers
 
         private async Task ProcessMerchant(ActiveMerchant merchant)
         {
-            if (merchant.Votes < 0)
+            if (merchant.Votes < 0 || merchant.Hidden)
             {
                 //Don't need to send notifications for downvoted merchants
                 merchant.RequiresProcessing = false;
