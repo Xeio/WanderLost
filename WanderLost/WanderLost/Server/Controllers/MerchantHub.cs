@@ -330,6 +330,8 @@ namespace WanderLost.Server.Controllers
 
         public async Task<PushSubscription?> GetPushSubscription(string clientToken)
         {
+            if (string.IsNullOrEmpty(clientToken)) return null;
+
             return await _merchantsDbContext.PushSubscriptions
                 .TagWithCallSite()
                 .AsNoTracking()
@@ -338,6 +340,8 @@ namespace WanderLost.Server.Controllers
 
         public async Task UpdatePushSubscription(PushSubscription subscription)
         {
+            if (string.IsNullOrEmpty(subscription.Token)) return;
+
             bool exists = await _merchantsDbContext.PushSubscriptions
                             .TagWithCallSite()
                             .AnyAsync(s => s.Token == subscription.Token);
@@ -354,6 +358,8 @@ namespace WanderLost.Server.Controllers
 
         public async Task RemovePushSubscription(string clientToken)
         {
+            if (string.IsNullOrEmpty(clientToken)) return;
+
             var subscription = new PushSubscription()
             {
                 Token = clientToken,
