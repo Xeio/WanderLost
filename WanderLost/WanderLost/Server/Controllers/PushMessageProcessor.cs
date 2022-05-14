@@ -11,11 +11,13 @@ namespace WanderLost.Server.Controllers
 
         private readonly ILogger<PushMessageProcessor> _logger;
         private readonly MerchantsDbContext _merchantContext;
+        private readonly DataController _dataController;
 
-        public PushMessageProcessor(ILogger<PushMessageProcessor> logger, MerchantsDbContext merchantDbContext)
+        public PushMessageProcessor(ILogger<PushMessageProcessor> logger, MerchantsDbContext merchantDbContext, DataController dataController)
         {
             _logger = logger;
             _merchantContext = merchantDbContext;
+            _dataController = dataController;
         }
 
         public async Task SendTestNotifications(CancellationToken stoppingToken)
@@ -168,7 +170,7 @@ namespace WanderLost.Server.Controllers
                     .Where(s => s.WeiVoteThreshold <= merchant.Votes)
                     .ToListAsync();
 
-                await SendSubscriptionMessages(merchant, weiSubscriptions, GetWebPushConfig(merchant));
+                await SendSubscriptionMessages(merchant, weiSubscriptions, await GetWebPushConfig(merchant));
             }
             else if (merchant.Rapport.Rarity >= Rarity.Legendary)
             {
@@ -180,7 +182,7 @@ namespace WanderLost.Server.Controllers
                     .Where(s => s.RapportVoteThreshold <= merchant.Votes)
                     .ToListAsync();
 
-                await SendSubscriptionMessages(merchant, rapportSubscriptions, GetWebPushConfig(merchant));
+                await SendSubscriptionMessages(merchant, rapportSubscriptions, await GetWebPushConfig(merchant));
             }
 
             merchant.RequiresProcessing = false;
@@ -275,8 +277,9 @@ namespace WanderLost.Server.Controllers
             }
         }
 
-        private static WebpushConfig GetWebPushConfig(ActiveMerchant merchant)
+        private async Task<WebpushConfig> GetWebPushConfig(ActiveMerchant merchant)
         {
+            string region = (await _dataController.GetMerchantData())[merchant.Name].Region;
             int ttl = 60 * (55 - DateTime.Now.Minute + 1);
             bool isWei = merchant.Card.Name == "Wei";
             return new WebpushConfig()
@@ -284,7 +287,7 @@ namespace WanderLost.Server.Controllers
                 Notification = new WebpushNotification()
                 {
                     Title = isWei ? "Wei card": "Legendary Rapport",
-                    Body = isWei ? "Wei Card!!!" : $"Legendary Rapport - {merchant.Rapport.Name}",
+                    Body = isWei ? "Wei Card!!!" : $"Legendary Rapport - {region}",
                     Icon = "/images/notifications/ExclamationMark.png",
                     Tag = isWei ? "wei" : "rapport",
                     Renotify = true,
