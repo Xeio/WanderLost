@@ -280,7 +280,7 @@ namespace WanderLost.Server.Controllers
         private async Task<MulticastMessage> BuildMulticast(ActiveMerchant merchant)
         {
             string region = (await _dataController.GetMerchantData())[merchant.Name].Region;
-            int ttl = 60 * (55 - DateTime.Now.Minute + 1);
+            int ttl = Math.Max(60 * (55 - DateTime.Now.Minute + 1), 60);
             bool isWei = merchant.Card.Name == "Wei";
             return new MulticastMessage()
             {
