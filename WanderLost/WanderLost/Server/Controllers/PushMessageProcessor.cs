@@ -12,12 +12,14 @@ namespace WanderLost.Server.Controllers
         private readonly ILogger<PushMessageProcessor> _logger;
         private readonly MerchantsDbContext _merchantContext;
         private readonly DataController _dataController;
+        private readonly IConfiguration _configuration;
 
-        public PushMessageProcessor(ILogger<PushMessageProcessor> logger, MerchantsDbContext merchantDbContext, DataController dataController)
+        public PushMessageProcessor(ILogger<PushMessageProcessor> logger, MerchantsDbContext merchantDbContext, DataController dataController, IConfiguration configuration)
         {
             _logger = logger;
             _merchantContext = merchantDbContext;
             _dataController = dataController;
+            _configuration = configuration;
         }
 
         public async Task SendTestNotifications(CancellationToken stoppingToken)
@@ -283,7 +285,11 @@ namespace WanderLost.Server.Controllers
             return new MulticastMessage()
             {
                 Webpush = new WebpushConfig()
-                {
+                { 
+                    FcmOptions = new WebpushFcmOptions()
+                    {
+                        Link = _configuration["IdentityServerOrigin"],
+                    },
                     Notification = new WebpushNotification()
                     {
                         Title = isWei ? "Wei card" : "Legendary Rapport",
@@ -292,17 +298,11 @@ namespace WanderLost.Server.Controllers
                         Tag = isWei ? "wei" : "rapport",
                         Renotify = true,
                         Vibrate = new[] { 500, 100, 500, 100, 500 },
-                        Actions = new[]{ new FirebaseAdmin.Messaging.Action()
-                            {
-                                ActionName = "openSite",
-                                Title = "Open LostMerchants"
-                            }
-                        }
                     },
                     Headers = new Dictionary<string, string>()
                     {
                         { "TTL", ttl.ToString() },
-                        { "Urgency", "high" }
+                        { "Urgency", "high" },
                     }
                 }
             };

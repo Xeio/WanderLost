@@ -37,18 +37,3 @@ this.addEventListener('install', function (event) {
 this.addEventListener('activate', function (event) {
     event.waitUntil(clients.claim());
 });
-
-self.addEventListener('notificationclick', event => {
-    event.waitUntil(focusOrOpenWindow(event));
-});
-
-async function focusOrOpenWindow(event) {
-    event.notification.close();
-    var currentClients = await clients.matchAll({ includeUncontrolled: true, type: "window" });
-    if (currentClients && currentClients.length > 0) {
-        currentClients[0].focus();
-        return;
-    }
-    //No open window to focus, open a new one
-    clients.openWindow(self.location.origin);
-}
