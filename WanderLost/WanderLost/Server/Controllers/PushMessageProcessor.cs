@@ -170,7 +170,7 @@ namespace WanderLost.Server.Controllers
                     .Where(s => s.WeiVoteThreshold <= merchant.Votes)
                     .ToListAsync();
 
-                await SendSubscriptionMessages(merchant, weiSubscriptions, await GetWebPushConfig(merchant));
+                await SendSubscriptionMessages(merchant, weiSubscriptions);
             }
             else if (merchant.Rapport.Rarity >= Rarity.Legendary)
             {
@@ -182,7 +182,7 @@ namespace WanderLost.Server.Controllers
                     .Where(s => s.RapportVoteThreshold <= merchant.Votes)
                     .ToListAsync();
 
-                await SendSubscriptionMessages(merchant, rapportSubscriptions, await GetWebPushConfig(merchant));
+                await SendSubscriptionMessages(merchant, rapportSubscriptions);
             }
 
             merchant.RequiresProcessing = false;
@@ -190,15 +190,13 @@ namespace WanderLost.Server.Controllers
             _merchantContext.Entry(merchant).State = EntityState.Detached;
         }
 
-        private async Task SendSubscriptionMessages(ActiveMerchant merchant, List<PushSubscription> subcriptions, WebpushConfig webPush)
+        private async Task SendSubscriptionMessages(ActiveMerchant merchant, List<PushSubscription> subcriptions)
         {
+            var message = await BuildMulticast(merchant);
+
             foreach (var chunk in subcriptions.Chunk(FirebaseBroadcastLimit))
             {
-                var message = new MulticastMessage()
-                {
-                    Tokens = chunk.Select(s => s.Token).ToList(),
-                    Webpush = webPush
-                };
+                message.Tokens = chunk.Select(s => s.Token).ToList();
 
                 _logger.LogInformation("Sending {attemptCount} FCM messages.", chunk.Length);
 
@@ -277,32 +275,35 @@ namespace WanderLost.Server.Controllers
             }
         }
 
-        private async Task<WebpushConfig> GetWebPushConfig(ActiveMerchant merchant)
+        private async Task<MulticastMessage> BuildMulticast(ActiveMerchant merchant)
         {
             string region = (await _dataController.GetMerchantData())[merchant.Name].Region;
             int ttl = 60 * (55 - DateTime.Now.Minute + 1);
             bool isWei = merchant.Card.Name == "Wei";
-            return new WebpushConfig()
+            return new MulticastMessage()
             {
-                Notification = new WebpushNotification()
+                Webpush = new WebpushConfig()
                 {
-                    Title = isWei ? "Wei card": "Legendary Rapport",
-                    Body = isWei ? "Wei Card!!!" : $"Legendary Rapport - {region}",
-                    Icon = "/images/notifications/ExclamationMark.png",
-                    Tag = isWei ? "wei" : "rapport",
-                    Renotify = true,
-                    Vibrate = new[] { 500, 100, 500, 100, 500 },
-                    Actions = new[]{ new FirebaseAdmin.Messaging.Action()
-                        {
-                            ActionName = "openSite",
-                            Title = "Open LostMerchants"
+                    Notification = new WebpushNotification()
+                    {
+                        Title = isWei ? "Wei card" : "Legendary Rapport",
+                        Body = isWei ? "Wei Card!!!" : $"Legendary Rapport - {region}",
+                        Icon = "/images/notifications/ExclamationMark.png",
+                        Tag = isWei ? "wei" : "rapport",
+                        Renotify = true,
+                        Vibrate = new[] { 500, 100, 500, 100, 500 },
+                        Actions = new[]{ new FirebaseAdmin.Messaging.Action()
+                            {
+                                ActionName = "openSite",
+                                Title = "Open LostMerchants"
+                            }
                         }
+                    },
+                    Headers = new Dictionary<string, string>()
+                    {
+                        { "TTL", ttl.ToString() },
+                        { "Urgency", "high" }
                     }
-                },
-                Headers = new Dictionary<string, string>()
-                {
-                    { "TTL", ttl.ToString() },
-                    { "Urgency", "high" }
                 }
             };
         }
