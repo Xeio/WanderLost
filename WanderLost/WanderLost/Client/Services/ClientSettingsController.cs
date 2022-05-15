@@ -53,7 +53,7 @@ namespace WanderLost.Client.Services
                 else
                 {
                     //Compatability to transfer old setting
-                    BrowserNotifications = NotifyBrowserSoundEnabled;
+                    await SetBrowserNotifications(NotifyBrowserSoundEnabled);
                 }
 
                 _initialized = true;
