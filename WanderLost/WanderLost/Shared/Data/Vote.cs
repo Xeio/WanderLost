@@ -10,10 +10,6 @@ namespace WanderLost.Shared.Data
         public Guid ActiveMerchantId { get; init; }
 
         [JsonIgnore]
-        [MessagePack.IgnoreMember]
-        public ActiveMerchant ActiveMerchant { get; init; } = new();
-
-        [JsonIgnore]
         [MaxLength(60)]
         [MessagePack.IgnoreMember]
         public string ClientId { get; init; } = string.Empty;

@@ -33,6 +33,10 @@ namespace WanderLost.Server.Controllers
                 .HasIndex(m => new { m.RequiresProcessing })
                 .HasFilter($"[{nameof(ActiveMerchant.RequiresProcessing)}] = 1");
 
+            modelBuilder.Entity<ActiveMerchant>()
+                .HasIndex(m => new { m.RequiresVoteProcessing })
+                .HasFilter($"[{nameof(ActiveMerchant.RequiresVoteProcessing)}] = 1");
+
             modelBuilder.Entity<Vote>()
                 .HasKey(v => new { v.ActiveMerchantId, v.ClientId });
 

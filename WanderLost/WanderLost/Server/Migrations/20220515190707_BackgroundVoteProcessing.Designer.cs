@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WanderLost.Server.Controllers;
 
@@ -11,9 +12,10 @@ using WanderLost.Server.Controllers;
 namespace WanderLost.Server.Migrations
 {
     [DbContext(typeof(MerchantsDbContext))]
-    partial class MerchantsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220515190707_BackgroundVoteProcessing")]
+    partial class BackgroundVoteProcessing
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

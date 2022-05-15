@@ -68,9 +68,16 @@ namespace WanderLost.Shared.Data
         [MessagePack.IgnoreMember]
         public ActiveMerchantGroup ActiveMerchantGroup { get; set; } = new();
 
+        /// <summary>
+        /// Push message processing flag
+        /// </summary>
         [JsonIgnore]
         [MessagePack.IgnoreMember]
         public bool RequiresProcessing { get; set; }
+
+        [JsonIgnore]
+        [MessagePack.IgnoreMember]
+        public bool RequiresVoteProcessing { get; set; }
 
         public void ClearInstance()
         {

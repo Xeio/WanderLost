@@ -127,34 +127,28 @@ namespace WanderLost.Server.Controllers
 
         public async Task Vote(string server, Guid merchantId, VoteType voteType)
         {
-            var activeMerchant = await _merchantsDbContext.ActiveMerchants
-                .TagWithCallSite()
-                .Include(m => m.ClientVotes)
-                .SingleOrDefaultAsync(m => m.Id == merchantId);
-            if (activeMerchant == null) return;
-
             var clientId = GetClientIp();
 
-            var existingVote = activeMerchant.ClientVotes.FirstOrDefault(v => v.ClientId == clientId || (Context.UserIdentifier != null && v.UserId == Context.UserIdentifier));
+            var existingVote = await _merchantsDbContext.Votes
+                .Where(v => v.ActiveMerchantId == merchantId)
+                .FirstOrDefaultAsync(v => v.ClientId == clientId || (Context.UserIdentifier != null && v.UserId == Context.UserIdentifier));
             if(existingVote == null)
             {
-                activeMerchant.ClientVotes.Add(new Vote()
+                var vote = new Vote()
                 {
-                    ActiveMerchant = activeMerchant,
+                    ActiveMerchantId = merchantId,
                     ClientId = clientId,
                     UserId = Context.UserIdentifier,
                     VoteType = voteType,
-                });
-                RecalculateVoteTotal(activeMerchant);
+                };
 
-                if (activeMerchant.IsRareCombination && !activeMerchant.Hidden && activeMerchant.Votes > 0)
-                {
-                    activeMerchant.RequiresProcessing = true;
-                }
+                _merchantsDbContext.Votes.Add(vote);
+
+                SetVoteProcessFlag(merchantId);
 
                 await _merchantsDbContext.SaveChangesAsync();
 
-                await Clients.Group(server).UpdateVoteTotal(merchantId, activeMerchant.Votes);
+                //Vote totals are tallied and sent by BackgroundVoteProcessor, just tell client their vote was counted
                 await Clients.Caller.UpdateVoteSelf(merchantId, voteType);
 
                 //await CheckAutobans(activeMerchant);
@@ -162,26 +156,24 @@ namespace WanderLost.Server.Controllers
             else if(existingVote.VoteType != voteType)
             {
                 existingVote.VoteType = voteType;
-                RecalculateVoteTotal(activeMerchant);
 
-                if (activeMerchant.IsRareCombination && !activeMerchant.Hidden && activeMerchant.Votes > 0)
-                {
-                    activeMerchant.RequiresProcessing = true;
-                }
+                SetVoteProcessFlag(merchantId);
 
                 await _merchantsDbContext.SaveChangesAsync();
 
-                await Clients.Group(server).UpdateVoteTotal(merchantId, activeMerchant.Votes);
+                //Vote totals are tallied and sent by BackgroundVoteProcessor, just tell client their vote was counted
                 await Clients.Caller.UpdateVoteSelf(merchantId, voteType);
             }
         }
 
-        private static void RecalculateVoteTotal(ActiveMerchant merchant)
+        private void SetVoteProcessFlag(Guid merchantId)
         {
-            //Small special case here, we won't count the submitter's vote, but track it so they can see they already "voted"
-            merchant.Votes = merchant.ClientVotes
-                .Where(v => v.ClientId != merchant.UploadedBy && (merchant.UploadedByUserId == null || v.UserId != merchant.UploadedByUserId))
-                .Sum(v => (int)v.VoteType);
+            var updateMerchant = new ActiveMerchant()
+            {
+                Id = merchantId,
+                RequiresVoteProcessing = true
+            };
+            _merchantsDbContext.Entry(updateMerchant).Property(m => m.RequiresVoteProcessing).IsModified = true;
         }
 
         public async Task SubscribeToServer(string server)

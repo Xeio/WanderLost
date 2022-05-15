@@ -91,6 +91,7 @@ builder.Services.AddDbContext<MerchantsDbContext>(opts =>
 
 builder.Services.AddScoped<PushMessageProcessor>();
 builder.Services.AddHostedService<PushWorkerService>();
+builder.Services.AddHostedService<BackgroundVoteProcessor>();
 
 if (!string.IsNullOrWhiteSpace(builder.Configuration["FirebaseSecretFile"]))
 {
