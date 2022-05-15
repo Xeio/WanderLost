@@ -40,6 +40,10 @@ namespace WanderLost.Server.Controllers
                     Tokens = chunk.Select(s => s.Token).ToList(),
                     Webpush = new WebpushConfig()
                     {
+                        FcmOptions = new WebpushFcmOptions()
+                        {
+                            Link = _configuration["IdentityServerOrigin"],
+                        },
                         Notification = new WebpushNotification()
                         {
                             Title = $"Test push notification from LostMerchants",
@@ -48,12 +52,6 @@ namespace WanderLost.Server.Controllers
                             Tag = "test",
                             Renotify = true,
                             Vibrate = new[] { 500, 100, 500, 100, 500 },
-                            Actions = new[]{ new FirebaseAdmin.Messaging.Action()
-                                {
-                                     ActionName = "openSite",
-                                      Title = "Open LostMerchants"
-                                } 
-                            }
                         },
                         Headers = new Dictionary<string, string>()
                         {
