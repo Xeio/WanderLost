@@ -230,10 +230,11 @@ namespace WanderLost.Client.Services
         /// </summary>
         public async Task ValidatePushSubscription(MerchantHubClient hubClient, string? currentToken = null)
         {
+            if (_clientSettings.SavedPushSubscription?.Token == null) return;
+
             currentToken ??= await GetFCMToken();
 
-            if (_clientSettings.SavedPushSubscription != null && 
-                !string.IsNullOrWhiteSpace(currentToken) && 
+            if (!string.IsNullOrWhiteSpace(currentToken) && 
                 _clientSettings.SavedPushSubscription.Token != currentToken)
             {
                 //Our token changed since we last subscribed
