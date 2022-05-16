@@ -83,19 +83,33 @@ namespace WanderLost.Client.Pages
 
             _hubEvents.Add(HubClient.OnUpdateVoteSelf(async (merchantId, voteType) =>
             {
+                //Fake the new total till the server gets back to us with a "true" count in the next polling interval
+                if (ActiveData.MerchantDictionary.TryGetValue(merchantId, out var merchant)) 
+                {
+                    merchant.Votes += (int)voteType;
+                    if (ActiveData.Votes.TryGetValue(merchantId, out var oldVote))
+                    {
+                        //Subtract out the old vote if there was a previous one
+                        merchant.Votes -= (int)oldVote;
+                    }
+                }
+
                 ActiveData.Votes[merchantId] = voteType;
                 await InvokeAsync(StateHasChanged);
             }));
 
-            _hubEvents.Add(HubClient.OnUpdateVoteTotal(async (merchantId, voteTotal) =>
+            _hubEvents.Add(HubClient.OnUpdateVotes(async (merchantVoteUpdates) =>
             {
-                if(ActiveData.MerchantDictionary.TryGetValue(merchantId, out var merchant))
+                foreach (var merchantUpdate in merchantVoteUpdates)
                 {
-                    merchant.Votes = voteTotal;
-                }
-                if (ActiveData.MerchantGroups.FirstOrDefault(mg => mg.ActiveMerchants.Any(m => m.Id == merchantId)) is ActiveMerchantGroup merchantGroup)
-                {
-                    await Notifications.CheckItemNotification(merchantGroup);
+                    if (ActiveData.MerchantDictionary.TryGetValue(merchantUpdate.Id, out var merchant))
+                    {
+                        merchant.Votes = merchantUpdate.Votes;
+                    }
+                    if (ActiveData.MerchantGroups.FirstOrDefault(mg => mg.ActiveMerchants.Any(m => m.Id == merchantUpdate.Id)) is ActiveMerchantGroup merchantGroup)
+                    {
+                        await Notifications.CheckItemNotification(merchantGroup);
+                    }
                 }
 
                 await InvokeAsync(StateHasChanged);

@@ -9,6 +9,7 @@ namespace WanderLost.Server.Controllers
     {
         private readonly IServiceProvider _services;
         private readonly ILogger<PushWorkerService> _logger;
+        private readonly List<string> _servers = new();
 
         public BackgroundVoteProcessor(ILogger<PushWorkerService> logger, IServiceProvider services)
         {
@@ -18,45 +19,72 @@ namespace WanderLost.Server.Controllers
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            using(var startupScope = _services.CreateScope())
+            {
+                //Get all the servers, which we'll process one at a time
+                var dataController = startupScope.ServiceProvider.GetRequiredService<DataController>();
+                var regions = await dataController.GetServerRegions();
+                _servers.AddRange(regions.SelectMany(r => r.Value.Servers));
+
+            }
+
+            if(_servers.Count == 0)
+            {
+                _logger.LogCritical("Didn't find any servers to poll.");
+                return;
+            }
+
+            //Going to target each server to update every 30 seconds, so pause roughly equivalent between them
+            //Note that servers aren't equally distributed, so may be better to randomize order? Or one at a time from each data center?
+            int perServerMillisecondDelay = 30_000 / _servers.Count;
+
             while (true)
             {
-                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
-
-                if (stoppingToken.IsCancellationRequested) return;
-
-                using var scope = _services.CreateScope();
-                var merchantDbContext = scope.ServiceProvider.GetRequiredService<MerchantsDbContext>();
-                var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<MerchantHub, IMerchantHubClient>>();
-
-                var merchantIdsToProcess = await merchantDbContext.ActiveMerchants
-                    .TagWithCallSite()
-                    .Where(m => m.RequiresVoteProcessing)
-                    .Select(m => m.Id)
-                    .ToListAsync(stoppingToken);
-
-                foreach(var merchantId in merchantIdsToProcess)
+                foreach (var server in _servers)
                 {
+                    await Task.Delay(perServerMillisecondDelay, stoppingToken);
+
                     if (stoppingToken.IsCancellationRequested) return;
 
-                    var merchant = await merchantDbContext.ActiveMerchants
+                    using var scope = _services.CreateScope();
+                    var merchantDbContext = scope.ServiceProvider.GetRequiredService<MerchantsDbContext>();
+                    var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<MerchantHub, IMerchantHubClient>>();
+
+                    var merchantsToProcess = await merchantDbContext.ActiveMerchants
                         .TagWithCallSite()
+                        .Where(m => m.RequiresVoteProcessing)
+                        .Where(m => m.ActiveMerchantGroup.Server == server)
                         .Include(m => m.ClientVotes)
                         .Include(m => m.ActiveMerchantGroup)
-                        .FirstAsync(m => m.Id == merchantId, stoppingToken);
+                        .ToListAsync(stoppingToken);
 
-                    var oldTotal = merchant.Votes;
-                    merchant.Votes = CalculateVoteTotal(merchant);
-                    if(merchant.Votes != oldTotal)
+                    var voteUpdates = new List<MerchantVoteUpdate>();
+
+                    foreach (var merchant in merchantsToProcess)
                     {
-                        merchant.RequiresProcessing = true;
-                        await hubContext.Clients.Group(merchant.ActiveMerchantGroup.Server).UpdateVoteTotal(merchant.Id, merchant.Votes);
-                    }
+                        if (stoppingToken.IsCancellationRequested) return;
 
-                    merchant.RequiresVoteProcessing = false;
+                        var oldTotal = merchant.Votes;
+                        merchant.Votes = CalculateVoteTotal(merchant);
+                        if (merchant.Votes != oldTotal)
+                        {
+                            merchant.RequiresProcessing = true;
+                            voteUpdates.Add(new MerchantVoteUpdate()
+                            {
+                                Id = merchant.Id,
+                                Votes = merchant.Votes,
+                            });
+                        }
+
+                        merchant.RequiresVoteProcessing = false;
+                    }
 
                     await merchantDbContext.SaveChangesAsync(stoppingToken);
 
-                    merchantDbContext.Entry(merchant).State = EntityState.Detached;
+                    if (voteUpdates.Count > 0)
+                    {
+                        await hubContext.Clients.Group(server).UpdateVotes(voteUpdates);
+                    }
                 }
             }
         }
