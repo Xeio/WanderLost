@@ -32,8 +32,8 @@ namespace WanderLost.Client.Services
                 })
                 .AddMessagePackProtocol(Utils.BuildMessagePackOptions)
                 .Build();
-            HubConnection.ServerTimeout = TimeSpan.FromMinutes(2);
-            HubConnection.KeepAliveInterval = TimeSpan.FromMinutes(1);
+            HubConnection.ServerTimeout = TimeSpan.FromMinutes(8);
+            HubConnection.KeepAliveInterval = TimeSpan.FromMinutes(4);
         }
         
         private async Task<string?> GetToken()
