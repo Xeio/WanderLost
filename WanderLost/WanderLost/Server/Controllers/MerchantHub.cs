@@ -70,6 +70,9 @@ namespace WanderLost.Server.Controllers
             {
                 if (existingMerchant.IsEqualTo(merchant))
                 {
+                    //Vote method attaches the merchant entity without database fetch to set the vote process flag
+                    //Before calling it clear out the change tracker so we don't get any duplicate entity exceptions
+                    _merchantsDbContext.ChangeTracker.Clear();
                     //Found an existing matching merchant, so just upvote it instead
                     await Vote(server, existingMerchant.Id, VoteType.Upvote);
                     return;
