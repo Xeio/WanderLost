@@ -347,12 +347,20 @@ namespace WanderLost.Server.Controllers
         {
             if (string.IsNullOrEmpty(clientToken)) return;
 
-            var subscription = new PushSubscription()
+            try
             {
-                Token = clientToken,
-            };
-            _merchantsDbContext.Entry(subscription).State = EntityState.Deleted;
-            await _merchantsDbContext.SaveChangesAsync();
+                var subscription = new PushSubscription()
+                {
+                    Token = clientToken,
+                };
+                _merchantsDbContext.Entry(subscription).State = EntityState.Deleted;
+                await _merchantsDbContext.SaveChangesAsync();
+            }
+            catch(DbUpdateConcurrencyException)
+            {
+                //If a subscription didn't exist, just ignore the error.
+                //Probably happens mainly if a user multi-clicks delete before the request has completed
+            }
         }
     }
 }
