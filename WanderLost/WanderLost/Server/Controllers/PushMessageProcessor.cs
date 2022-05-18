@@ -198,7 +198,7 @@ namespace WanderLost.Server.Controllers
             {
                 message.Tokens = chunk.Select(s => s.Token).ToList();
 
-                _logger.LogInformation("Sending {attemptCount} FCM messages.", chunk.Length);
+                _logger.LogInformation("Sending {attemptCount} FCM messages for merchant {merchantId}.", chunk.Length, merchant.Id);
 
                 var batchResponse = await FirebaseMessaging.DefaultInstance.SendMulticastAsync(message);
 
