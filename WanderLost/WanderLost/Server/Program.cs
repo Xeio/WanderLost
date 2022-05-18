@@ -31,7 +31,11 @@ builder.Services.AddIdentityCore<WanderlostUser>(opts => {
     .AddEntityFrameworkStores<AuthDbContext>();
 
 builder.Services.AddIdentityServer()
-    .AddApiAuthorization<WanderlostUser, AuthDbContext>();
+    .AddApiAuthorization<WanderlostUser, AuthDbContext>()
+    .AddOperationalStore<AuthDbContext>(o =>
+    {
+        o.EnableTokenCleanup = true;
+    });
 
 builder.Services.AddAuthorization(authorizationOptions =>
 {
