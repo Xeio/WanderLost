@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using WanderLost.Server.Data;
 using WanderLost.Shared.Data;
 using WanderLost.Shared.Interfaces;
 
@@ -14,12 +13,14 @@ namespace WanderLost.Server.Controllers
 
         private readonly DataController _dataController;
         private readonly MerchantsDbContext _merchantsDbContext;
+        private readonly AuthDbContext _authDbContext;
         private readonly IConfiguration _configuration;
 
-        public MerchantHub(DataController dataController, MerchantsDbContext merchantsDbContext, IConfiguration configuration)
+        public MerchantHub(DataController dataController, MerchantsDbContext merchantsDbContext, AuthDbContext authDbContext, IConfiguration configuration)
         {
             _dataController = dataController;
             _merchantsDbContext = merchantsDbContext;
+            _authDbContext = authDbContext;
             _configuration = configuration;
         }
 
@@ -260,62 +261,73 @@ namespace WanderLost.Server.Controllers
 
         private async Task CheckAutobans(ActiveMerchant merchant)
         {
-            if (merchant.Hidden) return; //Don't need to check already hidden merchants
+            //TODO: This is mostly disabled anyway, probaly want to move this to a background processor and process at the top of the hour
+
+            //Only auto-banning for rare combos, so they must have a user ID
+            if (string.IsNullOrWhiteSpace(merchant.UploadedByUserId)) return;
 
             if (merchant.Votes < -3 && merchant.Card.Name == "Wei")
             {
-                merchant.Hidden = true;
-                if (!await HasActiveBan(merchant.UploadedBy, merchant.UploadedByUserId))
+                var user = await _authDbContext.Users
+                                    .TagWithCallSite()
+                                    .FirstAsync(u => u.Id == merchant.UploadedByUserId);
+
+                if(user.BanExpires is null)
                 {
-                    var newBan = new Ban()
-                    {
-                        ClientId = merchant.UploadedBy,
-                        UserId = merchant.UploadedByUserId,
-                        ExpiresAt = DateTimeOffset.Now.AddDays(30),
-                    };
-                    _merchantsDbContext.Add(newBan);
+                    user.BanExpires = DateTimeOffset.Now.AddDays(30);
+                    await _authDbContext.SaveChangesAsync();
                 }
-                _merchantsDbContext.Attach(merchant);
-                await _merchantsDbContext.SaveChangesAsync();
+                else if (user.BanExpires <= DateTimeOffset.Now)
+                {
+                    user.BanExpires = DateTimeOffset.Now.AddYears(99);
+                    await _authDbContext.SaveChangesAsync();
+                }
             }
             else if (merchant.Votes < -5 && merchant.Rapport.Rarity == Rarity.Legendary)
             {
-                merchant.Hidden = true;
-
                 //Try to avoid banning for rapport misclicks if user is mostly upvoted
-                var allSubmissionTotal = await UserVoteTotal(merchant.UploadedBy, merchant.UploadedByUserId);
+                var allSubmissionTotal = await UserVoteTotal(merchant.UploadedByUserId);
                 if (allSubmissionTotal < 0)
                 {
-                    if (!await HasActiveBan(merchant.UploadedBy, merchant.UploadedByUserId))
+                    var user = await _authDbContext.Users
+                                    .TagWithCallSite()
+                                    .FirstAsync(u => u.Id == merchant.UploadedByUserId);
+
+                    if (user.BanExpires is null)
                     {
-                        var newBan = new Ban()
-                        {
-                            ClientId = merchant.UploadedBy,
-                            UserId = merchant.UploadedByUserId,
-                            ExpiresAt = DateTimeOffset.Now.AddDays(14),
-                        };
-                        _merchantsDbContext.Add(newBan);
+                        user.BanExpires = DateTimeOffset.Now.AddDays(14);
+                        await _authDbContext.SaveChangesAsync();
+                    }
+                    else if (user.BanExpires <= DateTimeOffset.Now)
+                    {
+                        user.BanExpires = DateTimeOffset.Now.AddYears(99);
+                        await _authDbContext.SaveChangesAsync();
                     }
                 }
-                _merchantsDbContext.Attach(merchant);
-                await _merchantsDbContext.SaveChangesAsync();
             }
         }
 
         private async Task<bool> HasActiveBan(string clientId, string? userId)
         {
+            if (!string.IsNullOrWhiteSpace(userId))
+            {
+                var user = await _authDbContext.Users
+                    .TagWithCallSite()
+                    .FirstOrDefaultAsync(u => u.Id == userId);
+                if(user is not null)
+                {
+                    return user.BanExpires > DateTimeOffset.Now;
+                }
+            }
+
             return await _merchantsDbContext.Bans
                 .TagWithCallSite()
-                .AnyAsync(b => (b.ClientId == clientId || (userId != null && b.UserId == userId)) && b.ExpiresAt > DateTimeOffset.Now);
+                .AnyAsync(b => b.ClientId == clientId && b.ExpiresAt > DateTimeOffset.Now);
         }
 
-        private async Task<int> UserVoteTotal(string clientIp, string? userId)
+        private async Task<int> UserVoteTotal(string userId)
         {
-            if (userId is not null)
-            {
-                return await _merchantsDbContext.ActiveMerchants.TagWithCallSite().Where(m => m.UploadedByUserId == userId).SumAsync(m => m.Votes);
-            }
-            return await _merchantsDbContext.ActiveMerchants.TagWithCallSite().Where(m => m.UploadedBy == clientIp).SumAsync(m => m.Votes);
+            return await _merchantsDbContext.ActiveMerchants.TagWithCallSite().Where(m => m.UploadedByUserId == userId).SumAsync(m => m.Votes);
         }
 
         public async Task<PushSubscription?> GetPushSubscription(string clientToken)
