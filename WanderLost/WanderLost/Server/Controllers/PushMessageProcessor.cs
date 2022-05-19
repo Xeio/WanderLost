@@ -151,9 +151,10 @@ namespace WanderLost.Server.Controllers
 
         private async Task ProcessMerchant(ActiveMerchant merchant)
         {
-            if (merchant.Votes < 0 || merchant.Hidden)
+            if (merchant.Votes < 0 || merchant.Hidden ||
+                merchant.ActiveMerchantGroup.AppearanceExpires < DateTimeOffset.Now)
             {
-                //Don't need to send notifications for downvoted merchants
+                //Don't need to send notifications for downvoted/hidden/expired merchants
                 merchant.RequiresProcessing = false;
                 await _merchantContext.SaveChangesAsync();
                 _merchantContext.Entry(merchant).State = EntityState.Detached;
