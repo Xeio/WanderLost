@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">LostMerchants</string>
+    <string name="wei_channel">Wei</string>
+    <string name="wei_channel_desc">Wei card notifications</string>
+    <string name="rapport_channel">Legendary Rapport</string>
+    <string name="rapport_channel_desc">Legendary Rapport notifications</string>
+</resources>

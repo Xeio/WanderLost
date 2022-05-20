@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "763181707363",
+    "project_id": "lostmerchants-795ef",
+    "storage_bucket": "lostmerchants-795ef.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:763181707363:android:e83cf0f20e41e70afe8856",
+        "android_client_info": {
+          "package_name": "com.xeio.lostmerchants"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "763181707363-efnmutdbrlpen23j5r33m9vkltdh8d0m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBN-8k4M_V6wgLaLedn51EaBXNQBVJZVUQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "763181707363-efnmutdbrlpen23j5r33m9vkltdh8d0m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
