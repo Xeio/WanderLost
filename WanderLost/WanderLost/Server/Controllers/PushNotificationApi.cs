@@ -16,7 +16,7 @@ namespace WanderLost.Server.Controllers
             _merchantsDbContext = merchantsDbContext;
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route(nameof(GetPushSubscription))]
         public async Task<PushSubscription?> GetPushSubscription([FromBody] string clientToken)
         {
