@@ -12,7 +12,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 
-private const val DOMAIN = "https://test.lostmerchants.com/"
+private const val DOMAIN = "https://lostmerchants.com/"
 
 private val moshi = Moshi.Builder()
     .add(KotlinJsonAdapterFactory())
