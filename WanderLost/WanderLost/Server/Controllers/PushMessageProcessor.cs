@@ -58,6 +58,20 @@ namespace WanderLost.Server.Controllers
                             { "TTL", "600" },
                             { "Urgency", "high" }
                         }
+                    },
+                    Android = new AndroidConfig()
+                    {
+                        Notification = new AndroidNotification()
+                        {
+                            Title = $"Test push notification from LostMerchants",
+                            Body = $"Test Message Body sent at {DateTime.UtcNow} UTC",
+                            Tag = "wei",
+                            ChannelId = "wei",
+                            EventTimestamp = DateTime.Now,
+                            Priority = NotificationPriority.MAX
+                        },
+                        Priority = Priority.High,
+                        TimeToLive = TimeSpan.FromSeconds(600)
                     }
                 };
 
@@ -284,7 +298,7 @@ namespace WanderLost.Server.Controllers
             return new MulticastMessage()
             {
                 Webpush = new WebpushConfig()
-                { 
+                {
                     FcmOptions = new WebpushFcmOptions()
                     {
                         Link = _configuration["IdentityServerOrigin"],
@@ -303,6 +317,20 @@ namespace WanderLost.Server.Controllers
                         { "TTL", ttl.ToString() },
                         { "Urgency", "high" },
                     }
+                },
+                Android = new AndroidConfig()
+                {
+                    Notification = new AndroidNotification()
+                    {
+                        Title = isWei ? "Wei card" : "Legendary Rapport",
+                        Body = isWei ? "Wei Card!!!" : $"Legendary Rapport - {region}",
+                        Tag = isWei ? "wei" : "rapport",
+                        ChannelId = isWei ? "wei" : "rapport",
+                        EventTimestamp = DateTime.Now,
+                        Priority = isWei ? NotificationPriority.MAX : NotificationPriority.HIGH
+                    },
+                    Priority = Priority.High,
+                    TimeToLive = TimeSpan.FromSeconds(ttl)
                 }
             };
         }
