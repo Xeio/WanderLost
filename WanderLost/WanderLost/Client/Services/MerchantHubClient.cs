@@ -33,7 +33,8 @@ namespace WanderLost.Client.Services
                 .AddMessagePackProtocol(Utils.BuildMessagePackOptions)
                 .Build();
             HubConnection.ServerTimeout = TimeSpan.FromMinutes(8);
-            HubConnection.KeepAliveInterval = TimeSpan.FromMinutes(4);
+            //Would like to increase this, but the browser seems to force-close "idle" sockets after ~3 minutes
+            HubConnection.KeepAliveInterval = TimeSpan.FromMinutes(1);
         }
         
         private async Task<string?> GetToken()
