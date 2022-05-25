@@ -2,6 +2,7 @@ package com.xeio.lostmerchants
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.border
@@ -196,6 +197,7 @@ fun MainLayout(regions: Map<String, ServerRegion>, pushSubscription: PushSubscri
             composableScope.launch {
                 PushApi.retrofitService.updatePushSubscription(pushSubscription)
                 PushApi.savePushSubscriptionSettings(context, pushSubscription)
+                Toast.makeText(context, "Subscription updated", Toast.LENGTH_SHORT).show()
                 modified = false
                 hasSubscription = true
             }
@@ -206,6 +208,7 @@ fun MainLayout(regions: Map<String, ServerRegion>, pushSubscription: PushSubscri
             composableScope.launch {
                 PushApi.retrofitService.removePushSubscription(pushSubscription.token)
                 PushApi.savePushSubscriptionSettings(context, null)
+                Toast.makeText(context, "Subscription deleted", Toast.LENGTH_SHORT).show()
                 modified = true
                 hasSubscription = false
             }
@@ -216,6 +219,7 @@ fun MainLayout(regions: Map<String, ServerRegion>, pushSubscription: PushSubscri
             composableScope.launch {
                 pushSubscription.sendTestNotification = true
                 PushApi.retrofitService.updatePushSubscription(pushSubscription)
+                Toast.makeText(context, "Requesting test. Minimize app to get notification.", Toast.LENGTH_LONG).show()
                 pushSubscription.sendTestNotification = false
                 PushApi.savePushSubscriptionSettings(context, pushSubscription)
                 modified = false
