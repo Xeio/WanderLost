@@ -75,7 +75,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddSignalR(hubOptions =>
 {
     hubOptions.ClientTimeoutInterval = TimeSpan.FromMinutes(8);
-    hubOptions.KeepAliveInterval = TimeSpan.FromMinutes(1); //Compatability: Increase this later
+    hubOptions.KeepAliveInterval = TimeSpan.FromMinutes(4);
     hubOptions.MaximumParallelInvocationsPerClient = 1;
 }).AddMessagePackProtocol(Utils.BuildMessagePackOptions);
 builder.Services.AddMemoryCache();
