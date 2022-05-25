@@ -14,19 +14,6 @@ namespace WanderLost.Server.Migrations.AuthDb
                 table: "AspNetUsers",
                 type: "datetimeoffset",
                 nullable: true);
-
-            //Migrate bans from the old table
-            migrationBuilder.Sql(@"
-UPDATE U
-SET U.BanExpires = B.ExpiresAt 
-FROM AspNetUsers U
-LEFT JOIN (
-    SELECT UserId, MAX(ExpiresAt) ExpiresAt 
-    FROM Bans
-    WHERE UserId IS NOT NULL
-    GROUP BY UserId
-) B ON B.UserId = U.Id
-            ");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
