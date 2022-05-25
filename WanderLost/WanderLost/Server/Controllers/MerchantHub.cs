@@ -31,6 +31,8 @@ namespace WanderLost.Server.Controllers
 
             if (!await IsValidServer(server)) return;
 
+            if (merchant.Zone == "Windbringer Hill") merchant.Zone = "Windbringer Hills"; //Compatability shim
+
             var allMerchantData = await _dataController.GetMerchantData();
             if (!merchant.IsValid(allMerchantData)) return;
 

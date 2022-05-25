@@ -421,7 +421,7 @@
     "Region": "Arthetine",
     "SortOrder": 7,
     "AppearanceTimes": [ "00:30:00", "02:30:00", "05:30:00", "06:30:00", "08:30:00", "09:30:00", "12:30:00", "14:30:00", "17:30:00", "18:30:00", "20:30:00", "21:30:00" ],
-    "Zones": [ "Arid Path", "Nebelhorn", "Riza Falls", "Scraplands", "Totrich", "Windbringer Hill" ],
+    "Zones": [ "Arid Path", "Nebelhorn", "Riza Falls", "Scraplands", "Totrich", "Windbringer Hills" ],
     "Cards": [
       {
         "Name": "Bergstrom",
