@@ -232,6 +232,7 @@ namespace WanderLost.Server.Controllers
                 {
                     if (!response.IsSuccess && response.Exception is FirebaseMessagingException firebaseException)
                     {
+                        _logger.LogInformation("Subscription '{subscriptionId}' failed. Error code: {firebaseErrorCode}", subscription.Id, firebaseException.MessagingErrorCode);
                         switch (firebaseException.MessagingErrorCode)
                         {
                             case MessagingErrorCode.Internal:
