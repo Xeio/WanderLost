@@ -1,9 +1,8 @@
-﻿namespace WanderLost.Shared.Data
+﻿namespace WanderLost.Shared.Data;
+
+public enum VoteType
 {
-    public enum VoteType
-    {
-        Upvote = 1,
-        Unvote = 0,
-        Downvote = -1,
-    }
+    Upvote = 1,
+    Unvote = 0,
+    Downvote = -1,
 }

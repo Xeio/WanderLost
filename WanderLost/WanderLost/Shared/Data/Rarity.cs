@@ -1,12 +1,11 @@
-﻿namespace WanderLost.Shared.Data
+﻿namespace WanderLost.Shared.Data;
+
+public enum Rarity
 {
-    public enum Rarity
-    {
-        Normal,
-        Uncommon,
-        Rare,
-        Epic,
-        Legendary,
-        Relic,
-    }
+    Normal,
+    Uncommon,
+    Rare,
+    Epic,
+    Legendary,
+    Relic,
 }

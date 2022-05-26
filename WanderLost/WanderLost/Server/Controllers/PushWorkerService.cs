@@ -1,37 +1,36 @@
-﻿namespace WanderLost.Server.Controllers
+﻿namespace WanderLost.Server.Controllers;
+
+public class PushWorkerService : BackgroundService
 {
-    public class PushWorkerService : BackgroundService
+    private readonly IServiceProvider _services;
+    private readonly ILogger<PushWorkerService> _logger;
+
+    public PushWorkerService(ILogger<PushWorkerService> logger, IServiceProvider services)
     {
-        private readonly IServiceProvider _services;
-        private readonly ILogger<PushWorkerService> _logger;
+        _logger = logger;
+        _services = services;
+    }
 
-        public PushWorkerService(ILogger<PushWorkerService> logger, IServiceProvider services)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        while (true)
         {
-            _logger = logger;
-            _services = services;
-        }
+            await Task.Delay(TimeSpan.FromSeconds(20), stoppingToken);
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            while (true)
+            if(FirebaseAdmin.FirebaseApp.DefaultInstance == null)
             {
-                await Task.Delay(TimeSpan.FromSeconds(20), stoppingToken);
-
-                if(FirebaseAdmin.FirebaseApp.DefaultInstance == null)
-                {
-                    _logger.LogCritical("Firebase not configured, skipping message sending. Need 'FirebaseSecretFile' config setting for private key.");
-                    continue;
-                }
-
-                if (stoppingToken.IsCancellationRequested) return;
-
-                using var scope = _services.CreateScope();
-                var messageProcessor = scope.ServiceProvider.GetRequiredService<PushMessageProcessor>();
-
-                await messageProcessor.SendTestNotifications(stoppingToken);
-
-                await messageProcessor.RunMerchantUpdates(stoppingToken);
+                _logger.LogCritical("Firebase not configured, skipping message sending. Need 'FirebaseSecretFile' config setting for private key.");
+                continue;
             }
+
+            if (stoppingToken.IsCancellationRequested) return;
+
+            using var scope = _services.CreateScope();
+            var messageProcessor = scope.ServiceProvider.GetRequiredService<PushMessageProcessor>();
+
+            await messageProcessor.SendTestNotifications(stoppingToken);
+
+            await messageProcessor.RunMerchantUpdates(stoppingToken);
         }
     }
 }

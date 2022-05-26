@@ -1,21 +1,20 @@
-﻿namespace WanderLost.Client
+﻿namespace WanderLost.Client;
+
+public class ClickTrap
 {
-    public class ClickTrap
+    public event EventHandler<bool>? HasChanged;
+
+    private bool _hasClicked;
+
+    public bool HasClicked
     {
-        public event EventHandler<bool>? HasChanged;
-
-        private bool _hasClicked;
-
-        public bool HasClicked
+        get { return _hasClicked; }
+        set 
         {
-            get { return _hasClicked; }
-            set 
+            if (HasClicked != value)
             {
-                if (HasClicked != value)
-                {
-                    _hasClicked = value;
-                    HasChanged?.Invoke(this, value);
-                }
+                _hasClicked = value;
+                HasChanged?.Invoke(this, value);
             }
         }
     }

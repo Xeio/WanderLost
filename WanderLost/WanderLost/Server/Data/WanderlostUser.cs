@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace WanderLost.Server.Data
+namespace WanderLost.Server.Data;
+
+public class WanderlostUser : IdentityUser
 {
-    public class WanderlostUser : IdentityUser
-    {
-        public DateTimeOffset? BanExpires { get; set; }
-    }
+    public DateTimeOffset? BanExpires { get; set; }
 }

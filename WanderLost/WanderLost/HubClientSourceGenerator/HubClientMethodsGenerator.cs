@@ -1,15 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using HubClientSourceGenerator;
 using Microsoft.CodeAnalysis;
 
-namespace SourceGeneratorSamples
+namespace HubClientSourceGenerator;
+
+[Generator]
+public class HubClientMethodsGenerator : ISourceGenerator
 {
-    [Generator]
-    public class HubClientMethodsGenerator : ISourceGenerator
-    {
-        private const string attributeText = @"
+    private const string attributeText = @"
 using System;
 
 namespace HubClientSourceGenerator
@@ -26,49 +25,49 @@ namespace HubClientSourceGenerator
 }
 ";
 
-        public void Initialize(GeneratorInitializationContext context)
+    public void Initialize(GeneratorInitializationContext context)
+    {
+        context.RegisterForPostInitialization((i) => i.AddSource("AutoHubClientAttribute", attributeText));
+        context.RegisterForSyntaxNotifications(() => new HubGeneratorReciever("HubClientSourceGenerator.AutoHubClientAttribute"));
+    }
+
+    public void Execute(GeneratorExecutionContext context)
+    {
+        if (!(context.SyntaxContextReceiver is HubGeneratorReciever receiver))
+            return;
+
+
+        var attributeSymbol = context.Compilation.GetTypeByMetadataName("HubClientSourceGenerator.AutoHubClientAttribute");
+
+        foreach (var type in receiver.Classes)
         {
-            context.RegisterForPostInitialization((i) => i.AddSource("AutoHubClientAttribute", attributeText));
-            context.RegisterForSyntaxNotifications(() => new HubGeneratorReciever("HubClientSourceGenerator.AutoHubClientAttribute"));
+            ProcessClass(type, attributeSymbol, context);
         }
+    }
 
-        public void Execute(GeneratorExecutionContext context)
+    private void ProcessClass(ITypeSymbol clientClass, ISymbol attributeSymbol, GeneratorExecutionContext context)
+    {
+        var autoAttribute = clientClass.GetAttributes().Single(att => SymbolEqualityComparer.Default.Equals(att.AttributeClass, attributeSymbol));
+        var targetInterfaceType = autoAttribute.ConstructorArguments.First().Value as INamedTypeSymbol;
+        if (targetInterfaceType.TypeKind == TypeKind.Interface)
         {
-            if (!(context.SyntaxContextReceiver is HubGeneratorReciever receiver))
-                return;
+            var taskType = context.Compilation.GetTypeByMetadataName("System.Threading.Tasks.Task");
 
+            var methods = targetInterfaceType
+                .GetMembers()
+                .OfType<IMethodSymbol>()
+                //Also include inherited members
+                .Concat(targetInterfaceType.AllInterfaces.SelectMany(inherited => inherited.GetMembers().OfType<IMethodSymbol>()));
 
-            var attributeSymbol = context.Compilation.GetTypeByMetadataName("HubClientSourceGenerator.AutoHubClientAttribute");
+            var hubPropertyName = Helpers.FindHubConnectionProperty(clientClass, context);
+            if (string.IsNullOrWhiteSpace(hubPropertyName)) return;
 
-            foreach (var type in receiver.Classes)
-            {
-                ProcessClass(type, attributeSymbol, context);
-            }
-        }
+            StringBuilder sb = new StringBuilder();
 
-        private void ProcessClass(ITypeSymbol clientClass, ISymbol attributeSymbol, GeneratorExecutionContext context)
-        {
-            var autoAttribute = clientClass.GetAttributes().Single(att => SymbolEqualityComparer.Default.Equals(att.AttributeClass, attributeSymbol));
-            var targetInterfaceType = autoAttribute.ConstructorArguments.First().Value as INamedTypeSymbol;
-            if(targetInterfaceType.TypeKind == TypeKind.Interface)
-            {
-                var taskType = context.Compilation.GetTypeByMetadataName("System.Threading.Tasks.Task");
+            var ns = clientClass.ContainingNamespace.ToDisplayString();
+            var className = clientClass.Name;
 
-                var methods = targetInterfaceType
-                    .GetMembers()
-                    .OfType<IMethodSymbol>()
-                    //Also include inherited members
-                    .Concat(targetInterfaceType.AllInterfaces.SelectMany(inherited => inherited.GetMembers().OfType<IMethodSymbol>()));
-
-                var hubPropertyName = Helpers.FindHubConnectionProperty(clientClass, context);
-                if (string.IsNullOrWhiteSpace(hubPropertyName)) return;
-
-                StringBuilder sb = new StringBuilder();
-
-                var ns = clientClass.ContainingNamespace.ToDisplayString();
-                var className = clientClass.Name;
-
-                sb.Append($@"
+            sb.Append($@"
 using System;
 using Microsoft.AspNetCore.SignalR.Client;
 
@@ -78,52 +77,52 @@ namespace {ns}
     {{
 ");
 
-                foreach (var method in methods)
+            foreach (var method in methods)
+            {
+                if (SymbolEqualityComparer.Default.Equals(method.ReturnType, taskType))
                 {
-                    if(SymbolEqualityComparer.Default.Equals(method.ReturnType, taskType))
+                    if (method.Parameters.Any())
                     {
-                        if (method.Parameters.Any())
-                        {
-                            var parsedParemeters = method.Parameters.Select(p =>
-                                new MethodParameter()
-                                {
-                                    Name = p.Name,
-                                    FullyQualifiedTypeName = p.Type.ToDisplayString(),
-                                });
-                            sb.Append(BuildClientMethod(hubPropertyName, method.Name, parsedParemeters));
-                        }
-                        else
-                        {
-                            sb.Append(BuildClientMethod(hubPropertyName, method.Name));
-                        }
+                        var parsedParemeters = method.Parameters.Select(p =>
+                            new MethodParameter()
+                            {
+                                Name = p.Name,
+                                FullyQualifiedTypeName = p.Type.ToDisplayString(),
+                            });
+                        sb.Append(BuildClientMethod(hubPropertyName, method.Name, parsedParemeters));
+                    }
+                    else
+                    {
+                        sb.Append(BuildClientMethod(hubPropertyName, method.Name));
                     }
                 }
+            }
 
-                sb.Append($@"
+            sb.Append($@"
     }}
 }}
 ");
 
-                context.AddSource($"{className}_ClientMethods", sb.ToString());
-            }
+            context.AddSource($"{className}_ClientMethods", sb.ToString());
         }
+    }
 
-        private string BuildClientMethod(string hubPropertyName, string name)
-        {
-            return $@"
+    private string BuildClientMethod(string hubPropertyName, string name)
+    {
+        return $@"
         public IDisposable On{name}(Action action)
         {{
             return {hubPropertyName}.On(""{name}"", action);
         }}
 ";
-        }
+    }
 
-        private string BuildClientMethod(string hubPropertyName, string name, IEnumerable<MethodParameter> parameters)
-        {
-            string typeAndNameLine = string.Join(", ", parameters.Select(p => $"{p.FullyQualifiedTypeName} {p.Name}"));
-            string typeLine = string.Join(", ", parameters.Select(p => p.FullyQualifiedTypeName));
+    private string BuildClientMethod(string hubPropertyName, string name, IEnumerable<MethodParameter> parameters)
+    {
+        string typeAndNameLine = string.Join(", ", parameters.Select(p => $"{p.FullyQualifiedTypeName} {p.Name}"));
+        string typeLine = string.Join(", ", parameters.Select(p => p.FullyQualifiedTypeName));
 
-            return $@"
+        return $@"
         public delegate void {name}Handler({typeAndNameLine});
 
         public IDisposable On{name}({name}Handler handler)
@@ -132,6 +131,5 @@ namespace {ns}
             return {hubPropertyName}.On(""{name}"", action);
         }}
 ";
-        }       
     }
 }

@@ -1,15 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using HubClientSourceGenerator;
 using Microsoft.CodeAnalysis;
 
-namespace SourceGeneratorSamples
+namespace HubClientSourceGenerator;
+
+[Generator]
+public class HubServerMethodsGenerator : ISourceGenerator
 {
-    [Generator]
-    public class HubServerMethodsGenerator : ISourceGenerator
-    {
-        private const string attributeText = @"
+    private const string attributeText = @"
 using System;
 
 namespace HubClientSourceGenerator
@@ -26,49 +25,49 @@ namespace HubClientSourceGenerator
 }
 ";
 
-        public void Initialize(GeneratorInitializationContext context)
+    public void Initialize(GeneratorInitializationContext context)
+    {
+        context.RegisterForPostInitialization((i) => i.AddSource("AutoHubServerAttribute", attributeText));
+        context.RegisterForSyntaxNotifications(() => new HubGeneratorReciever("HubClientSourceGenerator.AutoHubServerAttribute"));
+    }
+
+    public void Execute(GeneratorExecutionContext context)
+    {
+        if (!(context.SyntaxContextReceiver is HubGeneratorReciever receiver))
+            return;
+
+
+        var attributeSymbol = context.Compilation.GetTypeByMetadataName("HubClientSourceGenerator.AutoHubServerAttribute");
+
+        foreach (var type in receiver.Classes)
         {
-            context.RegisterForPostInitialization((i) => i.AddSource("AutoHubServerAttribute", attributeText));
-            context.RegisterForSyntaxNotifications(() => new HubGeneratorReciever("HubClientSourceGenerator.AutoHubServerAttribute"));
+            ProcessClass(type, attributeSymbol, context);
         }
+    }
 
-        public void Execute(GeneratorExecutionContext context)
+    private void ProcessClass(ITypeSymbol clientClass, ISymbol attributeSymbol, GeneratorExecutionContext context)
+    {
+        var autoAttribute = clientClass.GetAttributes().Single(att => SymbolEqualityComparer.Default.Equals(att.AttributeClass, attributeSymbol));
+        var targetInterfaceType = autoAttribute.ConstructorArguments.First().Value as INamedTypeSymbol;
+        if (targetInterfaceType.TypeKind == TypeKind.Interface)
         {
-            if (!(context.SyntaxContextReceiver is HubGeneratorReciever receiver))
-                return;
+            var taskType = context.Compilation.GetTypeByMetadataName("System.Threading.Tasks.Task");
+            var genericTaskType = context.Compilation.GetTypeByMetadataName("System.Threading.Tasks.Task`1");
+            var methods = targetInterfaceType
+                .GetMembers()
+                .OfType<IMethodSymbol>()
+                //Also include inherited members
+                .Concat(targetInterfaceType.AllInterfaces.SelectMany(inherited => inherited.GetMembers().OfType<IMethodSymbol>()));
 
+            var hubPropertyName = Helpers.FindHubConnectionProperty(clientClass, context);
+            if (string.IsNullOrWhiteSpace(hubPropertyName)) return;
 
-            var attributeSymbol = context.Compilation.GetTypeByMetadataName("HubClientSourceGenerator.AutoHubServerAttribute");
+            StringBuilder sb = new StringBuilder();
 
-            foreach (var type in receiver.Classes)
-            {
-                ProcessClass(type, attributeSymbol, context);
-            }
-        }
+            var ns = clientClass.ContainingNamespace.ToDisplayString();
+            var className = clientClass.Name;
 
-        private void ProcessClass(ITypeSymbol clientClass, ISymbol attributeSymbol, GeneratorExecutionContext context)
-        {
-            var autoAttribute = clientClass.GetAttributes().Single(att => SymbolEqualityComparer.Default.Equals(att.AttributeClass, attributeSymbol));
-            var targetInterfaceType = autoAttribute.ConstructorArguments.First().Value as INamedTypeSymbol;
-            if(targetInterfaceType.TypeKind == TypeKind.Interface)
-            {
-                var taskType = context.Compilation.GetTypeByMetadataName("System.Threading.Tasks.Task");
-                var genericTaskType = context.Compilation.GetTypeByMetadataName("System.Threading.Tasks.Task`1");
-                var methods = targetInterfaceType
-                    .GetMembers()
-                    .OfType<IMethodSymbol>()
-                    //Also include inherited members
-                    .Concat(targetInterfaceType.AllInterfaces.SelectMany(inherited => inherited.GetMembers().OfType<IMethodSymbol>()));
-
-                var hubPropertyName = Helpers.FindHubConnectionProperty(clientClass, context);
-                if (string.IsNullOrWhiteSpace(hubPropertyName)) return;
-
-                StringBuilder sb = new StringBuilder();
-
-                var ns = clientClass.ContainingNamespace.ToDisplayString();
-                var className = clientClass.Name;
-
-                sb.Append($@"
+            sb.Append($@"
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -79,100 +78,99 @@ namespace {ns}
     {{
 ");
 
-                foreach (var method in methods)
+            foreach (var method in methods)
+            {
+                if (SymbolEqualityComparer.Default.Equals(method.ReturnType, taskType))
                 {
-                    if (SymbolEqualityComparer.Default.Equals(method.ReturnType, taskType))
+                    //SendAsync for void methods
+                    if (method.Parameters.Any())
                     {
-                        //SendAsync for void methods
-                        if (method.Parameters.Any())
-                        {
-                            var parsedParemeters = method.Parameters.Select(p =>
-                                new MethodParameter()
-                                {
-                                    Name = p.Name,
-                                    FullyQualifiedTypeName = p.Type.ToDisplayString(),
-                                });
-                            sb.Append(BuildServerMethod(hubPropertyName, method.Name, parsedParemeters));
-                        }
-                        else
-                        {
-                            sb.Append(BuildServerMethod(hubPropertyName, method.Name));
-                        }
+                        var parsedParemeters = method.Parameters.Select(p =>
+                            new MethodParameter()
+                            {
+                                Name = p.Name,
+                                FullyQualifiedTypeName = p.Type.ToDisplayString(),
+                            });
+                        sb.Append(BuildServerMethod(hubPropertyName, method.Name, parsedParemeters));
                     }
-                    else if (SymbolEqualityComparer.Default.Equals(method.ReturnType.OriginalDefinition, genericTaskType) && method.ReturnType is INamedTypeSymbol genericNamedType)
+                    else
                     {
-                        var returnType = genericNamedType.TypeArguments[0];
-                        //Invoke async for methods with return types
-                        if (method.Parameters.Any())
-                        {
-                            var parsedParemeters = method.Parameters.Select(p =>
-                                new MethodParameter()
-                                {
-                                    Name = p.Name,
-                                    FullyQualifiedTypeName = p.Type.ToDisplayString(),
-                                });
-                            sb.Append(BuildServerMethod(hubPropertyName, method.Name, returnType.ToDisplayString(), parsedParemeters));
-                        }
-                        else
-                        {
-                            sb.Append(BuildServerMethod(hubPropertyName, method.Name, returnType.ToDisplayString()));
-                        }
+                        sb.Append(BuildServerMethod(hubPropertyName, method.Name));
                     }
                 }
+                else if (SymbolEqualityComparer.Default.Equals(method.ReturnType.OriginalDefinition, genericTaskType) && method.ReturnType is INamedTypeSymbol genericNamedType)
+                {
+                    var returnType = genericNamedType.TypeArguments[0];
+                    //Invoke async for methods with return types
+                    if (method.Parameters.Any())
+                    {
+                        var parsedParemeters = method.Parameters.Select(p =>
+                            new MethodParameter()
+                            {
+                                Name = p.Name,
+                                FullyQualifiedTypeName = p.Type.ToDisplayString(),
+                            });
+                        sb.Append(BuildServerMethod(hubPropertyName, method.Name, returnType.ToDisplayString(), parsedParemeters));
+                    }
+                    else
+                    {
+                        sb.Append(BuildServerMethod(hubPropertyName, method.Name, returnType.ToDisplayString()));
+                    }
+                }
+            }
 
-                sb.Append($@"
+            sb.Append($@"
     }}
 }}
 ");
 
-                context.AddSource($"{className}_ServerMethods", sb.ToString());
-            }
+            context.AddSource($"{className}_ServerMethods", sb.ToString());
         }
+    }
 
-        private string BuildServerMethod(string hubPropertyName, string name)
-        {
-            return $@"
+    private string BuildServerMethod(string hubPropertyName, string name)
+    {
+        return $@"
         public async Task {name}()
         {{
             await {hubPropertyName}.InvokeAsync(""{name}"");
         }}
 ";
-        }
+    }
 
-        private string BuildServerMethod(string hubPropertyName, string name, IEnumerable<MethodParameter> parameters)
-        {
-            string typeAndNameLine = string.Join(", ", parameters.Select(p => $"{p.FullyQualifiedTypeName} {p.Name}"));
-            string nameLine = string.Join(", ", parameters.Select(p => p.Name));
-            
-            return $@"
+    private string BuildServerMethod(string hubPropertyName, string name, IEnumerable<MethodParameter> parameters)
+    {
+        string typeAndNameLine = string.Join(", ", parameters.Select(p => $"{p.FullyQualifiedTypeName} {p.Name}"));
+        string nameLine = string.Join(", ", parameters.Select(p => p.Name));
+
+        return $@"
         public async Task {name}({typeAndNameLine})
         {{
             await {hubPropertyName}.InvokeAsync(""{name}"", {nameLine});
         }}
 ";
-        }
+    }
 
-        private string BuildServerMethod(string hubPropertyName, string name, string returnType)
-        {
-            return $@"
+    private string BuildServerMethod(string hubPropertyName, string name, string returnType)
+    {
+        return $@"
         public async Task<{returnType}> {name}()
         {{
             return await {hubPropertyName}.InvokeAsync<{returnType}>(""{name}"");
         }}
 ";
-        }
+    }
 
-        private string BuildServerMethod(string hubPropertyName, string name, string returnType, IEnumerable<MethodParameter> parameters)
-        {
-            string typeAndNameLine = string.Join(", ", parameters.Select(p => $"{p.FullyQualifiedTypeName} {p.Name}"));
-            string nameLine = string.Join(", ", parameters.Select(p => p.Name));
+    private string BuildServerMethod(string hubPropertyName, string name, string returnType, IEnumerable<MethodParameter> parameters)
+    {
+        string typeAndNameLine = string.Join(", ", parameters.Select(p => $"{p.FullyQualifiedTypeName} {p.Name}"));
+        string nameLine = string.Join(", ", parameters.Select(p => p.Name));
 
-            return $@"
+        return $@"
         public async Task<{returnType}> {name}({typeAndNameLine})
         {{
             return await {hubPropertyName}.InvokeAsync<{returnType}>(""{name}"", {nameLine});
         }}
 ";
-        }
     }
 }

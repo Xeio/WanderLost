@@ -4,60 +4,59 @@ using HubClientSourceGenerator;
 using WanderLost.Shared;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 
-namespace WanderLost.Client.Services
+namespace WanderLost.Client.Services;
+
+[AutoHubClient(typeof(IMerchantHubClient))]
+[AutoHubServer(typeof(IMerchantHubServer))]
+public sealed partial class MerchantHubClient : IAsyncDisposable
 {
-    [AutoHubClient(typeof(IMerchantHubClient))]
-    [AutoHubServer(typeof(IMerchantHubServer))]
-    public sealed partial class MerchantHubClient : IAsyncDisposable
+    public HubConnection HubConnection { get; init; }
+    private readonly IAccessTokenProvider _accessTokenProvider;
+
+    public MerchantHubClient(IConfiguration configuration, IAccessTokenProvider accessTokenProvider)
     {
-        public HubConnection HubConnection { get; init; }
-        private readonly IAccessTokenProvider _accessTokenProvider;
+        _accessTokenProvider = accessTokenProvider;
+        HubConnection = new HubConnectionBuilder()
+            .WithUrl(configuration["SocketEndpoint"], options => { 
+                options.SkipNegotiation = true;
+                options.Transports = Microsoft.AspNetCore.Http.Connections.HttpTransportType.WebSockets;
+                options.AccessTokenProvider = GetToken;
+            })
+            .WithAutomaticReconnect(new[] {
+                //Stargger reconnections a bit so server doesn't get hammered after a restart
+                TimeSpan.FromSeconds(Random.Shared.Next(5,360)),
+                TimeSpan.FromMinutes(6),
+                TimeSpan.FromMinutes(5),
+                TimeSpan.FromMinutes(5),
+                TimeSpan.FromMinutes(5),
+            })
+            .AddMessagePackProtocol(Utils.BuildMessagePackOptions)
+            .Build();
+        HubConnection.ServerTimeout = TimeSpan.FromMinutes(8);
+        //Would like to increase this, but the browser seems to force-close "idle" sockets after ~3 minutes
+        HubConnection.KeepAliveInterval = TimeSpan.FromMinutes(1);
+    }
+    
+    private async Task<string?> GetToken()
+    {
+        var tokenResult = await _accessTokenProvider.RequestAccessToken();
+        tokenResult.TryGetToken(out var token);
+        return token?.Value;
+    }
 
-        public MerchantHubClient(IConfiguration configuration, IAccessTokenProvider accessTokenProvider)
+    public async ValueTask DisposeAsync()
+    {
+        if (HubConnection is not null)
         {
-            _accessTokenProvider = accessTokenProvider;
-            HubConnection = new HubConnectionBuilder()
-                .WithUrl(configuration["SocketEndpoint"], options => { 
-                    options.SkipNegotiation = true;
-                    options.Transports = Microsoft.AspNetCore.Http.Connections.HttpTransportType.WebSockets;
-                    options.AccessTokenProvider = GetToken;
-                })
-                .WithAutomaticReconnect(new[] {
-                    //Stargger reconnections a bit so server doesn't get hammered after a restart
-                    TimeSpan.FromSeconds(Random.Shared.Next(5,360)),
-                    TimeSpan.FromMinutes(6),
-                    TimeSpan.FromMinutes(5),
-                    TimeSpan.FromMinutes(5),
-                    TimeSpan.FromMinutes(5),
-                })
-                .AddMessagePackProtocol(Utils.BuildMessagePackOptions)
-                .Build();
-            HubConnection.ServerTimeout = TimeSpan.FromMinutes(8);
-            //Would like to increase this, but the browser seems to force-close "idle" sockets after ~3 minutes
-            HubConnection.KeepAliveInterval = TimeSpan.FromMinutes(1);
+            await HubConnection.DisposeAsync();
         }
-        
-        private async Task<string?> GetToken()
-        {
-            var tokenResult = await _accessTokenProvider.RequestAccessToken();
-            tokenResult.TryGetToken(out var token);
-            return token?.Value;
-        }
+    }
 
-        public async ValueTask DisposeAsync()
+    public async Task Connect()
+    {
+        if (HubConnection.State == HubConnectionState.Disconnected)
         {
-            if (HubConnection is not null)
-            {
-                await HubConnection.DisposeAsync();
-            }
-        }
-
-        public async Task Connect()
-        {
-            if (HubConnection.State == HubConnectionState.Disconnected)
-            {
-                await HubConnection.StartAsync();
-            }
+            await HubConnection.StartAsync();
         }
     }
 }

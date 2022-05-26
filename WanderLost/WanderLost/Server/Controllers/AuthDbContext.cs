@@ -5,15 +5,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using WanderLost.Server.Data;
 
-namespace WanderLost.Server.Controllers
-{
-    public class AuthDbContext : ApiAuthorizationDbContext<WanderlostUser>, IDataProtectionKeyContext
-    {
-        public AuthDbContext(DbContextOptions<AuthDbContext> options, IOptions<OperationalStoreOptions> operationalStoreOptions) 
-            : base(options, operationalStoreOptions)
-        {
-        }
+namespace WanderLost.Server.Controllers;
 
-        public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = default!;
+public class AuthDbContext : ApiAuthorizationDbContext<WanderlostUser>, IDataProtectionKeyContext
+{
+    public AuthDbContext(DbContextOptions<AuthDbContext> options, IOptions<OperationalStoreOptions> operationalStoreOptions) 
+        : base(options, operationalStoreOptions)
+    {
     }
+
+    public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = default!;
 }

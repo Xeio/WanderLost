@@ -1,28 +1,27 @@
 ﻿using WanderLost.Shared.Data;
 
-namespace WanderLost.Client.Services
+namespace WanderLost.Client.Services;
+
+public class ActiveDataController
 {
-    public class ActiveDataController
+    public List<ActiveMerchantGroup> MerchantGroups { get; private set; } = new();
+    public Dictionary<Guid, ActiveMerchant> MerchantDictionary { get; private set; } = new();
+    public Dictionary<Guid, VoteType> Votes { get; private set; } = new();
+
+    private readonly ClientStaticDataController StaticData;
+
+    public ActiveDataController(ClientStaticDataController staticData)
     {
-        public List<ActiveMerchantGroup> MerchantGroups { get; private set; } = new();
-        public Dictionary<Guid, ActiveMerchant> MerchantDictionary { get; private set; } = new();
-        public Dictionary<Guid, VoteType> Votes { get; private set; } = new();
+        StaticData = staticData;
+    }
 
-        private readonly ClientStaticDataController StaticData;
+    public async Task Init()
+    {
+        await StaticData.Init();
 
-        public ActiveDataController(ClientStaticDataController staticData)
+        if (MerchantGroups.Count == 0)
         {
-            StaticData = staticData;
-        }
-
-        public async Task Init()
-        {
-            await StaticData.Init();
-
-            if (MerchantGroups.Count == 0)
-            {
-                MerchantGroups.AddRange(StaticData.Merchants.Values.Select(m => new ActiveMerchantGroup() { MerchantData = m }));
-            }
+            MerchantGroups.AddRange(StaticData.Merchants.Values.Select(m => new ActiveMerchantGroup() { MerchantData = m }));
         }
     }
 }

@@ -1,134 +1,133 @@
 ﻿using Blazored.LocalStorage;
 using WanderLost.Shared.Data;
 
-namespace WanderLost.Client.Services
+namespace WanderLost.Client.Services;
+
+public class ClientSettingsController
 {
-    public class ClientSettingsController
+    public string Region { get; private set; } = string.Empty;
+    public string Server { get; private set; } = string.Empty;
+    public bool NotificationsEnabled { get; private set; }
+    public bool NotifyBrowserSoundEnabled { get; private set; }
+    public Dictionary<string, MerchantNotificationSetting> Notifications { get; private set; } = new();
+    public Dictionary<Rarity, int> CardVoteThresholdForNotification { get; set; } = new();
+    public Dictionary<Rarity, int> RapportVoteThresholdForNotification { get; set; } = new();
+    public int LastDisplayedMessageId { get; private set; }
+    public float SoundVolume { get; private set; }
+    public PushSubscription? SavedPushSubscription { get; private set; }
+    public bool BrowserNotifications { get; private set; }
+
+    private bool _initialized = false;
+
+    private readonly ILocalStorageService _localStorageService;
+    private readonly ClientStaticDataController _staticData;
+
+    public ClientSettingsController(ILocalStorageService localStorageService, ClientStaticDataController staticData)
     {
-        public string Region { get; private set; } = string.Empty;
-        public string Server { get; private set; } = string.Empty;
-        public bool NotificationsEnabled { get; private set; }
-        public bool NotifyBrowserSoundEnabled { get; private set; }
-        public Dictionary<string, MerchantNotificationSetting> Notifications { get; private set; } = new();
-        public Dictionary<Rarity, int> CardVoteThresholdForNotification { get; set; } = new();
-        public Dictionary<Rarity, int> RapportVoteThresholdForNotification { get; set; } = new();
-        public int LastDisplayedMessageId { get; private set; }
-        public float SoundVolume { get; private set; }
-        public PushSubscription? SavedPushSubscription { get; private set; }
-        public bool BrowserNotifications { get; private set; }
+        _localStorageService = localStorageService;
+        _staticData = staticData;
+    }
 
-        private bool _initialized = false;
-
-        private readonly ILocalStorageService _localStorageService;
-        private readonly ClientStaticDataController _staticData;
-
-        public ClientSettingsController(ILocalStorageService localStorageService, ClientStaticDataController staticData)
+    public async Task Init()
+    {
+        if (!_initialized)
         {
-            _localStorageService = localStorageService;
-            _staticData = staticData;
-        }
+            await _staticData.Init();
 
-        public async Task Init()
-        {
-            if (!_initialized)
+            Region = await _localStorageService.GetItemAsync<string?>(nameof(Region)) ?? string.Empty;
+            Server = await _localStorageService.GetItemAsync<string?>(nameof(Server)) ?? string.Empty;
+            NotificationsEnabled = await _localStorageService.GetItemAsync<bool?>(nameof(NotificationsEnabled)) ?? false;
+            NotifyBrowserSoundEnabled = await _localStorageService.GetItemAsync<bool?>(nameof(NotifyBrowserSoundEnabled)) ?? false;
+            Notifications = await _localStorageService.GetItemAsync<Dictionary<string, MerchantNotificationSetting>?>(nameof(Notifications)) ?? new();
+            CardVoteThresholdForNotification = await _localStorageService.GetItemAsync<Dictionary<Rarity, int>?>(nameof(CardVoteThresholdForNotification)) ?? new();
+            RapportVoteThresholdForNotification = await _localStorageService.GetItemAsync<Dictionary<Rarity, int>?>(nameof(RapportVoteThresholdForNotification)) ?? new();
+            LastDisplayedMessageId = await _localStorageService.GetItemAsync<int?>(nameof(LastDisplayedMessageId)) ?? 0;
+            SoundVolume = await _localStorageService.GetItemAsync<float?>(nameof(SoundVolume)) ?? 1f;
+            SavedPushSubscription = await _localStorageService.GetItemAsync<PushSubscription?>(nameof(SavedPushSubscription));
+
+            var browserNotifications = await _localStorageService.GetItemAsync<bool?>(nameof(BrowserNotifications));
+            if(browserNotifications != null)
             {
-                await _staticData.Init();
-
-                Region = await _localStorageService.GetItemAsync<string?>(nameof(Region)) ?? string.Empty;
-                Server = await _localStorageService.GetItemAsync<string?>(nameof(Server)) ?? string.Empty;
-                NotificationsEnabled = await _localStorageService.GetItemAsync<bool?>(nameof(NotificationsEnabled)) ?? false;
-                NotifyBrowserSoundEnabled = await _localStorageService.GetItemAsync<bool?>(nameof(NotifyBrowserSoundEnabled)) ?? false;
-                Notifications = await _localStorageService.GetItemAsync<Dictionary<string, MerchantNotificationSetting>?>(nameof(Notifications)) ?? new();
-                CardVoteThresholdForNotification = await _localStorageService.GetItemAsync<Dictionary<Rarity, int>?>(nameof(CardVoteThresholdForNotification)) ?? new();
-                RapportVoteThresholdForNotification = await _localStorageService.GetItemAsync<Dictionary<Rarity, int>?>(nameof(RapportVoteThresholdForNotification)) ?? new();
-                LastDisplayedMessageId = await _localStorageService.GetItemAsync<int?>(nameof(LastDisplayedMessageId)) ?? 0;
-                SoundVolume = await _localStorageService.GetItemAsync<float?>(nameof(SoundVolume)) ?? 1f;
-                SavedPushSubscription = await _localStorageService.GetItemAsync<PushSubscription?>(nameof(SavedPushSubscription));
-
-                var browserNotifications = await _localStorageService.GetItemAsync<bool?>(nameof(BrowserNotifications));
-                if(browserNotifications != null)
-                {
-                    BrowserNotifications = (bool)browserNotifications;
-                }
-                else
-                {
-                    //Compatability to transfer old setting
-                    await SetBrowserNotifications(NotifyBrowserSoundEnabled);
-                }
-
-                _initialized = true;
-            }
-        }
-
-        public async Task SetRegion(string region)
-        {
-            Region = region;
-            await _localStorageService.SetItemAsync(nameof(Region), region);
-        }
-
-        public async Task SetServer(string server)
-        {
-            Server = server;
-            await _localStorageService.SetItemAsync(nameof(Server), server);
-        }
-
-        public async Task SetNotificationsEnabled(bool notificationsEnabled)
-        {
-            NotificationsEnabled = notificationsEnabled;
-            await _localStorageService.SetItemAsync(nameof(NotificationsEnabled), notificationsEnabled);
-        }
-
-        public async Task SetNotifyBrowserSoundEnabled(bool soundEnabled)
-        {
-            NotifyBrowserSoundEnabled = soundEnabled;
-            await _localStorageService.SetItemAsync(nameof(NotifyBrowserSoundEnabled), soundEnabled);
-        }
-
-        public async Task SetLastDisplayedMessageId(int messageId)
-        {
-            LastDisplayedMessageId = messageId;
-            await _localStorageService.SetItemAsync(nameof(LastDisplayedMessageId), messageId);
-        }
-
-        public async Task SetSoundVolume(float volume)
-        {
-            SoundVolume = volume;
-            await _localStorageService.SetItemAsync(nameof(SoundVolume), volume);
-        }
-
-        public async Task SetSavedPushSubscription(PushSubscription? subscription)
-        {
-            if (subscription == null)
-            {
-                await _localStorageService.RemoveItemAsync(nameof(SavedPushSubscription));
+                BrowserNotifications = (bool)browserNotifications;
             }
             else
             {
-                subscription.SendTestNotification = false; //Don't allow saving a "test" setting, in case it's ever set
-                SavedPushSubscription = subscription;
-                await _localStorageService.SetItemAsync(nameof(SavedPushSubscription), subscription);
+                //Compatability to transfer old setting
+                await SetBrowserNotifications(NotifyBrowserSoundEnabled);
             }
-        }
 
-        public async Task SetBrowserNotifications(bool browserNotifications)
-        {
-            BrowserNotifications = browserNotifications;
-            await _localStorageService.SetItemAsync(nameof(BrowserNotifications), browserNotifications);
+            _initialized = true;
         }
+    }
 
-        public async Task SaveNotificationSettings()
-        {
-            await _localStorageService.SetItemAsync(nameof(Notifications), Notifications);
-        }
+    public async Task SetRegion(string region)
+    {
+        Region = region;
+        await _localStorageService.SetItemAsync(nameof(Region), region);
+    }
 
-        public async Task SaveCardVoteThresholdForNotification()
-        {
-            await _localStorageService.SetItemAsync(nameof(CardVoteThresholdForNotification), CardVoteThresholdForNotification);
-        }
+    public async Task SetServer(string server)
+    {
+        Server = server;
+        await _localStorageService.SetItemAsync(nameof(Server), server);
+    }
 
-        public async Task SaveRapportVoteThresholdForNotification()
+    public async Task SetNotificationsEnabled(bool notificationsEnabled)
+    {
+        NotificationsEnabled = notificationsEnabled;
+        await _localStorageService.SetItemAsync(nameof(NotificationsEnabled), notificationsEnabled);
+    }
+
+    public async Task SetNotifyBrowserSoundEnabled(bool soundEnabled)
+    {
+        NotifyBrowserSoundEnabled = soundEnabled;
+        await _localStorageService.SetItemAsync(nameof(NotifyBrowserSoundEnabled), soundEnabled);
+    }
+
+    public async Task SetLastDisplayedMessageId(int messageId)
+    {
+        LastDisplayedMessageId = messageId;
+        await _localStorageService.SetItemAsync(nameof(LastDisplayedMessageId), messageId);
+    }
+
+    public async Task SetSoundVolume(float volume)
+    {
+        SoundVolume = volume;
+        await _localStorageService.SetItemAsync(nameof(SoundVolume), volume);
+    }
+
+    public async Task SetSavedPushSubscription(PushSubscription? subscription)
+    {
+        if (subscription == null)
         {
-            await _localStorageService.SetItemAsync(nameof(RapportVoteThresholdForNotification), RapportVoteThresholdForNotification);
+            await _localStorageService.RemoveItemAsync(nameof(SavedPushSubscription));
         }
+        else
+        {
+            subscription.SendTestNotification = false; //Don't allow saving a "test" setting, in case it's ever set
+            SavedPushSubscription = subscription;
+            await _localStorageService.SetItemAsync(nameof(SavedPushSubscription), subscription);
+        }
+    }
+
+    public async Task SetBrowserNotifications(bool browserNotifications)
+    {
+        BrowserNotifications = browserNotifications;
+        await _localStorageService.SetItemAsync(nameof(BrowserNotifications), browserNotifications);
+    }
+
+    public async Task SaveNotificationSettings()
+    {
+        await _localStorageService.SetItemAsync(nameof(Notifications), Notifications);
+    }
+
+    public async Task SaveCardVoteThresholdForNotification()
+    {
+        await _localStorageService.SetItemAsync(nameof(CardVoteThresholdForNotification), CardVoteThresholdForNotification);
+    }
+
+    public async Task SaveRapportVoteThresholdForNotification()
+    {
+        await _localStorageService.SetItemAsync(nameof(RapportVoteThresholdForNotification), RapportVoteThresholdForNotification);
     }
 }

@@ -1,9 +1,8 @@
-﻿namespace WanderLost.Client
+﻿namespace WanderLost.Client;
+
+public enum NotificationSettingType
 {
-    public enum NotificationSettingType
-    {
-        Card,
-        Rapport,
-        Spawn,
-    }
+    Card,
+    Rapport,
+    Spawn,
 }

@@ -1,8 +1,7 @@
-﻿namespace HubClientSourceGenerator
+﻿namespace HubClientSourceGenerator;
+
+internal class MethodParameter
 {
-    internal class MethodParameter
-    {
-        public string FullyQualifiedTypeName { get; set; }
-        public string Name { get; set; }
-    }
+    public string FullyQualifiedTypeName { get; set; }
+    public string Name { get; set; }
 }
