@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
@@ -147,7 +148,7 @@ fun MainLayout(regions: Map<String, ServerRegion>, pushSubscription: PushSubscri
                 }
             }
         }
-        Row {
+        Row (verticalAlignment = Alignment.CenterVertically) {
             Text(text = "Wei Notify")
             Switch(
                 checked = savedSubscription.weiNotify,
@@ -170,7 +171,7 @@ fun MainLayout(regions: Map<String, ServerRegion>, pushSubscription: PushSubscri
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
         }
-        Row {
+        Row (verticalAlignment = Alignment.CenterVertically) {
             Text(text = "Legendary Rapport Notify")
             Switch(
                 checked = savedSubscription.legendaryRapportNotify,
