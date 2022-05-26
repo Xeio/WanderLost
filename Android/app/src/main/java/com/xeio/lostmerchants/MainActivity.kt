@@ -103,47 +103,56 @@ fun MainLayout(regions: Map<String, ServerRegion>, pushSubscription: PushSubscri
     }
 
     Column(
-        modifier = Modifier.padding(32.dp),
+        modifier = Modifier.padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text(text = "Region")
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(0.5.dp, MaterialTheme.colors.onSurface.copy(alpha = 0.5f))
-                .clickable(onClick = { regionExpanded = true })
-        ) {
-            Text(regions[region]?.Name ?: "")
-            DropdownMenu(expanded = regionExpanded, onDismissRequest = { regionExpanded = false }) {
-                regions.forEach {
-                    DropdownMenuItem(onClick = {
-                        region = it.key
-                        regionExpanded = false
-                    }) {
-                        Text(it.value.Name)
+        Row (verticalAlignment = Alignment.CenterVertically) {
+            Text(text = "Region")
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .border(0.5.dp, MaterialTheme.colors.onSurface.copy(alpha = 0.5f))
+                    .clickable(onClick = { regionExpanded = true })
+            ) {
+                Text(regions[region]?.Name ?: "")
+                DropdownMenu(
+                    expanded = regionExpanded,
+                    onDismissRequest = { regionExpanded = false },
+                ) {
+                    regions.forEach {
+                        DropdownMenuItem(onClick = {
+                            region = it.key
+                            regionExpanded = false
+                        }) {
+                            Text(it.value.Name)
+                        }
                     }
                 }
             }
         }
-        Text(text = "Server")
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(0.5.dp, MaterialTheme.colors.onSurface.copy(alpha = 0.5f))
-                .clickable(onClick = { serverExpanded = true })
-        ) {
-            Text(savedSubscription.server)
-            DropdownMenu(
-                expanded = serverExpanded,
-                onDismissRequest = { serverExpanded = false },
+        Row (verticalAlignment = Alignment.CenterVertically) {
+            Text(text = "Server")
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .border(0.5.dp, MaterialTheme.colors.onSurface.copy(alpha = 0.5f))
+                    .clickable(onClick = { serverExpanded = true })
             ) {
-                regions[region]?.Servers?.forEach {
-                    DropdownMenuItem(onClick = {
-                        pushSubscription.server = it
-                        modified = true
-                        serverExpanded = false
-                    }) {
-                        Text(it)
+                Text(savedSubscription.server)
+                DropdownMenu(
+                    expanded = serverExpanded,
+                    onDismissRequest = { serverExpanded = false },
+                ) {
+                    regions[region]?.Servers?.forEach {
+                        DropdownMenuItem(onClick = {
+                            pushSubscription.server = it
+                            modified = true
+                            serverExpanded = false
+                        }) {
+                            Text(it)
+                        }
                     }
                 }
             }
