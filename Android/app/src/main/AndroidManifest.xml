@@ -19,11 +19,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".OpenBrowser"
+            android:exported="false"
+            android:label="@string/title_activity_open_browser"
+            android:theme="@style/Theme.LostMerchants">
+            <intent-filter>
+                <action android:name="OPEN_LOSTMERCHANTS_BROWSER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <service
             android:name=".LostMerchantsFirebaseService"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>

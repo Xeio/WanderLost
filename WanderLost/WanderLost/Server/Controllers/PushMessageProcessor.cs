@@ -68,7 +68,8 @@ public class PushMessageProcessor
                         Tag = "wei",
                         ChannelId = "wei",
                         EventTimestamp = DateTime.Now,
-                        Priority = NotificationPriority.MAX
+                        Priority = NotificationPriority.MAX,
+                        ClickAction = "OPEN_LOSTMERCHANTS_BROWSER",
                     },
                     Priority = Priority.High,
                     TimeToLive = TimeSpan.FromSeconds(600)
@@ -328,7 +329,8 @@ public class PushMessageProcessor
                     Tag = isWei ? "wei" : "rapport",
                     ChannelId = isWei ? "wei" : "rapport",
                     EventTimestamp = DateTime.Now,
-                    Priority = isWei ? NotificationPriority.MAX : NotificationPriority.HIGH
+                    Priority = isWei ? NotificationPriority.MAX : NotificationPriority.HIGH,
+                    ClickAction = "OPEN_LOSTMERCHANTS_BROWSER",
                 },
                 Priority = Priority.High,
                 TimeToLive = TimeSpan.FromSeconds(ttl)
