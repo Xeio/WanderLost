@@ -1,6 +1,10 @@
 package com.xeio.lostmerchants
 
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -237,6 +241,18 @@ fun MainLayout(regions: Map<String, ServerRegion>, pushSubscription: PushSubscri
             }
         }) {
             Text("Send Test Notification")
+        }
+        Button(onClick = {
+            val openNotificationSettings = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                    .putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+            } else {
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    .setData(Uri.parse("package:" + context.packageName))
+            }
+            context.startActivity(openNotificationSettings)
+        }) {
+            Text("Open Notification Channel Settings")
         }
     }
 }
