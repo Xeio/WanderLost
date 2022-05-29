@@ -20,6 +20,9 @@ else if (!string.IsNullOrWhiteSpace(Message))
 
 
 <div class="container">
+    <div>On Android? Check out the <a href="https://github.com/Xeio/WanderLost/releases">Android app</a> if you'd prefer native notifications.</div>
+    <br/>
+
     @if(!string.IsNullOrWhiteSpace(PushSubscription.Token))
     {
         <h3>Subscribed to server: <strong>@PushSubscription.Server</strong></h3>
