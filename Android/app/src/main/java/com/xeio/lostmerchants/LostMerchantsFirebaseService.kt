@@ -23,6 +23,7 @@ class LostMerchantsFirebaseService : FirebaseMessagingService() {
             PushApi.loanSavedSubscription(applicationContext)?.let {
                 val oldToken = it.token
                 if (newToken != oldToken) {
+                    Log.d("LostMerchants", "New token, updating existing subscription $oldToken")
                     //New token and we have an old subscription, add subscription with new token and remove the old one
                     it.token = newToken
                     PushApi.retrofitService.updatePushSubscription(it)
