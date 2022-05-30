@@ -16,6 +16,7 @@ public class ClientSettingsController
     public float SoundVolume { get; private set; }
     public PushSubscription? SavedPushSubscription { get; private set; }
     public bool BrowserNotifications { get; private set; }
+    public bool RareSoundsOnly { get; private set; }
 
     private bool _initialized = false;
 
@@ -44,6 +45,7 @@ public class ClientSettingsController
             LastDisplayedMessageId = await _localStorageService.GetItemAsync<int?>(nameof(LastDisplayedMessageId)) ?? 0;
             SoundVolume = await _localStorageService.GetItemAsync<float?>(nameof(SoundVolume)) ?? 1f;
             SavedPushSubscription = await _localStorageService.GetItemAsync<PushSubscription?>(nameof(SavedPushSubscription));
+            RareSoundsOnly = await _localStorageService.GetItemAsync<bool?>(nameof(RareSoundsOnly)) ?? false;
 
             var browserNotifications = await _localStorageService.GetItemAsync<bool?>(nameof(BrowserNotifications));
             if(browserNotifications != null)
@@ -94,6 +96,12 @@ public class ClientSettingsController
     {
         SoundVolume = volume;
         await _localStorageService.SetItemAsync(nameof(SoundVolume), volume);
+    }
+
+    public async Task SetRareSoundsOnly(bool rareSoundsOnly)
+    {
+        RareSoundsOnly = rareSoundsOnly;
+        await _localStorageService.SetItemAsync(nameof(RareSoundsOnly), rareSoundsOnly);
     }
 
     public async Task SetSavedPushSubscription(PushSubscription? subscription)

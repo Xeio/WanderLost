@@ -122,7 +122,7 @@ public sealed class ClientNotificationService : IAsyncDisposable
 
         _merchantFoundNotificationCooldown[merchantGroup.MerchantName] = merchantGroup.AppearanceExpires;
 
-        await CheckBrowserNotificationSound();
+        await CheckBrowserNotificationSound(merchantGroup);
         await CheckBrowserNotification(merchantGroup);
     }
 
@@ -179,7 +179,7 @@ public sealed class ClientNotificationService : IAsyncDisposable
     /// <returns></returns>
     public async ValueTask ForceMerchantSpawnNotification(ActiveMerchantGroup merchantGroup)
     {
-        await CheckBrowserNotificationSound();
+        await CheckBrowserNotificationSound(merchantGroup, true);
 
         string body = $"Wandering Merchant \"{merchantGroup.MerchantName}\" is waiting for you somewhere.";
         await CreateNotification($"Wandering Merchant \"{merchantGroup.MerchantName}\" appeared", new { Body = body, Renotify = true, Tag = "spawn_merchant", Icon = "images/notifications/QuestionMark.png" });
@@ -191,9 +191,14 @@ public sealed class ClientNotificationService : IAsyncDisposable
         _notifications.Add(notification);
     }
 
-    public async ValueTask CheckBrowserNotificationSound()
+    public async ValueTask CheckBrowserNotificationSound(ActiveMerchantGroup merchantGroup, bool force = false)
     {
-        if (!_clientSettings.NotifyBrowserSoundEnabled) return;
+        if (!force)
+        {
+            if (!_clientSettings.NotifyBrowserSoundEnabled) return;
+
+            if (_clientSettings.RareSoundsOnly && !merchantGroup.ActiveMerchants.Any(m => m.IsRareCombination)) return;
+        }
 
         try
         {

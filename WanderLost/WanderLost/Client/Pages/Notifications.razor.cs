@@ -26,6 +26,11 @@ public partial class Notifications
         await ClientSettings.SetNotifyBrowserSoundEnabled(!ClientSettings.NotifyBrowserSoundEnabled);
     }
 
+    protected async Task ToggleRareSoundOnly()
+    {
+        await ClientSettings.SetRareSoundsOnly(!ClientSettings.RareSoundsOnly);
+    }
+
     public async Task ToggleBrowserNotifications()
     {
         if (ClientSettings.BrowserNotifications)
@@ -187,7 +192,7 @@ public partial class Notifications
         {
             float volume = i / 100f;
             await ClientSettings.SetSoundVolume(volume);
-            await ClientNotifications.CheckBrowserNotificationSound();
+            await ClientNotifications.CheckBrowserNotificationSound(new(), true);
         }
     }
 }
