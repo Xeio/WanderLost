@@ -157,7 +157,7 @@ public partial class Notifications
         {
             float volume = i / 100f;
             await ClientSettings.SetSoundVolume(volume);
-            await ClientNotifications.CheckBrowserNotificationSound(new(), true);
+            await ClientNotifications.PlaySound();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.JSInterop;
+using System.Diagnostics.CodeAnalysis;
 using WanderLost.Shared.Data;
 
 namespace WanderLost.Client.Services;
@@ -8,8 +9,8 @@ public sealed class ClientNotificationService : IAsyncDisposable
     private readonly ClientSettingsController _clientSettings;
     private readonly IJSRuntime _jsRuntime;
     private readonly List<IJSObjectReference> _notifications = new();
+    private readonly Dictionary<string, DateTimeOffset> _merchantFoundNotificationCooldown = new();
 
-    private Dictionary<string, DateTimeOffset> _merchantFoundNotificationCooldown = new();
     public ClientNotificationService(ClientSettingsController clientSettings, IJSRuntime js)
     {
         _clientSettings = clientSettings;
@@ -75,17 +76,13 @@ public sealed class ClientNotificationService : IAsyncDisposable
     {
         return _merchantFoundNotificationCooldown.TryGetValue(merchantGroup.MerchantName, out DateTimeOffset cooldown) && DateTime.Now < cooldown;
     }
-
-    private bool IsAllowedForMerchantFoundNotifications(ActiveMerchantGroup merchantGroup)
+    
+    private bool AnyMerchantNotified(ActiveMerchantGroup merchantGroup, [NotNullWhen(true)] out ActiveMerchant? notifiedMerchant)
     {
+        notifiedMerchant = null;
         if (merchantGroup.ActiveMerchants.Count == 0) return false;
 
         if (!_clientSettings.Notifications.TryGetValue(merchantGroup.MerchantName, out var notificationSetting))
-        {
-            return false;
-        }
-
-        if (IsMerchantFoundNotificationOnCooldown(merchantGroup))
         {
             return false;
         }
@@ -95,6 +92,7 @@ public sealed class ClientNotificationService : IAsyncDisposable
         {
             if (IsMerchantCardVoteThresholdReached(merchant))
             {
+                notifiedMerchant = merchant;
                 return true;
             }
         }
@@ -103,6 +101,7 @@ public sealed class ClientNotificationService : IAsyncDisposable
         {
             if (IsMerchantRapportVoteThresholdReached(merchant))
             {
+                notifiedMerchant = merchant;
                 return true;
             }
         }
@@ -111,50 +110,53 @@ public sealed class ClientNotificationService : IAsyncDisposable
     }
 
     /// <summary>
-    /// Request a "merchant found" Browser-Notification for the given merchantGroup, rules from usersettings are applied; the request can be denied.
+    /// Check if any of the merchants in the group have a notified item and notify if not on cooldown.
     /// </summary>
-    /// <param name="merchantGroup"></param>
-    /// <returns></returns>
     public async ValueTask CheckItemNotification(ActiveMerchantGroup merchantGroup)
     {
         if (!_clientSettings.NotificationsEnabled) return;
-        if (!IsAllowedForMerchantFoundNotifications(merchantGroup)) return;
+
+        if (IsMerchantFoundNotificationOnCooldown(merchantGroup)) return;
+
+        if (!AnyMerchantNotified(merchantGroup, out var notifiedMerchant)) return;
 
         _merchantFoundNotificationCooldown[merchantGroup.MerchantName] = merchantGroup.AppearanceExpires;
 
-        await CheckBrowserNotificationSound(merchantGroup);
-        await CheckBrowserNotification(merchantGroup);
+        if (_clientSettings.NotifyBrowserSoundEnabled)
+        {
+            if (!_clientSettings.RareSoundsOnly || notifiedMerchant.IsRareCombination)
+            {
+                await PlaySound();
+            }
+        }
+
+        if (_clientSettings.BrowserNotifications)
+        {
+            await BuildBroswerNotification(merchantGroup);
+        }
     }
 
-    /// <summary>
-    /// Force a "merchant found" Browser-Notification for the given merchantGroup, rules from usersettings are NOT applied.
-    /// </summary>
-    /// <param name="merchantGroup"></param>
-    /// <returns></returns>
-    public async ValueTask CheckBrowserNotification(ActiveMerchantGroup merchantGroup)
+    public async ValueTask BuildBroswerNotification(ActiveMerchantGroup merchantGroup)
     {
-        if (!_clientSettings.BrowserNotifications) return;
-
         string body = "";
-        if (merchantGroup.ActiveMerchants.Count > 1)
+        var nonNegativeMerchants = merchantGroup.ActiveMerchants.Where(m => m.Votes >= 0).ToList();
+        if (nonNegativeMerchants.Count > 1)
         {
             body += "Conflicting merchant data, click for more information.";
         }
-        else
+        else if(nonNegativeMerchants.Count > 0)
         {
-            body += $"Location: {merchantGroup.ActiveMerchants[0].Zone}\n";
-            body += $"Card: {merchantGroup.ActiveMerchants[0].Card.Name}\n";
-            body += $"Rapport: {merchantGroup.ActiveMerchants[0].Rapport.Name}\n";
+            body += $"Location: {nonNegativeMerchants[0].Zone}\n";
+            body += $"Card: {nonNegativeMerchants[0].Card.Name}\n";
+            body += $"Rapport: {nonNegativeMerchants[0].Rapport.Name}\n";
         }
 
         await CreateNotification($"Wandering Merchant \"{merchantGroup.MerchantName}\" found", new { Body = body, Renotify = true, Tag = $"found_{merchantGroup.MerchantName}", Icon = "images/notifications/ExclamationMark.png" });
     }
 
     /// <summary>
-    /// Request a "merchant appeared" Browser-Notification for the given merchantGroup, rules from usersettings are applied; the request can be denied.
+    /// Check if merchant spawns are notified for any of the passed in merchants.
     /// </summary>
-    /// <param name="merchantGroup"></param>
-    /// <returns></returns>
     public ValueTask CheckMerchantSpawnNotification(IEnumerable<ActiveMerchantGroup> merchantGroups)
     {
         if (!_clientSettings.NotificationsEnabled) return ValueTask.CompletedTask;
@@ -172,35 +174,10 @@ public sealed class ClientNotificationService : IAsyncDisposable
         return ValueTask.CompletedTask;
     }
 
-    /// <summary>
-    /// Force a "merchant appeared" Browser-Notification for the given merchantGroup, rules from usersettings are NOT applied.
-    /// </summary>
-    /// <param name="merchantGroup"></param>
-    /// <returns></returns>
-    public async ValueTask ForceMerchantSpawnNotification(ActiveMerchantGroup merchantGroup)
-    {
-        await CheckBrowserNotificationSound(merchantGroup, true);
-
-        string body = $"Wandering Merchant \"{merchantGroup.MerchantName}\" is waiting for you somewhere.";
-        await CreateNotification($"Wandering Merchant \"{merchantGroup.MerchantName}\" appeared", new { Body = body, Renotify = true, Tag = "spawn_merchant", Icon = "images/notifications/QuestionMark.png" });
-    }
-
     private async ValueTask CreateNotification(string title, object parameters)
     {
         var notification = await _jsRuntime.InvokeAsync<IJSObjectReference>("Create", title, parameters);
         _notifications.Add(notification);
-    }
-
-    public async ValueTask CheckBrowserNotificationSound(ActiveMerchantGroup merchantGroup, bool force = false)
-    {
-        if (!force)
-        {
-            if (!_clientSettings.NotifyBrowserSoundEnabled) return;
-
-            if (_clientSettings.RareSoundsOnly && !merchantGroup.ActiveMerchants.Any(m => m.IsRareCombination)) return;
-        }
-
-        await PlaySound();
     }
 
     public async ValueTask ClearNotifications()
@@ -252,7 +229,7 @@ public sealed class ClientNotificationService : IAsyncDisposable
         await CreateNotification($"Wandering Merchant Test found", new { Body = "This is only a test", Renotify = true, Tag = $"item", Icon = "images/notifications/ExclamationMark.png" });
     }
 
-    private ValueTask PlaySound()
+    public ValueTask PlaySound()
     {
         try
         {
