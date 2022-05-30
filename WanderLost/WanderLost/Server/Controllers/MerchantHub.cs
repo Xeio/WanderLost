@@ -39,15 +39,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
         var merchantGroup = await _merchantsDbContext.MerchantGroups
             .TagWithCallSite()
             .Where(g => g.Server == server && g.MerchantName == merchant.Name && g.AppearanceExpires > DateTimeOffset.Now)
-            .Select(g => new ActiveMerchantGroup()
-            {
-                Id = g.Id,
-                MerchantName = g.MerchantName,
-                AppearanceExpires = g.AppearanceExpires,
-                NextAppearance = g.NextAppearance,
-                Server = g.Server,
-                ActiveMerchants = g.ActiveMerchants.Where(m => !m.Hidden).ToList(),
-            })
+            .Include(g => g.ActiveMerchants)
             .FirstOrDefaultAsync();
 
         if(merchantGroup == null)
@@ -62,6 +54,8 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
             //Add it to the DB context to save later
             merchantGroup.Server = server;
             merchantGroup.MerchantName = merchant.Name;
+
+            _merchantsDbContext.MerchantGroups.Add(merchantGroup);
         }
 
         var clientIp = GetClientIp();
@@ -73,6 +67,17 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
         {
             if (existingMerchant.IsEqualTo(merchant))
             {
+                if (existingMerchant.Hidden)
+                {
+                    existingMerchant.Hidden = false;
+                    await _merchantsDbContext.SaveChangesAsync();
+
+                    //Need to update the clients since we un-hid an item, also remove any other possible hidden items
+                    merchantGroup.ActiveMerchants.RemoveAll(m => m.Hidden);
+
+                    await Clients.Group(server).UpdateMerchantGroup(server, merchantGroup);
+                }
+
                 //Vote method attaches the merchant entity without database fetch to set the vote process flag
                 //Before calling it clear out the change tracker so we don't get any duplicate entity exceptions
                 _merchantsDbContext.ChangeTracker.Clear();
@@ -81,9 +86,6 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
                 return;
             }
         }
-
-        //Because we did a custom select, the entity won't be attached by default, attach before modifying
-        _merchantsDbContext.Attach(merchantGroup);
 
         //Special handling case for banned users
         if (await HandleBans(clientIp, server, merchantGroup, merchant)) return;
@@ -99,6 +101,9 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
         merchantGroup.ActiveMerchants.Add(merchant);
 
         await _merchantsDbContext.SaveChangesAsync();
+
+        //Before we send to clients, remove anything that should be hidden
+        merchantGroup.ActiveMerchants.RemoveAll(m => m.Hidden);
 
         await Clients.Group(server).UpdateMerchantGroup(server, merchantGroup);
     }
