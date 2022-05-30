@@ -200,15 +200,7 @@ public sealed class ClientNotificationService : IAsyncDisposable
             if (_clientSettings.RareSoundsOnly && !merchantGroup.ActiveMerchants.Any(m => m.IsRareCombination)) return;
         }
 
-        try
-        {
-            await _jsRuntime.InvokeAsync<string>("PlayNotificationSound", _clientSettings.SoundVolume);
-        }
-        catch (Exception)
-        {
-            //ignore
-            //if the sound doesn't play... whatever. No need to let the whole session crash.
-        }
+        await PlaySound();
     }
 
     public async ValueTask ClearNotifications()
@@ -249,5 +241,28 @@ public sealed class ClientNotificationService : IAsyncDisposable
             await hubClient.UpdatePushSubscription(_clientSettings.SavedPushSubscription);
             await _clientSettings.SetSavedPushSubscription(_clientSettings.SavedPushSubscription);
         }
+    }
+
+    public async Task RunTestNotification()
+    {
+        if (_clientSettings.NotifyBrowserSoundEnabled)
+        {
+            await PlaySound();
+        }
+        await CreateNotification($"Wandering Merchant Test found", new { Body = "This is only a test", Renotify = true, Tag = $"item", Icon = "images/notifications/ExclamationMark.png" });
+    }
+
+    private ValueTask PlaySound()
+    {
+        try
+        {
+            return _jsRuntime.InvokeVoidAsync("PlayNotificationSound", _clientSettings.SoundVolume);
+        }
+        catch (Exception)
+        {
+            //ignore
+            //if the sound doesn't play... whatever. No need to let the whole session crash.
+        }
+        return ValueTask.CompletedTask;
     }
 }
