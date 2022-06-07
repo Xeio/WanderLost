@@ -308,8 +308,8 @@ public class PushMessageProcessor
                 },
                 Notification = new WebpushNotification()
                 {
-                    Title = isWei ? "Wei card" : "Legendary Rapport",
-                    Body = isWei ? "Wei Card!!!" : $"Legendary Rapport - {region}",
+                    Title = isWei ? "Wei card!" : "Legendary Rapport",
+                    Body = $"{region} - {merchant.Zone}",
                     Icon = "/images/notifications/ExclamationMark.png",
                     Tag = isWei ? "wei" : "rapport",
                     Renotify = true,
@@ -325,8 +325,8 @@ public class PushMessageProcessor
             {
                 Notification = new AndroidNotification()
                 {
-                    Title = isWei ? "Wei card" : "Legendary Rapport",
-                    Body = isWei ? "Wei Card!!!" : $"Legendary Rapport - {region}",
+                    Title = isWei ? "Wei card!" : "Legendary Rapport",
+                    Body = $"{region} - {merchant.Zone}",
                     Tag = isWei ? "wei" : "rapport",
                     ChannelId = isWei ? "wei" : "rapport",
                     EventTimestamp = DateTime.Now,
