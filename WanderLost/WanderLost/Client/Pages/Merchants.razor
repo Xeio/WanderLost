@@ -63,9 +63,7 @@ else if(ActiveData.MerchantGroups.Count > 0)
 {
     @if(ActiveData.MerchantGroups.Any(m => m.IsActive))
     {
-        <h3 class="mt-3">Active Merchants</h3>
         <ActiveMerchantsGrid Server="@Server" ActiveData="@ActiveData" ActiveOnly="true" />
     }
-    <h3 class="mt-3">Upcoming Merchants</h3>
     <ActiveMerchantsGrid ActiveData="@ActiveData" Server="@Server" />
 }

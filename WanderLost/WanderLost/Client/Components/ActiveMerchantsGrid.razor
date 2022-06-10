@@ -6,6 +6,19 @@
 @{
     bool anyMerchantActive = GetVisibleMerchantGroups().Any(mg => mg.IsActive);
 }
+@if(ActiveOnly)
+{
+    <h3 class="mt-3">Active Merchants
+        @if(GetVisibleMerchantGroups().FirstOrDefault(mg => mg.IsActive) is ActiveMerchantGroup activeGroup)
+        {
+             <span>(Expire in @((activeGroup.AppearanceExpires - DateTimeOffset.UtcNow).ToString(@"mm\:ss")))</span>
+        }
+    </h3>
+}
+else
+{
+    <h3 class="mt-3">Upcoming Merchants</h3>
+}
 <table class="table">
     <thead>
         <tr>
@@ -14,7 +27,6 @@
 
             @if (anyMerchantActive)
             {
-                <td>Expires</td>
                 <th>Zone</th>
                 <th>Card</th>
                 <th>Rapport</th>
@@ -34,17 +46,9 @@
             <tr>
                 <td rowspan="@rowSpan">@merchantGroup.MerchantName</td>
                 <td rowspan="@rowSpan">@merchantGroup.MerchantData.Region</td>
-                @if (anyMerchantActive && merchantGroup.IsActive)
-                {
-                    <td rowspan="@rowSpan">@((merchantGroup.AppearanceExpires - DateTimeOffset.UtcNow).ToString(@"hh\:mm\:ss"))</td>
-                }
-                else if (!anyMerchantActive && merchantGroup.NextAppearance > DateTimeOffset.UtcNow)
+                @if (!anyMerchantActive && merchantGroup.NextAppearance > DateTimeOffset.UtcNow)
                 {
                     <td>@((merchantGroup.NextAppearance - DateTimeOffset.UtcNow).ToString(@"hh\:mm\:ss"))</td>
-                }
-                else
-                {
-                    <td>Active</td>
                 }
 
                 @if (anyMerchantActive && merchantGroup.ActiveMerchants.Count == 0)
