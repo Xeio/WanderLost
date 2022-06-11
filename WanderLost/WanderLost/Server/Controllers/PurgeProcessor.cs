@@ -32,6 +32,8 @@ public class PurgeProcessor : BackgroundService
             using var scope = _services.CreateScope();
             var merchantDbContext = scope.ServiceProvider.GetRequiredService<MerchantsDbContext>();
 
+            merchantDbContext.Database.SetCommandTimeout(TimeSpan.FromMinutes(5));
+
             //Cleanup votes table (totals will still be preserved)
             var deletedVotes = await merchantDbContext.Database.ExecuteSqlInterpolatedAsync(@$"
 DELETE FROM V
