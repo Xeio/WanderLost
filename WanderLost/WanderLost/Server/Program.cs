@@ -106,13 +106,14 @@ if (!string.IsNullOrWhiteSpace(builder.Configuration["FirebaseSecretFile"]))
     });
 }
 
-#if !DEBUG
+if (!builder.Environment.IsDevelopment())
+{
     builder.Logging.ClearProviders();
     builder.Logging.AddSimpleConsole(o =>
     {
         o.SingleLine = true;
     });
-#endif
+}
 
 var app = builder.Build();
 
