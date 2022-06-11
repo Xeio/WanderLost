@@ -140,10 +140,20 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
     {
         var clientId = GetClientIp();
 
-        var existingVote = await _merchantsDbContext.Votes
-            .Where(v => v.ActiveMerchantId == merchantId)
-            .FirstOrDefaultAsync(v => v.ClientId == clientId || (Context.UserIdentifier != null && v.UserId == Context.UserIdentifier));
-        if(existingVote == null)
+        Vote? existingVote;
+        if (!string.IsNullOrWhiteSpace(Context.UserIdentifier))
+        {
+            existingVote = await _merchantsDbContext.Votes
+               .Where(v => v.ActiveMerchantId == merchantId)
+               .FirstOrDefaultAsync(v => v.UserId == Context.UserIdentifier);
+        }
+        else
+        {
+            existingVote = await _merchantsDbContext.Votes
+               .Where(v => v.ActiveMerchantId == merchantId)
+               .FirstOrDefaultAsync(v => v.ClientId == clientId);
+        }
+        if(existingVote is null)
         {
             var vote = new Vote()
             {
@@ -226,12 +236,23 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
 
     public async Task<IEnumerable<Vote>> RequestClientVotes(string server)
     {
+        if (!string.IsNullOrWhiteSpace(Context.UserIdentifier))
+        {
+            return await _merchantsDbContext.MerchantGroups
+            .TagWithCallSite()
+            .AsNoTracking()
+            .Where(g => g.Server == server && g.AppearanceExpires > DateTimeOffset.Now)
+            .SelectMany(mg => mg.ActiveMerchants.SelectMany(m => m.ClientVotes))
+            .Where(vote => vote.UserId == Context.UserIdentifier)
+            .ToListAsync();
+        }
         var clientIp = GetClientIp();
         return await _merchantsDbContext.MerchantGroups
             .TagWithCallSite()
             .AsNoTracking()
             .Where(g => g.Server == server && g.AppearanceExpires > DateTimeOffset.Now)
-            .SelectMany(mg => mg.ActiveMerchants.SelectMany(m => m.ClientVotes.Where(vote => vote.ClientId == clientIp || (Context.UserIdentifier != null && vote.UserId == Context.UserIdentifier))))
+            .SelectMany(mg => mg.ActiveMerchants.SelectMany(m => m.ClientVotes))
+            .Where(vote => vote.ClientId == clientIp)
             .ToListAsync();
     }
 

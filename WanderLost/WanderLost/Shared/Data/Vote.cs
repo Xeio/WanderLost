@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace WanderLost.Shared.Data;
@@ -6,6 +7,11 @@ namespace WanderLost.Shared.Data;
 [MessagePack.MessagePackObject]
 public class Vote
 {
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Key]
+    [MessagePack.IgnoreMember]
+    public long Id { get; set; }
+
     [MessagePack.Key(0)]
     public Guid ActiveMerchantId { get; init; }
 
