@@ -13,14 +13,12 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
 
     private readonly DataController _dataController;
     private readonly MerchantsDbContext _merchantsDbContext;
-    private readonly AuthDbContext _authDbContext;
     private readonly IConfiguration _configuration;
 
-    public MerchantHub(DataController dataController, MerchantsDbContext merchantsDbContext, AuthDbContext authDbContext, IConfiguration configuration)
+    public MerchantHub(DataController dataController, MerchantsDbContext merchantsDbContext, IConfiguration configuration)
     {
         _dataController = dataController;
         _merchantsDbContext = merchantsDbContext;
-        _authDbContext = authDbContext;
         _configuration = configuration;
     }
 
@@ -296,19 +294,19 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
 
         if (merchant.Votes < -3 && merchant.Card.Name == "Wei")
         {
-            var user = await _authDbContext.Users
+            var user = await _merchantsDbContext.Users
                                 .TagWithCallSite()
                                 .FirstAsync(u => u.Id == merchant.UploadedByUserId);
 
             if(user.BanExpires is null)
             {
                 user.BanExpires = DateTimeOffset.Now.AddDays(30);
-                await _authDbContext.SaveChangesAsync();
+                await _merchantsDbContext.SaveChangesAsync();
             }
             else if (user.BanExpires <= DateTimeOffset.Now)
             {
                 user.BanExpires = DateTimeOffset.Now.AddYears(99);
-                await _authDbContext.SaveChangesAsync();
+                await _merchantsDbContext.SaveChangesAsync();
             }
         }
         else if (merchant.Votes < -5 && merchant.Rapport.Rarity == Rarity.Legendary)
@@ -317,19 +315,19 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
             var allSubmissionTotal = await UserVoteTotal(merchant.UploadedByUserId);
             if (allSubmissionTotal < 0)
             {
-                var user = await _authDbContext.Users
+                var user = await _merchantsDbContext.Users
                                 .TagWithCallSite()
                                 .FirstAsync(u => u.Id == merchant.UploadedByUserId);
 
                 if (user.BanExpires is null)
                 {
                     user.BanExpires = DateTimeOffset.Now.AddDays(14);
-                    await _authDbContext.SaveChangesAsync();
+                    await _merchantsDbContext.SaveChangesAsync();
                 }
                 else if (user.BanExpires <= DateTimeOffset.Now)
                 {
                     user.BanExpires = DateTimeOffset.Now.AddYears(99);
-                    await _authDbContext.SaveChangesAsync();
+                    await _merchantsDbContext.SaveChangesAsync();
                 }
             }
         }
@@ -339,7 +337,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
     {
         if (!string.IsNullOrWhiteSpace(userId))
         {
-            var user = await _authDbContext.Users
+            var user = await _merchantsDbContext.Users
                 .TagWithCallSite()
                 .FirstOrDefaultAsync(u => u.Id == userId);
             if(user is not null)

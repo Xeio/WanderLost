@@ -1,14 +1,18 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Duende.IdentityServer.EntityFramework.Options;
+using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using WanderLost.Server.Data;
 using WanderLost.Shared.Data;
 
 namespace WanderLost.Server.Controllers;
 
-public class MerchantsDbContext : DbContext
+public class MerchantsDbContext : ApiAuthorizationDbContext<WanderlostUser>, IDataProtectionKeyContext
 {
-    public MerchantsDbContext(DbContextOptions<MerchantsDbContext> options) : base(options)
+    public MerchantsDbContext(DbContextOptions<MerchantsDbContext> options, IOptions<OperationalStoreOptions> operationalStoreOptions)
+        : base(options, operationalStoreOptions)
     {
-
     }
 
     public DbSet<ActiveMerchantGroup> MerchantGroups { get; set; } = default!;
@@ -17,9 +21,12 @@ public class MerchantsDbContext : DbContext
     public DbSet<Ban> Bans { get; set; } = default!;
     public DbSet<PushSubscription> PushSubscriptions { get; set; } = default!;
     public DbSet<SentPushNotification> SentPushNotifications { get; set; } = default!;
+    public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<ActiveMerchantGroup>()
             .HasAlternateKey(g => new { g.Server, g.MerchantName, g.AppearanceExpires });
 

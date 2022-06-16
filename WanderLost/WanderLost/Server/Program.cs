@@ -16,23 +16,25 @@ using WanderLost.Shared;
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration["SqlConnectionString"];
-builder.Services.AddDbContext<AuthDbContext>(options =>
-    options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<MerchantsDbContext>(opts =>
+{
+    opts.UseSqlServer(connectionString);
+});
 
 builder.Services.AddDataProtection()
     .SetApplicationName("Wanderlost")
-    .PersistKeysToDbContext<AuthDbContext>();
+    .PersistKeysToDbContext<MerchantsDbContext>();
 
 builder.Services.AddIdentityCore<WanderlostUser>(opts => {
     opts.User.AllowedUserNameCharacters = string.Empty;
 })
     .AddSignInManager()
     .AddDefaultTokenProviders()
-    .AddEntityFrameworkStores<AuthDbContext>();
+    .AddEntityFrameworkStores<MerchantsDbContext>();
 
 builder.Services.AddIdentityServer()
-    .AddApiAuthorization<WanderlostUser, AuthDbContext>()
-    .AddOperationalStore<AuthDbContext>(o =>
+    .AddApiAuthorization<WanderlostUser, MerchantsDbContext>()
+    .AddOperationalStore<MerchantsDbContext>(o =>
     {
         o.EnableTokenCleanup = true;
     });
@@ -86,11 +88,6 @@ builder.Services.AddResponseCompression(opts =>
 {
     opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
         new[] { "application/octet-stream" });
-});
-
-builder.Services.AddDbContext<MerchantsDbContext>(opts =>
-{
-    opts.UseSqlServer(connectionString);
 });
 
 builder.Services.AddScoped<PushMessageProcessor>();
@@ -188,10 +185,15 @@ using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>(
 {
     //Ensure model is created and up to date on startup
     using var merchantsContext = serviceScope.ServiceProvider.GetService<MerchantsDbContext>();
-    merchantsContext?.Database.Migrate();
-
-    using var authContext = serviceScope.ServiceProvider.GetService<AuthDbContext>();
-    authContext?.Database.Migrate();
+    try
+    {
+        merchantsContext?.Database.Migrate();
+    }
+    catch(Microsoft.Data.SqlClient.SqlException)
+    {
+        //Try migrating twice, since we potentially expect the CombineDbContexts migration to fail the first time
+        merchantsContext?.Database.Migrate();
+    }
 }
 
 app.Run();
