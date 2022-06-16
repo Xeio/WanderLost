@@ -6,15 +6,17 @@ namespace WanderLost.Client.Services;
 
 public sealed class ClientNotificationService : IAsyncDisposable
 {
+    private readonly ActiveDataController _activeData;
     private readonly ClientSettingsController _clientSettings;
     private readonly IJSRuntime _jsRuntime;
     private readonly List<IJSObjectReference> _notifications = new();
     private readonly Dictionary<string, DateTimeOffset> _merchantFoundNotificationCooldown = new();
 
-    public ClientNotificationService(ClientSettingsController clientSettings, IJSRuntime js)
+    public ClientNotificationService(ClientSettingsController clientSettings, IJSRuntime js, ActiveDataController activeData)
     {
         _clientSettings = clientSettings;
         _jsRuntime = js;
+        _activeData = activeData;
     }
 
     public async Task Init()
@@ -121,6 +123,12 @@ public sealed class ClientNotificationService : IAsyncDisposable
         if (!AnyMerchantNotified(merchantGroup, out var notifiedMerchant)) return;
 
         _merchantFoundNotificationCooldown[merchantGroup.MerchantName] = merchantGroup.AppearanceExpires;
+
+        if(_activeData.Votes.ContainsKey(notifiedMerchant.Id))
+        {
+            //Don't need to play alert for merchants user has upvoted (either submitted or otherwise)
+            return;
+        }
 
         if (_clientSettings.NotifyBrowserSoundEnabled)
         {
