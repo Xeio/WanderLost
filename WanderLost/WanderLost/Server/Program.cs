@@ -94,6 +94,7 @@ builder.Services.AddScoped<PushMessageProcessor>();
 builder.Services.AddHostedService<PushWorkerService>();
 builder.Services.AddHostedService<BackgroundVoteProcessor>();
 builder.Services.AddHostedService<PurgeProcessor>();
+builder.Services.AddHostedService<BanProcessor>();
 
 if (!string.IsNullOrWhiteSpace(builder.Configuration["FirebaseSecretFile"]))
 {

@@ -79,6 +79,10 @@ public class ActiveMerchant
     [MessagePack.IgnoreMember]
     public bool RequiresVoteProcessing { get; set; }
 
+    [JsonIgnore]
+    [MessagePack.IgnoreMember]
+    public bool PostProcessComplete { get; set; }
+
     public void ClearInstance()
     {
         Zone = string.Empty;

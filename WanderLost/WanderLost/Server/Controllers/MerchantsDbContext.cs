@@ -44,6 +44,10 @@ public class MerchantsDbContext : ApiAuthorizationDbContext<WanderlostUser>, IDa
             .HasIndex(m => new { m.RequiresVoteProcessing })
             .HasFilter($"[{nameof(ActiveMerchant.RequiresVoteProcessing)}] = 1");
 
+        modelBuilder.Entity<ActiveMerchant>()
+            .HasIndex(m => new { m.PostProcessComplete })
+            .HasFilter($"[{nameof(ActiveMerchant.PostProcessComplete)}] = 0");
+
         modelBuilder.Entity<Ban>()
             .HasKey(b => new { b.ClientId, b.ExpiresAt });
 

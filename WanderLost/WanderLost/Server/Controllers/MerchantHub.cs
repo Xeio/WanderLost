@@ -169,8 +169,6 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
 
             //Vote totals are tallied and sent by BackgroundVoteProcessor, just tell client their vote was counted
             await Clients.Caller.UpdateVoteSelf(merchantId, voteType);
-
-            //await CheckAutobans(activeMerchant);
         }
         else if(existingVote.VoteType != voteType)
         {
@@ -284,55 +282,6 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
         //If the config is missing for some reason default to false
         return Task.FromResult(false);
     }
-
-    private async Task CheckAutobans(ActiveMerchant merchant)
-    {
-        //TODO: This is mostly disabled anyway, probaly want to move this to a background processor and process at the top of the hour
-
-        //Only auto-banning for rare combos, so they must have a user ID
-        if (string.IsNullOrWhiteSpace(merchant.UploadedByUserId)) return;
-
-        if (merchant.Votes < -3 && merchant.Card.Name == "Wei")
-        {
-            var user = await _merchantsDbContext.Users
-                                .TagWithCallSite()
-                                .FirstAsync(u => u.Id == merchant.UploadedByUserId);
-
-            if(user.BanExpires is null)
-            {
-                user.BanExpires = DateTimeOffset.Now.AddDays(30);
-                await _merchantsDbContext.SaveChangesAsync();
-            }
-            else if (user.BanExpires <= DateTimeOffset.Now)
-            {
-                user.BanExpires = DateTimeOffset.Now.AddYears(99);
-                await _merchantsDbContext.SaveChangesAsync();
-            }
-        }
-        else if (merchant.Votes < -5 && merchant.Rapport.Rarity == Rarity.Legendary)
-        {
-            //Try to avoid banning for rapport misclicks if user is mostly upvoted
-            var allSubmissionTotal = await UserVoteTotal(merchant.UploadedByUserId);
-            if (allSubmissionTotal < 0)
-            {
-                var user = await _merchantsDbContext.Users
-                                .TagWithCallSite()
-                                .FirstAsync(u => u.Id == merchant.UploadedByUserId);
-
-                if (user.BanExpires is null)
-                {
-                    user.BanExpires = DateTimeOffset.Now.AddDays(14);
-                    await _merchantsDbContext.SaveChangesAsync();
-                }
-                else if (user.BanExpires <= DateTimeOffset.Now)
-                {
-                    user.BanExpires = DateTimeOffset.Now.AddYears(99);
-                    await _merchantsDbContext.SaveChangesAsync();
-                }
-            }
-        }
-    }
-
     private async Task<bool> HasActiveBan(string clientId, string? userId)
     {
         if (!string.IsNullOrWhiteSpace(userId))
