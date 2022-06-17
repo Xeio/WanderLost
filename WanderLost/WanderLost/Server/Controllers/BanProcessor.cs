@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using WanderLost.Server.Data;
 using WanderLost.Shared.Data;
 using WanderLost.Shared.Interfaces;
 
@@ -25,7 +26,7 @@ public class BanProcessor : BackgroundService
             if (stoppingToken.IsCancellationRequested) return;
 
             //Run this between :15 and :19 after the hour
-            if (DateTime.Now.Minute >= 15 && DateTime.Now.Minute < 20) continue;
+            if (DateTime.Now.Minute < 15 || DateTime.Now.Minute > 19) continue;
 
             using var scope = _services.CreateScope();
             var merchantDbContext = scope.ServiceProvider.GetRequiredService<MerchantsDbContext>();
@@ -128,7 +129,7 @@ public class BanProcessor : BackgroundService
             var user = await merchantContext.Users
                 .TagWithCallSite()
                 .Where(u => u.Id == merchant.UploadedByUserId)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(stoppingToken);
 
             if (user is not null)
             {
@@ -152,18 +153,20 @@ public class BanProcessor : BackgroundService
                     .TagWithCallSite()
                     .AsNoTracking()
                     .Where(b => b.ClientId == merchant.UploadedBy)
-                    .ToListAsync();
-                if(existingBans.Count(b => b.ExpiresAt > DateTimeOffset.Now) == 0)
+                    .ToListAsync(stoppingToken);
+                if(!existingBans.Any(b => b.ExpiresAt > DateTimeOffset.Now))
                 {
                     //Extended ban if IP already has expired bans
                     var extendedBan = existingBans.Count > 0;
                     //Anonymous user, add to IP bans
-                    await merchantContext.Bans.AddAsync(new Data.Ban()
+                    var ban = new Ban()
                     {
                         ClientId = merchant.UploadedBy,
                         CreatedAt = DateTimeOffset.Now,
                         ExpiresAt = DateTimeOffset.Now.AddDays(extendedBan ? banDays * 2 : banDays),
-                    });
+                    };
+                    await merchantContext.Bans.AddAsync(ban, stoppingToken);
+                    _logger.LogInformation("Banning IP {ip} for merchant {merchantId}. Expires: {banExpires}", merchant.UploadedBy, merchant.Id, ban.ExpiresAt);
                 }
             }
         }
