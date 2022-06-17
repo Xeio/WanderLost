@@ -1,4 +1,6 @@
-﻿namespace WanderLost.Server.Controllers;
+﻿using FirebaseAdmin.Messaging;
+
+namespace WanderLost.Server.Controllers;
 
 public class PushWorkerService : BackgroundService
 {
@@ -28,9 +30,17 @@ public class PushWorkerService : BackgroundService
             using var scope = _services.CreateScope();
             var messageProcessor = scope.ServiceProvider.GetRequiredService<PushMessageProcessor>();
 
-            await messageProcessor.SendTestNotifications(stoppingToken);
+            try
+            {
+                await messageProcessor.SendTestNotifications(stoppingToken);
 
-            await messageProcessor.RunMerchantUpdates(stoppingToken);
+                await messageProcessor.RunMerchantUpdates(stoppingToken);
+            }
+            catch(FirebaseMessagingException e)
+            {
+                //If for some reason the overall requests fail, log error and just try again next polling period
+                _logger.LogError(e, "Communication failure with Firebase.");
+            }
         }
     }
 }
