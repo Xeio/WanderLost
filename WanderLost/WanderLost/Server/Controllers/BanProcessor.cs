@@ -113,8 +113,17 @@ public class BanProcessor : BackgroundService
                 banDays = 30;
             }
         }
+        else if (string.IsNullOrWhiteSpace(merchant.UploadedByUserId) && merchant.Votes < -2)
+        {
+            var merchants = await GetAssociatedMerchants(merchant, merchantContext, stoppingToken);
+            if(merchants.All(m => m.Votes <= 0) && merchants.Sum(m => m.Votes) < -9)
+            {
+                //Anonymous user with no positive submissions
+                banDays = 14;
+            }
+        }
 
-        if(permaban || banDays > 0)
+        if (permaban || banDays > 0)
         {
             var user = await merchantContext.Users
                 .TagWithCallSite()
@@ -135,6 +144,26 @@ public class BanProcessor : BackgroundService
                     user.BanExpires = DateTimeOffset.Now.AddYears(100);
                     user.BannedAt = DateTimeOffset.Now;
                     _logger.LogInformation("Banning user {user} for merchant {merchantId}. Multi permaban.", merchant.UploadedByUserId, merchant.Id);
+                }
+            }
+            else
+            {
+                var existingBans = await merchantContext.Bans
+                    .TagWithCallSite()
+                    .AsNoTracking()
+                    .Where(b => b.ClientId == merchant.UploadedBy)
+                    .ToListAsync();
+                if(existingBans.Count(b => b.ExpiresAt > DateTimeOffset.Now) == 0)
+                {
+                    //Extended ban if IP already has expired bans
+                    var extendedBan = existingBans.Count > 0;
+                    //Anonymous user, add to IP bans
+                    await merchantContext.Bans.AddAsync(new Data.Ban()
+                    {
+                        ClientId = merchant.UploadedBy,
+                        CreatedAt = DateTimeOffset.Now,
+                        ExpiresAt = DateTimeOffset.Now.AddDays(extendedBan ? banDays * 2 : banDays),
+                    });
                 }
             }
         }
