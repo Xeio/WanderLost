@@ -1,0 +1,31 @@
+﻿@using Microsoft.AspNetCore.Authorization
+
+@inject MerchantHubClient HubClient
+
+@page "/Profile"
+
+@attribute [Authorize]
+
+<div class="container">
+    <AuthorizeView>
+        <Authorized>
+            <h3>Stats for @context.User.Identity?.Name</h3>
+        </Authorized>
+    </AuthorizeView>
+    <p>Primary Server: @Stats.PrimaryServer</p>
+    <p>Total Submissions: @Stats.UpvotedMerchats</p>
+    <p>Total Upvotes: @Stats.TotalUpvotes</p>
+    @*<p>First Submission: @Stats.OldestSubmission</p>*@
+    @*<p>Most Recent Submission: @Stats.NewestSubmission</p>*@
+</div>
+
+@code {
+    private ProfileStats Stats = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await HubClient.Connect();
+
+        Stats = await HubClient.GetProfileStats();
+    }
+}

@@ -352,4 +352,42 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
             //Probably happens mainly if a user multi-clicks delete before the request has completed
         }
     }
+
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public async Task<ProfileStats> GetProfileStats()
+    {
+        var votesAndCount = await _merchantsDbContext.ActiveMerchants
+            .TagWithCallSite()
+            .Where(m => m.UploadedByUserId == Context.UserIdentifier && m.Votes >= 0 && !m.Hidden)
+            .Include(m => m.ActiveMerchantGroup)
+            .GroupBy(m => m.UploadedByUserId, (_, rows) => new
+            {
+                VoteTotal = rows.Sum(m => m.Votes),
+                TotalSubmisisons = rows.Count(),
+                OldestSubmission = rows.Max(m => m.ActiveMerchantGroup.NextAppearance.Date),
+                NewestSubmission = rows.Max(m => m.ActiveMerchantGroup.NextAppearance.Date),
+            })
+            .FirstOrDefaultAsync();
+
+        var server = await _merchantsDbContext.ActiveMerchants
+            .TagWithCallSite()
+            .Where(m => m.UploadedByUserId == Context.UserIdentifier && m.Votes >= 0 && !m.Hidden)
+            .Include(m => m.ActiveMerchantGroup)
+            .GroupBy(m => m.ActiveMerchantGroup.Server, (server, rows) => new { 
+                Server = server,
+                Count = rows.Count()
+            })
+            .OrderByDescending(i => i.Count)
+            .Select(i => i.Server)
+            .FirstOrDefaultAsync();
+
+        return new ProfileStats()
+        {
+             PrimaryServer = server ?? "No submissions",
+             TotalUpvotes = votesAndCount?.VoteTotal ?? 0,
+             UpvotedMerchats = votesAndCount?.TotalSubmisisons ?? 0,
+             //NewestSubmission = votesAndCount?.NewestSubmission != null ? DateOnly.FromDateTime(votesAndCount.NewestSubmission) : null,
+             //OldestSubmission = votesAndCount?.OldestSubmission != null ? DateOnly.FromDateTime(votesAndCount.OldestSubmission) : null,
+        };
+    }
 }

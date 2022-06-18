@@ -14,4 +14,5 @@ public interface IMerchantHubServer
     Task<PushSubscription?> GetPushSubscription(string clientToken);
     Task UpdatePushSubscription(PushSubscription subscription);
     Task RemovePushSubscription(string clientToken);
+    Task<ProfileStats> GetProfileStats();
 }
