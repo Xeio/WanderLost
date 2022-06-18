@@ -163,6 +163,8 @@ public class PushMessageProcessor
 
             await ProcessMerchant(merchant);
         }
+
+        await _merchantContext.SaveChangesAsync(stoppingToken);
     }
 
     private async Task ProcessMerchant(ActiveMerchant merchant)
@@ -172,8 +174,6 @@ public class PushMessageProcessor
         {
             //Don't need to send notifications for downvoted/hidden/expired merchants
             merchant.RequiresProcessing = false;
-            await _merchantContext.SaveChangesAsync();
-            _merchantContext.Entry(merchant).State = EntityState.Detached;
             return;
         }
 
@@ -203,8 +203,6 @@ public class PushMessageProcessor
         }
 
         merchant.RequiresProcessing = false;
-        _merchantContext.SaveChanges();
-        _merchantContext.Entry(merchant).State = EntityState.Detached;
     }
 
     private async Task SendSubscriptionMessages(ActiveMerchant merchant, List<PushSubscription> subcriptions)
@@ -263,6 +261,7 @@ public class PushMessageProcessor
                             //Push token no longer valid or is for another FCM subscription, remove from server
                             _merchantContext.Entry(subscription).State = EntityState.Deleted;
                             break;
+
                         default:
                             sentNotifications.Add(new SentPushNotification()
                             {
