@@ -102,12 +102,8 @@ public class PushMessageProcessor
                             break;
 
                         case MessagingErrorCode.ThirdPartyAuthError:
-                            //Should probably only happen because of code or config issues
-                            _logger.LogCritical(firebaseException, "FCM send failed");
-                            if (batchResponse.SuccessCount == 0)
-                            {
-                                return;
-                            }
+                            //Seems to happen intermittently
+                            _logger.LogWarning(firebaseException, "FCM send failed");
                             break;
 
                         case MessagingErrorCode.InvalidArgument:
@@ -242,12 +238,8 @@ public class PushMessageProcessor
                             break;
 
                         case MessagingErrorCode.ThirdPartyAuthError:
-                            //Should probably only happen because of code or config issues
-                            _logger.LogCritical(firebaseException, "FCM send failed");
-                            if (batchResponse.SuccessCount == 0)
-                            {
-                                return;
-                            }
+                            //Seems to happen intermittently
+                            _logger.LogWarning(firebaseException, "FCM send failed");
                             break;
 
                         case MessagingErrorCode.InvalidArgument:
