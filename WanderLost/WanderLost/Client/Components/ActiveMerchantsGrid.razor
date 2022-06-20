@@ -3,55 +3,32 @@
 
 @using System.Globalization
 
-@{
-    bool anyMerchantActive = GetVisibleMerchantGroups().Any(mg => mg.IsActive);
-}
-@if(ActiveOnly)
-{
-    <h3 class="mt-3">Active Merchants
-        @if(GetVisibleMerchantGroups().FirstOrDefault(mg => mg.IsActive) is ActiveMerchantGroup activeGroup)
-        {
-             <span>(Expire in @((activeGroup.AppearanceExpires - DateTimeOffset.UtcNow).ToString(@"mm\:ss")))</span>
-        }
-    </h3>
-}
-else
-{
-    <h3 class="mt-3">Upcoming Merchants</h3>
-}
+<h3 class="mt-3">Active Merchants
+    @if(ActiveData.MerchantGroups.FirstOrDefault(mg => mg.IsActive) is ActiveMerchantGroup activeGroup)
+    {
+        <span>(Expire in @((activeGroup.AppearanceExpires - DateTimeOffset.UtcNow).ToString(@"mm\:ss")))</span>
+    }
+</h3>
 <table class="table">
     <thead>
         <tr>
             <th>Name</th>
             <th>Region</th>
-
-            @if (anyMerchantActive)
-            {
-                <th>Zone</th>
-                <th>Card</th>
-                <th>Rapport</th>
-                <th>Votes</th>
-                <th></th>
-            }
-            else
-            {
-                <th>Next Appearance In</th>
-            }
+            <th>Zone</th>
+            <th>Card</th>
+            <th>Rapport</th>
+            <th>Votes</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var merchantGroup in GetVisibleMerchantGroups())
+        @foreach (var merchantGroup in ActiveData.MerchantGroups.Where(m => m.IsActive))
         {
             int rowSpan = merchantGroup.ActiveMerchants.Count > 0 ? merchantGroup.ActiveMerchants.Count : 1;
             <tr>
                 <td rowspan="@rowSpan">@merchantGroup.MerchantName</td>
                 <td rowspan="@rowSpan">@merchantGroup.MerchantData.Region</td>
-                @if (!anyMerchantActive && merchantGroup.NextAppearance > DateTimeOffset.UtcNow)
-                {
-                    <td>@((merchantGroup.NextAppearance - DateTimeOffset.UtcNow).ToString(@"hh\:mm\:ss"))</td>
-                }
-
-                @if (anyMerchantActive && merchantGroup.ActiveMerchants.Count == 0)
+                @if (merchantGroup.ActiveMerchants.Count == 0)
                 {
                     <td>?</td>
                     <td>?</td>
@@ -59,7 +36,7 @@ else
                     <td />
                     <td><a href="/UpdateMerchant/@Server/@merchantGroup.MerchantName">Submit Location</a></td>
                 }
-                else if (anyMerchantActive)
+                else
                 {
                     var merchant = merchantGroup.ActiveMerchants.OrderByDescending(m => m.Votes).First();
                     ClientSettings.Notifications.TryGetValue(merchant.Name, out var merchantNotificationSettings);
@@ -125,9 +102,6 @@ else
     [Parameter, EditorRequired]
     public ActiveDataController ActiveData { get; set; } = default!;
 
-    [Parameter]
-    public bool ActiveOnly { get; init; }
-
     [Parameter, EditorRequired]
     public string Server { get; init; } = string.Empty;
 
@@ -170,11 +144,6 @@ else
         }
         //fallback
         return "btn-outline-light";
-    }
-
-    private IEnumerable<ActiveMerchantGroup> GetVisibleMerchantGroups()
-    {
-        return ActiveData.MerchantGroups.Where(mg => mg.IsActive ^ !ActiveOnly);
     }
 
     public async Task SubmitVote(Guid merchantId, VoteType newVote)

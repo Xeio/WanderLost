@@ -63,7 +63,7 @@ else if(ActiveData.MerchantGroups.Count > 0)
 {
     @if(ActiveData.MerchantGroups.Any(m => m.IsActive))
     {
-        <ActiveMerchantsGrid Server="@Server" ActiveData="@ActiveData" ActiveOnly="true" />
+        <ActiveMerchantsGrid Server="@Server" ActiveData="@ActiveData" />
     }
-    <ActiveMerchantsGrid ActiveData="@ActiveData" Server="@Server" />
+    <FutureMerchantsGrid ActiveData="@ActiveData" Server="@Server" />
 }
