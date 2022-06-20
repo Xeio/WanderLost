@@ -46,17 +46,7 @@ public class ClientSettingsController
             SoundVolume = await _localStorageService.GetItemAsync<float?>(nameof(SoundVolume)) ?? 1f;
             SavedPushSubscription = await _localStorageService.GetItemAsync<PushSubscription?>(nameof(SavedPushSubscription));
             RareSoundsOnly = await _localStorageService.GetItemAsync<bool?>(nameof(RareSoundsOnly)) ?? false;
-
-            var browserNotifications = await _localStorageService.GetItemAsync<bool?>(nameof(BrowserNotifications));
-            if(browserNotifications != null)
-            {
-                BrowserNotifications = (bool)browserNotifications;
-            }
-            else
-            {
-                //Compatability to transfer old setting
-                await SetBrowserNotifications(NotifyBrowserSoundEnabled);
-            }
+            BrowserNotifications = await _localStorageService.GetItemAsync<bool?>(nameof(BrowserNotifications)) ?? false;
 
             _initialized = true;
         }
