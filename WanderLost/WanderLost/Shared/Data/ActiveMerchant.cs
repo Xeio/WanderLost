@@ -83,21 +83,6 @@ public class ActiveMerchant
     [MessagePack.IgnoreMember]
     public bool PostProcessComplete { get; set; }
 
-    public void ClearInstance()
-    {
-        Zone = string.Empty;
-        Card = new();
-        Rapport = new();
-    }
-
-    public void CopyInstance(ActiveMerchant other)
-    {
-        //Copies only data sent between client and server
-        Zone = other.Zone;
-        Card = other.Card;
-        Rapport = other.Rapport;
-    }
-
     public bool IsValid(Dictionary<string, MerchantData> allMerchantData)
     {
         if (string.IsNullOrWhiteSpace(Name) ||
