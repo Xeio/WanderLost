@@ -341,7 +341,11 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
             {
                 Token = clientToken,
             };
-            _merchantsDbContext.Entry(subscription).State = EntityState.Deleted;
+            //Rather than delete, just purge all data from the record by storing blank values
+            //If we delete, then this occasionally causes a race condition for primary/foreign key updates
+            //in the background processors when pushing out notifications
+            //TODO: Clean these up later in a background process at a safe time. Maybe after EF7 bulk deletes?
+            _merchantsDbContext.Entry(subscription).State = EntityState.Modified;
             await _merchantsDbContext.SaveChangesAsync();
         }
         catch(DbUpdateConcurrencyException)

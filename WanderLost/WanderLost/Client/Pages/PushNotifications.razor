@@ -112,7 +112,7 @@ else if (!string.IsNullOrWhiteSpace(Message))
         }
 
         var serverSubscription = await HubClient.GetPushSubscription(currentToken);
-        if(serverSubscription != null)
+        if(serverSubscription != null && !string.IsNullOrWhiteSpace(serverSubscription.Server))
         {
             PushSubscription = serverSubscription;
             _editContext = new(PushSubscription);
