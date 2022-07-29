@@ -1,0 +1,43 @@
+﻿<div class="merchant">
+    @if (SecondaryMerchant != null)
+    {
+        <div class="merchant__deck">
+            @if (TetriraryMerchant != null)
+            {
+                <Card ClassName="merchant__card merchant__card--tetriary" Merchant="@TetriraryMerchant" />
+            }
+            <Card ClassName="merchant__card merchant__card--secondary" Merchant="@SecondaryMerchant" />
+        </div>
+    }
+    <Card ClassName="merchant__card" Merchant="@MainMerchant" />
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public ActiveMerchantGroup MerchantGroup { get; set; } = default!;
+
+    public ActiveMerchant MainMerchant
+    {
+        get
+        {
+            return MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).First();
+        }
+    }
+
+    public ActiveMerchant SecondaryMerchant
+    {
+        get
+        {
+            return MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).Skip(1).First();
+        }
+    }
+
+    public ActiveMerchant TetriraryMerchant
+    {
+        get
+        {
+            return MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).Skip(2).First();
+        }
+    }
+
+}

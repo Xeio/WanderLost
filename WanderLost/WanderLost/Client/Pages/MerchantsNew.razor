@@ -1,0 +1,14 @@
+@page "/new"
+
+<PageTitle>Lost Merchants</PageTitle>
+
+@{
+    var activeMerchantGroup = ActiveData.MerchantGroups.Where(mg => mg.IsActive).First();
+}
+
+@if (activeMerchantGroup != null)
+{
+    <Merchant MerchantGroup="@activeMerchantGroup"/> 
+}
+
+

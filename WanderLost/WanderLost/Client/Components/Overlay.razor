@@ -1,0 +1,22 @@
+<CascadingValue Value="Toggle" IsFixed=true>
+    <div class="overlay__main @(isActive ? "overlay__main--faded" : "")">
+        @ChildContent
+    </div>
+</CascadingValue>
+@if (isActive) {
+<div class="overlay__content" @onclick="Toggle">
+    TEST!!
+</div>
+}
+
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    private bool isActive = false;
+
+    public void Toggle() {
+       this.isActive = !this.isActive;
+    }
+}

@@ -1,5 +1,13 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
+:root {
+    --mapbackground: #1a1f23;
+    --gold: #e29521;
+    --purple: #a661cb;
+    --blue: #2c93bc;
+    --green: #9cee32;
+}
+
 .cursor-pointer {
     cursor: pointer;
 }
