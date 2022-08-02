@@ -16,7 +16,9 @@ RequestPermission = async function () {
 };
 
 Create = function (title, options) {
-    return new Notification(title, options);
+    let notification = new Notification(title, options);
+    notification.addEventListener('click', () => window.focus());
+    return notification;
 };
 
 Dismiss = function (notification) {
