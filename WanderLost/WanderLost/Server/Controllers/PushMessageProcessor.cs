@@ -96,16 +96,6 @@ public class PushMessageProcessor
                     _logger.LogInformation("Subscription '{subscriptionId}' failed. Error code: {firebaseErrorCode}", subscription.Id, firebaseException.MessagingErrorCode);
                     switch (firebaseException.MessagingErrorCode)
                     {
-                        case MessagingErrorCode.Internal:
-                        case MessagingErrorCode.Unavailable:
-                            //Ignore and retry later?
-                            break;
-
-                        case MessagingErrorCode.ThirdPartyAuthError:
-                            //Seems to happen intermittently
-                            _logger.LogWarning(firebaseException, "FCM send failed");
-                            break;
-
                         case MessagingErrorCode.InvalidArgument:
 #if DEBUG
                             //Invalid could be due to the server code/config, but could also be an invalid token
@@ -117,9 +107,14 @@ public class PushMessageProcessor
                             //Push token no longer valid or is for another FCM subscription, remove from server
                             _merchantContext.Entry(subscription).State = EntityState.Deleted;
                             break;
-
+                        case MessagingErrorCode.Internal:
+                        case MessagingErrorCode.Unavailable:
+                        case MessagingErrorCode.ThirdPartyAuthError:
                         case MessagingErrorCode.QuotaExceeded:
                         default:
+                            //If a "test" message fails, always clear the flag, otherwise these could loop forever
+                            //At some point may be a good idea to track repeated failures on subscriptions for removal
+                            _logger.LogWarning(firebaseException, "FCM send failed");
                             subscription.SendTestNotification = false;
                             break;
                     }
