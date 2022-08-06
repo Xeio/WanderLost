@@ -60,10 +60,9 @@ else if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.Hu
     <h3 class="mt-3">Select a Server</h3>
 }
 else if(ActiveData.MerchantGroups.Count > 0)
-{
     @if(ActiveData.MerchantGroups.Any(m => m.IsActive))
     {
-        <ActiveMerchantsGrid Server="@Server" ActiveData="@ActiveData" ActiveOnly="true" />
+        <Merchant MerchantGroup="@ActiveData.MerchantGroups.Where(m => m.IsActive).First()"/> 
     }
     <ActiveMerchantsGrid ActiveData="@ActiveData" Server="@Server" />
 }
