@@ -27,7 +27,7 @@
     {
         get
         {
-            return MerchantGroup.ActiveMerchants.Count() > 0 ? MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).First() : null;
+            return MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).FirstOrDefault();
         }
     }
 
@@ -35,7 +35,7 @@
     {
         get
         {
-            return MerchantGroup.ActiveMerchants.Count() > 1 ? MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).Skip(1).First() : null;
+            return MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).Skip(1).FirstOrDefault();
         }
     }
 
@@ -43,7 +43,7 @@
     {
         get
         {
-            return MerchantGroup.ActiveMerchants.Count() > 2 ? MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).Skip(2).First() : null;
+            return MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).Skip(2).FirstOrDefault();
         }
     }
 
