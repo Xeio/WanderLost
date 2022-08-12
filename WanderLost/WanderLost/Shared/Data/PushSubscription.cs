@@ -40,6 +40,14 @@ public class PushSubscription
     [MessagePack.Key(6)]
     public bool SendTestNotification { get; set; }
 
+    /// <summary>
+    /// Number of consecutive messages that failed for Firebase, may be used to clean up defunct subscriptions.
+    /// This automatically clears when a user updates their subscription.
+    /// </summary>
+    [JsonIgnore]
+    [MessagePack.IgnoreMember]
+    public int ConsecutiveFailures { get; set; }
+
     [JsonIgnore]
     [MessagePack.IgnoreMember]
     public DateTimeOffset LastModified { get; set; } = DateTimeOffset.Now;

@@ -93,6 +93,7 @@ public class PushMessageProcessor
             {
                 if (!response.IsSuccess && response.Exception is FirebaseMessagingException firebaseException)
                 {
+                    subscription.ConsecutiveFailures++;
                     _logger.LogInformation("Subscription '{subscriptionId}' failed. Error code: {firebaseErrorCode}", subscription.Id, firebaseException.MessagingErrorCode);
                     switch (firebaseException.MessagingErrorCode)
                     {
@@ -121,6 +122,7 @@ public class PushMessageProcessor
                 }
                 else
                 {
+                    subscription.ConsecutiveFailures = 0;
                     subscription.SendTestNotification = false;
                 }
             }
@@ -172,7 +174,6 @@ public class PushMessageProcessor
         {
             var weiSubscriptions = await _merchantContext.PushSubscriptions
                 .TagWithCallSite()
-                .AsNoTracking()
                 .Where(s => s.Server == merchant.ActiveMerchantGroup.Server)
                 .Where(s => s.WeiNotify && !_merchantContext.SentPushNotifications.Any(sent => sent.Merchant == merchant && sent.SubscriptionId == s.Id))
                 .Where(s => s.WeiVoteThreshold <= merchant.Votes)
@@ -184,7 +185,6 @@ public class PushMessageProcessor
         {
             var rapportSubscriptions = await _merchantContext.PushSubscriptions
                 .TagWithCallSite()
-                .AsNoTracking()
                 .Where(s => s.Server == merchant.ActiveMerchantGroup.Server)
                 .Where(s => s.LegendaryRapportNotify && !_merchantContext.SentPushNotifications.Any(sent => sent.Merchant == merchant && sent.SubscriptionId == s.Id))
                 .Where(s => s.RapportVoteThreshold <= merchant.Votes)
@@ -223,6 +223,7 @@ public class PushMessageProcessor
             {
                 if (!response.IsSuccess && response.Exception is FirebaseMessagingException firebaseException)
                 {
+                    subscription.ConsecutiveFailures++;
                     _logger.LogInformation("Subscription '{subscriptionId}' failed. Error code: {firebaseErrorCode}", subscription.Id, firebaseException.MessagingErrorCode);
                     switch (firebaseException.MessagingErrorCode)
                     {
@@ -260,6 +261,7 @@ public class PushMessageProcessor
                 }
                 else
                 {
+                    subscription.ConsecutiveFailures = 0;
                     sentNotifications.Add(new SentPushNotification()
                     {
                         Merchant = merchant,
@@ -271,11 +273,6 @@ public class PushMessageProcessor
             await _merchantContext.SentPushNotifications.AddRangeAsync(sentNotifications);
 
             await _merchantContext.SaveChangesAsync();
-
-            foreach (var sentNotification in sentNotifications)
-            {
-                _merchantContext.Entry(sentNotification).State = EntityState.Detached;
-            }
         }
     }
 
