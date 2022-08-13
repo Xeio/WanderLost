@@ -114,7 +114,6 @@ public class PushMessageProcessor
                         case MessagingErrorCode.QuotaExceeded:
                         default:
                             //If a "test" message fails, always clear the flag, otherwise these could loop forever
-                            //At some point may be a good idea to track repeated failures on subscriptions for removal
                             _logger.LogWarning(firebaseException, "FCM send failed");
                             subscription.SendTestNotification = false;
                             break;
@@ -257,6 +256,12 @@ public class PushMessageProcessor
                                 SubscriptionId = subscription.Id,
                             });
                             break;
+                    }
+                    if (subscription.ConsecutiveFailures > 100 && firebaseException.MessagingErrorCode == MessagingErrorCode.ThirdPartyAuthError)
+                    {
+                        //If a susbscription is consistently failing due to third party errors, purge it
+                        _merchantContext.Entry(subscription).State = EntityState.Deleted;
+                        _logger.LogInformation($"Purging subscription '{subscription.Id}' due to repeated failures.");
                     }
                 }
                 else
