@@ -257,7 +257,8 @@ public class PushMessageProcessor
                             });
                             break;
                     }
-                    if (subscription.ConsecutiveFailures > 100 && firebaseException.MessagingErrorCode == MessagingErrorCode.ThirdPartyAuthError)
+                    if (subscription.ConsecutiveFailures > 100 && 
+                        (firebaseException.MessagingErrorCode == MessagingErrorCode.ThirdPartyAuthError || firebaseException.MessagingErrorCode == MessagingErrorCode.Internal))
                     {
                         //If a susbscription is consistently failing due to third party errors, purge it
                         _merchantContext.Entry(subscription).State = EntityState.Deleted;
