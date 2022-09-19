@@ -1,0 +1,29 @@
+﻿<button class="button" @onclick="OnClick">
+  <svg class="icon__svg" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false">
+    <path class="icon__path  @(Type == Variant.Like
+              ? Active
+                ? "icon__path--like-active"
+                : "icon__path--like"
+              : Active
+              ? "icon__path--dislike-active"
+              : "icon__path--dislike"
+          )" />
+  </svg>
+</button>
+
+@code {
+  public enum Variant
+  {
+    Like,
+    Dislike
+  }
+
+  [Parameter]
+  public Variant Type { get; set; }
+
+  [Parameter]
+  public bool Active { get; set; }
+
+  [Parameter]
+  public Action OnClick { get; set; }
+}
