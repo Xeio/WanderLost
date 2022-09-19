@@ -17,7 +17,7 @@ public sealed partial class MerchantHubClient : IAsyncDisposable
     {
         _accessTokenProvider = accessTokenProvider;
         HubConnection = new HubConnectionBuilder()
-            .WithUrl(configuration["SocketEndpoint"], options => { 
+            .WithUrl(configuration["SocketEndpoint"] ?? throw new ApplicationException("Missing SocketEndpoint configuration"), options => { 
                 options.SkipNegotiation = true;
                 options.Transports = Microsoft.AspNetCore.Http.Connections.HttpTransportType.WebSockets;
                 options.AccessTokenProvider = GetToken;

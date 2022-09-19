@@ -1,4 +1,4 @@
-using Duende.IdentityServer.Extensions;
+using Duende.IdentityServer.Services;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Authentication;
@@ -55,15 +55,15 @@ builder.Services.AddAuthentication(authenticationOptions =>
     .AddIdentityServerJwt()
     .AddDiscord(discordOptions =>
     {
-        discordOptions.ClientSecret = builder.Configuration["DiscordClientSecret"];
-        discordOptions.ClientId = builder.Configuration["DiscordClientId"];
+        discordOptions.ClientSecret = builder.Configuration["DiscordClientSecret"] ?? throw new ApplicationException("Missing DiscordClientSecret configuration");
+        discordOptions.ClientId = builder.Configuration["DiscordClientId"] ?? throw new ApplicationException("Missing DiscordClientId configuration"); ;
         discordOptions.Scope.Add("email");
         discordOptions.ClaimActions.MapJsonKey("verified", "verified");
         discordOptions.AccessDeniedPath = new PathString("/ErrorMessage/User denied access from Discord authentication.");
     })
     .AddIdentityCookies(identityCookieBuilder =>
     {
-        identityCookieBuilder.ApplicationCookie.Configure(cokieAuthOptions =>
+        identityCookieBuilder.ApplicationCookie?.Configure(cokieAuthOptions =>
         {
             cokieAuthOptions.SlidingExpiration = true;
             cokieAuthOptions.ExpireTimeSpan = TimeSpan.FromDays(30);
@@ -138,7 +138,7 @@ app.UseRouting();
 var identityServerOrigin = builder.Configuration["IdentityServerOrigin"];
 app.Use((context, next) =>
 {
-    context.SetIdentityServerOrigin(identityServerOrigin);
+    context.RequestServices.GetRequiredService<IServerUrls>().Origin = identityServerOrigin;
     return next(context);
 });
 

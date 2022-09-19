@@ -418,7 +418,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
                 ServerWeiCounts = weiCounts.Select(c => (c.Server, c.Count)).ToList(),
                 RecentWeis = recentWeis.Select(r => (r.Server, r.NextAppearance)).ToList()
             };
-        });
+        }) ?? new();
     }
 
     public async Task<List<LeaderboardEntry>> GetLeaderboard(string? server)
