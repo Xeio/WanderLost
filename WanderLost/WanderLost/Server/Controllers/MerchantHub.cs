@@ -263,7 +263,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
 #if DEBUG
         //In debug mode, allow using the connection ID to simulate multiple clients
         return Context.ConnectionId;
-#endif
+#else
 
         //Check for header added by Nginx proxy
         //Potential security concern if this is not hosted behind a proxy that sets X-Real-IP,
@@ -277,6 +277,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
         //Fallback for dev environment
         var remoteAddr = Context.GetHttpContext()?.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
         return remoteAddr;
+#endif
     }
 
     public Task<bool> HasNewerClient(int version)
