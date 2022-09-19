@@ -1,0 +1,26 @@
+﻿<div class="card card_r--@(Merchant.Card.Rarity) @(ClassName)">
+    <div class="card__title">@(Merchant.Name)&nbsp;(@(Merchant.Zone))</div>
+    <div class="card__location" style="background-image: url(/images/zones/@(Uri.EscapeDataString(Merchant.Zone)).jpg)" />
+    <div class="stock">
+        <div class="stock__title">Inventory:</div>
+        <div class="stock__item stock__item_r--@(Merchant.Card.Rarity)">
+            @(Merchant.Card.Name)
+        </div>
+        <div class="stock__item stock__item_r--@(Merchant.Rapport.Rarity)">
+            @(Merchant.Rapport.Name)
+        </div>
+    </div>
+    <div class="card__buttons">
+        <CardButton Type="CardButton.Variant.Like" Active=true />
+        <div class="card__score">0</div>
+        <CardButton Type="CardButton.Variant.Dislike" Active=false />
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public ActiveMerchant Merchant { get; set; }
+
+    [Parameter]
+    public string ClassName { get; set; }
+}
