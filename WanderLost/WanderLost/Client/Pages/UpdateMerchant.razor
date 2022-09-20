@@ -64,7 +64,7 @@
     </div>
     @if (ActiveMerchant.IsRareCombination)
     {
-        <AuthorizeView>
+        <AuthorizeView> 
             <NotAuthorized Context="AuthorizeWarn">
                 <div class="alert @_authMessageStyle">
                     You are trying to submit a rare combination, which requires logging in.

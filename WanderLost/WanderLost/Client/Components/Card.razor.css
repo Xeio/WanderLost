@@ -8,22 +8,22 @@
   background: var(--mapbackground);
 }
 
-.card_r--1 {
+.card_r--uncommon {
   border-color: var(--green);
   color: var(--green);
 }
 
-.card_r--2 {
+.card_r--rare {
   border-color: var(--blue);
   color: var(--blue);
 }
 
-.crad_r--3 {
+.card_r--epic {
   border-color: var(--purple);
   color: var(--purple);
 }
 
-.card_r--4 {
+.card_r--legendary {
   border-color: var(--gold);
   color: var(--gold);
 }
@@ -68,13 +68,13 @@
 }
 
 
-  .card__buttons ::deep button:first-child {
-    margin-left: auto;
-  }
+.card__buttons ::deep button:first-child {
+  margin-left: auto;
+}
 
-  .card__buttons ::deep button:last-child {
-    margin-right: auto;
-  }
+.card__buttons ::deep button:last-child {
+  margin-right: auto;
+}
 
 .stock {
   margin-top: 12px;
@@ -94,18 +94,18 @@
   margin-top: 4px;
 }
 
-.stock__item_r--1 {
+.stock__item_r--uncommon {
   color: var(--green);
 }
 
-.stock__item_r--2 {
+.stock__item_r--rare {
   color: var(--blue);
 }
 
-.stock__item_r--3 {
+.stock__item_r--epic {
   color: var(--purple);
 }
 
-.stock__item_r--4 {
+.stock__item_r--legendary {
   color: var(--gold);
 }

@@ -19,7 +19,7 @@
     transform: rotate(12deg);
 }
 
-.merchant__card {
+.merchant__deck ::deep .merchant__card {
     position: absolute;
     box-shadow: 4px 4px 3px rgba(0, 0, 0, 0.2);
     transform-origin: center 400px;
@@ -32,4 +32,8 @@
 
 .merchant__deck ::deep .merchant__card--tetriary {
     transform: rotate(6deg);
+}
+
+.button__suggest {
+  margin: 50px 50px 50px 50px;
 }
