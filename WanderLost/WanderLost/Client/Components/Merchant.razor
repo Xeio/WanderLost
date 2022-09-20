@@ -1,4 +1,6 @@
-﻿<button class="button_suggest" onclick="window.location.href = '/UpdateMerchant/@Server/@MerchantGroup.MerchantName'">Suggest a different merchant</button>
+﻿@inject MerchantHubClient HubClient
+
+<button class="button_suggest" onclick="window.location.href = '/UpdateMerchant/@Server/@MerchantGroup.MerchantName'">Suggest a different merchant</button>
 <div class="merchant">
   @if(!hasMerchants)
   {
@@ -11,14 +13,14 @@
         <div class="merchant__deck">
         @if (TetriraryMerchant != null)
         {
-          <Card ClassName="merchant__card merchant__card--tetriary" Merchant="@TetriraryMerchant" Server="@Server" Votes="@Votes"/>
+          <Card ClassName="merchant__card merchant__card--tetriary" Merchant="@TetriraryMerchant" SubmitVote="@SubmitVote" CurrentVote="@CurrentVote"/>
         }
-        <Card ClassName="merchant__card merchant__card--secondary" Merchant="@SecondaryMerchant" Server="@Server" Votes="@Votes" />
+        <Card ClassName="merchant__card merchant__card--secondary" Merchant="@SecondaryMerchant" SubmitVote="@SubmitVote" CurrentVote="@CurrentVote" />
         </div>
     }
     @if (MainMerchant != null)
     {
-      <Card ClassName="merchant__card" Merchant="@MainMerchant" Server="@Server" Votes="@Votes" />
+      <Card ClassName="merchant__card" Merchant="@MainMerchant" SubmitVote="@SubmitVote" CurrentVote="@CurrentVote" />
     }
     else
     {
@@ -67,6 +69,18 @@
     {
       return MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).Skip(2).FirstOrDefault();
     }
+  }
+
+  public async Task SubmitVote(Guid merchantId, VoteType vote)
+  {
+    VoteType existingVote = CurrentVote(merchantId);
+    await HubClient.Vote(Server, merchantId, existingVote == vote ? VoteType.Unvote : vote);
+  }
+
+  public VoteType CurrentVote(Guid merchantId)
+  {
+    Votes.TryGetValue(merchantId, out VoteType existingVote);
+    return existingVote;
   }
 
 }

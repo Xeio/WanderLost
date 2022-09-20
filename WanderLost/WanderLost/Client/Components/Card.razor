@@ -1,6 +1,4 @@
-﻿@inject MerchantHubClient HubClient
-
-<div class="card card_r--@(TopRarity) @(ClassName)">
+﻿<div class="card card_r--@(TopRarity) @(ClassName)">
     <div class="card__title">@(Merchant.Name)&nbsp;(@(Merchant.Zone))</div>
     <div class="card__location" style="background-image: url(/images/zones/@(Uri.EscapeDataString(Merchant.Zone)).jpg)" />
     <div class="stock">
@@ -13,15 +11,15 @@
         </div>
     </div>
     <div class="card__buttons">
-        <CardButton Type="CardButton.Variant.Like" OnClick="@(async () => await SubmitVote(VoteType.Upvote))" Active=true />
+        <CardButton Type="CardButton.Variant.Like" OnClick="@(async () => await SubmitVote(Merchant.Id, VoteType.Upvote))" Active="@(CurrentVote(Merchant.Id) == VoteType.Upvote)" />
         <div class="card__score">@Merchant.Votes</div>
-    <CardButton Type="CardButton.Variant.Dislike" OnClick="@(async () => await SubmitVote(VoteType.Downvote))" Active=false />
+    <CardButton Type="CardButton.Variant.Dislike" OnClick="@(async () => await SubmitVote(Merchant.Id, VoteType.Downvote))" Active="@(CurrentVote(Merchant.Id) == VoteType.Downvote)" />
     </div>
 </div>
 
 @code {
 
-  public static Dictionary<Rarity, string> RarityMapping = new Dictionary<Rarity, string>()
+  private static Dictionary<Rarity, string> RarityMapping = new Dictionary<Rarity, string>()
   {
     {WanderLost.Shared.Data.Rarity.Normal, "normal"},
     {WanderLost.Shared.Data.Rarity.Uncommon, "uncommon"},
@@ -35,10 +33,10 @@
   public ActiveMerchant Merchant { get; set; }
 
   [Parameter, EditorRequired]
-  public Dictionary<Guid, VoteType> Votes { get; set; }
+  public Func<Guid, VoteType, Task> SubmitVote { get; set; }
 
   [Parameter, EditorRequired]
-  public string Server { get; set; } = string.Empty;
+  public Func<Guid, VoteType> CurrentVote { get; set; }
 
   [Parameter]
   public string ClassName { get; set; }
@@ -69,12 +67,6 @@
 
       return RarityMapping[topRarity];
     }
-  }
-
-  public async Task SubmitVote(VoteType vote)
-  {
-    Votes.TryGetValue(Merchant.Id, out VoteType existingVote);
-    await HubClient.Vote(Server, Merchant.Id, existingVote == vote ? VoteType.Unvote : vote);
   }
 
 }
