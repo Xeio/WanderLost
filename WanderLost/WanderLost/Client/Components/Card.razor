@@ -13,7 +13,7 @@
     <div class="card__buttons">
         <CardButton Type="CardButton.Variant.Like" OnClick="@(async () => await SubmitVote(Merchant.Id, VoteType.Upvote))" Active="@(CurrentVote(Merchant.Id) == VoteType.Upvote)" />
         <div class="card__score">@Merchant.Votes</div>
-    <CardButton Type="CardButton.Variant.Dislike" OnClick="@(async () => await SubmitVote(Merchant.Id, VoteType.Downvote))" Active="@(CurrentVote(Merchant.Id) == VoteType.Downvote)" />
+        <CardButton Type="CardButton.Variant.Dislike" OnClick="@(async () => await SubmitVote(Merchant.Id, VoteType.Downvote))" Active="@(CurrentVote(Merchant.Id) == VoteType.Downvote)" />
     </div>
 </div>
 

@@ -1,4 +1,4 @@
-﻿<button class="button" @onclick="OnClick">
+﻿<button class="button" @onclick:stopPropagation="true" @onclick="OnClick">
   <svg class="icon__svg" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false">
     <path class="icon__path  @(Type == Variant.Like
               ? Active

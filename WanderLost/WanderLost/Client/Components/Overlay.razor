@@ -1,0 +1,74 @@
+﻿<CascadingValue Name="Overlay" Value="this" IsFixed=true>
+    <div class="overlay__wrapper @(isActive ? "overlay__wrapper--faded" : "")">
+        @ChildContent
+    </div>
+</CascadingValue>
+@if (isActive)
+{
+    <div class="overlay__content" @onclick="Close">
+        @foreach (var Merchant in MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes))
+        {
+            <Card ClassName="overlay__card" Merchant="@Merchant" SubmitVote="@SubmitVote" CurrentVote="@CurrentVote" />
+        }
+    </div>
+}
+
+
+@code {
+    @implements IOverlay
+
+    @inject MerchantHubClient HubClient
+    @inject IJSRuntime JSRuntime
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    public ActiveMerchantGroup? MerchantGroup;
+    public Dictionary<Guid, VoteType>? Votes;
+    public string? Server;
+
+    public bool isActive
+    {
+        get
+        {
+            return (this.MerchantGroup is not null) && (this.Server is not null);
+        }
+    }
+
+    public void ShowMerchantGroup(ActiveMerchantGroup MerchantGroup, Dictionary<Guid, VoteType> Votes, string Server)
+    {
+        this.MerchantGroup = MerchantGroup;
+        this.Votes = Votes;
+        this.Server = Server;
+        JSRuntime.InvokeVoidAsync("ToggleBodyScroll");
+    }
+
+    public void Close()
+    {
+        this.MerchantGroup = null;
+        this.Votes = null;
+        this.Server = null;
+        JSRuntime.InvokeVoidAsync("ToggleBodyScroll");
+    }
+
+    public async Task SubmitVote(Guid merchantId, VoteType vote)
+    {
+        if (Server is not null)
+        {
+            VoteType existingVote = CurrentVote(merchantId);
+            await HubClient.Vote(Server, merchantId, existingVote == vote ? VoteType.Unvote : vote);
+        }
+
+    }
+
+    public VoteType CurrentVote(Guid merchantId)
+    {
+        if (Votes is not null)
+        {
+            Votes.TryGetValue(merchantId, out VoteType existingVote);
+            return existingVote;
+        }
+
+        return VoteType.Unvote;
+    }
+}
