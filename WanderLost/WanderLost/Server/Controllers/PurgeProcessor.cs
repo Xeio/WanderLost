@@ -39,15 +39,23 @@ public class PurgeProcessor : BackgroundService
 
             //Cleanup votes table (totals will still be preserved)
             var deletedVotes = await merchantDbContext.Votes
+                .TagWithCallSite()
                 .Where(v => oldMerchants.Any(m => m.Id == v.ActiveMerchantId))
                 .ExecuteDeleteAsync(stoppingToken);
 
             //Cleanup sent push notifications
             var deletedPushes = await merchantDbContext.SentPushNotifications
+                .TagWithCallSite()
                 .Where(p => oldMerchants.Any(m => m.Id == p.MerchantId))
                 .ExecuteDeleteAsync(stoppingToken);
 
-            _logger.LogInformation("Purged {votes} votes and {pushes} sent push notifications.", deletedVotes, deletedPushes);
+            //Purge subscriptions that aren't actually subscribed to any notifications
+            var deletedSubscriptions = await merchantDbContext.PushSubscriptions
+                .TagWithCallSite()
+                .Where(s => string.IsNullOrEmpty(s.Server) || (!s.SendTestNotification && !s.WeiNotify && !s.LegendaryRapportNotify))
+                .ExecuteDeleteAsync(stoppingToken);
+
+            _logger.LogInformation("Purged {votes} votes, {pushes} sent push notifications, and {subscriptions} empty subscriptions.", deletedVotes, deletedPushes, deletedSubscriptions);
         }
     }
 }
