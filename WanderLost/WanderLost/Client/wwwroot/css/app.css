@@ -16,6 +16,10 @@ html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
+.noscroll {
+    overflow: hidden;
+}
+
 h1:focus {
     outline: none;
 }

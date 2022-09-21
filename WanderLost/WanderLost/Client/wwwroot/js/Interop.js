@@ -55,3 +55,7 @@ navigator.serviceWorker.addEventListener('message', message => {
         resolveTokenPromise = undefined;
     }
 });
+
+ToggleBodyScroll = function () {
+    document.body.classList.toggle('noscroll');
+}
