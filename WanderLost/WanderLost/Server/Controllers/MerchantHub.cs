@@ -344,24 +344,17 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
     {
         if (string.IsNullOrEmpty(clientToken)) return;
 
-        try
-        {
-            var subscription = new PushSubscription()
-            {
-                Token = clientToken,
-            };
-            //Rather than delete, just purge all data from the record by storing blank values
-            //If we delete, then this occasionally causes a race condition for primary/foreign key updates
-            //in the background processors when pushing out notifications
-            //TODO: Clean these up later in a background process at a safe time. Maybe after EF7 bulk deletes?
-            _merchantsDbContext.Entry(subscription).State = EntityState.Modified;
-            await _merchantsDbContext.SaveChangesAsync();
-        }
-        catch(DbUpdateConcurrencyException)
-        {
-            //If a subscription didn't exist, just ignore the error.
-            //Probably happens mainly if a user multi-clicks delete before the request has completed
-        }
+        //Rather than delete, just purge the server data
+        //If we delete, then this occasionally causes a race condition for primary/foreign key updates
+        //in the background processors when pushing out notifications
+        //These orphaned subscriptions will be cleaned up by the PurgeProcessor periodically
+        await _merchantsDbContext.PushSubscriptions
+            .TagWithCallSite()
+            .Where(s => s.Token == clientToken)
+            .ExecuteUpdateAsync(s => 
+                s.SetProperty(i => i.Server, i => string.Empty)
+                 .SetProperty(i => i.LastModified, i => DateTimeOffset.UtcNow)
+            );
     }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
