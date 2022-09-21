@@ -3,7 +3,7 @@
 <div class="merchant">
   @if (!hasMerchants)
   {
-    <EmptyCard MerchantName="@MerchantGroup.MerchantName" Server="@Server" Region="@Region" />
+    <EmptyCard MerchantName="@MerchantGroup.MerchantName" Server="@Server" Region="@MerchantGroup.MerchantData.Region" />
   }
   else
   {
@@ -34,9 +34,6 @@
 
   [Parameter, EditorRequired]
   public string Server { get; set; } = default!;
-
-  [Parameter, EditorRequired]
-  public string Region { get; set; } = default!;
 
   [Parameter, EditorRequired]
   public Dictionary<Guid, VoteType> Votes { get; set; } = default!;

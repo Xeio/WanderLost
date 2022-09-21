@@ -1,4 +1,4 @@
-﻿.card {
+﻿.empty-card {
   position: relative;
   box-sizing: content-box;
   padding: 12px;
@@ -8,7 +8,7 @@
   background: var(--mapbackground);
 }
 
-.card__mokoko {
+.empty-card__mokoko {
   margin-top: 6px;
   height: 200px;
   background-size: contain;
@@ -18,7 +18,7 @@
   cursor: pointer;
 }
 
-.card__title {
+.empty-card__title {
   height: 46px;
   font-family: Helvetica, sans-serif;
   font-size: 20px;
@@ -26,6 +26,6 @@
   text-align: center;
 }
 
-.button__suggest {
+.empty-card__submit-location {
   margin: 25px 25px 25px 25px;
 }

@@ -1,7 +1,7 @@
-﻿<div class="card">
-  <div class="card__title">@(MerchantName) - @(Region)</div>
-  <div class="card__mokoko" style="background-image: url(/images/EmptyCard.png)" />
-  <button class="button_suggest" onclick="window.location.href = '/UpdateMerchant/@Server/@MerchantName'">Suggest a location</button>
+﻿<div class="empty-card">
+  <div class="empty-card__title">@(MerchantName)&nbsp;(@(Region))</div>
+  <div class="empty-card__mokoko" style="background-image: url(/images/EmptyCard.png)" />
+  <button class="empty-card__submit-location" onclick="window.location.href = '/UpdateMerchant/@Server/@MerchantName'">Suggest a location</button>
 </div>
 
 @code {
