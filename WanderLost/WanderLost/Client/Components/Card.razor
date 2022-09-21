@@ -1,20 +1,20 @@
 ﻿<div class="card card_r--@(TopRarity) @(ClassName)">
-    <div class="card__title">@(Merchant.Name)&nbsp;(@(Merchant.Zone))</div>
-    <div class="card__location" style="background-image: url(/images/zones/@(Uri.EscapeDataString(Merchant.Zone)).jpg)" />
-    <div class="stock">
-        <div class="stock__title">Inventory:</div>
-        <div class="stock__item stock__item_r--@(CardRarity)">
-            @(Merchant.Card.Name)
-        </div>
-        <div class="stock__item stock__item_r--@(RapportRarity)">
-            @(Merchant.Rapport.Name)
-        </div>
+  <div class="card__title">@(Merchant.Name)&nbsp;(@(Merchant.Zone))</div>
+  <div class="card__location" style="background-image: url(/images/zones/@(Uri.EscapeDataString(Merchant.Zone)).jpg)" />
+  <div class="stock">
+    <div class="stock__title">Inventory:</div>
+    <div class="stock__item stock__item_r--@(CardRarity)">
+      @(Merchant.Card.Name)
     </div>
-    <div class="card__buttons">
-        <CardButton Type="CardButton.Variant.Like" OnClick="@(async () => await SubmitVote(Merchant.Id, VoteType.Upvote))" Active="@(CurrentVote(Merchant.Id) == VoteType.Upvote)" />
-        <div class="card__score">@Merchant.Votes</div>
-        <CardButton Type="CardButton.Variant.Dislike" OnClick="@(async () => await SubmitVote(Merchant.Id, VoteType.Downvote))" Active="@(CurrentVote(Merchant.Id) == VoteType.Downvote)" />
+    <div class="stock__item stock__item_r--@(RapportRarity)">
+      @(Merchant.Rapport.Name)
     </div>
+  </div>
+  <div class="card__buttons">
+    <CardButton Type="CardButton.Variant.Like" OnClick="@(async () => await SubmitVote(Merchant.Id, VoteType.Upvote))" Active="@(CurrentVote(Merchant.Id) == VoteType.Upvote)" />
+    <div class="card__score">@Merchant.Votes</div>
+    <CardButton Type="CardButton.Variant.Dislike" OnClick="@(async () => await SubmitVote(Merchant.Id, VoteType.Downvote))" Active="@(CurrentVote(Merchant.Id) == VoteType.Downvote)" />
+  </div>
 </div>
 
 @code {
@@ -63,7 +63,7 @@
     {
       // Due to rapport items being either epic or legs, we only change border colour upon leg rapport
       // Otherwise the card rarity colour is more informative
-      Rarity topRarity = Merchant.Rapport.Rarity.CompareTo(Rarity.Legendary) >= 0 ? Merchant.Rapport.Rarity : Merchant.Card.Rarity; 
+      Rarity topRarity = Merchant.Rapport.Rarity.CompareTo(Rarity.Legendary) >= 0 ? Merchant.Rapport.Rarity : Merchant.Card.Rarity;
 
       return RarityMapping[topRarity];
     }

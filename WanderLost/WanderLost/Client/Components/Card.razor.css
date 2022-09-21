@@ -67,14 +67,13 @@
   margin-top: 12px;
 }
 
+  .card__buttons ::deep button:first-child {
+    margin-left: auto;
+  }
 
-.card__buttons ::deep button:first-child {
-  margin-left: auto;
-}
-
-.card__buttons ::deep button:last-child {
-  margin-right: auto;
-}
+  .card__buttons ::deep button:last-child {
+    margin-right: auto;
+  }
 
 .stock {
   margin-top: 12px;
