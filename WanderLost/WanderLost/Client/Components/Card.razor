@@ -1,6 +1,6 @@
 ﻿<div class="card card_r--@(TopRarity) @(ClassName)">
   <div class="card__title">@(Merchant.Name)&nbsp;(@(Merchant.Zone))</div>
-  <div class="card__location" style="background-image: url(/images/zones/@(Uri.EscapeDataString(Merchant.Zone)).jpg)" />
+  <div class="card__location" @onclick="@(() => OnLocationClick?.Invoke(Merchant.Zone))" style="background-image: url(/images/zones/@(Uri.EscapeDataString(Merchant.Zone)).jpg)" />
   <div class="stock">
     <div class="stock__title">Inventory:</div>
     <div class="stock__item stock__item_r--@(CardRarity)">
@@ -34,6 +34,9 @@
 
   [Parameter, EditorRequired]
   public Func<Guid, VoteType, Task> SubmitVote { get; set; }
+
+  [Parameter]
+  public Action<string>? OnLocationClick { get; set; }
 
   [Parameter, EditorRequired]
   public Func<Guid, VoteType> CurrentVote { get; set; }

@@ -17,7 +17,7 @@
         <Card ClassName="merchant__card merchant__card--secondary" Merchant="@SecondaryMerchant" SubmitVote="@SubmitVote" CurrentVote="@CurrentVote" />
       </div>
     }
-    <Card ClassName="merchant__card" Merchant="@MainMerchant" SubmitVote="@SubmitVote" CurrentVote="@CurrentVote" />
+    <Card ClassName="merchant__card" Merchant="@MainMerchant" SubmitVote="@SubmitVote" CurrentVote="@CurrentVote" onLocationClick="@ShowMap" />
   }
 </div>
 @if (hasMerchants)
@@ -87,4 +87,8 @@
     Overlay?.ShowMerchantGroup(MerchantGroup, Votes, Server);
   }
 
+  public void ShowMap(string Zone)
+  {
+     Overlay?.ShowMap(Zone);
+  }
 }
