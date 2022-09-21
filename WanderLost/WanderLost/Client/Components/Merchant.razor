@@ -1,93 +1,93 @@
-﻿<button class="button_suggest" onclick="window.location.href = '/UpdateMerchant/@Server/@MerchantGroup.MerchantName'">Suggest a different merchant</button>
-<div class="merchant">
-    @if (!hasMerchants)
-    {
-        <a href="/UpdateMerchant/@Server/@MerchantGroup.MerchantName">Submit Location</a>
-    }
-    else
-    {
-        @if (SecondaryMerchant != null)
-        {
-            <div class="merchant__deck" @onclick="ShowOverlay">
-                @if (TetriraryMerchant != null)
-                {
-                    <Card ClassName="merchant__card merchant__card--tetriary" Merchant="@TetriraryMerchant" SubmitVote="@SubmitVote" CurrentVote="@CurrentVote" />
-                }
-                <Card ClassName="merchant__card merchant__card--secondary" Merchant="@SecondaryMerchant" SubmitVote="@SubmitVote" CurrentVote="@CurrentVote" />
-            </div>
-        }
-        @if (MainMerchant != null)
-        {
-            <Card ClassName="merchant__card" Merchant="@MainMerchant" SubmitVote="@SubmitVote" CurrentVote="@CurrentVote" />
-        }
-        else
-        {
-            <div>No merchant present</div>
-        }
-    }
-</div>
-
 @inject MerchantHubClient HubClient
 
+<div class="merchant">
+  @if (!hasMerchants)
+  {
+    <EmptyCard MerchantName="@MerchantGroup.MerchantName" Server="@Server" Region="@Region" />
+  }
+  else
+  {
+    @if (SecondaryMerchant != null)
+    {
+      <div class="merchant__deck" @onclick="ShowOverlay">
+        @if (TetriraryMerchant != null)
+        {
+          <Card ClassName="merchant__card merchant__card--tetriary" Merchant="@TetriraryMerchant" SubmitVote="@SubmitVote" CurrentVote="@CurrentVote" />
+        }
+        <Card ClassName="merchant__card merchant__card--secondary" Merchant="@SecondaryMerchant" SubmitVote="@SubmitVote" CurrentVote="@CurrentVote" />
+      </div>
+    }
+    <Card ClassName="merchant__card" Merchant="@MainMerchant" SubmitVote="@SubmitVote" CurrentVote="@CurrentVote" />
+  }
+</div>
+@if (hasMerchants)
+{
+  <button class="button__suggest" onclick="window.location.href = '/UpdateMerchant/@Server/@MerchantGroup.MerchantName'">Suggest a different location</button>
+}
+
 @code {
-    [CascadingParameter(Name = "Overlay")]
-    public IOverlay? Overlay { get; set; }
+  [CascadingParameter(Name = "Overlay")]
+  public IOverlay? Overlay { get; set; }
 
-    [Parameter, EditorRequired]
-    public ActiveMerchantGroup MerchantGroup { get; set; } = default!;
+  [Parameter, EditorRequired]
+  public ActiveMerchantGroup MerchantGroup { get; set; } = default!;
 
-    [Parameter, EditorRequired]
-    public string Server { get; set; } = default!;
+  [Parameter, EditorRequired]
+  public string Server { get; set; } = default!;
 
-    [Parameter, EditorRequired]
-    public Dictionary<Guid, VoteType> Votes { get; set; } = default!;
+  [Parameter, EditorRequired]
+  public string Region { get; set; } = default!;
 
-    public bool hasMerchants
+  [Parameter, EditorRequired]
+  public Dictionary<Guid, VoteType> Votes { get; set; } = default!;
+
+  public bool hasMerchants
+  {
+    get
     {
-        get
-        {
-            return MerchantGroup.ActiveMerchants.Count > 0;
-        }
+      return MerchantGroup.ActiveMerchants.Count > 0;
     }
+  }
 
-    public ActiveMerchant? MainMerchant
+  public ActiveMerchant? MainMerchant
+  {
+    get
     {
-        get
-        {
-            return MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).FirstOrDefault();
-        }
+      return MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).FirstOrDefault();
     }
+  }
 
-    public ActiveMerchant? SecondaryMerchant
+  public ActiveMerchant? SecondaryMerchant
+  {
+    get
     {
-        get
-        {
-            return MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).Skip(1).FirstOrDefault();
-        }
+      return MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).Skip(1).FirstOrDefault();
     }
+  }
 
-    public ActiveMerchant? TetriraryMerchant
+  public ActiveMerchant? TetriraryMerchant
+  {
+    get
     {
-        get
-        {
-            return MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).Skip(2).FirstOrDefault();
-        }
+      return MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).Skip(2).FirstOrDefault();
     }
+  }
 
-    public async Task SubmitVote(Guid merchantId, VoteType vote)
-    {
-        VoteType existingVote = CurrentVote(merchantId);
-        await HubClient.Vote(Server, merchantId, existingVote == vote ? VoteType.Unvote : vote);
-    }
+  public async Task SubmitVote(Guid merchantId, VoteType vote)
+  {
+    VoteType existingVote = CurrentVote(merchantId);
+    await HubClient.Vote(Server, merchantId, existingVote == vote ? VoteType.Unvote : vote);
+  }
 
-    public VoteType CurrentVote(Guid merchantId)
-    {
-        Votes.TryGetValue(merchantId, out VoteType existingVote);
-        return existingVote;
-    }
+  public VoteType CurrentVote(Guid merchantId)
+  {
+    Votes.TryGetValue(merchantId, out VoteType existingVote);
+    return existingVote;
+  }
 
-    public void ShowOverlay()
-    {
-        Overlay?.ShowMerchantGroup(MerchantGroup, Votes, Server);
-    }
+  public void ShowOverlay()
+  {
+    Overlay?.ShowMerchantGroup(MerchantGroup, Votes, Server);
+  }
+
 }

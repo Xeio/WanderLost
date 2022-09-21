@@ -1,0 +1,16 @@
+﻿<div class="card">
+  <div class="card__title">@(MerchantName) - @(Region)</div>
+  <div class="card__mokoko" style="background-image: url(/images/EmptyCard.png)" />
+  <button class="button_suggest" onclick="window.location.href = '/UpdateMerchant/@Server/@MerchantName'">Suggest a location</button>
+</div>
+
+@code {
+  [Parameter, EditorRequired]
+  public string MerchantName { get; set; } = default!;
+
+  [Parameter, EditorRequired]
+  public string Region { get; set; } = default!;
+
+  [Parameter, EditorRequired]
+  public string Server { get; set; } = default!;
+}
