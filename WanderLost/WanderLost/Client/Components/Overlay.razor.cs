@@ -26,7 +26,7 @@ public partial class Overlay : IOverlay
   {
     get
     {
-      return (this.MerchantGroup is not null) && (this.Server is not null) || (this.Zone is not null);
+      return ((this.MerchantGroup is not null) && (this.Server is not null)) || (this.Zone is not null);
     }
   }
 
