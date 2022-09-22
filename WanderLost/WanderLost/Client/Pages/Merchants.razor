@@ -61,9 +61,6 @@ else if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.Hu
 }
 else if (ActiveData.MerchantGroups.Count > 0)
 {
-  @foreach (var activeGroup in ActiveData.MerchantGroups.Where(m => m.IsActive))
-  {
-    <Merchant MerchantGroup="@activeGroup" Server="@Server" Votes="@ActiveData.Votes" />
-  }
+  <NewMerchantGrid ActiveData="@ActiveData" Server="@Server" />
   <FutureMerchantsGrid ActiveData="@ActiveData" Server="@Server" />
 }

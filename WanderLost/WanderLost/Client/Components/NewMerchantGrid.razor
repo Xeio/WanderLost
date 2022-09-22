@@ -1,0 +1,15 @@
+﻿<div class="new-merchant-grid">
+  @foreach (var activeGroup in ActiveData.MerchantGroups.Where(m => m.IsActive))
+  {
+    <Merchant ClassName="new-merchant-grid__item" MerchantGroup="@activeGroup" Server="@Server" Votes="@ActiveData.Votes" />
+  }
+</div>
+
+
+@code {
+  [Parameter, EditorRequired]
+  public ActiveDataController ActiveData { get; set; }
+
+  [Parameter, EditorRequired]
+  public string Server { get; set; }
+}
