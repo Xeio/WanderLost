@@ -1,0 +1,10 @@
+﻿.new-merchant-grid {
+  display: flex;
+  flex-wrap: wrap;
+
+  padding: 24px 0 24px 24px;
+}
+
+.new-merchant-grid ::deep .new-merchant-grid__item {
+  flex-shrink: 0;
+}

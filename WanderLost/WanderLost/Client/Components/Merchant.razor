@@ -1,6 +1,6 @@
 @inject MerchantHubClient HubClient
 
-<div class="merchant">
+<div class="merchant @(ClassName)">
   @if (!hasMerchants)
   {
     <EmptyCard MerchantName="@MerchantGroup.MerchantName" Server="@Server" Region="@MerchantGroup.MerchantData.Region" />
@@ -37,6 +37,9 @@
 
   [Parameter, EditorRequired]
   public Dictionary<Guid, VoteType> Votes { get; set; } = default!;
+
+  [Parameter]
+  public string? ClassName { get; set; }
 
   public bool hasMerchants
   {
