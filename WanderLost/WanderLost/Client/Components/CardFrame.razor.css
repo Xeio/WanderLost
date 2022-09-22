@@ -47,6 +47,7 @@
 .card-frame__inner {
   padding: 22px 16px 16px;
   background: var(--mapbackground);
+  min-height: 420px;
 }
 
 .card-frame__title {
