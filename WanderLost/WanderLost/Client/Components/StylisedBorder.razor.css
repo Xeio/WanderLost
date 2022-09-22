@@ -1,3 +1,7 @@
-﻿.stylised-border__color-path-faded {
+﻿.stylised-border__color-path {
   opacity: 0.55;
+}
+
+.stylised-border__diamond {
+  fill: var(--mapbackground);
 }
