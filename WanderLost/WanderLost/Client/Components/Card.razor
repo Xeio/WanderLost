@@ -1,23 +1,19 @@
-﻿<div class="m-card m-card_r--@(TopRarity) @(ClassName)">
-  <StylisedBorder ClassName="m-card__border" PathClassName="m-card__border-color" />
-  <div class="m-card__inner">
-    <div class="m-card__title">@(Merchant.Name)&nbsp;(@(Merchant.Zone))</div>
-    <div class="m-card__location" @onclick="@(() => OnLocationClick?.Invoke(Merchant.Zone))" style="background-image: url(/images/zones/@(Uri.EscapeDataString(Merchant.Zone)).jpg)" />
-    <div class="stock">
-      <div class="stock__item stock__item_r--@(CardRarity)">
-        @(Merchant.Card.Name)
-      </div>
-      <div class="stock__item stock__item_r--@(RapportRarity)">
-        @(Merchant.Rapport.Name)
-      </div>
+﻿<CardFrame Title="@Title" Rarity="@TopRarity" ClassName="@ClassName">
+  <div class="m-card__location" @onclick="@(() => OnLocationClick?.Invoke(Merchant.Zone))" style="background-image: url(/images/zones/@(Uri.EscapeDataString(Merchant.Zone)).jpg)" />
+  <div class="stock">
+    <div class="stock__item stock__item_r--@CardRarity">
+      @Merchant.Card.Name
     </div>
-    <div class="m-card__buttons">
-      <CardButton Type="CardButton.Variant.Like" OnClick="@(async () => await SubmitVote(Merchant.Id, VoteType.Upvote))" Active="@(CurrentVote(Merchant.Id) == VoteType.Upvote)" />
-      <div class="m-card__score">@Merchant.Votes</div>
-      <CardButton Type="CardButton.Variant.Dislike" OnClick="@(async () => await SubmitVote(Merchant.Id, VoteType.Downvote))" Active="@(CurrentVote(Merchant.Id) == VoteType.Downvote)" />
+    <div class="stock__item stock__item_r--@RapportRarity">
+      @Merchant.Rapport.Name
     </div>
   </div>
-</div>
+  <div class="m-card__buttons">
+    <CardButton Type="CardButton.Variant.Like" OnClick="@(async () => await SubmitVote(Merchant.Id, VoteType.Upvote))" Active="@(CurrentVote(Merchant.Id) == VoteType.Upvote)" />
+    <div class="m-card__score">@Merchant.Votes</div>
+    <CardButton Type="CardButton.Variant.Dislike" OnClick="@(async () => await SubmitVote(Merchant.Id, VoteType.Downvote))" Active="@(CurrentVote(Merchant.Id) == VoteType.Downvote)" />
+  </div>
+</CardFrame>
 
 @code {
   private static Dictionary<Rarity, string> RarityMapping = new Dictionary<Rarity, string>()
@@ -44,6 +40,14 @@
 
   [Parameter]
   public string ClassName { get; set; }
+
+  public string Title
+  {
+    get
+    {
+      return Merchant.Name + ' ' + Merchant.Zone;
+    }
+  }
 
   public string CardRarity
   {

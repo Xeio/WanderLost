@@ -1,0 +1,67 @@
+﻿.card-frame {
+  position: relative;
+  box-sizing: content-box;
+  width: 280px;
+  padding: 4px 1px 1px 1px;
+}
+
+.card-frame_r--uncommon {
+  color: var(--green);
+}
+
+.card-frame_r--uncommon .card-frame__border-color {
+  fill: var(--green);
+}
+
+.card-frame_r--rare {
+  color: var(--blue);
+}
+
+.card-frame_r--rare .card-frame__border-color {
+  fill: var(--blue);
+}
+
+.card-frame_r--epic {
+  color: var(--purple);
+}
+
+.card-frame_r--epic .card-frame__border-color {
+  fill: var(--purple);
+}
+
+.card-frame_r--legendary {
+  color: var(--gold);
+}
+
+.card-frame_r--legendary .card-frame__border-color {
+  fill: var(--gold);
+}
+
+.card-frame__border {
+  position: absolute;
+  top: 0;
+  left: -1px;
+  right: -1px;
+}
+
+.card-frame__inner {
+  padding: 22px 16px 16px;
+  background: var(--mapbackground);
+}
+
+.card-frame__title {
+  height: 46px;
+  font-family: Helvetica, sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1.4em;
+}
+
+.card-frame__border-color--faded {
+  opacity: 0.55;
+}
+
+.card-frame__border-diamond {
+  fill: var(--mapbackground);
+}
