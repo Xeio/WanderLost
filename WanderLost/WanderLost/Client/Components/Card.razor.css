@@ -1,77 +1,96 @@
-﻿.card {
+﻿.m-card {
   position: relative;
   box-sizing: content-box;
-  padding: 12px;
   width: 280px;
-  border: 4px solid var(--gold);
-  border-radius: 16px;
-  background: var(--mapbackground);
+  padding: 4px 1px 1px 1px;
 }
 
-.card_r--uncommon {
-  border-color: var(--green);
+.m-card_r--uncommon {
   color: var(--green);
 }
 
-.card_r--rare {
-  border-color: var(--blue);
+  .m-card_r--uncommon ::deep .m-card__border-color {
+    fill: var(--green);
+  }
+
+.m-card_r--rare {
   color: var(--blue);
 }
 
-.card_r--epic {
-  border-color: var(--purple);
+  .m-card_r--rare ::deep .m-card__border-color {
+    fill: var(--blue);
+  }
+
+.m-card_r--epic {
   color: var(--purple);
 }
 
-.card_r--legendary {
-  border-color: var(--gold);
+  .m-card_r--epic ::deep .m-card__border-color {
+    fill: var(--purple);
+  }
+
+.m-card_r--legendary {
   color: var(--gold);
 }
 
-.card__location {
+  .m-card_r--legendary ::deep .m-card__border-color {
+    fill: var(--gold);
+  }
+
+  .m-card ::deep .m-card__border {
+    position: absolute;
+    top: 0;
+    left: -1px;
+    right: -1px;
+  }
+
+.m-card__inner {
+  padding: 22px 16px 16px;
+  background: var(--mapbackground);
+}
+
+.m-card__location {
+  position: relative;
+
   margin-top: 6px;
-  height: 250px;
+  height: 230px;
+
+  cursor: pointer;
+
   background-size: contain;
   background-repeat: no-repeat;
   background-color: var(--mapbackground);
   background-position: center;
-  cursor: pointer;
 }
 
-.card__map {
-  width: 100%;
-  height: 100%;
-  margin: max(20%, 24px);
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-}
-
-.card__title {
+.m-card__title {
   height: 46px;
   font-family: Helvetica, sans-serif;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: bold;
   text-align: center;
+  line-height: 1.4em;
 }
 
-.card__score {
+.m-card__score {
   color: white;
   line-height: 40px;
   font-size: 18px;
   padding: 0 8px;
 }
 
-.card__buttons {
+.m-card__buttons {
   display: flex;
+  position: relative;
+
   margin-top: 12px;
 }
 
-  .card__buttons ::deep button:first-child {
+  .m-card__buttons ::deep button:first-child {
     margin-left: auto;
   }
 
-  .card__buttons ::deep button:last-child {
+  .m-card__buttons ::deep button:last-child {
     margin-right: auto;
   }
 
@@ -80,13 +99,9 @@
   padding: 0px 8px;
   font-family: sans-serif;
   font-size: 16px;
-  line-height: 1;
+  line-height: 1em;
   text-align: left;
   color: white;
-}
-
-.stock__title {
-  font-weight: bold;
 }
 
 .stock__item {
