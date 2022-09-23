@@ -9,16 +9,19 @@
     </div>
   </div>
   <div class="m-card__buttons">
-    <CardButton Type="CardButton.Variant.Like" OnClick="@(async () => await SubmitVote(Merchant.Id, VoteType.Upvote))" Active="@(CurrentVote(Merchant.Id) == VoteType.Upvote)" />
+    <CardButton ClassName="m-card__like" Type="CardButton.Variant.Like" OnClick="@(async () => await SubmitVote(Merchant.Id, VoteType.Upvote))" Active="@(CurrentVote(Merchant.Id) == VoteType.Upvote)" />
     <div class="m-card__score">@Merchant.Votes</div>
-    <CardButton Type="CardButton.Variant.Dislike" OnClick="@(async () => await SubmitVote(Merchant.Id, VoteType.Downvote))" Active="@(CurrentVote(Merchant.Id) == VoteType.Downvote)" />
+    <CardButton ClassName="m-card__dislike" Type="CardButton.Variant.Dislike" OnClick="@(async () => await SubmitVote(Merchant.Id, VoteType.Downvote))" Active="@(CurrentVote(Merchant.Id) == VoteType.Downvote)" />
+    <CardButton ClassName="m-card__report" Title="Replace" Type="CardButton.Variant.Report" OnClick="@OnClickReport" />
   </div>
 </CardFrame>
+
+@inject NavigationManager AppNavigationManager;
 
 @code {
   private static Dictionary<Rarity, string> RarityMapping = new Dictionary<Rarity, string>()
   {
-    {WanderLost.Shared.Data.Rarity.Normal, "normal"},
+    {WanderLost.Shared.Data.Rarity.Normal, "uncommon"},
     {WanderLost.Shared.Data.Rarity.Uncommon, "uncommon"},
     {WanderLost.Shared.Data.Rarity.Rare, "rare"},
     {WanderLost.Shared.Data.Rarity.Epic, "epic"},
@@ -41,11 +44,17 @@
   [Parameter]
   public string ClassName { get; set; }
 
+  [Parameter]
+  public string Server { get; set; } = default!;
+
+  [Parameter]
+  public string Region { get; set; } = default!;
+
   public string Title
   {
     get
     {
-      return Merchant.Name + " (" + Merchant.Zone + ")";
+      return $"{Region} - ({Merchant.Zone})";
     }
   }
 
@@ -84,4 +93,11 @@
       return OnLocationClick is not null ? "m-card__location--active" : "";
     }
   }
+
+    public void OnClickReport()
+  {
+    Uri uri = AppNavigationManager.ToAbsoluteUri($"/UpdateMerchant/{Server}/{Merchant.Name}");
+    AppNavigationManager.NavigateTo(uri.ToString());
+  }
+ 
 }

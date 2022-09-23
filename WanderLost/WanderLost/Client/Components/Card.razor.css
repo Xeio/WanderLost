@@ -28,13 +28,19 @@
   margin-top: 12px;
 }
 
-  .m-card__buttons ::deep button:first-child {
+  .m-card__buttons ::deep .m-card__like {
     margin-left: auto;
   }
 
-  .m-card__buttons ::deep button:last-child {
+  .m-card__buttons ::deep .m-card__dislike {
     margin-right: auto;
   }
+
+.m-card__buttons ::deep .m-card__report {
+  position: absolute;
+  right: 0;
+  bottom: 2px;
+}
 
 .stock {
   margin-top: 12px;
