@@ -8,6 +8,14 @@
   --green: #9cee32;
 }
 
+*:focus-visible {
+  outline-width: 2px;
+  outline-style: solid;
+  outline-color: #bfa251;
+  outline-offset: 2px;
+}
+
+
 .cursor-pointer {
     cursor: pointer;
 }
