@@ -2,7 +2,6 @@
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 
 @inject NavigationManager Navigation
-@inject SignOutSessionStateManager SignOutManager
 
 <div class="m-header">
   <NavLink href="" class="m-header__logo" Match="NavLinkMatch.All">
@@ -44,12 +43,9 @@
   </div>
 </div>
 
-
-
 @code {
-  private async Task BeginSignOut(MouseEventArgs args)
-  {
-    await SignOutManager.SetSignOutState();
-    Navigation.NavigateTo($"Authentication/{RemoteAuthenticationActions.LogOut}");
-  }
+    private void BeginSignOut(MouseEventArgs args)
+    {
+        Navigation.NavigateToLogout($"Authentication/{RemoteAuthenticationActions.LogOut}");
+    }
 }
