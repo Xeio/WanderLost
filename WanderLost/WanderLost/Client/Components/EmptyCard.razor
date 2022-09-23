@@ -1,8 +1,7 @@
-﻿<div class="empty-card">
-  <div class="empty-card__title">@(MerchantName)&nbsp;(@(Region))</div>
-  <div class="empty-card__mokoko" style="background-image: url(/images/EmptyCard.png)" />
-  <button class="empty-card__submit-location" onclick="window.location.href = '/UpdateMerchant/@Server/@MerchantName'">Suggest a location</button>
-</div>
+﻿<CardFrame Title="@Title" Rarity="uncommon" >
+  <div class="empty-card__mokoko" style="background-image: url(/images/EmptyCard.webp)" />
+  <button class="empty-card__submit-location" onclick="window.location.href = '/UpdateMerchant/@Server/@MerchantName'">Suggest location</button>
+</CardFrame>
 
 @code {
   [Parameter, EditorRequired]
@@ -13,4 +12,12 @@
 
   [Parameter, EditorRequired]
   public string Server { get; set; } = default!;
+
+  public string Title
+  {
+    get
+    {
+      return Region + " (" + MerchantName + ")";
+    }
+  }
 }
