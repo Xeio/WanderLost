@@ -61,21 +61,20 @@ public partial class Overlay : IOverlay
   {
     if (Server is not null)
     {
-      VoteType existingVote = CurrentVote(merchantId);
+      VoteType? existingVote = CurrentVote(merchantId);
       await HubClient.Vote(Server, merchantId, existingVote == vote ? VoteType.Unvote : vote);
     }
 
   }
 
-  public VoteType CurrentVote(Guid merchantId)
+  public VoteType? CurrentVote(Guid merchantId)
   {
-    if (Votes is not null)
+    if (Votes is not null && Votes.TryGetValue(merchantId, out VoteType existingVote))
     {
-      Votes.TryGetValue(merchantId, out VoteType existingVote);
       return existingVote;
     }
 
-    return VoteType.Unvote;
+    return null;
   }
 }
 

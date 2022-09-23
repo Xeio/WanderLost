@@ -79,14 +79,17 @@
 
   public async Task SubmitVote(Guid merchantId, VoteType vote)
   {
-    VoteType existingVote = CurrentVote(merchantId);
+    VoteType? existingVote = CurrentVote(merchantId);
     await HubClient.Vote(Server, merchantId, existingVote == vote ? VoteType.Unvote : vote);
   }
 
-  public VoteType CurrentVote(Guid merchantId)
+  public VoteType? CurrentVote(Guid merchantId)
   {
-    Votes.TryGetValue(merchantId, out VoteType existingVote);
-    return existingVote;
+    if (Votes.TryGetValue(merchantId, out VoteType existingVote))
+    {
+      return existingVote;
+    }
+    return null;
   }
 
   public void ShowOverlay()

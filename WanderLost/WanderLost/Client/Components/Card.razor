@@ -12,11 +12,9 @@
     <CardButton ClassName="m-card__like" Type="CardButton.Variant.Like" OnClick="@(async () => await SubmitVote(Merchant.Id, VoteType.Upvote))" Active="@(CurrentVote(Merchant.Id) == VoteType.Upvote)" />
     <div class="m-card__score">@Merchant.Votes</div>
     <CardButton ClassName="m-card__dislike" Type="CardButton.Variant.Dislike" OnClick="@(async () => await SubmitVote(Merchant.Id, VoteType.Downvote))" Active="@(CurrentVote(Merchant.Id) == VoteType.Downvote)" />
-    <CardButton ClassName="m-card__report" Title="Replace" Type="CardButton.Variant.Report" OnClick="@OnClickReport" />
+    <CardButton ClassName="m-card__report" Title="@ReportButtonTitle" Type="CardButton.Variant.Report" OnClick="@OnClickReport" />
   </div>
 </CardFrame>
-
-@inject NavigationManager AppNavigationManager;
 
 @code {
   private static Dictionary<Rarity, string> RarityMapping = new Dictionary<Rarity, string>()
@@ -29,6 +27,9 @@
     {WanderLost.Shared.Data.Rarity.Relic, "relic"}
   };
 
+  [Inject]
+  public IJSRuntime JSRuntime { get; set; }
+
   [Parameter, EditorRequired]
   public ActiveMerchant Merchant { get; set; }
 
@@ -39,16 +40,16 @@
   public Action<string>? OnLocationClick { get; set; }
 
   [Parameter, EditorRequired]
-  public Func<Guid, VoteType> CurrentVote { get; set; }
+  public Func<Guid, VoteType?> CurrentVote { get; set; }
 
   [Parameter]
   public string ClassName { get; set; }
 
   [Parameter]
-  public string Server { get; set; } = default!;
+  public string Server { get; set; }
 
   [Parameter]
-  public string Region { get; set; } = default!;
+  public string Region { get; set; }
 
   public string Title
   {
@@ -94,10 +95,16 @@
     }
   }
 
-    public void OnClickReport()
+  public void OnClickReport()
   {
-    Uri uri = AppNavigationManager.ToAbsoluteUri($"/UpdateMerchant/{Server}/{Merchant.Name}");
-    AppNavigationManager.NavigateTo(uri.ToString());
+    JSRuntime.InvokeVoidAsync("NavigateTo", $"/UpdateMerchant/{Server}/{Merchant.Name}");
   }
- 
+
+  public string ReportButtonTitle
+  {
+    get
+    {
+      return CurrentVote(Merchant.Id) != null ? "Suggest new location" : "Submit correction";
+    }
+  }
 }
