@@ -23,19 +23,19 @@
     </svg>
   </NavLink>
   <div class="m-header__items">
-    <NavLink href="/Notifications" class="m-header__item" Match="NavLinkMatch.All">Notifications</NavLink>
-    <NavLink href="/PushNotifications" class="m-header__item" Match="NavLinkMatch.All">Push Notifications</NavLink>
-    <NavLink href="/About" class="m-header__item" Match="NavLinkMatch.All">About</NavLink>
+    <NavLink href="/Notifications" class="m-header__item brand-label" Match="NavLinkMatch.All">Notifications</NavLink>
+    <NavLink href="/PushNotifications" class="m-header__item brand-label" Match="NavLinkMatch.All">Push Notifications</NavLink>
+    <NavLink href="/About" class="m-header__item brand-label" Match="NavLinkMatch.All">About</NavLink>
     <AuthorizeView>
       <Authorized>
-        <a class="m-header__item m-header__item--separated" href="/Profile">@context.User.Identity?.Name</a>
-        <button class="m-header__item" @onclick="BeginSignOut">Log out</button>
+        <a class="m-header__item m-header__item--separated brand-label" href="/Profile">@context.User.Identity?.Name</a>
+        <button class="m-header__item brand-label" @onclick="BeginSignOut">Log out</button>
       </Authorized>
       <NotAuthorized>
-        <button class="m-header__item m-header__item--separated" href="/Authentication/@RemoteAuthenticationActions.LogIn">Log in with Discord</button>
+        <button class="m-header__item m-header__item--separated brand-label" href="/Authentication/@RemoteAuthenticationActions.LogIn">Log in with Discord</button>
       </NotAuthorized>
       <Authorizing>
-        <a class="m-header__item m-header__item--separated">Checking login status...</a>
+        <a class="m-header__item m-header__item--separated brand-label">Checking login status...</a>
       </Authorizing>
     </AuthorizeView>
   </div>

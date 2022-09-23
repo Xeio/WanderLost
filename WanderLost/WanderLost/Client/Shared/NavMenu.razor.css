@@ -5,7 +5,7 @@
   flex-wrap: wrap;
   justify-content: space-around;
 
-  background: #141312;
+  background: var(--brand-black);
 }
 
 ::deep .m-header__logo {
@@ -37,17 +37,6 @@
   padding: 0 8px;
   margin: 8px;
 
-  font-family: Proxima Nova, Arial, sans-serif;
-  font-weight: 600;
-  font-style: normal;
-  font-size: 0.75rem;
-  line-height: 1;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  text-decoration: none;
-
-  color: #b5b5b5;
-
   cursor: pointer;
 
   /** reset button styles */
@@ -64,7 +53,7 @@
 ::deep .m-header__item:hover,
 ::deep .m-header__item.active {
   color: #fff;
-  border-color: #bfa251;
+  border-color: var(--brand-gold);
 }
 
 .m-header__item--separated {

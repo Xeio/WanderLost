@@ -11,14 +11,6 @@
 }
 
 .merchants__label {
-  font-family: Proxima Nova, Arial, sans-serif;
-  font-weight: 600;
-  font-style: normal;
-  font-size: 0.75rem;
-  line-height: 1;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  text-decoration: none;
 }
 
 .merchants__select {

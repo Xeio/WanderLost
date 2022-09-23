@@ -24,7 +24,7 @@ else if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.Hu
 
 <div class="merchants__controls">
   <div class="merchants__select-container">
-    <label class="merchants__label" for="severRegion">Server Region:</label>
+    <div class="merchants__label brand-label">Server Region:</div>
       <select class="merchants__select" id="severRegion" @bind="@ServerRegion">
         <option></option>
         @foreach (var datacenter in StaticData.ServerRegions)
@@ -35,7 +35,7 @@ else if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.Hu
     </div>
 
   <div class="merchants__select-container">
-    <label class="merchants__label" for="server">Server:</label>
+    <div class="merchants__label brand-label">Server:</div>
     <select class="merchants__select" id="server" @bind="@Server">
       <option></option>
       @if (!string.IsNullOrWhiteSpace(ServerRegion))
