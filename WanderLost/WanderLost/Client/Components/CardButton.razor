@@ -1,4 +1,4 @@
-﻿<button class="button @ClassName" title="@Title" @onclick:stopPropagation="true" @onclick="OnClick">
+﻿<button class="button @ClassName" title="@Hint" @onclick:stopPropagation="true" @onclick="OnClick">
   <svg class="icon__svg" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false">
     <path class="icon__path @IconPathType" />
   </svg>
@@ -22,10 +22,10 @@
   public Action OnClick { get; set; }
 
   [Parameter]
-  public string ClassName { get; set; } = "button";
+  public string ClassName { get; set; }
 
   [Parameter]
-  public string Title { get; set; } = default!;
+  public string Hint { get; set; }
 
   public string IconPathType
   {

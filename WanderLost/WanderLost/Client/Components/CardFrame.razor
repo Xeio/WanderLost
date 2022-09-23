@@ -8,13 +8,17 @@
     </svg>
     <div class="card-frame__inner">
         <div class="card-frame__title">@Title</div>
-         @ChildContent
+        <div class="card-frame__title">@($"({Subtitle})")</div>
+        @ChildContent
   </div>
 </div>
 
 @code {
   [Parameter]
   public string Title { get; set; }
+
+  [Parameter]
+  public string Subtitle { get; set; }
 
   [Parameter]
   public string Rarity { get; set; }

@@ -11,7 +11,7 @@
 
             @foreach (var Merchant in MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes))
             {
-                <Card ClassName="overlay__card" Merchant="@Merchant" SubmitVote="@SubmitVote" CurrentVote="@CurrentVote" />
+                <Card ClassName="overlay__card" Merchant="@Merchant" Server="@Server" Region="@Region" SubmitVote="@SubmitVote" CurrentVote="@CurrentVote" />
             }
         }
         @if (Zone is not null)
