@@ -1,5 +1,5 @@
 ﻿<CardFrame Title="@Title" Rarity="@TopRarity" ClassName="@ClassName">
-  <div class="m-card__location" @onclick="@(() => OnLocationClick?.Invoke(Merchant.Zone))" style="background-image: url(/images/zones/@(Uri.EscapeDataString(Merchant.Zone)).jpg)" />
+  <div class="m-card__location @LoactionActiveClass" @onclick="@(() => OnLocationClick?.Invoke(Merchant.Zone))" style="background-image: url(/images/zones/@(Uri.EscapeDataString(Merchant.Zone)).jpg)" />
   <div class="stock">
     <div class="stock__item stock__item_r--@CardRarity">
       @Merchant.Card.Name
@@ -77,4 +77,11 @@
     }
   }
 
+  public string LoactionActiveClass
+  {
+    get
+    {
+      return OnLocationClick is not null ? "m-card__location--active" : "";
+    }
+  }
 }

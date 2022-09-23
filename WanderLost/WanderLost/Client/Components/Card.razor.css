@@ -4,12 +4,14 @@
   margin-top: 6px;
   height: 230px;
 
-  cursor: pointer;
-
   background-size: contain;
   background-repeat: no-repeat;
   background-color: var(--mapbackground);
   background-position: center;
+}
+
+.m-card__location--active {
+  cursor: pointer;
 }
 
 .m-card__score {
