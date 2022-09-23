@@ -9,11 +9,12 @@
     right: 0;
     bottom: 0;
 
-    overflow-y: auto;
+    padding: 24px;
+
+    overflow: auto;
 
     display: flex;
     align-items: center;
-    justify-content: center;
 
     background: rgba(0, 0, 0, 0.5);
 }
@@ -22,4 +23,16 @@
     margin-right: 24px;
 
     flex-shrink: 0;
+}
+
+.overlay__content ::deep .overlay__card:first-child {
+  margin-left: auto;
+}
+
+.overlay__content ::deep .overlay__card:last-child {
+  margin-right: auto;
+}
+
+.overlay__map {
+  margin: 0 auto;
 }
