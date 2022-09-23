@@ -20,6 +20,7 @@ public partial class Overlay : IOverlay
   public Dictionary<Guid, VoteType>? Votes;
   public string? Server;
   public string? Zone;
+  public string? Region;
 
 
   public bool isActive
@@ -35,15 +36,17 @@ public partial class Overlay : IOverlay
     this.MerchantGroup = null;
     this.Votes = null;
     this.Server = null;
+    this.Region = null;
     this.Zone = Zone;
     JSRuntime.InvokeVoidAsync("HideBodyScroll");
   }
 
-  public void ShowMerchantGroup(ActiveMerchantGroup MerchantGroup, Dictionary<Guid, VoteType> Votes, string Server)
+  public void ShowMerchantGroup(ActiveMerchantGroup MerchantGroup, Dictionary<Guid, VoteType> Votes, string Server, string Region)
   {
     this.MerchantGroup = MerchantGroup;
     this.Votes = Votes;
     this.Server = Server;
+    this.Region= Region;
     this.Zone = null;
     JSRuntime.InvokeVoidAsync("HideBodyScroll");
   }
@@ -53,6 +56,7 @@ public partial class Overlay : IOverlay
     this.MerchantGroup = null;
     this.Votes = null;
     this.Server = null;
+    this.Region = null;
     this.Zone = null;
     JSRuntime.InvokeVoidAsync("ShowBodyScroll");
   }

@@ -1,4 +1,4 @@
-﻿<CardFrame Title="@Title" Rarity="@TopRarity" ClassName="@ClassName">
+﻿<CardFrame Region="@Region" Zone="@Merchant.Zone" Rarity="@TopRarity" ClassName="@ClassName">
   <div class="m-card__location @LoactionActiveClass" @onclick="@(() => OnLocationClick?.Invoke(Merchant.Zone))" style="background-image: url(/images/zones/@(Uri.EscapeDataString(Merchant.Zone)).jpg)" />
   <div class="stock">
     <div class="stock__item stock__item_r--@CardRarity">
@@ -51,14 +51,6 @@
   [Parameter]
   public string Region { get; set; }
 
-  public string Title
-  {
-    get
-    {
-      return $"{Region} - ({Merchant.Zone})";
-    }
-  }
-
   public string CardRarity
   {
     get
@@ -104,7 +96,7 @@
   {
     get
     {
-      return CurrentVote(Merchant.Id) != null ? "Suggest new location" : "Submit correction";
+      return CurrentVote(Merchant.Id) is not null ? "Suggest new location" : "Submit correction";
     }
   }
 }
