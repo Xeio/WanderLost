@@ -9,22 +9,26 @@
     </div>
   </div>
   <div class="m-card__buttons">
-    <CardButton Type="CardButton.Variant.Like" OnClick="@(async () => await SubmitVote(Merchant.Id, VoteType.Upvote))" Active="@(CurrentVote(Merchant.Id) == VoteType.Upvote)" />
+    <CardButton ClassName="m-card__like" Type="CardButton.Variant.Like" OnClick="@(async () => await SubmitVote(Merchant.Id, VoteType.Upvote))" Active="@(CurrentVote(Merchant.Id) == VoteType.Upvote)" />
     <div class="m-card__score">@Merchant.Votes</div>
-    <CardButton Type="CardButton.Variant.Dislike" OnClick="@(async () => await SubmitVote(Merchant.Id, VoteType.Downvote))" Active="@(CurrentVote(Merchant.Id) == VoteType.Downvote)" />
+    <CardButton ClassName="m-card__dislike" Type="CardButton.Variant.Dislike" OnClick="@(async () => await SubmitVote(Merchant.Id, VoteType.Downvote))" Active="@(CurrentVote(Merchant.Id) == VoteType.Downvote)" />
+    <CardButton ClassName="m-card__report" Title="@ReportButtonTitle" Type="CardButton.Variant.Report" OnClick="@OnClickReport" />
   </div>
 </CardFrame>
 
 @code {
   private static Dictionary<Rarity, string> RarityMapping = new Dictionary<Rarity, string>()
   {
-    {WanderLost.Shared.Data.Rarity.Normal, "normal"},
+    {WanderLost.Shared.Data.Rarity.Normal, "uncommon"},
     {WanderLost.Shared.Data.Rarity.Uncommon, "uncommon"},
     {WanderLost.Shared.Data.Rarity.Rare, "rare"},
     {WanderLost.Shared.Data.Rarity.Epic, "epic"},
     {WanderLost.Shared.Data.Rarity.Legendary, "legendary"},
     {WanderLost.Shared.Data.Rarity.Relic, "relic"}
   };
+
+  [Inject]
+  public IJSRuntime JSRuntime { get; set; }
 
   [Parameter, EditorRequired]
   public ActiveMerchant Merchant { get; set; }
@@ -36,16 +40,22 @@
   public Action<string>? OnLocationClick { get; set; }
 
   [Parameter, EditorRequired]
-  public Func<Guid, VoteType> CurrentVote { get; set; }
+  public Func<Guid, VoteType?> CurrentVote { get; set; }
 
   [Parameter]
   public string ClassName { get; set; }
+
+  [Parameter]
+  public string Server { get; set; }
+
+  [Parameter]
+  public string Region { get; set; }
 
   public string Title
   {
     get
     {
-      return Merchant.Name + " (" + Merchant.Zone + ")";
+      return $"{Region} - ({Merchant.Zone})";
     }
   }
 
@@ -82,6 +92,19 @@
     get
     {
       return OnLocationClick is not null ? "m-card__location--active" : "";
+    }
+  }
+
+  public void OnClickReport()
+  {
+    JSRuntime.InvokeVoidAsync("NavigateTo", $"/UpdateMerchant/{Server}/{Merchant.Name}");
+  }
+
+  public string ReportButtonTitle
+  {
+    get
+    {
+      return CurrentVote(Merchant.Id) != null ? "Suggest new location" : "Submit correction";
     }
   }
 }

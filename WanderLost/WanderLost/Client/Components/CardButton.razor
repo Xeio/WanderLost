@@ -1,13 +1,6 @@
-﻿<button class="button" @onclick:stopPropagation="true" @onclick="OnClick">
+﻿<button class="button @ClassName" title="@Title" @onclick:stopPropagation="true" @onclick="OnClick">
   <svg class="icon__svg" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false">
-    <path class="icon__path  @(Type == Variant.Like
-              ? Active
-                ? "icon__path--like-active"
-                : "icon__path--like"
-              : Active
-              ? "icon__path--dislike-active"
-              : "icon__path--dislike"
-          )" />
+    <path class="icon__path @IconPathType" />
   </svg>
 </button>
 
@@ -15,7 +8,8 @@
   public enum Variant
   {
     Like,
-    Dislike
+    Dislike,
+    Report
   }
 
   [Parameter]
@@ -26,4 +20,24 @@
 
   [Parameter]
   public Action OnClick { get; set; }
+
+  [Parameter]
+  public string ClassName { get; set; } = "button";
+
+  [Parameter]
+  public string Title { get; set; } = default!;
+
+  public string IconPathType
+  {
+    get
+    {
+      return Type switch
+      {
+        Variant.Like => Active ? "icon__path--like-active" : "icon__path--like",
+        Variant.Dislike => Active ? "icon__path--dislike-active" : "icon__path--dislike",
+        Variant.Report => "icon__path--report",
+        _ => throw new Exception("Uknown button type: " + Type.ToString())
+      };
+    }
+  }
 }

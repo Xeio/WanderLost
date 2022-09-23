@@ -17,8 +17,9 @@
   top: 0;
   left: 0;
   overflow: hidden;
-  opacity: .2;
-  background-color: #BAEF60;
+  opacity: .25;
+  transition: opacity 0.15s ease-out;
+  background-color: var(--green);
   border-radius: 4px;
 }
 
