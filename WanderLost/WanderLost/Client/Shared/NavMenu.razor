@@ -4,7 +4,7 @@
 @inject NavigationManager Navigation
 @inject SignOutSessionStateManager SignOutManager
 
-<div class="navbar navbar-expand-md navbar-dark bg-primary">
+<nav class="navbar navbar-expand-md navbar-dark bg-primary">
     <div class="container">
         <a class="navbar-brand" href="">Lost Merchants</a>
         <button type="button" title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
@@ -15,11 +15,34 @@
                 <li class="nav-item">
                     <NavLink class="nav-link" href="" Match="NavLinkMatch.All">Merchants</NavLink>
                 </li>
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="Notifications" Match="NavLinkMatch.All">Notifications</NavLink>
+                <li class="nav-item dropdown show">
+                    <NavLink class="nav-link dropdown-toggle" @onclick="() => ToggleSubmenu(ref _notificationSubmenu)" id="navbarDropdown">
+                        Notifications
+                    </NavLink>
+                    @if (_notificationSubmenu)
+                    {
+                        <div class="dropdown-menu show bg-primary" aria-labelledby="navbarDropdown" @onclick="() => ToggleSubmenu(ref _notificationSubmenu)">
+                            <div class="nav-item">
+                                <NavLink class="nav-link" href="Notifications" Match="NavLinkMatch.All">Settings</NavLink>
+                            </div>
+                            <div class="nav-item">
+                                <NavLink class="nav-link" href="PushNotifications" Match="NavLinkMatch.All">Push Notifications</NavLink>
+                            </div>
+                        </div>
+                    }
                 </li>
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="PushNotifications" Match="NavLinkMatch.All">Push Notifications</NavLink>
+                <li class="nav-item dropdown show">
+                    <NavLink class="nav-link dropdown-toggle" @onclick="() => ToggleSubmenu(ref _statsSubmenu)" id="navbarDropdown">
+                        Stats
+                    </NavLink>
+                    @if (_statsSubmenu)
+                    {
+                        <div class="dropdown-menu show bg-primary" aria-labelledby="navbarDropdown" @onclick="() => ToggleSubmenu(ref _statsSubmenu)">
+                            <div class="nav-item">
+                                <NavLink class="nav-link" href="WeiStats" Match="NavLinkMatch.All">Wei Stats</NavLink>
+                            </div>
+                        </div>
+                    }
                 </li>
                 <li class="nav-item">
                     <NavLink class="nav-link" href="/About" Match="NavLinkMatch.All">About</NavLink>
@@ -41,16 +64,27 @@
             </ul>
         </div>
     </div>
-</div>
+</nav>
 
 @code {
     private bool collapseNavMenu = true;
+    private bool _notificationSubmenu = false;
+    private bool _statsSubmenu = false;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    private void ToggleSubmenu(ref bool menuBool)
+    {
+        bool newVal = !menuBool;
+        //Collapse any other open submenus
+        _notificationSubmenu = false;
+        _statsSubmenu = false;
+        menuBool = newVal;
     }
 
     private async Task BeginSignOut(MouseEventArgs args)

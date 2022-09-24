@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using WanderLost.Shared.Data;
 using WanderLost.Shared.Interfaces;
 
@@ -14,12 +15,14 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
     private readonly DataController _dataController;
     private readonly MerchantsDbContext _merchantsDbContext;
     private readonly IConfiguration _configuration;
+    private readonly IMemoryCache _memoryCache;
 
-    public MerchantHub(DataController dataController, MerchantsDbContext merchantsDbContext, IConfiguration configuration)
+    public MerchantHub(DataController dataController, MerchantsDbContext merchantsDbContext, IConfiguration configuration, IMemoryCache memoryCache)
     {
         _dataController = dataController;
         _merchantsDbContext = merchantsDbContext;
         _configuration = configuration;
+        _memoryCache = memoryCache;
     }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = nameof(RareCombinationRestricted))]
@@ -391,5 +394,44 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
              //NewestSubmission = votesAndCount?.NewestSubmission != null ? DateOnly.FromDateTime(votesAndCount.NewestSubmission) : null,
              //OldestSubmission = votesAndCount?.OldestSubmission != null ? DateOnly.FromDateTime(votesAndCount.OldestSubmission) : null,
         };
+    }
+
+    public async Task<WeiStats> GetWeiStats()
+    {
+        return await _memoryCache.GetOrCreateAsync(nameof(GetWeiStats), async (cacheEntry) =>
+        {
+            cacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+
+            await _merchantsDbContext.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadUncommitted);
+
+            WeiStats stats = new();
+
+            var weiCounts = await _merchantsDbContext.ActiveMerchants
+                .TagWithCallSite()
+                .Where(m => m.Card.Name == "Wei" && !m.Hidden && m.Votes > 0)
+                .GroupBy(m => m.ActiveMerchantGroup.Server, (server, rows) => new
+                {
+                    Server = server,
+                    Count = rows.Count()
+                })
+                .OrderByDescending(i => i.Count)
+                .ToListAsync();
+
+            var recentWeis = await _merchantsDbContext.ActiveMerchants
+                .TagWithCallSite()
+                .Where(m => m.Card.Name == "Wei" && !m.Hidden && m.Votes > 0)
+                .OrderByDescending(m => m.ActiveMerchantGroup.NextAppearance)
+                .Select(m => new { m.ActiveMerchantGroup.Server, m.ActiveMerchantGroup.NextAppearance })
+                .Take(50)
+                .ToListAsync();
+
+            await _merchantsDbContext.Database.RollbackTransactionAsync();
+
+            return new WeiStats()
+            {
+                ServerWeiCounts = weiCounts.Select(c => (c.Server, c.Count)).ToList(),
+                RecentWeis = recentWeis.Select(r => (r.Server, r.NextAppearance)).ToList()
+            };
+        });
     }
 }
