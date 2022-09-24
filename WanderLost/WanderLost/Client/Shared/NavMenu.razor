@@ -33,7 +33,7 @@
         <button class="m-header__item brand-label" @onclick="BeginSignOut">Log out</button>
       </Authorized>
       <NotAuthorized>
-        <button class="m-header__item m-header__item--separated brand-label" href="/Authentication/@RemoteAuthenticationActions.LogIn">Log in with Discord</button>
+        <a class="m-header__item m-header__item--separated brand-label" href="/Authentication/@RemoteAuthenticationActions.LogIn">Log in with Discord</a>
       </NotAuthorized>
       <Authorizing>
         <a class="m-header__item m-header__item--separated brand-label">Checking login status...</a>
