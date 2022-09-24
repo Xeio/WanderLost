@@ -1,0 +1,44 @@
+﻿.merchants__controls {
+  display: flex;
+}
+
+.merchants__select-container {
+  width: 180px;
+}
+
+.merchants__select-container + .merchants__select-container {
+  margin-left: 24px
+}
+
+.merchants__label {
+}
+
+.merchants__select {
+  display: block;
+
+  width: 100%;
+  margin-top: 4px;
+
+  padding: 0.5em 3.5em 0.5em 1em;
+
+  border: 1px solid #fff;
+
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  color: white;
+
+  line-height: 1.5em;
+
+  background: transparent;
+
+  background-image: linear-gradient(45deg, transparent 50%, #fff 50%), linear-gradient(135deg, #fff 50%, transparent 50%), linear-gradient(to right, #fff, #fff);
+  background-position: calc(100% - 20px) calc(1em + 2px), calc(100% - 15px) calc(1em + 2px), calc(100% - 2.5em) 0.5em;
+  background-size: 5px 5px, 5px 5px, 1px 1.5em;
+  background-repeat: no-repeat;
+}
+
+.merchants__notification {
+  margin-left: auto;
+}

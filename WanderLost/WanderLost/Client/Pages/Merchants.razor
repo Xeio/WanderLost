@@ -22,21 +22,21 @@ else if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.Hu
   </div>
 }
 
-<div class="row">
-  <div class="col-4">
-    <label for="severRegion">Server Region: </label>
-    <select class="form-select" id="severRegion" @bind="@ServerRegion">
-      <option></option>
-      @foreach (var datacenter in StaticData.ServerRegions)
-      {
-        <option value="@datacenter.Key">@datacenter.Value.Name</option>
-      }
-    </select>
-  </div>
+<div class="merchants__controls">
+  <div class="merchants__select-container">
+    <div class="merchants__label brand-label">Server Region:</div>
+      <select class="merchants__select" id="severRegion" @bind="@ServerRegion">
+        <option></option>
+        @foreach (var datacenter in StaticData.ServerRegions)
+        {
+          <option value="@datacenter.Key">@datacenter.Value.Name</option>
+        }
+      </select>
+    </div>
 
-  <div class="col-4">
-    <label class="control-label" for="server">Server: </label>
-    <select class="form-select" id="server" @bind="@Server">
+  <div class="merchants__select-container">
+    <div class="merchants__label brand-label">Server:</div>
+    <select class="merchants__select" id="server" @bind="@Server">
       <option></option>
       @if (!string.IsNullOrWhiteSpace(ServerRegion))
       {
@@ -49,7 +49,7 @@ else if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.Hu
   </div>
   @if (!string.IsNullOrWhiteSpace(Server))
   {
-    <div class="col d-flex justify-content-end mt-auto">
+    <div class="merchants__notification">
       <NotificationToggle />
     </div>
   }
