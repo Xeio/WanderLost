@@ -39,6 +39,10 @@
   background-repeat: no-repeat;
 }
 
+.merchants__select option {
+  background: var(--brand-black);
+}
+
 .merchants__notification {
   margin-left: auto;
 }
