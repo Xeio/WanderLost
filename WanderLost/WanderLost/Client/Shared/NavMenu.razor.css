@@ -18,7 +18,8 @@
   cursor: pointer;
 }
 
-.m-header__logo .p {
+.m-header__logo .p,
+.m-header__logo .t {
   fill: #fff;
 }
 
