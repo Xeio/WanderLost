@@ -58,7 +58,7 @@ public class LeaderboardProcessor : BackgroundService
                     OldestSubmission = rows.Max(m => m.ActiveMerchantGroup.NextAppearance.Date),
                     NewestSubmission = rows.Max(m => m.ActiveMerchantGroup.NextAppearance.Date),
                 })
-                .FirstOrDefaultAsync(stoppingToken);
+                .FirstOrDefaultAsync(stoppingToken) ?? new { VoteTotal = 0, TotalSubmisisons = 0, OldestSubmission = DateTime.Now, NewestSubmission = DateTime.Now };
 
             if(_validServers is null)
             {
@@ -77,16 +77,15 @@ public class LeaderboardProcessor : BackgroundService
                 })
                 .OrderByDescending(i => i.Count)
                 .Select(i => i.Server)
-                .FirstOrDefaultAsync(stoppingToken);
+                .FirstOrDefaultAsync(stoppingToken) ?? string.Empty;
 
-            //TODO: Use bulk updates in EF 7 branch
-            var updateCount = await merchantDbContext.Database.ExecuteSqlInterpolatedAsync(@$"
-UPDATE Leaderboards
-SET TotalVotes = {votesAndCount?.VoteTotal ?? 0},
-    TotalSubmissions = {votesAndCount?.TotalSubmisisons ?? 0},    
-    PrimaryServer = {server ?? string.Empty}
-WHERE UserId = {merchant.UploadedByUserId}
-",  stoppingToken);
+            var updateCount = await merchantDbContext.Leaderboards
+                .Where(l => l.UserId == merchant.UploadedByUserId)
+                .ExecuteUpdateAsync(u => u
+                                .SetProperty(l => l.TotalVotes, l => votesAndCount.VoteTotal)
+                                .SetProperty(l => l.TotalSubmissions, l => votesAndCount.TotalSubmisisons)
+                                .SetProperty(l => l.PrimaryServer, l => server),
+                                stoppingToken);
 
             if(updateCount == 0)
             {
@@ -102,13 +101,17 @@ WHERE UserId = {merchant.UploadedByUserId}
                 await merchantDbContext.SaveChangesAsync(stoppingToken);
             }
 
-            //TODO: Use bulk updates in EF 7 branch
             //Can clear processing flag for all rows with this user since all rows are aggregated at once
             await merchantDbContext.Database.ExecuteSqlInterpolatedAsync(@$"
 UPDATE ActiveMerchants
 SET RequiresLeaderboardProcessing = 0
 WHERE UploadedByUserId = {merchant.UploadedByUserId}
-",  stoppingToken);
+", stoppingToken);
+
+            //TODO: Seems to be a bug with [Owned] properties and translations to Update execution
+            //await merchantDbContext.ActiveMerchants
+            //    .Where(m => m.UploadedByUserId == merchant.UploadedByUserId)
+            //    .ExecuteUpdateAsync(u => u.SetProperty(m => m.RequiresLeaderboardProcessing, m => false));
         }
     }
 }

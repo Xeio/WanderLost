@@ -443,12 +443,9 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
             displayName = "Anonymous";
         }
 
-        //TODO: Use EF7 bulk update
-        var updateCount = await _merchantsDbContext.Database.ExecuteSqlInterpolatedAsync(@$"
-UPDATE Leaderboards
-SET DisplayName = {displayName}
-WHERE UserId = {Context.UserIdentifier}
-");
+        var updateCount = await _merchantsDbContext.Leaderboards
+            .Where(l => l.UserId == Context.UserIdentifier)
+            .ExecuteUpdateAsync(u => u.SetProperty(l => l.DisplayName, l => displayName));
 
         if (updateCount == 0)
         {
