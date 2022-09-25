@@ -16,6 +16,30 @@
   --brand-dimwhite: #b5b5b5;
 }
 
+@font-face {
+  font-family: Proxima Nova;
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url(/css/ProximaNova-Regular.woff) format("woff")
+}
+
+@font-face {
+  font-family: Proxima Nova;
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: url(/css/ProximaNova-Regular.woff) format("woff")
+}
+
+@font-face {
+  font-family: Proxima Nova;
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url(/css/ProximaNova-Bold.woff) format("woff")
+}
+
 *:focus-visible {
   outline-offset: 2px;
   outline-width: 2px;
