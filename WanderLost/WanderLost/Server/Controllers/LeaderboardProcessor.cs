@@ -76,7 +76,7 @@ public class LeaderboardProcessor : BackgroundService
 UPDATE Leaderboards
 SET TotalVotes = {votesAndCount?.VoteTotal ?? 0},
     TotalSubmissions = {votesAndCount?.TotalSubmisisons ?? 0},    
-    PrimaryServer = {server}
+    PrimaryServer = {server ?? string.Empty}
 WHERE UserId = {merchant.UploadedByUserId}
 ",  stoppingToken);
 
