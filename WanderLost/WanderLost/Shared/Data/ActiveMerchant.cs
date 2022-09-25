@@ -83,6 +83,10 @@ public class ActiveMerchant
     [MessagePack.IgnoreMember]
     public bool PostProcessComplete { get; set; }
 
+    [JsonIgnore]
+    [MessagePack.IgnoreMember]
+    public bool RequiresLeaderboardProcessing { get; set; } = true;
+
     public bool IsValid(Dictionary<string, MerchantData> allMerchantData)
     {
         if (string.IsNullOrWhiteSpace(Name) ||
