@@ -25,6 +25,7 @@
 
 .m-header__items {
   display: flex;
+  height: 54px;
 
   flex: 1 0 auto;
 }
