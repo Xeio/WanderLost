@@ -102,3 +102,12 @@ a, .btn-link {
 .blazor-error-boundary::after {
     content: "An error has occurred."
 }
+
+tr.separator td {
+    height: 15px;
+    background-color: rgba(255,255,255,.05);
+}
+
+tr.separator:last-of-type {
+    display: none;
+}

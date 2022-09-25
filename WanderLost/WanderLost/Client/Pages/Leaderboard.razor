@@ -1,0 +1,108 @@
+﻿@page "/Leaderboard"
+<PageTitle>Leaderboard</PageTitle>
+
+@inject MerchantHubClient HubClient
+@inject ClientStaticDataController StaticData
+@inject ClientSettingsController ClientSettings
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm">
+            <div class="row">
+                <div class="h3 col">Global Leaderboard</div>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Server</th>
+                        <th>Submissions</th>
+                        <th>Total Votes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var leaderboardEntry in AllServerLeaderboard)
+                    {
+                        <tr>
+                            <td>@leaderboardEntry.DisplayName</td>
+                            <td>@leaderboardEntry.PrimaryServer</td>
+                            <td>@leaderboardEntry.TotalSubmissions</td>
+                            <td>@leaderboardEntry.TotalVotes</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-sm">
+            <div class="row">
+                <div class="h3 col">Server Leaderboards</div>
+                <select class="form-select" id="server" @bind="@Server">
+                    <option></option>
+                    @foreach (var server in StaticData.ServerRegions.SelectMany(r => r.Value.Servers).OrderBy(s => s))
+                    {
+                        <option>@server</option>
+                    }
+                </select>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Submissions</th>
+                        <th>Total Votes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var leaderboardEntry in SelectedServerLeaderboard)
+                    {
+                        <tr>
+                            <td>@leaderboardEntry.DisplayName</td>
+                            <td>@leaderboardEntry.TotalSubmissions</td>
+                            <td>@leaderboardEntry.TotalVotes</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string _server = string.Empty;
+
+    private string Server 
+    {
+        get { return _server; }
+        set
+        {
+            if (_server != value)
+            {
+                _server = value;
+                Task.Run(GetServerLeaderboard);
+            }
+        }
+    }
+
+    private List<LeaderboardEntry> AllServerLeaderboard { get; set; } = new();
+    private List<LeaderboardEntry> SelectedServerLeaderboard { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await StaticData.Init();
+        await ClientSettings.Init();
+        await HubClient.Connect();
+
+        AllServerLeaderboard = await HubClient.GetLeaderboard(null);
+        Server = ClientSettings.Server;
+    }
+
+    private async Task GetServerLeaderboard()
+    {
+        if (!string.IsNullOrWhiteSpace(Server))
+        {
+            SelectedServerLeaderboard = await HubClient.GetLeaderboard(Server);
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+}

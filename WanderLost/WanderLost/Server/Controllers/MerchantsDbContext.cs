@@ -22,6 +22,7 @@ public class MerchantsDbContext : ApiAuthorizationDbContext<WanderlostUser>, IDa
     public DbSet<PushSubscription> PushSubscriptions { get; set; } = default!;
     public DbSet<SentPushNotification> SentPushNotifications { get; set; } = default!;
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = default!;
+    public DbSet<LeaderboardEntry> Leaderboards { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -47,6 +48,10 @@ public class MerchantsDbContext : ApiAuthorizationDbContext<WanderlostUser>, IDa
         modelBuilder.Entity<ActiveMerchant>()
             .HasIndex(m => new { m.PostProcessComplete })
             .HasFilter($"[{nameof(ActiveMerchant.PostProcessComplete)}] = 0");
+
+        modelBuilder.Entity<ActiveMerchant>()
+            .HasIndex(m => new { m.RequiresLeaderboardProcessing })
+            .HasFilter($"[{nameof(ActiveMerchant.RequiresLeaderboardProcessing)}] = 1");
 
         modelBuilder.Entity<Ban>()
             .HasKey(b => new { b.ClientId, b.ExpiresAt });

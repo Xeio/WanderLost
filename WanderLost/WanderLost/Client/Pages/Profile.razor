@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Authorization
+@using System.ComponentModel.DataAnnotations
 
 @inject MerchantHubClient HubClient
 
@@ -17,15 +18,32 @@
     <p>Total Upvotes: @Stats.TotalUpvotes</p>
     @*<p>First Submission: @Stats.OldestSubmission</p>*@
     @*<p>Most Recent Submission: @Stats.NewestSubmission</p>*@
+    <EditForm Model="@this" OnValidSubmit="UpdateDisplayName">
+        <DataAnnotationsValidator />
+        <ValidationSummary/>
+
+        <label for="displayName">Leaderboard Display Name</label>
+        <InputText id="displayName" @bind-Value="DisplayName" />
+        <button type="submit">Update Display Name</button>
+    </EditForm>
 </div>
 
 @code {
     private ProfileStats Stats = new();
+
+    [StringLength(40, ErrorMessage = "Display Name limited to 40 characters.")]
+    public string? DisplayName { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         await HubClient.Connect();
 
         Stats = await HubClient.GetProfileStats();
+        DisplayName = Stats.DisplayName;
+    }
+
+    private async Task UpdateDisplayName()
+    {
+        await HubClient.UpdateDisplayName(DisplayName);
     }
 }
