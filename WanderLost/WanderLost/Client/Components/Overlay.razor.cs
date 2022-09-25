@@ -2,13 +2,18 @@
 using Microsoft.JSInterop;
 using WanderLost.Shared.Data;
 using WanderLost.Client.Services;
+using Microsoft.AspNetCore.Components.Routing;
+using Microsoft.Extensions.Logging;
 
 namespace WanderLost.Client.Components;
 
-public partial class Overlay : IOverlay
+public partial class Overlay : IOverlay, IDisposable
 {
   [Inject]
   private MerchantHubClient HubClient { get; set; }
+
+  [Inject]
+  private NavigationManager NavigationManager { get; set; }
 
   [Inject]
   private IJSRuntime JSRuntime { get; set; }
@@ -79,6 +84,21 @@ public partial class Overlay : IOverlay
     }
 
     return null;
+  }
+
+  protected override void OnInitialized()
+  {
+    NavigationManager.LocationChanged += HandleLocationChanged;
+  }
+
+  private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
+  {
+    Close();
+  }
+
+  public void Dispose()
+  {
+    NavigationManager.LocationChanged -= HandleLocationChanged;
   }
 }
 
