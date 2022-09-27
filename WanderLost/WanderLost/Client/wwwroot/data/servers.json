@@ -38,11 +38,13 @@
     "UtcOffset": "01:00:00",
     "Servers": [
       "Antares",
+      "Armen",
       "Asta",
-      "Balthorr",
       "Beatrice",
       "Brelshaza",
       "Calvasus",
+      "Evergrace",
+      "Ezrebet",
       "Inanna",
       "Kadan",
       "Lazenith",
@@ -53,11 +55,9 @@
       "Sceptrum",
       "Sirius",
       "Slen",
-      "Starlight",
       "Thaemine",
       "Thirain",
       "Trixion",
-      "Twilightmist",
       "Wei",
       "Zinnervale"
     ]
