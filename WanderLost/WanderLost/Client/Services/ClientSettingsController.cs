@@ -23,6 +23,26 @@ public class ClientSettingsController
     private readonly ILocalStorageService _localStorageService;
     private readonly ClientStaticDataController _staticData;
 
+    private readonly Dictionary<string, string> _serverMerges = new()
+    {
+        { "Shadespire", "Rethramis" },
+        { "Petrania", "Tortoyk" },
+        { "Tragon", "Moonkeep" },
+        { "Stonehearth", "Punika" },
+        { "Kurzan", "Agaton" },
+        { "Prideholme", "Vern" },
+        { "Yorn", "Gienah" },
+        { "Feiton", "Arcturus" },
+        { "Sirius", "Armen" },
+        { "Sceptrum", "Armen" },
+        { "Thaemine", "Lazenith" },
+        { "Procyon", "Lazenith" },
+        { "Nineveh", "Evergrace" },
+        { "Beatrice", "Evergrace" },
+        { "Brelshaza", "Ezrebet" },
+        { "Inanna", "Ezrebet" },
+    };
+
     public ClientSettingsController(ILocalStorageService localStorageService, ClientStaticDataController staticData)
     {
         _localStorageService = localStorageService;
@@ -47,6 +67,12 @@ public class ClientSettingsController
             SavedPushSubscription = await _localStorageService.GetItemAsync<PushSubscription?>(nameof(SavedPushSubscription));
             RareSoundsOnly = await _localStorageService.GetItemAsync<bool?>(nameof(RareSoundsOnly)) ?? false;
             BrowserNotifications = await _localStorageService.GetItemAsync<bool?>(nameof(BrowserNotifications)) ?? false;
+
+            if(_serverMerges.TryGetValue(Server, out var newServer))
+            {
+                //Compatability for old servers after merge, will auto-select new server
+                await SetServer(newServer);
+            }
 
             _initialized = true;
         }

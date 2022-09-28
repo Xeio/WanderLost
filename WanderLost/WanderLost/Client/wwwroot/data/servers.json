@@ -40,22 +40,14 @@
       "Antares",
       "Armen",
       "Asta",
-      "Beatrice",
-      "Brelshaza",
       "Calvasus",
       "Evergrace",
       "Ezrebet",
-      "Inanna",
       "Kadan",
       "Lazenith",
       "Mokoko",
       "Neria",
-      "Nineveh",
-      "Procyon",
-      "Sceptrum",
-      "Sirius",
       "Slen",
-      "Thaemine",
       "Thirain",
       "Trixion",
       "Wei",
@@ -69,10 +61,6 @@
       "Rethramis",
       "Tortoyk",
       "Moonkeep",
-      "Stonehearth",
-      "Shadespire",
-      "Tragon",
-      "Petrania",
       "Punika"
     ]
   },
@@ -82,13 +70,9 @@
     "Servers": [
       "Agaton",
       "Arcturus",
-      "Feiton",
       "Gienah",
       "Kazeros",
-      "Kurzan",
-      "Prideholme",
-      "Vern",
-      "Yorn"
+      "Vern"
     ]
   }
 }
