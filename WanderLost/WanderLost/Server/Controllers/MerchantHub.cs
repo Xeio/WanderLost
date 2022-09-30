@@ -36,6 +36,8 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
         var allMerchantData = await _dataController.GetMerchantData();
         if (!merchant.IsValid(allMerchantData)) return;
 
+        if(!await _dataController.IsServerOnline(server)) return;
+
         var merchantGroup = await _merchantsDbContext.MerchantGroups
             .TagWithCallSite()
             .Where(g => g.Server == server && g.MerchantName == merchant.Name && g.AppearanceExpires > DateTimeOffset.Now)

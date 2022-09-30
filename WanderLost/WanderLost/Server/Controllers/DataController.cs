@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using HtmlAgilityPack;
+using Microsoft.Extensions.Caching.Memory;
 using System.Text.Json;
 using WanderLost.Shared;
 using WanderLost.Shared.Data;
@@ -8,13 +9,16 @@ namespace WanderLost.Server.Controllers;
 public class DataController
 {
     private readonly IWebHostEnvironment _webHostEnvironment;
-
     private readonly IMemoryCache _memoryCache;
+    private readonly ILogger<DataController> _logger;
+    private readonly IHttpClientFactory _httpClientFactory;
 
-    public DataController(IWebHostEnvironment webHostEnvironment, IMemoryCache memoryCache)
+    public DataController(IWebHostEnvironment webHostEnvironment, IMemoryCache memoryCache, ILogger<DataController> logger, IHttpClientFactory httpClientFactory)
     {
         _webHostEnvironment = webHostEnvironment;
         _memoryCache = memoryCache;
+        _httpClientFactory = httpClientFactory;
+        _logger = logger;
     }
 
     public async Task<Dictionary<string, MerchantData>> GetMerchantData()
@@ -70,5 +74,48 @@ public class DataController
         }
 
         return activeMerchantGroups;
+    }
+
+    public async Task<bool> IsServerOnline(string server)
+    {
+        var statuses = await _memoryCache.GetOrCreateAsync(nameof(IsServerOnline), BuildServerOnlineStates);
+        if(statuses.TryGetValue(server, out var status))
+        {
+            return status;
+        }
+        //If the status can't be found, just assume the server is online so the site is functional
+        return true;
+    }
+
+    private async Task<Dictionary<string, bool>> BuildServerOnlineStates(ICacheEntry entry)
+    {
+        entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(2);
+        try
+        {
+            var html = await _httpClientFactory.CreateClient().GetStringAsync("https://www.playlostark.com/en-us/support/server-status");
+            var doc = new HtmlDocument();
+            doc.LoadHtml(html);
+            var serverStatusnodes = doc.DocumentNode.Descendants().Where(n => n.HasClass("ags-ServerStatus-content-responses-response-server"));
+            
+            var onlineStates = new Dictionary<string, bool>();
+            foreach (var node in serverStatusnodes)
+            {
+                var nameNode = node.Descendants().FirstOrDefault(n => n.HasClass("ags-ServerStatus-content-responses-response-server-name"));
+                var name = nameNode?.InnerText?.Trim();
+                var serverInMaintenance = node.Descendants().Any(n => n.HasClass("ags-ServerStatus-content-responses-response-server-status--maintenance"));
+                if (!string.IsNullOrWhiteSpace(name))
+                {
+                    onlineStates[name] = !serverInMaintenance;
+                }
+            }
+            return onlineStates;
+        }
+        catch(Exception e)
+        {
+            //If for any reason this fails, we'll just return an empty list and assume that all servers are online
+            _logger.LogError(e, "Failed to retrieve Lost Ark server status.");
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
+            return new Dictionary<string, bool>();
+        }
     }
 }
