@@ -8,6 +8,8 @@ namespace WanderLost.Server.Controllers;
 
 public class DataController
 {
+    private static readonly SemaphoreSlim _semaphore = new(1);
+
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly IMemoryCache _memoryCache;
     private readonly ILogger<DataController> _logger;
@@ -78,8 +80,20 @@ public class DataController
 
     public async Task<bool> IsServerOnline(string server)
     {
-        var statuses = await _memoryCache.GetOrCreateAsync(nameof(IsServerOnline), BuildServerOnlineStates);
-        if(statuses.TryGetValue(server, out var status))
+        if (!_memoryCache.TryGetValue(nameof(IsServerOnline), out Dictionary<string, bool> statuses))
+        {
+            await _semaphore.WaitAsync();
+            try
+            {
+                statuses = await _memoryCache.GetOrCreateAsync(nameof(IsServerOnline), BuildServerOnlineStates);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        if (statuses.TryGetValue(server, out var status))
         {
             return status;
         }
