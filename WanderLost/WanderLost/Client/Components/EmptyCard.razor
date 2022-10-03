@@ -1,15 +1,23 @@
 ﻿<CardFrame Title="@Region" Subtitle="@MerchantName" Rarity="uncommon" >
   <div class="empty-card__mokoko" style="background-image: url(/images/EmptyCard.webp)" />
-  <button class="empty-card__submit-location" onclick="window.location.href = '/UpdateMerchant/@Server/@MerchantName'">Suggest location</button>
+  <button class="empty-card__submit-location" @onclick="@GoToSubmitPage">Suggest location</button>
 </CardFrame>
 
 @code {
-  [Parameter, EditorRequired]
-  public string MerchantName { get; set; } = default!;
+    [Inject]
+    public NavigationManager NavManager { get; init; } = default!;
 
-  [Parameter, EditorRequired]
-  public string Region { get; set; } = default!;
+    [Parameter, EditorRequired]
+    public string MerchantName { get; set; } = default!;
 
-  [Parameter, EditorRequired]
-  public string Server { get; set; } = default!;
+    [Parameter, EditorRequired]
+    public string Region { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public string Server { get; set; } = default!;
+
+    private void GoToSubmitPage()
+    {
+        NavManager.NavigateTo($"/UpdateMerchant/{Server}/{MerchantName}");
+    }
 }

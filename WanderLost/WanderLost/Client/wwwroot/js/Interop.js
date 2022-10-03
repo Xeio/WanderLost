@@ -63,7 +63,3 @@ ShowBodyScroll = function () {
 HideBodyScroll = function () {
   document.body.classList.add('noscroll');
 }
-
-NavigateTo = function (uri) {
-  window.location.href = uri;
-}

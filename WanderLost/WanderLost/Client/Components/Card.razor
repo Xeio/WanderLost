@@ -28,7 +28,7 @@
   };
 
   [Inject]
-  public IJSRuntime JSRuntime { get; set; }
+  public NavigationManager NavManager { get; set; }
 
   [Parameter, EditorRequired]
   public ActiveMerchant Merchant { get; set; }
@@ -89,7 +89,7 @@
 
   public void OnClickReport()
   {
-    JSRuntime.InvokeVoidAsync("NavigateTo", $"/UpdateMerchant/{Server}/{Merchant.Name}");
+    NavManager.NavigateTo($"/UpdateMerchant/{Server}/{Merchant.Name}");
   }
 
   public string ReportButtonHint
