@@ -1,15 +1,13 @@
 ﻿@inherits LayoutComponentBase
 
 <CascadingValue Value="_clicktrap">
-    <Overlay>
-        <div class="page" @onclick="ActivateClicktrap">
-            <NavMenu />
-            <div class="container-fluid" style="padding-top: 1em">
-                <audio id="notifsound" src="/media/notification.mp3" />
-                @Body
-            </div>
+    <div class="page" @onclick="ActivateClicktrap">
+        <NavMenu />
+        <div class="container-fluid" style="padding-top: 1em">
+            <audio id="notifsound" src="/media/notification.mp3" />
+            @Body
         </div>
-    </Overlay>
+    </div>
 </CascadingValue>
 
 @code {

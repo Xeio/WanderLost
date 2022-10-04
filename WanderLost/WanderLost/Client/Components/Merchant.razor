@@ -1,5 +1,3 @@
-@inject MerchantHubClient HubClient
-
 <div class="merchant @(ClassName)">
   @if (!hasMerchants)
   {
@@ -12,27 +10,24 @@
       <div class="merchant__deck" @onclick="ShowOverlay">
         @if (TetriraryMerchant != null)
         {
-          <Card ClassName="merchant__card merchant__card--tetriary" Merchant="@TetriraryMerchant" Server="@Server" Region="@Region" CurrentVote="@CurrentVote" SubmitVote="@SubmitVote" />
+          <Card ClassName="merchant__card merchant__card--tetriary" Merchant="@TetriraryMerchant" Server="@Server" Region="@Region" />
         }
-        <Card ClassName="merchant__card merchant__card--secondary" Merchant="@SecondaryMerchant" Server="@Server" Region="@Region" CurrentVote="@CurrentVote" SubmitVote="@SubmitVote" />
+        <Card ClassName="merchant__card merchant__card--secondary" Merchant="@SecondaryMerchant" Server="@Server" Region="@Region" />
       </div>
     }
-    <Card ClassName="merchant__card" Merchant="@MainMerchant" Server="@Server" Region="@Region" CurrentVote="@CurrentVote" SubmitVote="@SubmitVote" OnLocationClick="@ShowMap" />
+    <Card ClassName="merchant__card" Merchant="@MainMerchant" Server="@Server" Region="@Region" OnLocationClick="@ShowMap" />
   }
 </div>
 
 @code {
   [CascadingParameter(Name = "Overlay")]
-  public IOverlay? Overlay { get; set; }
+  public IOverlay Overlay { get; init; } = default!;
 
   [Parameter, EditorRequired]
   public ActiveMerchantGroup MerchantGroup { get; set; } = default!;
 
   [Parameter, EditorRequired]
   public string Server { get; set; } = default!;
-
-  [Parameter, EditorRequired]
-  public Dictionary<Guid, VoteType> Votes { get; set; } = default!;
 
   [Parameter]
   public string? ClassName { get; set; }
@@ -77,28 +72,13 @@
     }
   }
 
-  public async Task SubmitVote(Guid merchantId, VoteType vote)
-  {
-    VoteType? existingVote = CurrentVote(merchantId);
-    await HubClient.Vote(Server, merchantId, existingVote == vote ? VoteType.Unvote : vote);
-  }
-
-  public VoteType? CurrentVote(Guid merchantId)
-  {
-    if (Votes.TryGetValue(merchantId, out VoteType existingVote))
-    {
-      return existingVote;
-    }
-    return null;
-  }
-
   public void ShowOverlay()
   {
-    Overlay?.ShowMerchantGroup(MerchantGroup, Votes, Server, Region);
+    Overlay.ShowMerchantGroup(MerchantGroup, Server, Region);
   }
 
   public void ShowMap(string Zone)
   {
-     Overlay?.ShowMap(Zone);
+     Overlay.ShowMap(Zone);
   }
 }

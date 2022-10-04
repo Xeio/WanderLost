@@ -61,6 +61,10 @@ else if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.Hu
 }
 else if (ActiveData.MerchantGroups.Count > 0)
 {
-  <NewMerchantGrid ActiveData="@ActiveData" Server="@Server" />
-  <FutureMerchantsGrid ActiveData="@ActiveData" Server="@Server" />
+    <CascadingValue Value="@ActiveData">
+        <Overlay>
+            <NewMerchantGrid Server="@Server" />
+            <FutureMerchantsGrid ActiveData="@ActiveData" Server="@Server" />
+        </Overlay>
+    </CascadingValue>
 }
