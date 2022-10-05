@@ -1,9 +1,15 @@
-﻿<CardFrame Title="@Region" Subtitle="@MerchantName" Rarity="uncommon" >
-  <div class="empty-card__mokoko" style="background-image: url(/images/EmptyCard.webp)" />
+﻿<CardFrame Title="@Region" Subtitle="@MerchantName" Rarity="uncommon">
+   @if(!CollapseCards)
+   {
+    <div class="empty-card__mokoko" style="background-image: url(/images/EmptyCard.webp)" />
+   }
   <button class="empty-card__submit-location" @onclick="@GoToSubmitPage">Suggest location</button>
 </CardFrame>
 
 @code {
+    [CascadingParameter(Name = "CollapseCards")]
+    public bool CollapseCards { get; init; }
+
     [Inject]
     public NavigationManager NavManager { get; init; } = default!;
 

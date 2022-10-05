@@ -274,4 +274,9 @@ public partial class Merchants : IAsyncDisposable
             });
         }
     }
+
+    private async Task ToggleCollapse()
+    {
+        await ClientSettings.SetCollapseCards(!ClientSettings.CollapseCards);
+    }
 }

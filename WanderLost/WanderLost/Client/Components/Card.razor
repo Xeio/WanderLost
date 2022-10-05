@@ -2,7 +2,9 @@
 @inject NavigationManager NavManager
 
 <CardFrame Title="@Region" Subtitle="@Merchant.Zone" Rarity="@TopRarity" ClassName="@ClassName">
-  <div class="m-card__location @LoactionActiveClass" @onclick="@(() => OnLocationClick?.Invoke(Merchant.Zone))" style="background-image: url(/images/zones/@(Uri.EscapeDataString(Merchant.Zone)).jpg)" />
+  @if(!CollapseCards){
+    <div class="m-card__location @LoactionActiveClass" @onclick="@(() => OnLocationClick?.Invoke(Merchant.Zone))" style="background-image: url(/images/zones/@(Uri.EscapeDataString(Merchant.Zone)).jpg)" />
+  }
   <div class="stock">
     <div class="stock__item stock__item_r--@CardRarity">
       @Merchant.Card.Name
@@ -32,6 +34,9 @@
 
     [CascadingParameter]
     public ActiveDataController ActiveData { get; init; } = default!;
+
+    [CascadingParameter(Name = "CollapseCards")]
+    public bool CollapseCards { get; init; }
 
     [Parameter, EditorRequired]
     public ActiveMerchant Merchant { get; set; }

@@ -51,6 +51,10 @@ else if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.Hu
   {
     <div class="merchants__label brand-label">Expire in @((activeGroup.AppearanceExpires - DateTimeOffset.UtcNow).ToString(@"mm\:ss"))</div>
   }
+  <div>
+   <input type="checkbox" id="collapseSwitch" checked="@ClientSettings.CollapseCards" @onchange="@ToggleCollapse" />
+    <label for="collapseSwitch">Collapse Cards</label>
+  </div>
   @if (!string.IsNullOrWhiteSpace(Server))
   {
     <div class="merchants__notification">
@@ -67,8 +71,10 @@ else if (ActiveData.MerchantGroups.Count > 0)
 {
     <CascadingValue Value="@ActiveData">
         <Overlay>
-            <NewMerchantGrid Server="@Server" />
-            <FutureMerchantsGrid ActiveData="@ActiveData" Server="@Server" />
+            <CascadingValue Value="@ClientSettings.CollapseCards" Name="CollapseCards">
+                <NewMerchantGrid Server="@Server" />
+                <FutureMerchantsGrid ActiveData="@ActiveData" Server="@Server" />
+            </CascadingValue>
         </Overlay>
     </CascadingValue>
 }
