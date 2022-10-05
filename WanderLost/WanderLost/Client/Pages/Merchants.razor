@@ -47,6 +47,10 @@ else if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.Hu
       }
     </select>
   </div>
+  @if (ActiveData.MerchantGroups.FirstOrDefault(mg => mg.IsActive) is ActiveMerchantGroup activeGroup)
+  {
+    <div class="merchants__label brand-label">Expire in @((activeGroup.AppearanceExpires - DateTimeOffset.UtcNow).ToString(@"mm\:ss"))</div>
+  }
   @if (!string.IsNullOrWhiteSpace(Server))
   {
     <div class="merchants__notification">
