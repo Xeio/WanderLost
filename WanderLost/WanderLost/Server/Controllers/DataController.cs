@@ -122,6 +122,7 @@ public class DataController
                     onlineStates[name] = !serverInMaintenance;
                 }
             }
+            _logger.LogInformation("Server status {onlineCount} online {offlineCount} offline.", onlineStates.Count(s => s.Value), onlineStates.Count(s => !s.Value));
             return onlineStates;
         }
         catch(Exception e)
