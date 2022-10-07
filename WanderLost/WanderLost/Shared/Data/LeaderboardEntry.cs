@@ -22,6 +22,7 @@ public class LeaderboardEntry
     [MessagePack.Key(2)]
     public int TotalSubmissions { get; set; }
 
+    [MaxLength(20)]
     [MessagePack.Key(3)]
     public string PrimaryServer { get; set; } = string.Empty;
 }
