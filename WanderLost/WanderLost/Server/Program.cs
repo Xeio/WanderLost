@@ -112,7 +112,7 @@ if (!builder.Environment.IsDevelopment())
     builder.Logging.AddSimpleConsole(o =>
     {
         o.SingleLine = true;
-        o.TimestampFormat = "hh:mm:ss ";
+        o.TimestampFormat = "MM-dd HH:mm:ss ";
     });
 }
 
