@@ -146,12 +146,14 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
         if (!string.IsNullOrWhiteSpace(Context.UserIdentifier))
         {
             existingVote = await _merchantsDbContext.Votes
+               .TagWithCallSite()
                .Where(v => v.ActiveMerchantId == merchantId)
                .FirstOrDefaultAsync(v => v.UserId == Context.UserIdentifier);
         }
         else
         {
             existingVote = await _merchantsDbContext.Votes
+               .TagWithCallSite()
                .Where(v => v.ActiveMerchantId == merchantId)
                .FirstOrDefaultAsync(v => v.ClientId == clientId);
         }
@@ -365,6 +367,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
     public async Task<ProfileStats> GetProfileStats()
     {
         var leaderboardEntry = await _merchantsDbContext.Leaderboards
+            .TagWithCallSite()
             .Where(l => l.UserId == Context.UserIdentifier)
             .FirstOrDefaultAsync();
 
@@ -423,11 +426,13 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
         if (string.IsNullOrWhiteSpace(server))
         {
             return await _merchantsDbContext.Leaderboards
+                .TagWithCallSite()
                 .OrderByDescending(m => m.TotalSubmissions)
                 .Take(50)
                 .ToListAsync();
         }
         return await _merchantsDbContext.Leaderboards
+            .TagWithCallSite()
             .Where(l => l.PrimaryServer == server)
             .OrderByDescending(m => m.TotalSubmissions)
             .Take(50)
