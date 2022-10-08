@@ -1,11 +1,11 @@
-﻿.new-merchant-grid {
+﻿.merchant-grid {
   display: flex;
   flex-wrap: wrap;
 
   padding: 36px 0 12px 24px;
 }
 
-.new-merchant-grid ::deep .new-merchant-grid__item {
+.merchant-grid ::deep .merchant-grid__item {
   flex-shrink: 0;
   margin-bottom: 12px;
 }

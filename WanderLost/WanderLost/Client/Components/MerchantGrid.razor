@@ -1,7 +1,7 @@
-﻿<div class="new-merchant-grid">
+﻿<div class="merchant-grid">
   @foreach (var activeGroup in ActiveData.MerchantGroups.Where(m => m.IsActive))
   {
-    <Merchant ClassName="new-merchant-grid__item" MerchantGroup="@activeGroup" Server="@Server" />
+    <Merchant ClassName="merchant-grid__item" MerchantGroup="@activeGroup" Server="@Server" />
   }
 </div>
 
