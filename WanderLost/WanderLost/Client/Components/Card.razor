@@ -1,0 +1,106 @@
+﻿@inject MerchantHubClient HubClient
+@inject NavigationManager NavManager
+@inject ClientSettingsController ClientSettings
+
+<CardFrame Title="@Region" Subtitle="@Merchant.Zone" Rarity="@TopRarity" ClassName="@ClassName">
+    @if(!CollapseCards)
+    {
+        <div class="m-card__location @LoctionActiveClass" @onclick="@(async () => await OnLocationClick.InvokeAsync(Merchant.Zone))" style="background-image: url(/images/zones/@(Uri.EscapeDataString(Merchant.Zone)).jpg)" />
+    }
+    <div class="stock">
+        @{
+            ClientSettings.Notifications.TryGetValue(Merchant.Name, out var merchantNotificationSettings); 
+        }
+        <div class="stock__item">
+            @if (merchantNotificationSettings?.Cards.Contains(Merchant.Card.Name) == true)
+            {
+                <span class="oi oi-star text-warning mx-1" />
+            }
+            <ItemDisplay Item="@Merchant.Card" />
+        </div>
+        <div class="stock__item">
+            @if (merchantNotificationSettings?.Rapports.Contains(Merchant.Rapport.Name) == true)
+            {
+                <span class="oi oi-star text-warning mx-1" />
+            }
+            <ItemDisplay Item="@Merchant.Rapport" />
+        </div>
+    </div>
+    <div class="m-card__buttons">
+        <CardButton ClassName="m-card__like" Type="CardButton.Variant.Like" OnClick="@(async () => await SubmitVote(VoteType.Upvote))" Active="@(CurrentVote == VoteType.Upvote)" />
+        <div class="m-card__score">@Merchant.Votes</div>
+        <CardButton ClassName="m-card__dislike" Type="CardButton.Variant.Dislike" OnClick="@(async () => await SubmitVote(VoteType.Downvote))" Active="@(CurrentVote == VoteType.Downvote)" />
+        <CardButton ClassName="m-card__report" Hint="@ReportButtonHint" Type="CardButton.Variant.Report" OnClick="@OnClickReport" />
+    </div>
+</CardFrame>
+
+@code {
+    [CascadingParameter]
+    public ActiveDataController ActiveData { get; init; } = default!;
+
+    [CascadingParameter(Name = "CollapseCards")]
+    public bool CollapseCards { get; init; }
+
+    [Parameter, EditorRequired]
+    public ActiveMerchant Merchant { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<string> OnLocationClick { get; set; }
+
+    [Parameter]
+    public string ClassName { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Server { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Region { get; set; } = string.Empty;
+
+    public Rarity TopRarity
+    {
+        get
+        {
+            // Due to rapport items being either epic or legs, we only change border colour upon leg rapport
+            // Otherwise the card rarity colour is more informative
+            return Merchant.Rapport.Rarity >= Rarity.Legendary ? Merchant.Rapport.Rarity : Merchant.Card.Rarity;
+        }
+    }
+
+    public string LoctionActiveClass
+    {
+        get
+        {
+            return OnLocationClick.HasDelegate ? "m-card__location--active" : "";
+        }
+    }
+
+    public void OnClickReport()
+    {
+        NavManager.NavigateTo($"/UpdateMerchant/{Server}/{Merchant.Name}");
+    }
+
+    public string ReportButtonHint
+    {
+        get
+        {
+            return CurrentVote is not null ? "Suggest new location" : "Submit correction";
+        }
+    }
+
+    public async Task SubmitVote(VoteType vote)
+    {
+        await HubClient.Vote(Server, Merchant.Id, CurrentVote == vote ? VoteType.Unvote : vote);
+    }
+
+    public VoteType? CurrentVote
+    {
+        get
+        {
+            if (ActiveData.Votes.TryGetValue(Merchant.Id, out VoteType existingVote))
+            {
+                return existingVote;
+            }
+            return null;
+        }
+    }
+}

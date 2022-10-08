@@ -1,0 +1,38 @@
+﻿.overlay__wrapper--faded {
+    filter: blur(4px);
+}
+
+.overlay__content {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    padding: 24px;
+
+    overflow: auto;
+
+    display: flex;
+    align-items: center;
+
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.overlay__content ::deep .overlay__card {
+    margin-right: 24px;
+
+    flex-shrink: 0;
+}
+
+.overlay__content ::deep .overlay__card:first-child {
+  margin-left: auto;
+}
+
+.overlay__content ::deep .overlay__card:last-child {
+  margin-right: auto;
+}
+
+.overlay__map {
+  margin: 0 auto;
+}

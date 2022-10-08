@@ -1,20 +1,63 @@
-.oi {
-    width: 2rem;
-    font-size: 1.1rem;
-    vertical-align: text-top;
-    top: -2px;
+.m-header {
+  display: flex;
+  padding: 0 24px;
+
+  flex-wrap: wrap;
+  justify-content: space-around;
+
+  background: var(--brand-black);
 }
 
-.nav-item ::deep a {
-    border-radius: 4px;
+::deep .m-header__logo {
+  display: flex;
+
+  margin: 8px;
+
+  height: 38px;
+
+  cursor: pointer;
 }
 
-.nav-item ::deep a.active {
-    background-color: rgba(255,255,255,0.25);
-    color: white;
+.m-header__logo .p,
+.m-header__logo .t {
+  fill: #fff;
 }
 
-.nav-item ::deep a:hover {
-    background-color: rgba(255,255,255,0.1);
-    color: white;
+.m-header__items {
+  display: flex;
+  height: 54px;
+
+  flex: 1 0 auto;
+}
+
+::deep .m-header__item {
+  display: flex;
+
+  align-items: center;
+  flex-shrink: 0;
+
+  padding: 0 8px;
+  margin: 8px;
+
+  cursor: pointer;
+
+  /** reset button styles */
+  border: none;
+  background: transparent;
+  /** end reset button styles */
+
+  border-bottom: 1px solid transparent;
+
+  transition: 0.2s ease-in-out;
+  transition-property: color, border-color;
+}
+
+::deep .m-header__item:hover,
+::deep .m-header__item.active {
+  color: #fff;
+  border-color: var(--brand-gold);
+}
+
+.m-header__item--separated {
+  margin-left: auto;
 }

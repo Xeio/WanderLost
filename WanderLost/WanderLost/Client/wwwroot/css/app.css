@@ -1,11 +1,80 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
+:root {
+    /**rarity colors snatched from the game*/
+    --gold: #e29521;
+    --purple: #a661cb;
+    --blue: #2c93bc;
+    --green: #9cee32;
+    --red: orangered;
+    --white: white;
+
+    /**misc colors*/
+    --mapbackground: #1a1f23;
+
+    /**playlostark.com colors*/
+    --brand-gold: #bfa251;
+    --brand-black: #141312;
+    --brand-dimwhite: #b5b5b5;
+}
+
+@font-face {
+    font-family: Proxima Nova;
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+    src: url(/css/ProximaNova-Regular.woff) format("woff")
+}
+
+@font-face {
+    font-family: Proxima Nova;
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+    src: url(/css/ProximaNova-Regular.woff) format("woff")
+}
+
+@font-face {
+    font-family: Proxima Nova;
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+    src: url(/css/ProximaNova-Bold.woff) format("woff")
+}
+
+*:focus-visible {
+    outline-offset: 2px;
+    outline-width: 2px;
+    outline-style: solid;
+    outline-color: var(--brand-gold);
+}
+
+.brand-label {
+    font-family: Proxima Nova, Arial, sans-serif;
+    font-weight: 600;
+    font-style: normal;
+    font-size: 0.75rem;
+
+    line-height: 1;
+
+    letter-spacing: 0.1em;
+
+    text-transform: uppercase;
+    text-decoration: none;
+
+    color: var(--brand-dimwhite);
+}
+
 .cursor-pointer {
     cursor: pointer;
 }
 
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.noscroll {
+    overflow: hidden;
 }
 
 h1:focus {
@@ -67,4 +136,28 @@ tr.separator td {
 
 tr.separator:last-of-type {
     display: none;
+}
+
+.rarity--Normal {
+    color: var(--white);
+}
+
+.rarity--Uncommon {
+    color: var(--green);
+}
+
+.rarity--Rare {
+    color: var(--blue);
+}
+
+.rarity--Epic {
+    color: var(--purple);
+}
+
+.rarity--Legendary {
+    color: var(--gold);
+}
+
+.rarity--Relic {
+    color: var(--orangered);
 }

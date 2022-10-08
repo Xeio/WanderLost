@@ -1,0 +1,43 @@
+﻿<button class="button @ClassName" title="@Hint" @onclick:stopPropagation="true" @onclick="OnClick">
+    <svg class="icon__svg" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false">
+        <path class="icon__path @IconPathType" />
+    </svg>
+</button>
+
+@code {
+    public enum Variant
+    {
+        Like,
+        Dislike,
+        Report
+    }
+
+    [Parameter, EditorRequired]
+    public Variant Type { get; set; }
+
+    [Parameter]
+    public bool Active { get; set; }
+
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+
+    [Parameter, EditorRequired]
+    public string ClassName { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Hint { get; set; } = string.Empty;
+
+    public string IconPathType
+    {
+        get
+        {
+            return Type switch
+            {
+                Variant.Like => Active ? "icon__path--like-active" : "icon__path--like",
+                Variant.Dislike => Active ? "icon__path--dislike-active" : "icon__path--dislike",
+                Variant.Report => "icon__path--report",
+                _ => throw new Exception("Uknown button type: " + Type.ToString())
+            };
+        }
+    }
+}

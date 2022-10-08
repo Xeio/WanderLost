@@ -1,0 +1,72 @@
+﻿.card-frame {
+    position: relative;
+    box-sizing: content-box;
+    width: 280px;
+    padding: 4px 1px 1px 1px;
+}
+
+.rarity--Normal .card-frame__border-color {
+    fill: var(--white);
+}
+
+.rarity--Uncommon .card-frame__border-color {
+    fill: var(--green);
+}
+
+.rarity--Rare .card-frame__border-color {
+    fill: var(--blue);
+}
+
+.rarity--Epic .card-frame__border-color {
+    fill: var(--purple);
+}
+
+.rarity--Legendary .card-frame__border-color {
+    fill: var(--gold);
+}
+
+.rarity--Relic .card-frame__border-color {
+    fill: var(--red);
+}
+
+.card-frame__border {
+    position: absolute;
+    top: 0;
+    left: -1px;
+    right: -1px;
+    height: 100%;
+    width: 100%;
+}
+
+.card-frame__border.small_card {
+    height: 200px;
+}
+
+.card-frame__inner {
+    padding: 24px 16px 16px;
+    background: var(--mapbackground);
+    min-height: 420px;
+}
+
+.card-frame__inner.small_card {
+    min-height: 200px;
+}
+
+.card-frame__title {
+    height: 22px;
+    font-family: Helvetica, sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: .0892857143em;
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 1.4em;
+}
+
+.card-frame__border-color--faded {
+    opacity: 0.55;
+}
+
+.card-frame__border-diamond {
+    fill: var(--mapbackground);
+}

@@ -48,13 +48,13 @@ public static class Utils
             Zones = { "Twilight Zone", "Cardassia Prime", "Medina Station" },
             Cards = 
             {
-                new Item() { Name = "Jack O'Neill", Rarity = Rarity.Relic },
-                new Item() { Name = "Jaffa", Rarity = Rarity.Normal },
+                new Item() { Name = "Jack O'Neill", Rarity = Rarity.Legendary },
+                new Item() { Name = "Jaffa", Rarity = Rarity.Uncommon },
             },
             Rapports =
             {
                 new Item() { Name = "Lightsaber", Rarity = Rarity.Legendary },
-                new Item() { Name = "Half-Eaten Cookie", Rarity = Rarity.Normal },
+                new Item() { Name = "Half-Eaten Cookie", Rarity = Rarity.Epic },
             },
             AppearanceTimes = times,
         });
