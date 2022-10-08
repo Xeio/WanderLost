@@ -6,9 +6,9 @@
     width: 180px;
 }
 
-    .merchants__select-container + .merchants__select-container {
-        margin-left: 24px
-    }
+.merchants__select-container + .merchants__select-container {
+    margin-left: 24px
+}
 
 .merchants__label {
 }
@@ -46,4 +46,68 @@
 
 .merchants__notification {
     margin-left: auto;
+}
+
+.expire__timer {
+    font-size: 1em;
+    padding-top: 12px;
+    padding-left: 18px;
+}
+
+.collapse-toggle{
+    margin-left: 12px;
+}
+
+.collapse-toggle__container {
+    display: flex;
+    margin-top: 4px;
+    align-items: center;
+    height: 42px;
+}
+
+.collapse-toggle__input {
+    height: 0;
+    width: 0;
+    visibility: hidden;
+}
+
+.collapse-toggle__label {
+    display: block;
+    position: relative;
+    width: 42px;
+    height: 22px;
+    cursor: pointer;
+    text-indent: -9999px;
+    background: transparent;
+    border: 1px solid #fff;
+    border-radius: 100px;
+}
+
+.collapse-toggle__label:after {
+    position: absolute;
+    top: 3px;
+    left: 4px;
+    width: 14px;
+    height: 14px;
+
+    content: '';
+
+    background: #fff;
+
+    border-radius: 50%;
+
+    transition: 0.3s;
+}
+
+.collapse-toggle__input:checked + .collapse-toggle__label {
+    background: #bfa251;
+}
+
+.collapse-toggle__input:checked + .collapse-toggle__label:after {
+    left: calc(100% - 5px);
+    transform: translateX(-100%);
+}
+
+.collapse-toggle__label:active:after {
+    width: 20px;
 }

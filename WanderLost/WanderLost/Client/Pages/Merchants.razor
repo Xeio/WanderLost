@@ -47,14 +47,14 @@ else if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.Hu
             }
         </select>
     </div>
-    @if (ActiveData.MerchantGroups.FirstOrDefault(mg => mg.IsActive) is ActiveMerchantGroup activeGroup)
-    {
-        <div class="merchants__label brand-label">Expire in @((activeGroup.AppearanceExpires - DateTimeOffset.UtcNow).ToString(@"mm\:ss"))</div>
-    }
-    <div>
-        <input type="checkbox" id="collapseSwitch" checked="@ClientSettings.CollapseCards" @onchange="@ToggleCollapse" />
-        <label for="collapseSwitch">Collapse Cards</label>
+    <div class="collapse-toggle">
+        <div class="brand-label">Collapse Cards: </div>
+        <div class="collapse-toggle__container">
+            <input class="collapse-toggle__input" type="checkbox" id="collapseSwitch" checked="@ClientSettings.CollapseCards" @onchange="@ToggleCollapse" />
+            <label class="collapse-toggle__label" for="collapseSwitch">Collapse Cards</label>
+        </div>
     </div>
+    
     @if (!string.IsNullOrWhiteSpace(Server))
     {
         <div class="merchants__notification">
@@ -72,8 +72,9 @@ else if (ActiveData.MerchantGroups.Count > 0)
     <CascadingValue Value="@ActiveData">
         <Overlay>
             <CascadingValue Value="@ClientSettings.CollapseCards" Name="CollapseCards">
-                @if (ActiveData.MerchantGroups.Any(m => m.IsActive))
+                @if (ActiveData.MerchantGroups.FirstOrDefault(mg => mg.IsActive) is ActiveMerchantGroup activeGroup)
                 {
+                    <div class="merchants__label brand-label expire__timer">Merchants Expire in @((activeGroup.AppearanceExpires - DateTimeOffset.UtcNow).ToString(@"mm\:ss"))</div>
                     <MerchantGrid Server="@Server" />
                 }
                 <FutureMerchantsGrid ActiveData="@ActiveData" Server="@Server" />

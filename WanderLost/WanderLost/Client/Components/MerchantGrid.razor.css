@@ -2,7 +2,7 @@
     display: flex;
     flex-wrap: wrap;
 
-    padding: 36px 0 12px 24px;
+    padding: 18px 0 12px 24px;
 }
 
 .merchant-grid ::deep .merchant-grid__item {
