@@ -1,27 +1,3 @@
-.Common {
-    color: white;
-}
-
-.Uncommon {
-    color: lawngreen;
-}
-
-.Rare {
-    color: dodgerblue;
-}
-
-.Epic {
-    color: #c94dff;
-}
-
-.Legendary {
-    color: darkorange;
-}
-
-.Relic {
-    color: orangered;
-}
-
 .item {
     position: relative;
 }

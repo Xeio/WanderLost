@@ -5,25 +5,25 @@
 <CardFrame Title="@Region" Subtitle="@Merchant.Zone" Rarity="@TopRarity" ClassName="@ClassName">
     @if(!CollapseCards)
     {
-        <div class="m-card__location @LoactionActiveClass" @onclick="@(() => OnLocationClick?.Invoke(Merchant.Zone))" style="background-image: url(/images/zones/@(Uri.EscapeDataString(Merchant.Zone)).jpg)" />
+        <div class="m-card__location @LoctionActiveClass" @onclick="@(() => OnLocationClick?.Invoke(Merchant.Zone))" style="background-image: url(/images/zones/@(Uri.EscapeDataString(Merchant.Zone)).jpg)" />
     }
     <div class="stock">
         @{
             ClientSettings.Notifications.TryGetValue(Merchant.Name, out var merchantNotificationSettings); 
         }
-        <div class="stock__item stock__item_r--@CardRarity">
+        <div class="stock__item">
             @if (merchantNotificationSettings?.Cards.Contains(Merchant.Card.Name) == true)
             {
                 <span class="oi oi-star text-warning mx-1" />
             }
-            @Merchant.Card.Name
+            <ItemDisplay Item="@Merchant.Card" />
         </div>
-        <div class="stock__item stock__item_r--@RapportRarity">
+        <div class="stock__item">
             @if (merchantNotificationSettings?.Rapports.Contains(Merchant.Rapport.Name) == true)
             {
                 <span class="oi oi-star text-warning mx-1" />
             }
-            @Merchant.Rapport.Name
+            <ItemDisplay Item="@Merchant.Rapport" />
         </div>
     </div>
     <div class="m-card__buttons">
@@ -35,16 +35,6 @@
 </CardFrame>
 
 @code {
-    private static Dictionary<Rarity, string> RarityMapping = new Dictionary<Rarity, string>()
-    {
-        {WanderLost.Shared.Data.Rarity.Normal, "uncommon"},
-        {WanderLost.Shared.Data.Rarity.Uncommon, "uncommon"},
-        {WanderLost.Shared.Data.Rarity.Rare, "rare"},
-        {WanderLost.Shared.Data.Rarity.Epic, "epic"},
-        {WanderLost.Shared.Data.Rarity.Legendary, "legendary"},
-        {WanderLost.Shared.Data.Rarity.Relic, "relic"}
-    };
-
     [CascadingParameter]
     public ActiveDataController ActiveData { get; init; } = default!;
 
@@ -66,35 +56,17 @@
     [Parameter]
     public string Region { get; set; } = string.Empty;
 
-    public string CardRarity
-    {
-        get
-        {
-            return RarityMapping[Merchant.Card.Rarity];
-        }
-    }
-
-    public string RapportRarity
-    {
-        get
-        {
-            return RarityMapping[Merchant.Rapport.Rarity];
-        }
-    }
-
-    public string TopRarity
+    public Rarity TopRarity
     {
         get
         {
             // Due to rapport items being either epic or legs, we only change border colour upon leg rapport
             // Otherwise the card rarity colour is more informative
-            Rarity topRarity = Merchant.Rapport.Rarity.CompareTo(Rarity.Legendary) >= 0 ? Merchant.Rapport.Rarity : Merchant.Card.Rarity;
-
-            return RarityMapping[topRarity];
+            return Merchant.Rapport.Rarity >= Rarity.Legendary ? Merchant.Rapport.Rarity : Merchant.Card.Rarity;
         }
     }
 
-    public string LoactionActiveClass
+    public string LoctionActiveClass
     {
         get
         {
