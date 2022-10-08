@@ -1,24 +1,37 @@
 ﻿@inject MerchantHubClient HubClient
 @inject NavigationManager NavManager
+@inject ClientSettingsController ClientSettings
 
 <CardFrame Title="@Region" Subtitle="@Merchant.Zone" Rarity="@TopRarity" ClassName="@ClassName">
-  @if(!CollapseCards){
-    <div class="m-card__location @LoactionActiveClass" @onclick="@(() => OnLocationClick?.Invoke(Merchant.Zone))" style="background-image: url(/images/zones/@(Uri.EscapeDataString(Merchant.Zone)).jpg)" />
-  }
-  <div class="stock">
-    <div class="stock__item stock__item_r--@CardRarity">
-      @Merchant.Card.Name
+    @if(!CollapseCards)
+    {
+        <div class="m-card__location @LoactionActiveClass" @onclick="@(() => OnLocationClick?.Invoke(Merchant.Zone))" style="background-image: url(/images/zones/@(Uri.EscapeDataString(Merchant.Zone)).jpg)" />
+    }
+    <div class="stock">
+        @{
+            ClientSettings.Notifications.TryGetValue(Merchant.Name, out var merchantNotificationSettings); 
+        }
+        <div class="stock__item stock__item_r--@CardRarity">
+            @if (merchantNotificationSettings?.Cards.Contains(Merchant.Card.Name) == true)
+            {
+                <span class="oi oi-star text-warning mx-1" />
+            }
+            @Merchant.Card.Name
+        </div>
+        <div class="stock__item stock__item_r--@RapportRarity">
+            @if (merchantNotificationSettings?.Rapports.Contains(Merchant.Rapport.Name) == true)
+            {
+                <span class="oi oi-star text-warning mx-1" />
+            }
+            @Merchant.Rapport.Name
+        </div>
     </div>
-    <div class="stock__item stock__item_r--@RapportRarity">
-      @Merchant.Rapport.Name
-    </div>
-  </div>
-  <div class="m-card__buttons">
+    <div class="m-card__buttons">
         <CardButton ClassName="m-card__like" Type="CardButton.Variant.Like" OnClick="@(async () => await SubmitVote(VoteType.Upvote))" Active="@(CurrentVote == VoteType.Upvote)" />
-    <div class="m-card__score">@Merchant.Votes</div>
+        <div class="m-card__score">@Merchant.Votes</div>
         <CardButton ClassName="m-card__dislike" Type="CardButton.Variant.Dislike" OnClick="@(async () => await SubmitVote(VoteType.Downvote))" Active="@(CurrentVote == VoteType.Downvote)" />
-    <CardButton ClassName="m-card__report" Hint="@ReportButtonHint" Type="CardButton.Variant.Report" OnClick="@OnClickReport" />
-  </div>
+        <CardButton ClassName="m-card__report" Hint="@ReportButtonHint" Type="CardButton.Variant.Report" OnClick="@OnClickReport" />
+    </div>
 </CardFrame>
 
 @code {
@@ -39,16 +52,16 @@
     public bool CollapseCards { get; init; }
 
     [Parameter, EditorRequired]
-    public ActiveMerchant Merchant { get; set; }
+    public ActiveMerchant Merchant { get; set; } = default!;
 
     [Parameter]
     public Action<string>? OnLocationClick { get; set; }
 
     [Parameter]
-    public string ClassName { get; set; }
+    public string ClassName { get; set; } = string.Empty;
 
     [Parameter]
-    public string Server { get; set; }
+    public string Server { get; set; } = string.Empty;
 
     [Parameter]
     public string Region { get; set; } = string.Empty;
