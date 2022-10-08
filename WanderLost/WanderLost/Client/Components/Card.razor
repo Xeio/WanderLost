@@ -5,7 +5,7 @@
 <CardFrame Title="@Region" Subtitle="@Merchant.Zone" Rarity="@TopRarity" ClassName="@ClassName">
     @if(!CollapseCards)
     {
-        <div class="m-card__location @LoctionActiveClass" @onclick="@(() => OnLocationClick?.Invoke(Merchant.Zone))" style="background-image: url(/images/zones/@(Uri.EscapeDataString(Merchant.Zone)).jpg)" />
+        <div class="m-card__location @LoctionActiveClass" @onclick="@(async () => await OnLocationClick.InvokeAsync(Merchant.Zone))" style="background-image: url(/images/zones/@(Uri.EscapeDataString(Merchant.Zone)).jpg)" />
     }
     <div class="stock">
         @{
@@ -45,7 +45,7 @@
     public ActiveMerchant Merchant { get; set; } = default!;
 
     [Parameter]
-    public Action<string>? OnLocationClick { get; set; }
+    public EventCallback<string> OnLocationClick { get; set; }
 
     [Parameter]
     public string ClassName { get; set; } = string.Empty;
@@ -70,7 +70,7 @@
     {
         get
         {
-            return OnLocationClick is not null ? "m-card__location--active" : "";
+            return OnLocationClick.HasDelegate ? "m-card__location--active" : "";
         }
     }
 

@@ -4,68 +4,68 @@
 
 @if (ClientSettings.NotificationsEnabled && ClientSettings.NotifyBrowserSoundEnabled)
 {
-  <BrowserSoundDisabledPopup />
+    <BrowserSoundDisabledPopup />
 }
 
 <MessageOfTheDay />
 
 @if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.HubConnectionState.Disconnected)
 {
-  <div class="alert alert-danger">
-    Disconnected from server. <a href="" class="alert-link" @onclick="@(() => { NavigationManager.NavigateTo("", true); })">Try to Reload.</a>
-  </div>
+    <div class="alert alert-danger">
+        Disconnected from server. <a href="" class="alert-link" @onclick="@(() => { NavigationManager.NavigateTo("", true); })">Try to Reload.</a>
+    </div>
 }
 else if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.HubConnectionState.Reconnecting)
 {
-  <div class="alert alert-warning">
-    Disconnected from server, automatically attempting to reconnect... <a href="" class="alert-link" @onclick="@(() => { NavigationManager.NavigateTo("", true); })">Or you can try to reload.</a>
-  </div>
+    <div class="alert alert-warning">
+        Disconnected from server, automatically attempting to reconnect... <a href="" class="alert-link" @onclick="@(() => { NavigationManager.NavigateTo("", true); })">Or you can try to reload.</a>
+    </div>
 }
 
 <div class="merchants__controls">
-  <div class="merchants__select-container">
-    <div class="merchants__label brand-label">Server Region:</div>
-      <select class="merchants__select" id="severRegion" @bind="@ServerRegion">
-        <option></option>
-        @foreach (var datacenter in StaticData.ServerRegions)
-        {
-          <option value="@datacenter.Key">@datacenter.Value.Name</option>
-        }
-      </select>
+    <div class="merchants__select-container">
+        <div class="merchants__label brand-label">Server Region:</div>
+        <select class="merchants__select" id="severRegion" @bind="@ServerRegion">
+            <option></option>
+            @foreach (var datacenter in StaticData.ServerRegions)
+            {
+                <option value="@datacenter.Key">@datacenter.Value.Name</option>
+            }
+        </select>
     </div>
 
-  <div class="merchants__select-container">
-    <div class="merchants__label brand-label">Server:</div>
-    <select class="merchants__select" id="server" @bind="@Server">
-      <option></option>
-      @if (!string.IsNullOrWhiteSpace(ServerRegion))
-      {
-        @foreach (var datacenter in StaticData.ServerRegions[ServerRegion].Servers ?? Enumerable.Empty<string>())
-        {
-          <option>@datacenter</option>
-        }
-      }
-    </select>
-  </div>
-  @if (ActiveData.MerchantGroups.FirstOrDefault(mg => mg.IsActive) is ActiveMerchantGroup activeGroup)
-  {
-    <div class="merchants__label brand-label">Expire in @((activeGroup.AppearanceExpires - DateTimeOffset.UtcNow).ToString(@"mm\:ss"))</div>
-  }
-  <div>
-   <input type="checkbox" id="collapseSwitch" checked="@ClientSettings.CollapseCards" @onchange="@ToggleCollapse" />
-    <label for="collapseSwitch">Collapse Cards</label>
-  </div>
-  @if (!string.IsNullOrWhiteSpace(Server))
-  {
-    <div class="merchants__notification">
-      <NotificationToggle />
+    <div class="merchants__select-container">
+        <div class="merchants__label brand-label">Server:</div>
+        <select class="merchants__select" id="server" @bind="@Server">
+            <option></option>
+            @if (!string.IsNullOrWhiteSpace(ServerRegion))
+            {
+                @foreach (var datacenter in StaticData.ServerRegions[ServerRegion].Servers ?? Enumerable.Empty<string>())
+                {
+                    <option>@datacenter</option>
+                }
+            }
+        </select>
     </div>
-  }
+    @if (ActiveData.MerchantGroups.FirstOrDefault(mg => mg.IsActive) is ActiveMerchantGroup activeGroup)
+    {
+        <div class="merchants__label brand-label">Expire in @((activeGroup.AppearanceExpires - DateTimeOffset.UtcNow).ToString(@"mm\:ss"))</div>
+    }
+    <div>
+        <input type="checkbox" id="collapseSwitch" checked="@ClientSettings.CollapseCards" @onchange="@ToggleCollapse" />
+        <label for="collapseSwitch">Collapse Cards</label>
+    </div>
+    @if (!string.IsNullOrWhiteSpace(Server))
+    {
+        <div class="merchants__notification">
+            <NotificationToggle />
+        </div>
+    }
 </div>
 
 @if (string.IsNullOrWhiteSpace(ServerRegion) || string.IsNullOrWhiteSpace(Server))
 {
-  <h3 class="mt-3">Select a Server</h3>
+    <h3 class="mt-3">Select a Server</h3>
 }
 else if (ActiveData.MerchantGroups.Count > 0)
 {

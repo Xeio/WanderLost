@@ -1,84 +1,77 @@
-<div class="merchant @(ClassName)">
-  @if (!hasMerchants)
-  {
-    <EmptyCard MerchantName="@MerchantGroup.MerchantName" Server="@Server" Region="@Region" />
-  }
-  else
-  {
-    @if (SecondaryMerchant != null)
+<div class="merchant @ClassName">
+
+    @if (MainMerchant is not null)
     {
-      <div class="merchant__deck" @onclick="ShowOverlay">
-        @if (TetriraryMerchant != null)
+        @if (SecondaryMerchant is not null)
         {
-          <Card ClassName="merchant__card merchant__card--tetriary" Merchant="@TetriraryMerchant" Server="@Server" Region="@Region" />
+            <div class="merchant__deck" @onclick="ShowOverlay">
+                @if (TetriraryMerchant is not null)
+                {
+                    <Card ClassName="merchant__card merchant__card--tetriary" Merchant="@TetriraryMerchant" Server="@Server" Region="@Region" />
+                }
+                <Card ClassName="merchant__card merchant__card--secondary" Merchant="@SecondaryMerchant" Server="@Server" Region="@Region" />
+            </div>
         }
-        <Card ClassName="merchant__card merchant__card--secondary" Merchant="@SecondaryMerchant" Server="@Server" Region="@Region" />
-      </div>
+        <Card ClassName="merchant__card" Merchant="@MainMerchant" Server="@Server" Region="@Region" OnLocationClick="@ShowMap" />
     }
-    <Card ClassName="merchant__card" Merchant="@MainMerchant" Server="@Server" Region="@Region" OnLocationClick="@ShowMap" />
-  }
+    else
+    {
+        <EmptyCard MerchantName="@MerchantGroup.MerchantName" Server="@Server" Region="@Region" />
+    }
 </div>
 
 @code {
-  [CascadingParameter(Name = "Overlay")]
-  public IOverlay Overlay { get; init; } = default!;
+    [CascadingParameter(Name = "Overlay")]
+    public IOverlay Overlay { get; init; } = default!;
 
-  [Parameter, EditorRequired]
-  public ActiveMerchantGroup MerchantGroup { get; set; } = default!;
+    [Parameter, EditorRequired]
+    public ActiveMerchantGroup MerchantGroup { get; set; } = default!;
 
-  [Parameter, EditorRequired]
-  public string Server { get; set; } = default!;
+    [Parameter, EditorRequired]
+    public string Server { get; set; } = default!;
 
-  [Parameter]
-  public string? ClassName { get; set; }
+    [Parameter]
+    public string? ClassName { get; set; }
 
-  public string Region
-  {
-    get
+    public string Region
     {
-      return MerchantGroup.MerchantData.Region;
+        get
+        {
+            return MerchantGroup.MerchantData.Region;
+        }
     }
-  }
 
-  public bool hasMerchants
-  {
-    get
+    public ActiveMerchant? MainMerchant
     {
-      return MerchantGroup.ActiveMerchants.Count > 0;
+        get
+        {
+            return MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).FirstOrDefault();
+        }
     }
-  }
 
-  public ActiveMerchant? MainMerchant
-  {
-    get
+    public ActiveMerchant? SecondaryMerchant
     {
-      return MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).FirstOrDefault();
+        get
+        {
+            return MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).Skip(1).FirstOrDefault();
+        }
     }
-  }
 
-  public ActiveMerchant? SecondaryMerchant
-  {
-    get
+    public ActiveMerchant? TetriraryMerchant
     {
-      return MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).Skip(1).FirstOrDefault();
+        get
+        {
+            return MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).Skip(2).FirstOrDefault();
+        }
     }
-  }
 
-  public ActiveMerchant? TetriraryMerchant
-  {
-    get
+    public async Task ShowOverlay()
     {
-      return MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).Skip(2).FirstOrDefault();
+        await Overlay.ShowMerchantGroup(MerchantGroup, Server, Region);
     }
-  }
 
-  public void ShowOverlay()
-  {
-    Overlay.ShowMerchantGroup(MerchantGroup, Server, Region);
-  }
-
-  public void ShowMap(string Zone)
-  {
-     Overlay.ShowMap(Zone);
-  }
+    public async Task ShowMap(string zone)
+    {
+        await Overlay.ShowMap(zone);
+    }
 }
