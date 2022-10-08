@@ -72,7 +72,10 @@ else if (ActiveData.MerchantGroups.Count > 0)
     <CascadingValue Value="@ActiveData">
         <Overlay>
             <CascadingValue Value="@ClientSettings.CollapseCards" Name="CollapseCards">
-                <MerchantGrid Server="@Server" />
+                @if (ActiveData.MerchantGroups.Any(m => m.IsActive))
+                {
+                    <MerchantGrid Server="@Server" />
+                }
                 <FutureMerchantsGrid ActiveData="@ActiveData" Server="@Server" />
             </CascadingValue>
         </Overlay>

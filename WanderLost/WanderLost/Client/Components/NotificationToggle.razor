@@ -1,49 +1,46 @@
-﻿
-@using Blazored.LocalStorage
-@inject ClientSettingsController ClientSettings
+﻿@inject ClientSettingsController ClientSettings
 @inject ClientNotificationService Notifications
 @inject NavigationManager NavigationManager
-@inject ILocalStorageService LocalStorage
 
 <div class="notification-toggle">
-  <div class="brand-label">Notifications: </div>
-  <div class="notification-toggle__container">
-    <input class="notification-toggle__input" type="checkbox" id="notification-switch" checked="@IsEnabled"  @onchange="@OnNotificationToggleClicked" />
-    <label class="notification-toggle__label" for="notification-switch">Toggle notifications</label>
-    <div class="notification-toggle__help">
-      Not working? See <a href="NotificationsHelp">help</a>
+    <div class="brand-label">Notifications: </div>
+    <div class="notification-toggle__container">
+        <input class="notification-toggle__input" type="checkbox" id="notification-switch" checked="@IsEnabled" @onchange="@OnNotificationToggleClicked" />
+        <label class="notification-toggle__label" for="notification-switch">Toggle notifications</label>
+        <div class="notification-toggle__help">
+            Not working? See <a href="NotificationsHelp">help</a>
+        </div>
     </div>
-  </div>
 </div>
 
 @code {
-  [Parameter]
-  public EventCallback<bool> NotificationStateChanged { get; set; }
+    [Parameter]
+    public EventCallback<bool> NotificationStateChanged { get; set; }
 
-  private bool IsEnabled = false;
+    private bool IsEnabled = false;
 
-  protected override async Task OnInitializedAsync()
-  {
-    await Notifications.Init();
-    await ClientSettings.Init();
-
-    this.IsEnabled = ClientSettings.NotificationsEnabled;
-
-    await base.OnInitializedAsync();
-  }
-
-  private async void OnNotificationToggleClicked(ChangeEventArgs EventArgs)
-  {
-    IsEnabled = (bool)EventArgs.Value;
-    StateHasChanged();
-
-    await ClientSettings.SetNotificationsEnabled(IsEnabled);
-    await NotificationStateChanged.InvokeAsync();
-    if (!ClientSettings.Notifications.Any())
+    protected override async Task OnInitializedAsync()
     {
-      // TODO: do not redirect on other page on toggle click, think of other way to do it
-      // Client has no notifications enabled, send them not the notifications page
-      NavigationManager.NavigateTo("/Notifications");
+        await Notifications.Init();
+        await ClientSettings.Init();
+
+        IsEnabled = ClientSettings.NotificationsEnabled;
+
+        await base.OnInitializedAsync();
     }
-  }
+
+    private async void OnNotificationToggleClicked(ChangeEventArgs eventArgs)
+    {
+        IsEnabled = eventArgs.Value as bool? == true;
+        StateHasChanged();
+
+        await ClientSettings.SetNotificationsEnabled(IsEnabled);
+        await NotificationStateChanged.InvokeAsync();
+        if (!ClientSettings.Notifications.Any())
+        {
+            // TODO: do not redirect on other page on toggle click, think of other way to do it
+            // Client has no notifications enabled, send them not the notifications page
+            NavigationManager.NavigateTo("/Notifications");
+        }
+    }
 }

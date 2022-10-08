@@ -2,71 +2,71 @@
 }
 
 .notification-toggle__container {
-  display: flex;
-  margin-top: 4px;
+    display: flex;
+    margin-top: 4px;
 
-  align-items: center;
+    align-items: center;
 
-  height: 42px;
+    height: 42px;
 }
 
 .notification-toggle__input {
-  height: 0;
-  width: 0;
-  visibility: hidden;
+    height: 0;
+    width: 0;
+    visibility: hidden;
 }
 
 .notification-toggle__label {
-  display: block;
-  position: relative;
+    display: block;
+    position: relative;
 
-  width: 42px;
-  height: 22px;
+    width: 42px;
+    height: 22px;
 
-  cursor: pointer;
-  text-indent: -9999px;
+    cursor: pointer;
+    text-indent: -9999px;
 
-  background: transparent;
-  border: 1px solid #fff;
-  border-radius: 100px;
+    background: transparent;
+    border: 1px solid #fff;
+    border-radius: 100px;
 }
 
 .notification-toggle__label:after {
-  position: absolute;
-  top: 3px;
-  left: 4px;
-  width: 14px;
-  height: 14px;
+    position: absolute;
+    top: 3px;
+    left: 4px;
+    width: 14px;
+    height: 14px;
 
-  content: '';
+    content: '';
 
-  background: #fff;
+    background: #fff;
 
-  border-radius: 50%;
+    border-radius: 50%;
 
-  transition: 0.3s;
+    transition: 0.3s;
 }
 
 .notification-toggle__input:checked + .notification-toggle__label {
-  background: #bfa251;
+    background: #bfa251;
 }
 
 .notification-toggle__input:checked + .notification-toggle__label:after {
-  left: calc(100% - 5px);
-  transform: translateX(-100%);
+    left: calc(100% - 5px);
+    transform: translateX(-100%);
 }
 
 .notification-toggle__label:active:after {
-  width: 20px;
+    width: 20px;
 }
 
 .notification-toggle__help {
-  margin-left: 8px;
+    margin-left: 8px;
 
-  font-size: 0.8rem;
-  color: var(--brand-dimwhite);
+    font-size: 0.8rem;
+    color: var(--brand-dimwhite);
 }
 
 .notification-toggle__help a {
-  color: #fff;
+    color: #fff;
 }
