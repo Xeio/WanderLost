@@ -58,9 +58,11 @@
     "Name": "EU West",
     "UtcOffset": "00:00:00",
     "Servers": [
+      "Eyalyn",
       "Rethramis",
       "Tortoyk",
       "Moonkeep",
+      "Nia",
       "Punika"
     ]
   },
@@ -68,8 +70,10 @@
     "Name": "South America",
     "UtcOffset": "-04:00:00",
     "Servers": [
+      "Arthetine",
       "Agaton",
       "Arcturus",
+      "Blackfang",
       "Gienah",
       "Kazeros",
       "Vern"
