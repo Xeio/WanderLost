@@ -1,4 +1,4 @@
-<div class="merchant @ClassName">
+<div class="merchant @ClassName @HasErrorsClass">
 
     @if (MainMerchant is not null)
     {
@@ -38,6 +38,14 @@
         get
         {
             return MerchantGroup.MerchantData.Region;
+        }
+    }
+
+    private string HasErrorsClass
+    {
+        get
+        {
+            return SecondaryMerchant is not null ? "has__errors" : string.Empty;
         }
     }
 
