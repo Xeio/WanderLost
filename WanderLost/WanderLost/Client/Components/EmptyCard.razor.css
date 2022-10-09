@@ -1,47 +1,47 @@
 ﻿.empty-card__mokoko {
-  margin-top: 4px;
-  height: 270px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-color: var(--mapbackground);
-  background-position: center;
+    margin-top: 4px;
+    height: 270px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-color: var(--mapbackground);
+    background-position: center;
 }
 
 .empty-card__submit-location::before {
-  content: "";
-  font-size: 0;
-  line-height: 0;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  overflow: hidden;
-  opacity: .25;
-  transition: opacity 0.15s ease-out;
-  background-color: var(--green);
-  border-radius: 4px;
+    content: "";
+    font-size: 0;
+    line-height: 0;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    opacity: .25;
+    transition: opacity 0.15s ease-out;
+    background-color: var(--green);
+    border-radius: 4px;
 }
 
 .empty-card__submit-location:hover::before {
-  opacity: .4;
+    opacity: .4;
 }
 
 .empty-card__submit-location {
-  position: absolute;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 10px 10px;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-font-smoothing: antialiased;
-  font-size: .875rem;
-  font-weight: 500;
-  letter-spacing: .0892857143em;
-  text-transform: uppercase;
-  border: none;
-  background-color: transparent;
-  color: white;
-  line-height: inherit;
-  white-space: nowrap;
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 10px;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    font-size: .875rem;
+    font-weight: 500;
+    letter-spacing: .0892857143em;
+    text-transform: uppercase;
+    border: none;
+    background-color: transparent;
+    color: white;
+    line-height: inherit;
+    white-space: nowrap;
 }

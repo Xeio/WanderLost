@@ -2,10 +2,10 @@
 @inject NavigationManager NavManager
 @inject ClientSettingsController ClientSettings
 
-<CardFrame Title="@Region" Subtitle="@Merchant.Zone" Rarity="@TopRarity" ClassName="@ClassName">
+<CardFrame Title="@Region" Subtitle="@Merchant.Zone" Rarity="@TopRarity" ClassName="@ClassName" OnTitleClick="@LocationClick">
     @if(!CollapseCards)
     {
-        <div class="m-card__location @LoctionActiveClass" @onclick="@(async () => await OnLocationClick.InvokeAsync(Merchant.Zone))" style="background-image: url(/images/zones/@(Uri.EscapeDataString(Merchant.Zone)).jpg)" />
+        <div class="m-card__location @LoctionActiveClass" @onclick="@LocationClick" style="background-image: url(/images/zones/@(Uri.EscapeDataString(Merchant.Zone)).jpg)" />
     }
     <div class="stock">
         @{
@@ -102,5 +102,10 @@
             }
             return null;
         }
+    }
+
+    private async Task LocationClick()
+    {
+        await OnLocationClick.InvokeAsync(Merchant.Zone);
     }
 }

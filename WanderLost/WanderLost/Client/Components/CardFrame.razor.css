@@ -63,6 +63,12 @@
     line-height: 1.4em;
 }
 
+.title__clickable {
+    cursor: pointer;
+    pointer-events: all;
+    position: relative;
+}
+
 .card-frame__border-color--faded {
     opacity: 0.55;
 }
