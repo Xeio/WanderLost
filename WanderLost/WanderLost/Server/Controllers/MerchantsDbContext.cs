@@ -29,10 +29,7 @@ public class MerchantsDbContext : ApiAuthorizationDbContext<WanderlostUser>, IDa
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<ActiveMerchantGroup>()
-            .HasAlternateKey(g => new { g.Server, g.MerchantName, g.AppearanceExpires });
-
-        modelBuilder.Entity<ActiveMerchantGroup>()
-            .HasIndex(g => g.AppearanceExpires);
+            .HasAlternateKey(g => new { g.AppearanceExpires, g.Server, g.MerchantName });
 
         modelBuilder.Entity<ActiveMerchant>()
             .HasIndex(g => g.UploadedByUserId);

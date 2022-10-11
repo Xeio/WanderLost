@@ -19,6 +19,7 @@ public class PushSubscription
     [MessagePack.IgnoreMember]
     public int Id { get; set; }
 
+    [MaxLength(20)]
     [MessagePack.Key(1)]
     public string Server { get; set; } = string.Empty;
 
