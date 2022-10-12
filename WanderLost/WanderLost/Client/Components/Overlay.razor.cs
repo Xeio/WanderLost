@@ -35,6 +35,7 @@ public partial class Overlay : IOverlay, IDisposable
         Server = null;
         Region = null;
         Zone = zone;
+        await InvokeAsync(StateHasChanged);
         await JSRuntime.InvokeVoidAsync("HideBodyScroll");
     }
 
@@ -44,6 +45,7 @@ public partial class Overlay : IOverlay, IDisposable
         Server = server;
         Region = region;
         Zone = null;
+        await InvokeAsync(StateHasChanged);
         await JSRuntime.InvokeVoidAsync("HideBodyScroll");
     }
 
@@ -53,6 +55,7 @@ public partial class Overlay : IOverlay, IDisposable
         Server = null;
         Region = null;
         Zone = null;
+        await InvokeAsync(StateHasChanged);
         await JSRuntime.InvokeVoidAsync("ShowBodyScroll");
     }
 
