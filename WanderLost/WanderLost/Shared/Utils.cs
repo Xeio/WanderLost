@@ -1,6 +1,7 @@
 ﻿using MessagePack;
 using Microsoft.AspNetCore.SignalR;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using WanderLost.Shared.Data;
@@ -58,5 +59,51 @@ public static class Utils
             },
             AppearanceTimes = times,
         });
+    }
+
+
+    private static readonly Dictionary<string, string> _serverMerges = new()
+    {
+        { "Shadespire", "Rethramis" },
+        { "Petrania", "Tortoyk" },
+        { "Tragon", "Moonkeep" },
+        { "Stonehearth", "Punika" },
+        { "Kurzan", "Agaton" },
+        { "Prideholme", "Vern" },
+        { "Yorn", "Gienah" },
+        { "Feiton", "Arcturus" },
+        { "Sirius", "Armen" },
+        { "Sceptrum", "Armen" },
+        { "Thaemine", "Lazenith" },
+        { "Procyon", "Lazenith" },
+        { "Nineveh", "Evergrace" },
+        { "Beatrice", "Evergrace" },
+        { "Brelshaza", "Ezrebet" },
+        { "Inanna", "Ezrebet" },
+        { "Rethramis", "Ealyn" },
+        { "Tortoyk", "Ealyn" },
+        { "Moonkeep", "Nia" },
+        { "Punika", "Nia" },
+        { "Agaton", "Arthetine" },
+        { "Vern", "Arthetine" },
+        { "Gienah", "Blackfang" },
+        { "Arcturus", "Blackfang" },
+        //Fix misspelling
+        { "Eyalyn", "Ealyn" },
+    };
+
+    public static bool HasMergedServer(string server, [NotNullWhen(true)] out string? mergedServer)
+    {
+        if (_serverMerges.TryGetValue(server, out var newServer))
+        {
+            mergedServer = newServer;
+            if (_serverMerges.TryGetValue(newServer, out var secondaryServer))
+            {
+                mergedServer = secondaryServer;
+            }
+            return true;
+        }
+        mergedServer = null;
+        return false;
     }
 }

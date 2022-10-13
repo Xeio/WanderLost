@@ -1,4 +1,5 @@
 ﻿using Blazored.LocalStorage;
+using WanderLost.Shared;
 using WanderLost.Shared.Data;
 
 namespace WanderLost.Client.Services;
@@ -23,34 +24,6 @@ public class ClientSettingsController
 
     private readonly ILocalStorageService _localStorageService;
     private readonly ClientStaticDataController _staticData;
-
-    private readonly Dictionary<string, string> _serverMerges = new()
-    {
-        { "Shadespire", "Rethramis" },
-        { "Petrania", "Tortoyk" },
-        { "Tragon", "Moonkeep" },
-        { "Stonehearth", "Punika" },
-        { "Kurzan", "Agaton" },
-        { "Prideholme", "Vern" },
-        { "Yorn", "Gienah" },
-        { "Feiton", "Arcturus" },
-        { "Sirius", "Armen" },
-        { "Sceptrum", "Armen" },
-        { "Thaemine", "Lazenith" },
-        { "Procyon", "Lazenith" },
-        { "Nineveh", "Evergrace" },
-        { "Beatrice", "Evergrace" },
-        { "Brelshaza", "Ezrebet" },
-        { "Inanna", "Ezrebet" },
-        { "Rethramis", "Ealyn" },
-        { "Tortoyk", "Ealyn" },
-        { "Moonkeep", "Nia" },
-        { "Punika", "Nia" },
-        { "Agaton", "Arthetine" },
-        { "Vern", "Arthetine" },
-        { "Gienah", "Blackfang" },
-        { "Arcturus", "Blackfang" },
-    };
 
     public ClientSettingsController(ILocalStorageService localStorageService, ClientStaticDataController staticData)
     {
@@ -78,12 +51,8 @@ public class ClientSettingsController
             BrowserNotifications = await _localStorageService.GetItemAsync<bool?>(nameof(BrowserNotifications)) ?? false;
             CollapseCards = await _localStorageService.GetItemAsync<bool?>(nameof(CollapseCards)) ?? false;
 
-            if (_serverMerges.TryGetValue(Server, out var newServer))
+            if (Utils.HasMergedServer(Server, out var newServer))
             {
-                if (_serverMerges.TryGetValue(newServer, out var secondaryServer))
-                {
-                    newServer = secondaryServer;
-                }
                 //Compatability for old servers after merge, will auto-select new server
                 await SetServer(newServer);
             }

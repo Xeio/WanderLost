@@ -80,7 +80,7 @@ public class DataController
 
     public async Task<bool> IsServerOnline(string server)
     {
-        if (!_memoryCache.TryGetValue(nameof(IsServerOnline), out Dictionary<string, bool> statuses))
+        if (!_memoryCache.TryGetValue(nameof(IsServerOnline), out Dictionary<string, bool>? statuses))
         {
             await _semaphore.WaitAsync();
             try
@@ -93,15 +93,22 @@ public class DataController
             }
         }
 
+        if(statuses is null)
+        {
+            //Some error happened while retrieving statuses, assume servers are online
+            return true;
+        }
+
         if (statuses.TryGetValue(server, out var status))
         {
             return status;
         }
-        //If the status can't be found, just assume the server is online so the site is functional
-        return true;
+
+        //Sometimes instead of showing offline, a server just won't be present on the status page
+        return false;
     }
 
-    private async Task<Dictionary<string, bool>> BuildServerOnlineStates(ICacheEntry entry)
+    private async Task<Dictionary<string, bool>?> BuildServerOnlineStates(ICacheEntry entry)
     {
         entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(2);
         try
@@ -119,18 +126,32 @@ public class DataController
                 var serverInMaintenance = node.Descendants().Any(n => n.HasClass("ags-ServerStatus-content-responses-response-server-status--maintenance"));
                 if (!string.IsNullOrWhiteSpace(name))
                 {
+                    if(Utils.HasMergedServer(name, out var mergedServer))
+                    {
+                        name = mergedServer;
+                    }
                     onlineStates[name] = !serverInMaintenance;
                 }
             }
-            _logger.LogInformation("Server status {onlineCount} online {offlineCount} offline.", onlineStates.Count(s => s.Value), onlineStates.Count(s => !s.Value));
+
+            var allServers = (await GetServerRegions()).SelectMany(r => r.Value.Servers);
+
+            var missingServers = allServers.Except(onlineStates.Keys);
+
+            if (missingServers.Any())
+            {
+                _logger.LogInformation("Servers not detected on status page: {missingServers}", string.Join(", ", missingServers));
+            }
+
+            _logger.LogInformation("Server status {onlineCount} online of {total}.", onlineStates.Count(s => s.Value), allServers.Count());
             return onlineStates;
         }
         catch(Exception e)
         {
-            //If for any reason this fails, we'll just return an empty list and assume that all servers are online
+            //If for any reason this fails, we'll just return a null and assume that all servers are online
             _logger.LogError(e, "Failed to retrieve Lost Ark server status.");
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
-            return new Dictionary<string, bool>();
+            return null;
         }
     }
 }
