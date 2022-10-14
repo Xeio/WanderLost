@@ -6,4 +6,5 @@
 
 .merchant-grid ::deep .merchant-grid__item {
     flex-shrink: 0;
+    margin: 0 12px 12px 0;
 }

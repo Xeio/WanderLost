@@ -1,4 +1,4 @@
-<div class="merchant @ClassName @HasErrorsClass">
+<div class="merchant @ClassName @FanClassName">
 
     @if (MainMerchant is not null)
     {
@@ -7,20 +7,21 @@
             <div class="merchant__deck" @onclick="ShowOverlay">
                 @if (TetriraryMerchant is not null)
                 {
-                    <Card ClassName="merchant__card merchant__card--tetriary" Merchant="@TetriraryMerchant" Server="@Server" Region="@Region" />
+                    <Card ClassName="merchant__card merchant__card--tetriary" Merchant="@TetriraryMerchant" Server="@Server" Region="@Region"/>
                 }
-                <Card ClassName="merchant__card merchant__card--secondary" Merchant="@SecondaryMerchant" Server="@Server" Region="@Region" />
+                <Card ClassName="merchant__card merchant__card--secondary" Merchant="@SecondaryMerchant" Server="@Server" Region="@Region"/>
             </div>
         }
-        <Card ClassName="merchant__card" Merchant="@MainMerchant" Server="@Server" Region="@Region" OnLocationClick="@ShowMap" />
+        <Card ClassName="merchant__card" Merchant="@MainMerchant" Server="@Server" Region="@Region" OnLocationClick="@ShowMap"/>
     }
     else
     {
-        <EmptyCard MerchantName="@MerchantGroup.MerchantName" Server="@Server" Region="@Region" />
+        <EmptyCard MerchantName="@MerchantGroup.MerchantName" Server="@Server" Region="@Region"/>
     }
 </div>
 
 @code {
+
     [CascadingParameter(Name = "Overlay")]
     public IOverlay Overlay { get; init; } = default!;
 
@@ -35,42 +36,27 @@
 
     public string Region
     {
-        get
-        {
-            return MerchantGroup.MerchantData.Region;
-        }
+        get { return MerchantGroup.MerchantData.Region; }
     }
 
-    private string HasErrorsClass
+    private string FanClassName
     {
-        get
-        {
-            return SecondaryMerchant is not null ? "has__errors" : string.Empty;
-        }
+        get { return SecondaryMerchant is not null ? "merchant--has-fan" : string.Empty; }
     }
 
     public ActiveMerchant? MainMerchant
     {
-        get
-        {
-            return MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).FirstOrDefault();
-        }
+        get { return MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).FirstOrDefault(); }
     }
 
     public ActiveMerchant? SecondaryMerchant
     {
-        get
-        {
-            return MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).Skip(1).FirstOrDefault();
-        }
+        get { return MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).Skip(1).FirstOrDefault(); }
     }
 
     public ActiveMerchant? TetriraryMerchant
     {
-        get
-        {
-            return MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).Skip(2).FirstOrDefault();
-        }
+        get { return MerchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).Skip(2).FirstOrDefault(); }
     }
 
     public async Task ShowOverlay()
@@ -82,4 +68,5 @@
     {
         await Overlay.ShowMap(zone);
     }
+
 }
