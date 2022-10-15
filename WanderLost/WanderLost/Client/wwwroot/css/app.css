@@ -49,11 +49,11 @@
     outline-color: var(--brand-gold);
 }
 
-.brand-label {
+.brand-label,
+.merchant-grid-new th {
     font-family: Proxima Nova, Arial, sans-serif;
     font-weight: 600;
     font-style: normal;
-    font-size: 0.75rem;
 
     line-height: 1;
 
@@ -63,6 +63,35 @@
     text-decoration: none;
 
     color: var(--brand-dimwhite);
+}
+
+.brand-label {
+    font-size: 0.75rem;
+}
+
+.merchant-grid-new th {
+    font-size: 0.9rem;
+    
+    border-bottom: 2px solid var(--brand-dimwhite);
+}
+
+.merchant-grid-new th,
+.merchant-grid-new td {
+    padding: 8px 12px;
+    height: 32px;
+    box-sizing: content-box;
+    
+    color: var(--brand-dimwhite);
+}
+
+.merchant-grid-new .separator {
+    height: 1px;
+    padding-top: 0;
+    padding-bottom: 0;
+
+    background-color: var(--brand-dimwhite);
+
+    opacity: 0.5;
 }
 
 .favorite-badge {

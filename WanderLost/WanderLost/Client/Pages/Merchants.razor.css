@@ -1,4 +1,11 @@
-﻿.merchants__controls {
+﻿.merchants__content {
+    margin: 0 auto;
+    padding: 0 12px;
+
+    max-width: 1024px;
+}
+
+.merchants__controls {
     display: flex;
 }
 
@@ -7,7 +14,7 @@
 }
 
 .merchants__select-container + .merchants__select-container {
-    margin-left: 24px
+    margin: 0 24px;
 }
 
 .merchants__label {
@@ -48,8 +55,17 @@
     margin-left: auto;
 }
 
-.expire__timer {
-    font-size: 1em;
-    padding-top: 12px;
-    padding-left: 18px;
+.merchants__active-merchants {
+    display: flex;
+
+    margin-top: 36px !important;
+
+    color: var(--brand-dimwhite);
+}
+
+.merchants__timer {
+    font-family: 'Share Tech Mono', monospace;
+    color: #daf6ff;
+    text-shadow: 0 0 20px rgba(10, 175, 230, 1), 0 0 20px rgb(10 175 230 / 0%);
+    margin-left: auto;
 }

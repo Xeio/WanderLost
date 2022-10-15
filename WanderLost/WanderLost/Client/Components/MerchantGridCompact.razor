@@ -4,14 +4,14 @@
 
 @using System.Globalization
 
-<table class="merchant-grid-new">
+<table class="merchant-grid-compact merchant-grid-new">
     <thead>
     <tr>
-        <th class="brand-label">Merchant</th>
-        <th class="brand-label">Location</th>
-        <th class="brand-label">Card</th>
-        <th class="brand-label">Rapport</th>
-        <th class="brand-label">Votes</th>
+        <th>Merchant</th>
+        <th>Location</th>
+        <th>Card</th>
+        <th>Rapport</th>
+        <th>Votes</th>
         <th></th>
     </tr>
     </thead>
@@ -26,7 +26,7 @@
                 <td>?</td>
                 <td>?</td>
                 <td colspan="2">
-                    <a class="merchant-grid-new__submit-location" href="/UpdateMerchant/@Server/@merchantGroup.MerchantName">Submit Location</a>
+                    <a class="merchant-grid-compact__submit-location" href="/UpdateMerchant/@Server/@merchantGroup.MerchantName">Submit Location</a>
                 </td>
             }
             else
@@ -35,7 +35,7 @@
                 ClientSettings.Notifications.TryGetValue(merchant.Name, out var merchantNotificationSettings);
                 <td>
                     <a
-                        class="merchant-grid-new__zone"
+                        class="merchant-grid-compact__zone"
                         @onclick="@(async () => await Overlay.ShowMap(merchant.Zone))"
                         @onclick:preventDefault="true">
                         @merchant.Zone
@@ -62,17 +62,17 @@
                 {
                     <td>
                         <CardButton
-                            ClassName="merchant-grid-new__button"
+                            ClassName="merchant-grid-compact__button"
                             Type="@CardButton.Variant.Like"
                             Active="@(CurrentVote(merchant.Id) == VoteType.Upvote)"
                             OnClick="@(async () => await SubmitVote(merchant.Id, VoteType.Upvote))"/>
                         <CardButton
-                            ClassName="merchant-grid-new__button"
+                            ClassName="merchant-grid-compact__button"
                             Type="@CardButton.Variant.Dislike"
                             Active="@(CurrentVote(merchant.Id) == VoteType.Downvote)"
                             OnClick="@(async () => await SubmitVote(merchant.Id, VoteType.Downvote))"/>
                         <CardButton
-                            ClassName="merchant-grid-new__button"
+                            ClassName="merchant-grid-compact__button"
                             Type="@CardButton.Variant.Report"
                             Hint="@GetReportHint(merchant.Id)"
                             OnClick="@(() => NavigateToSubmitPage(merchant.Name))"/>
@@ -92,7 +92,7 @@
                 <td/>
                 <td>
                     <a
-                        class="merchant-grid-new__zone"
+                        class="merchant-grid-compact__zone"
                         @onclick="@(async () => await Overlay.ShowMap(merchant.Zone))"
                         @onclick:preventDefault="true">
                         @merchant.Zone
@@ -117,12 +117,12 @@
                 </td>
                 <td>
                     <CardButton
-                        ClassName="merchant-grid-new__button"
+                        ClassName="merchant-grid-compact__button"
                         Type="@CardButton.Variant.Like"
                         Active="@(CurrentVote(merchant.Id) == VoteType.Upvote)"
                         OnClick="@(async () => await SubmitVote(merchant.Id, VoteType.Upvote))"/>
                     <CardButton
-                        ClassName="merchant-grid-new__button"
+                        ClassName="merchant-grid-compact__button"
                         Type="@CardButton.Variant.Dislike"
                         Active="@(CurrentVote(merchant.Id) == VoteType.Downvote)"
                         OnClick="@(async () => await SubmitVote(merchant.Id, VoteType.Downvote))"/>

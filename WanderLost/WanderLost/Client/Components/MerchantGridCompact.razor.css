@@ -1,82 +1,50 @@
-.merchant-grid-new {
-    margin: 36px auto;
-    color: var(--brand-dimwhite);
+.merchant-grid-compact {
+    margin: 36px -12px;
+    width: calc(100% + 24px);;
 }
 
-.merchant-grid-new .brand-label {
-    font-size: 0.9rem;
+
+@media screen and (min-width: 1030px) {
+    /* Location */
+    .merchant-grid-compact th:nth-child(2),
+    .merchant-grid-compact td:nth-child(2) {
+        width: 150px;
+    }
+
+    /* Card */
+    .merchant-grid-compact th:nth-child(3),
+    .merchant-grid-compact td:nth-child(3) {
+        width: 156px;
+    }
+
+    /* Rapport */
+    .merchant-grid-compact th:nth-child(4),
+    .merchant-grid-compact td:nth-child(4) {
+        width: 226px;
+    }
 }
 
-.merchant-grid-new th {
-    border-bottom: 2px solid var(--brand-dimwhite);
-}
-
-.merchant-grid-new th,
-.merchant-grid-new td {
-    padding: 8px 12px;
-    height: 32px;
-    box-sizing: content-box;
-}
-
-/* Merchant name + region */
-.merchant-grid-new th:first-child,
-.merchant-grid-new td:first-child {
-    width: 150px;
-}
-
-/* Location */
-.merchant-grid-new th:nth-child(2),
-.merchant-grid-new td:nth-child(2) {
-    width: 150px;
-}
-
-/* Card */
-.merchant-grid-new th:nth-child(3),
-.merchant-grid-new td:nth-child(3) {
-    width: 156px;
-}
-
-/* Rapport */
-.merchant-grid-new th:nth-child(4),
-.merchant-grid-new td:nth-child(4) {
-    width: 226px;
-}
 
 /* Votes */
-.merchant-grid-new td:nth-child(5) {
+.merchant-grid-compact td:nth-child(5) {
     text-align: right;
 }
 
 /* Controls */
-.merchant-grid-new td:nth-child(6) {
+.merchant-grid-compact td:nth-child(6) {
     line-height: 14px;
 }
 
-.merchant-grid-new .separator {
-    height: 1px;
-    padding-top: 0;
-    padding-bottom: 0;
-
-    background-color: var(--brand-dimwhite);
-
-    opacity: 0.5;
-}
-
-.merchant-grid-new__zone,
-.merchant-grid-new__submit-location {
+.merchant-grid-compact__zone,
+.merchant-grid-compact__submit-location {
     cursor: pointer;
     text-decoration: underline;
 }
 
-.merchant-grid-new__zone {
+.merchant-grid-compact__zone {
     color: var(--brand-dimwhite);
 }
 
-.merchant-grid-new__submit-location {
+.merchant-grid-compact__submit-location {
     color: #fff;
-}
-
-.merchant-grid-new__votes {
-    display: flex;
-    align-items: center;
 }
