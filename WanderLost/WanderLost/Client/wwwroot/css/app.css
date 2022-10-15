@@ -71,7 +71,7 @@
 
 .merchant-grid-new th {
     font-size: 0.9rem;
-    
+
     border-bottom: 2px solid var(--brand-dimwhite);
 }
 
@@ -80,7 +80,7 @@
     padding: 8px 12px;
     height: 32px;
     box-sizing: content-box;
-    
+
     color: var(--brand-dimwhite);
 }
 
@@ -99,16 +99,21 @@
     margin-right: 4px;
 }
 
-.cursor-pointer {
-    cursor: pointer;
+.noscroll {
+    overflow: hidden;
 }
 
+.app {
+    min-width: 520px;
+}
+
+/** Deprecated styles section (remove when all pages are stripped of bootstrap) */
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
-.noscroll {
-    overflow: hidden;
+.cursor-pointer {
+    cursor: pointer;
 }
 
 h1:focus {
@@ -165,7 +170,7 @@ a, .btn-link {
 
 tr.separator td {
     height: 15px;
-    background-color: rgba(255,255,255,.05);
+    background-color: rgba(255, 255, 255, .05);
 }
 
 tr.separator:last-of-type {
