@@ -39,6 +39,7 @@
     padding: 0.5em 3.5em 0.5em 1em;
 
     border: 1px solid #fff;
+    border-radius: 0;
 
     -webkit-appearance: none;
     -moz-appearance: none;
