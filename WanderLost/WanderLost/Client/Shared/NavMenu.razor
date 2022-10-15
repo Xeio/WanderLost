@@ -31,7 +31,7 @@
     <NavLink href="/About" class="m-header__item brand-label" Match="NavLinkMatch.All">About</NavLink>
     <AuthorizeView>
       <Authorized>
-        <a class="m-header__item m-header__item--separated brand-label" href="/Profile">@context.User.Identity?.Name</a>
+        <a class="m-header__item m-header__item--separated m-header__item--user brand-label" href="/Profile">@context.User.Identity?.Name</a>
         <button class="m-header__item brand-label" @onclick="BeginSignOut">Log out</button>
       </Authorized>
       <NotAuthorized>
