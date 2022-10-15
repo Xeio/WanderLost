@@ -1,8 +1,18 @@
 ﻿.merchants__content {
     margin: 0 auto;
     padding: 0 12px;
+}
 
+.merchants__content--compact {
     max-width: 1024px;
+}
+
+.merchants__content ::deep .merchants__future-grid {
+    width: min(600px, 100%);
+}
+
+.merchants__content--compact ::deep .merchants__future-grid {
+    width: calc(100% + 24px);
 }
 
 .merchants__controls {

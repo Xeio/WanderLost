@@ -5,7 +5,6 @@
 
 .future-merchants-grid__table {
   margin: 36px -12px;
-  width: calc(100% + 24px);;
 }
 
 .future-merchants-grid__table th:last-child,

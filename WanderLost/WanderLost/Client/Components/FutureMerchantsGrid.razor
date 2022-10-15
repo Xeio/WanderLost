@@ -1,5 +1,5 @@
 ﻿<h3 class="future-merchants-grid__title mt-3">Upcoming Merchants</h3>
-<table class="future-merchants-grid__table merchant-grid-new">
+<table class="future-merchants-grid__table merchant-grid-new @ClassName">
     <thead>
     <tr>
         <th>Name</th>
@@ -34,5 +34,8 @@
 
     [Parameter, EditorRequired]
     public string Server { get; init; } = string.Empty;
+
+    [Parameter]
+    public string ClassName { get; init; } = string.Empty;
 
 }

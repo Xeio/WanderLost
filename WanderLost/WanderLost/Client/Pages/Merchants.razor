@@ -21,7 +21,7 @@ else if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.Hu
         Disconnected from server, automatically attempting to reconnect... <a href="" class="alert-link" @onclick="@(() => { NavigationManager.NavigateTo("", true); })">Or you can try to reload.</a>
     </div>
 }
-<div class="merchants__content">
+<div class="merchants__content @ContentClass">
     <div class="merchants__controls">
         <div class="merchants__select-container">
             <div class="merchants__label brand-label">Server Region:</div>
@@ -77,10 +77,10 @@ else if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.Hu
                         }
                         else
                         {
-                            <MerchantGrid ActiveData="@ActiveData" Server="@Server"/>
+                            <MerchantGrid  ActiveData="@ActiveData" Server="@Server"/>
                         }
                     }
-                    <FutureMerchantsGrid ActiveData="@ActiveData" Server="@Server"/>
+                    <FutureMerchantsGrid ClassName="merchants__future-grid" ActiveData="@ActiveData" Server="@Server"/>
                 </CascadingValue>
             </Overlay>
         </CascadingValue>

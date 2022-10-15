@@ -15,6 +15,7 @@ public partial class Merchants : IAsyncDisposable
     [Inject] public IConfiguration Configuration { get; init; } = default!;
 
     private string? _serverRegion;
+
     private string? ServerRegion
     {
         get { return _serverRegion; }
@@ -31,6 +32,7 @@ public partial class Merchants : IAsyncDisposable
     }
 
     private string? _server;
+
     private string? Server
     {
         get { return _server; }
@@ -44,6 +46,11 @@ public partial class Merchants : IAsyncDisposable
                 Task.Run(() => ServerChanged(oldValue));
             }
         }
+    }
+
+    private string ContentClass
+    {
+        get { return ClientSettings.CompactMode ? "merchants__content--compact" : String.Empty; }
     }
 
     private Timer? _timer;
@@ -64,8 +71,9 @@ public partial class Merchants : IAsyncDisposable
         _hubEvents.Add(HubClient.OnUpdateMerchantGroup(async (server, serverMerchantGroup) =>
         {
             if (Server != server) return;
-            
-            if (ActiveData.MerchantGroups.FirstOrDefault(m => m.MerchantName == serverMerchantGroup.MerchantName) is ActiveMerchantGroup clientGroup)
+
+            if (ActiveData.MerchantGroups.FirstOrDefault(m => m.MerchantName == serverMerchantGroup.MerchantName) is
+                ActiveMerchantGroup clientGroup)
             {
                 foreach (var merchant in serverMerchantGroup.ActiveMerchants)
                 {
@@ -84,7 +92,7 @@ public partial class Merchants : IAsyncDisposable
         _hubEvents.Add(HubClient.OnUpdateVoteSelf(async (merchantId, voteType) =>
         {
             //Fake the new total till the server gets back to us with a "true" count in the next polling interval
-            if (ActiveData.MerchantDictionary.TryGetValue(merchantId, out var merchant)) 
+            if (ActiveData.MerchantDictionary.TryGetValue(merchantId, out var merchant))
             {
                 merchant.Votes += (int)voteType;
                 if (ActiveData.Votes.TryGetValue(merchantId, out var oldVote))
@@ -106,7 +114,9 @@ public partial class Merchants : IAsyncDisposable
                 {
                     merchant.Votes = merchantUpdate.Votes;
                 }
-                if (ActiveData.MerchantGroups.FirstOrDefault(mg => mg.ActiveMerchants.Any(m => m.Id == merchantUpdate.Id)) is ActiveMerchantGroup merchantGroup)
+
+                if (ActiveData.MerchantGroups.FirstOrDefault(mg =>
+                        mg.ActiveMerchants.Any(m => m.Id == merchantUpdate.Id)) is ActiveMerchantGroup merchantGroup)
                 {
                     await Notifications.CheckItemNotification(merchantGroup);
                 }
@@ -133,10 +143,12 @@ public partial class Merchants : IAsyncDisposable
                 return;
             }
         }
+
         if (!string.IsNullOrWhiteSpace(Server))
         {
             await HubClient.SubscribeToServer(Server);
         }
+
         await SynchronizeServer();
     }
 
@@ -151,6 +163,7 @@ public partial class Merchants : IAsyncDisposable
         {
             hubEvent.Dispose();
         }
+
         _hubEvents.Clear();
 
         HubClient.HubConnection.Reconnected -= HubConnection_Reconnected;
@@ -166,6 +179,7 @@ public partial class Merchants : IAsyncDisposable
         {
             await HubClient.UnsubscribeFromServer(oldServer);
         }
+
         if (!string.IsNullOrWhiteSpace(Server) && !string.IsNullOrWhiteSpace(ServerRegion))
         {
             await HubClient.SubscribeToServer(Server);
@@ -175,10 +189,11 @@ public partial class Merchants : IAsyncDisposable
 
     private async Task SynchronizeServer(bool forceClear = false)
     {
-        var serverMerchants = string.IsNullOrWhiteSpace(Server) || ActiveData.MerchantGroups.All(m => !m.IsActive) ?
-                                    //Don't need to check server if no server or all merchants are inactive
-                                    Enumerable.Empty<ActiveMerchantGroup>() :
-                                    await HubClient.GetKnownActiveMerchantGroups(Server);
+        var serverMerchants = string.IsNullOrWhiteSpace(Server) || ActiveData.MerchantGroups.All(m => !m.IsActive)
+            ?
+            //Don't need to check server if no server or all merchants are inactive
+            Enumerable.Empty<ActiveMerchantGroup>()
+            : await HubClient.GetKnownActiveMerchantGroups(Server);
 
         if (forceClear)
         {
@@ -193,7 +208,8 @@ public partial class Merchants : IAsyncDisposable
         {
             foreach (var serverMerchantGroup in serverMerchants)
             {
-                if (ActiveData.MerchantGroups.FirstOrDefault(mg => mg.MerchantName == serverMerchantGroup.MerchantName) is ActiveMerchantGroup clientGroup)
+                if (ActiveData.MerchantGroups.FirstOrDefault(mg => mg.MerchantName == serverMerchantGroup.MerchantName)
+                    is ActiveMerchantGroup clientGroup)
                 {
                     foreach (var merchant in serverMerchantGroup.ActiveMerchants)
                     {
@@ -203,7 +219,7 @@ public partial class Merchants : IAsyncDisposable
                             clientGroup.ActiveMerchants.Add(merchant);
                             await Notifications.CheckItemNotification(clientGroup);
                         }
-                        else if(forceClear)
+                        else if (forceClear)
                         {
                             //...unless we force cleared the groups such as swapping servers
                             ActiveData.MerchantDictionary[merchant.Id] = merchant;
@@ -262,14 +278,16 @@ public partial class Merchants : IAsyncDisposable
 
         if (resort)
         {
-            if(ActiveData.MerchantGroups.Any(mg => mg.IsActive)) _spawnNotified = true;
+            if (ActiveData.MerchantGroups.Any(mg => mg.IsActive)) _spawnNotified = true;
 
-            ActiveData.MerchantGroups.Sort((x, y) => {
+            ActiveData.MerchantGroups.Sort((x, y) =>
+            {
                 var compare = x.NextAppearance.CompareTo(y.NextAppearance);
-                if(compare == 0)
+                if (compare == 0)
                 {
                     compare = x.MerchantData.SortOrder.CompareTo(y.MerchantData.SortOrder);
                 }
+
                 return compare;
             });
         }

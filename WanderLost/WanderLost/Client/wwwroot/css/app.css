@@ -103,7 +103,7 @@
     overflow: hidden;
 }
 
-.app {
+#app {
     min-width: 520px;
 }
 
