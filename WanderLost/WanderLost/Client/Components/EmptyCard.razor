@@ -1,14 +1,9 @@
 ﻿<CardFrame Title="@Region" Subtitle="@MerchantName" Rarity="Rarity.Normal">
-   @if(!CollapseCards)
-   {
-    <div class="empty-card__mokoko" style="background-image: url(/images/EmptyCard.webp)" />
-   }
-  <button class="empty-card__submit-location" @onclick="@GoToSubmitPage">Suggest location</button>
+    <div class="empty-card__mokoko" style="background-image: url(/images/EmptyCard.webp)"/>
+    <button class="empty-card__submit-location" @onclick="@GoToSubmitPage">Suggest location</button>
 </CardFrame>
 
 @code {
-    [CascadingParameter(Name = "CollapseCards")]
-    public bool CollapseCards { get; init; }
 
     [Inject]
     public NavigationManager NavManager { get; init; } = default!;
@@ -26,4 +21,5 @@
     {
         NavManager.NavigateTo($"/UpdateMerchant/{Server}/{MerchantName}");
     }
+
 }

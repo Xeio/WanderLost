@@ -2,11 +2,11 @@
     position: relative;
 }
 
-.item:hover .itemText {
+.item:hover .item__tooltip {
     display: block;
 }
 
-.itemText {
+.item__tooltip {
     z-index: 100;
     position: absolute;
     top: -80%;

@@ -65,6 +65,11 @@
     color: var(--brand-dimwhite);
 }
 
+.favorite-badge {
+    color: var(--gold);
+    margin-right: 4px;
+}
+
 .cursor-pointer {
     cursor: pointer;
 }

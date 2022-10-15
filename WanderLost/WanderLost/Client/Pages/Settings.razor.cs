@@ -4,7 +4,7 @@ using WanderLost.Shared.Data;
 
 namespace WanderLost.Client.Pages;
 
-public partial class Notifications
+public partial class Settings
 {
     [Inject] public ClientSettingsController ClientSettings { get; init; } = default!;
     [Inject] public ClientStaticDataController StaticData { get; init; } = default!;
@@ -24,6 +24,11 @@ public partial class Notifications
     protected async Task ToggleNotifyBrowserSoundEnabled()
     {
         await ClientSettings.SetNotifyBrowserSoundEnabled(!ClientSettings.NotifyBrowserSoundEnabled);
+    }
+    
+    protected async Task ToggleCompactMode()
+    {
+        await ClientSettings.SetCompactMode(!ClientSettings.CompactMode);
     }
 
     protected async Task ToggleRareSoundOnly()

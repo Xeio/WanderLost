@@ -18,7 +18,7 @@ public class ClientSettingsController
     public PushSubscription? SavedPushSubscription { get; private set; }
     public bool BrowserNotifications { get; private set; }
     public bool RareSoundsOnly { get; private set; }
-    public bool CollapseCards { get; private set; }
+    public bool CompactMode { get; private set; }
 
     private bool _initialized = false;
 
@@ -49,7 +49,7 @@ public class ClientSettingsController
             SavedPushSubscription = await _localStorageService.GetItemAsync<PushSubscription?>(nameof(SavedPushSubscription));
             RareSoundsOnly = await _localStorageService.GetItemAsync<bool?>(nameof(RareSoundsOnly)) ?? false;
             BrowserNotifications = await _localStorageService.GetItemAsync<bool?>(nameof(BrowserNotifications)) ?? false;
-            CollapseCards = await _localStorageService.GetItemAsync<bool?>(nameof(CollapseCards)) ?? false;
+            CompactMode = await _localStorageService.GetItemAsync<bool?>(nameof(CompactMode)) ?? false;
 
             if (Utils.HasMergedServer(Server, out var newServer))
             {
@@ -138,9 +138,9 @@ public class ClientSettingsController
         await _localStorageService.SetItemAsync(nameof(RapportVoteThresholdForNotification), RapportVoteThresholdForNotification);
     }
 
-    public async Task SetCollapseCards(bool collapseCards)
+    public async Task SetCompactMode(bool compactMode)
     {
-        CollapseCards = collapseCards;
-        await _localStorageService.SetItemAsync(nameof(CollapseCards), collapseCards);
+        CompactMode = compactMode;
+        await _localStorageService.SetItemAsync(nameof(CompactMode), compactMode);
     }
 }

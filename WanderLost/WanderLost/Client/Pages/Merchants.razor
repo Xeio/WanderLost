@@ -4,10 +4,10 @@
 
 @if (ClientSettings.NotificationsEnabled && ClientSettings.NotifyBrowserSoundEnabled)
 {
-    <BrowserSoundDisabledPopup />
+    <BrowserSoundDisabledPopup/>
 }
 
-<MessageOfTheDay />
+<MessageOfTheDay/>
 
 @if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.HubConnectionState.Disconnected)
 {
@@ -47,18 +47,11 @@ else if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.Hu
             }
         </select>
     </div>
-    <div class="collapse-toggle">
-        <div class="brand-label">Collapse Cards: </div>
-        <div class="collapse-toggle__container">
-            <input class="collapse-toggle__input" type="checkbox" id="collapseSwitch" checked="@ClientSettings.CollapseCards" @onchange="@ToggleCollapse" />
-            <label class="collapse-toggle__label" for="collapseSwitch">Collapse Cards</label>
-        </div>
-    </div>
-    
+
     @if (!string.IsNullOrWhiteSpace(Server))
     {
         <div class="merchants__notification">
-            <NotificationToggle />
+            <NotificationToggle/>
         </div>
     }
 </div>
@@ -71,13 +64,20 @@ else if (ActiveData.MerchantGroups.Count > 0)
 {
     <CascadingValue Value="@ActiveData">
         <Overlay>
-            <CascadingValue Value="@ClientSettings.CollapseCards" Name="CollapseCards">
+            <CascadingValue Value="@ClientSettings.CompactMode" Name="CompactMode">
                 @if (ActiveData.MerchantGroups.FirstOrDefault(mg => mg.IsActive) is ActiveMerchantGroup activeGroup)
                 {
                     <div class="merchants__label brand-label expire__timer">Merchants Expire in @((activeGroup.AppearanceExpires - DateTimeOffset.UtcNow).ToString(@"mm\:ss"))</div>
-                    <MerchantGrid Server="@Server" />
+                    @if (ClientSettings.CompactMode)
+                    {
+                        <MerchantGridCompact ActiveData="@ActiveData" Server="@Server"/>
+                    }
+                    else
+                    {
+                        <MerchantGrid ActiveData="@ActiveData" Server="@Server"/>
+                    }
                 }
-                <FutureMerchantsGrid ActiveData="@ActiveData" Server="@Server" />
+                <FutureMerchantsGrid ActiveData="@ActiveData" Server="@Server"/>
             </CascadingValue>
         </Overlay>
     </CascadingValue>
