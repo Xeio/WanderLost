@@ -39,7 +39,7 @@
 }
 
 .card-frame__border.small_card {
-    height: 200px;
+    height: 170px;
 }
 
 .card-frame__inner {
@@ -49,7 +49,8 @@
 }
 
 .card-frame__inner.small_card {
-    min-height: 200px;
+    min-height: 170px;
+    padding: 12px 20px 0px;
 }
 
 .card-frame__title {
