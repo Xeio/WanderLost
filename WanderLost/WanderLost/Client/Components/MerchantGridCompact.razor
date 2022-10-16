@@ -46,6 +46,7 @@
                     @if (merchantNotificationSettings?.Cards.Contains(merchant.Card.Name) == true)
                     {
                         <span class="oi oi-star favorite-badge"/>
+                        <text>&nbsp;</text>
                     }
                     <ItemDisplay Item="@merchant.Card"/>
                 </td>
@@ -53,6 +54,7 @@
                     @if (merchantNotificationSettings?.Rapports.Contains(merchant.Rapport.Name) == true)
                     {
                         <span class="oi oi-star favorite-badge"/>
+                        <text>&nbsp;</text>
                     }
                     <ItemDisplay Item="@merchant.Rapport"/>
                 </td>
@@ -104,15 +106,17 @@
                     @if (merchantNotificationSettings?.Cards.Contains(merchant.Card.Name) == true)
                     {
                         <span class="oi oi-star favorite-badge"/>
+                        <text>&nbsp;</text>
                     }
-                    @merchant.Card.Name
+                    <ItemDisplay Item="@merchant.Card"/>
                 </td>
                 <td>
                     @if (merchantNotificationSettings?.Rapports.Contains(merchant.Rapport.Name) == true)
                     {
                         <span class="oi oi-star favorite-badge"/>
+                        <text>&nbsp;</text>
                     }
-                    @merchant.Rapport.Name
+                    <ItemDisplay Item="@merchant.Rapport"/>
                 </td>
                 <td>
                     @merchant.Votes
