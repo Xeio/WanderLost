@@ -36,6 +36,7 @@
                 <td>
                     <a
                         class="merchant-grid-compact__zone"
+                        href="/images/zones/@(Uri.EscapeDataString(merchant.Zone)).jpg"
                         @onclick="@(async () => await Overlay.ShowMap(merchant.Zone))"
                         @onclick:preventDefault="true">
                         @merchant.Zone
@@ -93,6 +94,7 @@
                 <td>
                     <a
                         class="merchant-grid-compact__zone"
+                        href="/images/zones/@(Uri.EscapeDataString(merchant.Zone)).jpg"
                         @onclick="@(async () => await Overlay.ShowMap(merchant.Zone))"
                         @onclick:preventDefault="true">
                         @merchant.Zone
