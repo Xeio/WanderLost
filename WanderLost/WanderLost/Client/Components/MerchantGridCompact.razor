@@ -61,30 +61,23 @@
                 <td>
                     @merchant.Votes
                 </td>
-                @if (ActiveMerchantGroups.IndexOf(merchantGroup) == 0)
-                {
-                    <td>
-                        <CardButton
-                            ClassName="merchant-grid-compact__button"
-                            Type="@CardButton.Variant.Like"
-                            Active="@(CurrentVote(merchant.Id) == VoteType.Upvote)"
-                            OnClick="@(async () => await SubmitVote(merchant.Id, VoteType.Upvote))"/>
-                        <CardButton
-                            ClassName="merchant-grid-compact__button"
-                            Type="@CardButton.Variant.Dislike"
-                            Active="@(CurrentVote(merchant.Id) == VoteType.Downvote)"
-                            OnClick="@(async () => await SubmitVote(merchant.Id, VoteType.Downvote))"/>
-                        <CardButton
-                            ClassName="merchant-grid-compact__button"
-                            Type="@CardButton.Variant.Report"
-                            Hint="@GetReportHint(merchant.Id)"
-                            OnClick="@(() => NavigateToSubmitPage(merchant.Name))"/>
-                    </td>
-                }
-                else
-                {
-                    <td/>
-                }
+                <td>
+                    <CardButton
+                        ClassName="merchant-grid-compact__button"
+                        Type="@CardButton.Variant.Like"
+                        Active="@(CurrentVote(merchant.Id) == VoteType.Upvote)"
+                        OnClick="@(async () => await SubmitVote(merchant.Id, VoteType.Upvote))"/>
+                    <CardButton
+                        ClassName="merchant-grid-compact__button"
+                        Type="@CardButton.Variant.Dislike"
+                        Active="@(CurrentVote(merchant.Id) == VoteType.Downvote)"
+                        OnClick="@(async () => await SubmitVote(merchant.Id, VoteType.Downvote))"/>
+                    <CardButton
+                        ClassName="merchant-grid-compact__button"
+                        Type="@CardButton.Variant.Report"
+                        Hint="@GetReportHint(merchant.Id)"
+                        OnClick="@(() => NavigateToSubmitPage(merchant.Name))"/>
+                </td>
             }
         </tr>
         @foreach (var merchant in merchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).Skip(1))
