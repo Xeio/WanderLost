@@ -95,6 +95,8 @@
 }
 
 .favorite-badge {
+    display: inline;
+    
     color: var(--gold);
 }
 
