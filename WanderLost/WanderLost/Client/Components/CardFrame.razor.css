@@ -45,7 +45,7 @@
 .card-frame__inner {
     padding: 28px 16px 16px;
     background: var(--mapbackground);
-    min-height: 420px;
+    min-height: 430px;
 }
 
 .card-frame__inner.small_card {
