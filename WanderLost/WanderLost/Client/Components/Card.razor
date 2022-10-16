@@ -12,6 +12,7 @@
             @if (merchantNotificationSettings?.Cards.Contains(Merchant.Card.Name) == true)
             {
                 <span class="oi oi-star favorite-badge"/>
+                <text>&nbsp;</text>
             }
             <ItemDisplay Item="@Merchant.Card"/>
         </div>
@@ -19,6 +20,7 @@
             @if (merchantNotificationSettings?.Rapports.Contains(Merchant.Rapport.Name) == true)
             {
                 <span class="oi oi-star favorite-badge"/>
+                <text>&nbsp;</text>
             }
             <ItemDisplay Item="@Merchant.Rapport"/>
         </div>
