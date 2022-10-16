@@ -16,6 +16,7 @@
     height: 38px;
 
     cursor: pointer;
+    text-decoration: none;
 }
 
 .m-header__logo .p,
