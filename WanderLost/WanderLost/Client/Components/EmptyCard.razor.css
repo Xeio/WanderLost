@@ -9,14 +9,16 @@
 
 .empty-card__submit-location {
     position: absolute;
+    padding: 10px;
+    
     bottom: 24px;
     left: 50%;
+    
     transform: translateX(-50%);
-    padding: 10px 10px;
-    -moz-osx-font-smoothing: grayscale;
-    -webkit-font-smoothing: antialiased;
+    
     text-transform: uppercase;
     color: var(--white);
-    line-height: inherit;
+    
+    font-family: Helvetica, sans-serif;
     white-space: nowrap;
 }
