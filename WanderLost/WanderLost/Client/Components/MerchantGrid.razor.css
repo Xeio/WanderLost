@@ -1,9 +1,10 @@
 ﻿.merchant-grid {
     display: flex;
     flex-wrap: wrap;
-    margin-top: 12px;
+    margin: 36px 0;
 }
 
 .merchant-grid ::deep .merchant-grid__item {
     flex-shrink: 0;
+    margin: 0 12px 12px 0;
 }

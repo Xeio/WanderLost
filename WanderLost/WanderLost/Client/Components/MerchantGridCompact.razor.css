@@ -1,0 +1,50 @@
+.merchant-grid-compact {
+    margin: 36px -12px;
+    width: calc(100% + 24px);;
+}
+
+
+@media screen and (min-width: 1030px) {
+    /* Location */
+    .merchant-grid-compact th:nth-child(2),
+    .merchant-grid-compact td:nth-child(2) {
+        width: 150px;
+    }
+
+    /* Card */
+    .merchant-grid-compact th:nth-child(3),
+    .merchant-grid-compact td:nth-child(3) {
+        width: 156px;
+    }
+
+    /* Rapport */
+    .merchant-grid-compact th:nth-child(4),
+    .merchant-grid-compact td:nth-child(4) {
+        width: 226px;
+    }
+}
+
+
+/* Votes */
+.merchant-grid-compact td:nth-child(5) {
+    text-align: right;
+}
+
+/* Controls */
+.merchant-grid-compact td:nth-child(6) {
+    line-height: 14px;
+}
+
+.merchant-grid-compact__zone,
+.merchant-grid-compact__submit-location {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.merchant-grid-compact__zone {
+    color: var(--brand-dimwhite);
+}
+
+.merchant-grid-compact__submit-location {
+    color: #fff;
+}

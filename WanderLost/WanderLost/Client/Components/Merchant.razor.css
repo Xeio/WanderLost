@@ -1,9 +1,8 @@
-﻿﻿.merchant {
+﻿.merchant {
     position: relative;
-    margin-right 3px;
 }
 
-.has__errors {
+.merchant--has-fan {
     width: 350px;
 }
 

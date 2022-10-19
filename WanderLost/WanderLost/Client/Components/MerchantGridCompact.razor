@@ -1,0 +1,207 @@
+@inject MerchantHubClient HubClient
+@inject NavigationManager NavManager
+@inject ClientSettingsController ClientSettings
+
+@using System.Globalization
+
+<table class="merchant-grid-compact merchant-grid-new">
+    <thead>
+    <tr>
+        <th>Merchant</th>
+        <th>Location</th>
+        <th>Card</th>
+        <th>Rapport</th>
+        <th>Votes</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var merchantGroup in ActiveMerchantGroups)
+    {
+        <tr>
+            <td>@merchantGroup.MerchantName (@merchantGroup.MerchantData.Region)</td>
+            @if (merchantGroup.ActiveMerchants.Count == 0)
+            {
+                <td>?</td>
+                <td>?</td>
+                <td>?</td>
+                <td colspan="2">
+                    <a class="merchant-grid-compact__submit-location" href="/UpdateMerchant/@Server/@merchantGroup.MerchantName">Submit Location</a>
+                </td>
+            }
+            else
+            {
+                var merchant = merchantGroup.ActiveMerchants.OrderByDescending(m => m.Votes).First();
+                ClientSettings.Notifications.TryGetValue(merchant.Name, out var merchantNotificationSettings);
+                <td>
+                    <a
+                        class="merchant-grid-compact__zone"
+                        href="/images/zones/@(Uri.EscapeDataString(merchant.Zone)).jpg"
+                        @onclick="@(async () => await Overlay.ShowMap(merchant.Zone))"
+                        @onclick:preventDefault="true">
+                        @merchant.Zone
+                    </a>
+                </td>
+                <td>
+                    @if (merchantNotificationSettings?.Cards.Contains(merchant.Card.Name) == true)
+                    {
+                        <span class="oi oi-star favorite-badge"/>
+                        <text>&nbsp;</text>
+                    }
+                    <ItemDisplay Item="@merchant.Card"/>
+                </td>
+                <td>
+                    @if (merchantNotificationSettings?.Rapports.Contains(merchant.Rapport.Name) == true)
+                    {
+                        <span class="oi oi-star favorite-badge"/>
+                        <text>&nbsp;</text>
+                    }
+                    <ItemDisplay Item="@merchant.Rapport"/>
+                </td>
+                <td>
+                    @merchant.Votes
+                </td>
+                <td>
+                    <CardButton
+                        ClassName="merchant-grid-compact__button"
+                        Type="@CardButton.Variant.Like"
+                        Active="@(CurrentVote(merchant.Id) == VoteType.Upvote)"
+                        OnClick="@(async () => await SubmitVote(merchant.Id, VoteType.Upvote))"/>
+                    <CardButton
+                        ClassName="merchant-grid-compact__button"
+                        Type="@CardButton.Variant.Dislike"
+                        Active="@(CurrentVote(merchant.Id) == VoteType.Downvote)"
+                        OnClick="@(async () => await SubmitVote(merchant.Id, VoteType.Downvote))"/>
+                    <CardButton
+                        ClassName="merchant-grid-compact__button"
+                        Type="@CardButton.Variant.Report"
+                        Hint="@GetReportHint(merchant.Id)"
+                        OnClick="@(() => NavigateToSubmitPage(merchant.Name))"/>
+                </td>
+            }
+        </tr>
+        @foreach (var merchant in merchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).Skip(1))
+        {
+            string rowStyle = @GetRowStyle(merchant);
+            ClientSettings.Notifications.TryGetValue(merchant.Name, out var merchantNotificationSettings);
+            <tr style="@rowStyle">
+                <td/>
+                <td>
+                    <a
+                        class="merchant-grid-compact__zone"
+                        href="/images/zones/@(Uri.EscapeDataString(merchant.Zone)).jpg"
+                        @onclick="@(async () => await Overlay.ShowMap(merchant.Zone))"
+                        @onclick:preventDefault="true">
+                        @merchant.Zone
+                    </a>
+                </td>
+                <td>
+                    @if (merchantNotificationSettings?.Cards.Contains(merchant.Card.Name) == true)
+                    {
+                        <span class="oi oi-star favorite-badge"/>
+                        <text>&nbsp;</text>
+                    }
+                    <ItemDisplay Item="@merchant.Card"/>
+                </td>
+                <td>
+                    @if (merchantNotificationSettings?.Rapports.Contains(merchant.Rapport.Name) == true)
+                    {
+                        <span class="oi oi-star favorite-badge"/>
+                        <text>&nbsp;</text>
+                    }
+                    <ItemDisplay Item="@merchant.Rapport"/>
+                </td>
+                <td>
+                    @merchant.Votes
+                </td>
+                <td>
+                    <CardButton
+                        ClassName="merchant-grid-compact__button"
+                        Type="@CardButton.Variant.Like"
+                        Active="@(CurrentVote(merchant.Id) == VoteType.Upvote)"
+                        OnClick="@(async () => await SubmitVote(merchant.Id, VoteType.Upvote))"/>
+                    <CardButton
+                        ClassName="merchant-grid-compact__button"
+                        Type="@CardButton.Variant.Dislike"
+                        Active="@(CurrentVote(merchant.Id) == VoteType.Downvote)"
+                        OnClick="@(async () => await SubmitVote(merchant.Id, VoteType.Downvote))"/>
+                </td>
+            </tr>
+        }
+        @if (merchantGroup.IsActive)
+        {
+            <tr>
+                <td class="separator" colspan="99"></td>
+            </tr>
+        }
+    }
+    </tbody>
+</table>
+
+@code {
+
+    [CascadingParameter(Name = "Overlay")]
+    public IOverlay Overlay { get; init; } = default!;
+
+    [Parameter, EditorRequired]
+    public ActiveDataController ActiveData { get; init; } = default!;
+
+    [Parameter, EditorRequired]
+    public string Server { get; set; } = default!;
+
+
+    private List<ActiveMerchantGroup> ActiveMerchantGroups
+    {
+        get { return ActiveData.MerchantGroups.Where(m => m.IsActive).ToList(); }
+    }
+
+    private string GetRowStyle(ActiveMerchant merchant)
+    {
+        if (merchant.Votes < 0)
+        {
+            var opacity = GetOpacity(merchant.Votes);
+            return $"opacity: {opacity.ToString(CultureInfo.GetCultureInfo("en-GB"))};";
+        }
+
+        return String.Empty;
+    }
+
+    private decimal GetOpacity(decimal votes)
+    {
+        const decimal maxDownvoteThreshold = -5;
+        const decimal fromTarget = (decimal).125;
+        const decimal toTarget = 1;
+
+        if (votes < maxDownvoteThreshold)
+        {
+            votes = maxDownvoteThreshold;
+        }
+
+        return (maxDownvoteThreshold - votes) / maxDownvoteThreshold * (toTarget - fromTarget) + fromTarget;
+    }
+
+    public string GetReportHint(Guid merchantId)
+    {
+        return CurrentVote(merchantId) is not null ? "Suggest new location" : "Submit correction";
+    }
+
+    public VoteType? CurrentVote(Guid merchantId)
+    {
+        if (ActiveData.Votes.TryGetValue(merchantId, out VoteType existingVote))
+        {
+            return existingVote;
+        }
+        return null;
+    }
+
+    public async Task SubmitVote(Guid merchantId, VoteType vote)
+    {
+        await HubClient.Vote(Server, merchantId, CurrentVote(merchantId) == vote ? VoteType.Unvote : vote);
+    }
+
+    public void NavigateToSubmitPage(string merchantName)
+    {
+        NavManager.NavigateTo($"/UpdateMerchant/{Server}/{merchantName}");
+    }
+
+}

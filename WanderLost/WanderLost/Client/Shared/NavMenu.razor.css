@@ -1,63 +1,86 @@
 .m-header {
-  display: flex;
-  padding: 0 24px;
+    display: flex;
+    padding: 0 24px;
 
-  flex-wrap: wrap;
-  justify-content: space-around;
+    flex-wrap: wrap;
+    justify-content: space-around;
 
-  background: var(--brand-black);
+    background: var(--brand-black);
 }
 
 ::deep .m-header__logo {
-  display: flex;
+    display: flex;
 
-  margin: 8px;
+    margin: 8px;
 
-  height: 38px;
+    height: 38px;
 
-  cursor: pointer;
+    cursor: pointer;
+    text-decoration: none;
 }
 
 .m-header__logo .p,
 .m-header__logo .t {
-  fill: #fff;
+    fill: #fff;
 }
 
 .m-header__items {
-  display: flex;
-  height: 54px;
+    display: flex;
 
-  flex: 1 0 auto;
+    flex: 1 0 auto;
 }
 
 ::deep .m-header__item {
-  display: flex;
+    display: flex;
+    height: 38px;
 
-  align-items: center;
-  flex-shrink: 0;
+    align-items: center;
+    flex-shrink: 0;
 
-  padding: 0 8px;
-  margin: 8px;
+    padding: 0 8px;
+    margin: 8px;
 
-  cursor: pointer;
+    cursor: pointer;
 
-  /** reset button styles */
-  border: none;
-  background: transparent;
-  /** end reset button styles */
+    /** reset button styles */
+    border: none;
+    background: transparent;
+    /** end reset button styles */
 
-  border-bottom: 1px solid transparent;
+    border-bottom: 1px solid transparent;
 
-  transition: 0.2s ease-in-out;
-  transition-property: color, border-color;
+    transition: 0.2s ease-in-out;
+    transition-property: color, border-color;
 }
 
 ::deep .m-header__item:hover,
 ::deep .m-header__item.active {
-  color: #fff;
-  border-color: var(--brand-gold);
+    color: #fff;
+    border-color: var(--brand-gold);
 }
 
-.m-header__item--separated {
-  margin-left: auto;
+.m-header__item--user {
+    display: inline-block;
+    max-width: 210px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    
+    line-height: 38px;
+}
+
+@media screen and (max-width: 890px) {
+    .m-header__items {
+        width: 100%;
+
+        flex-wrap: wrap;
+        justify-content: space-around;
+    }
+}
+
+@media screen and (min-width: 890px) {
+    .m-header__item--separated {
+        margin-left: auto;
+    }
 }

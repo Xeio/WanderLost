@@ -4,10 +4,10 @@
 
 @if (ClientSettings.NotificationsEnabled && ClientSettings.NotifyBrowserSoundEnabled)
 {
-    <BrowserSoundDisabledPopup />
+    <BrowserSoundDisabledPopup/>
 }
 
-<MessageOfTheDay />
+<MessageOfTheDay/>
 
 @if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.HubConnectionState.Disconnected)
 {
@@ -21,64 +21,64 @@ else if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.Hu
         Disconnected from server, automatically attempting to reconnect... <a href="" class="alert-link" @onclick="@(() => { NavigationManager.NavigateTo("", true); })">Or you can try to reload.</a>
     </div>
 }
-
-<div class="merchants__controls">
-    <div class="merchants__select-container">
-        <div class="merchants__label brand-label">Server Region:</div>
-        <select class="merchants__select" id="severRegion" @bind="@ServerRegion">
-            <option></option>
-            @foreach (var datacenter in StaticData.ServerRegions)
-            {
-                <option value="@datacenter.Key">@datacenter.Value.Name</option>
-            }
-        </select>
-    </div>
-
-    <div class="merchants__select-container">
-        <div class="merchants__label brand-label">Server:</div>
-        <select class="merchants__select" id="server" @bind="@Server">
-            <option></option>
-            @if (!string.IsNullOrWhiteSpace(ServerRegion))
-            {
-                @foreach (var datacenter in StaticData.ServerRegions[ServerRegion].Servers ?? Enumerable.Empty<string>())
+<div class="merchants__content @ContentClass">
+    <div class="merchants__controls">
+        <div class="merchants__select-container">
+            <div class="merchants__label brand-label">Server Region:</div>
+            <select class="merchants__select" id="severRegion" @bind="@ServerRegion">
+                <option></option>
+                @foreach (var datacenter in StaticData.ServerRegions)
                 {
-                    <option>@datacenter</option>
+                    <option value="@datacenter.Key">@datacenter.Value.Name</option>
                 }
-            }
-        </select>
-    </div>
-    <div class="collapse-toggle">
-        <div class="brand-label">Collapse Cards: </div>
-        <div class="collapse-toggle__container">
-            <input class="collapse-toggle__input" type="checkbox" id="collapseSwitch" checked="@ClientSettings.CollapseCards" @onchange="@ToggleCollapse" />
-            <label class="collapse-toggle__label" for="collapseSwitch">Collapse Cards</label>
+            </select>
         </div>
+
+        <div class="merchants__select-container">
+            <div class="merchants__label brand-label">Server:</div>
+            <select class="merchants__select" id="server" @bind="@Server">
+                <option></option>
+                @if (!string.IsNullOrWhiteSpace(ServerRegion))
+                {
+                    @foreach (var datacenter in StaticData.ServerRegions[ServerRegion].Servers ?? Enumerable.Empty<string>())
+                    {
+                        <option>@datacenter</option>
+                    }
+                }
+            </select>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Server))
+        {
+            <div class="merchants__notification">
+                <NotificationToggle/>
+            </div>
+        }
     </div>
     
-    @if (!string.IsNullOrWhiteSpace(Server))
+    @if (ActiveData.MerchantGroups.Count > 0)
     {
-        <div class="merchants__notification">
-            <NotificationToggle />
-        </div>
+        <CascadingValue Value="@ActiveData">
+            <Overlay>
+                <CascadingValue Value="@ClientSettings.CompactMode" Name="CompactMode">
+                    @if (ActiveData.MerchantGroups.FirstOrDefault(mg => mg.IsActive) is ActiveMerchantGroup activeGroup)
+                    {
+                        <h3 class="mt-3 merchants__active-merchants">
+                            Active Merchants
+                            <span class="merchants__timer">Expires in @((activeGroup.AppearanceExpires - DateTimeOffset.UtcNow).ToString(@"mm\:ss"))</span>
+                        </h3>
+                        @if (ClientSettings.CompactMode)
+                        {
+                            <MerchantGridCompact ActiveData="@ActiveData" Server="@Server"/>
+                        }
+                        else
+                        {
+                            <MerchantGrid  ActiveData="@ActiveData" Server="@Server"/>
+                        }
+                    }
+                    <FutureMerchantsGrid ClassName="merchants__future-grid" ActiveData="@ActiveData" Server="@Server"/>
+                </CascadingValue>
+            </Overlay>
+        </CascadingValue>
     }
 </div>
-
-@if (string.IsNullOrWhiteSpace(ServerRegion) || string.IsNullOrWhiteSpace(Server))
-{
-    <h3 class="mt-3">Select a Server</h3>
-}
-else if (ActiveData.MerchantGroups.Count > 0)
-{
-    <CascadingValue Value="@ActiveData">
-        <Overlay>
-            <CascadingValue Value="@ClientSettings.CollapseCards" Name="CollapseCards">
-                @if (ActiveData.MerchantGroups.FirstOrDefault(mg => mg.IsActive) is ActiveMerchantGroup activeGroup)
-                {
-                    <div class="merchants__label brand-label expire__timer">Merchants Expire in @((activeGroup.AppearanceExpires - DateTimeOffset.UtcNow).ToString(@"mm\:ss"))</div>
-                    <MerchantGrid Server="@Server" />
-                }
-                <FutureMerchantsGrid ActiveData="@ActiveData" Server="@Server" />
-            </CascadingValue>
-        </Overlay>
-    </CascadingValue>
-}

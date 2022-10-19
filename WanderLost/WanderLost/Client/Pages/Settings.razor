@@ -1,14 +1,20 @@
-﻿@page "/Notifications"
+﻿@page "/Settings"
 
-<PageTitle>Notification Settings</PageTitle>
+<PageTitle>Settings</PageTitle>
 
 <div class="col d-flex justify-content-end mt-auto">
-    <NotificationToggle NotificationStateChanged="@StateHasChanged" />
+    <NotificationToggle NotificationStateChanged="@StateHasChanged"/>
 </div>
 
-<p class="text-nowrap">Edit notification alarms. Click on <NotificationIcon Enabled="true" />/<NotificationIcon Enabled="false" /> to disable/enable notifications for an item.</p>
+<p class="text-nowrap">Edit notification alarms. Click on <NotificationIcon Enabled="true"/>/<NotificationIcon Enabled="false"/> to disable/enable notifications for an item.</p>
 
 <div class="container mx-1">
+    <div class="form-check col-6 m-3">
+        <input class="form-check-input" type="checkbox" checked="@ClientSettings.CompactMode" id="compactMode" @onclick="@ToggleCompactMode">
+        <label class="form-check-label" for="compactMode">
+            Enable compact mode for merchant grid
+        </label>
+    </div>
     <div class="form-check col-6 m-3">
         <input class="form-check-input" type="checkbox" checked="@ClientSettings.NotifyBrowserSoundEnabled" id="browserSound" @onclick="@ToggleNotifyBrowserSoundEnabled">
         <label class="form-check-label" for="browserSound">
@@ -38,18 +44,18 @@
     </div>
     <div class="row my-2">
         <div class="col-6">
-            <span class="form-control-plaintext">Minimum upvotes for alert on <ItemDisplay Item="@(new Item { Name = "legendary Card", Rarity = Rarity.Legendary })" /> </span>
+            <span class="form-control-plaintext">Minimum upvotes for alert on <ItemDisplay Item="@(new Item { Name = "legendary Card", Rarity = Rarity.Legendary })"/> </span>
         </div>
         <div class="col-auto">
-            <input type="number" class="form-control" @bind="CardVoteThresholdWrapper" />
+            <input type="number" class="form-control" @bind="CardVoteThresholdWrapper"/>
         </div>
     </div>
     <div class="row my-2">
         <div class="col-6">
-            <span class="form-control-plaintext">Minimum upvotes for alert on <ItemDisplay Item="@(new Item { Name = "legendary Rapport", Rarity = Rarity.Legendary })" /> </span>
+            <span class="form-control-plaintext">Minimum upvotes for alert on <ItemDisplay Item="@(new Item { Name = "legendary Rapport", Rarity = Rarity.Legendary })"/> </span>
         </div>
         <div class="col-auto">
-            <input type="number" class="form-control" @bind="RapportVoteThresholdWrapper" />
+            <input type="number" class="form-control" @bind="RapportVoteThresholdWrapper"/>
         </div>
     </div>
 </div>
@@ -65,7 +71,7 @@
                 <li class="list-group-item">
                     <ul>
                         <li class="d-block">
-                            <NotificationIcon Enabled="IsMerchantValueNotified(key, NotificationSettingType.Spawn, key)" StateChanged="@(_ => OnNotificationToggle(NotificationSettingType.Spawn, key, key))" />
+                            <NotificationIcon Enabled="IsMerchantValueNotified(key, NotificationSettingType.Spawn, key)" StateChanged="@(_ => OnNotificationToggle(NotificationSettingType.Spawn, key, key))"/>
                             <span>Notify on Spawn</span>
                         </li>
                     </ul>
@@ -78,8 +84,8 @@
                         @foreach (var item in merchant.Cards)
                         {
                             <li class="d-block">
-                                <NotificationIcon Enabled="IsMerchantValueNotified(key, NotificationSettingType.Card, item)" StateChanged="@(_ => OnNotificationToggle(NotificationSettingType.Card, key, item))" />
-                                <ItemDisplay Item="@item" />
+                                <NotificationIcon Enabled="IsMerchantValueNotified(key, NotificationSettingType.Card, item)" StateChanged="@(_ => OnNotificationToggle(NotificationSettingType.Card, key, item))"/>
+                                <ItemDisplay Item="@item"/>
                             </li>
                         }
                     </ul>
@@ -92,8 +98,8 @@
                         @foreach (var item in merchant.Rapports)
                         {
                             <li class="d-block">
-                                <NotificationIcon Enabled="IsMerchantValueNotified(key, NotificationSettingType.Rapport, item)" StateChanged="@(_ => OnNotificationToggle(NotificationSettingType.Rapport, key, item))" />
-                                <ItemDisplay Item="@item" />
+                                <NotificationIcon Enabled="IsMerchantValueNotified(key, NotificationSettingType.Rapport, item)" StateChanged="@(_ => OnNotificationToggle(NotificationSettingType.Rapport, key, item))"/>
+                                <ItemDisplay Item="@item"/>
                             </li>
                         }
                     </ul>

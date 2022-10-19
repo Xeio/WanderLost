@@ -2,3 +2,14 @@
 .future-merchants-grid__table {
   color: var(--brand-dimwhite);
 }
+
+.future-merchants-grid__table {
+  margin: 36px -12px;
+}
+
+.future-merchants-grid__table th:last-child,
+.future-merchants-grid__table td:last-child {
+  width: 180px;
+  
+  text-align: right;
+}

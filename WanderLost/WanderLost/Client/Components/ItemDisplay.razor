@@ -3,7 +3,7 @@
 <span class="item rarity--@Item.Rarity">@Item.Name
     @if (StaticData.Tooltips.TryGetValue(Item.Name, out var itemText))
     {
-        <span class="itemText">@((MarkupString)itemText)</span>
+        <span class="item__tooltip">@((MarkupString)itemText)</span>
     }
 </span>
 

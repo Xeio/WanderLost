@@ -2,44 +2,41 @@
 @inject NavigationManager NavManager
 @inject ClientSettingsController ClientSettings
 
-<CardFrame Title="@Region" Subtitle="@Merchant.Zone" Rarity="@TopRarity" ClassName="@ClassName" OnTitleClick="@LocationClick">
-    @if(!CollapseCards)
-    {
-        <div class="m-card__location @LoctionActiveClass" @onclick="@LocationClick" style="background-image: url(/images/zones/@(Uri.EscapeDataString(Merchant.Zone)).jpg)" />
-    }
+<CardFrame Title="@Region" Subtitle="@Merchant.Zone" Rarity="@TopRarity" ClassName="@ClassName">
+    <div class="m-card__location @LoctionActiveClass" @onclick="@LocationClick" style="background-image: url(/images/zones/@(Uri.EscapeDataString(Merchant.Zone)).jpg)"/>
     <div class="stock">
         @{
-            ClientSettings.Notifications.TryGetValue(Merchant.Name, out var merchantNotificationSettings); 
+            ClientSettings.Notifications.TryGetValue(Merchant.Name, out var merchantNotificationSettings);
         }
         <div class="stock__item">
             @if (merchantNotificationSettings?.Cards.Contains(Merchant.Card.Name) == true)
             {
-                <span class="oi oi-star text-warning mx-1" />
+                <span class="oi oi-star favorite-badge"/>
+                <text>&nbsp;</text>
             }
-            <ItemDisplay Item="@Merchant.Card" />
+            <ItemDisplay Item="@Merchant.Card"/>
         </div>
         <div class="stock__item">
             @if (merchantNotificationSettings?.Rapports.Contains(Merchant.Rapport.Name) == true)
             {
-                <span class="oi oi-star text-warning mx-1" />
+                <span class="oi oi-star favorite-badge"/>
+                <text>&nbsp;</text>
             }
-            <ItemDisplay Item="@Merchant.Rapport" />
+            <ItemDisplay Item="@Merchant.Rapport"/>
         </div>
     </div>
     <div class="m-card__buttons">
-        <CardButton ClassName="m-card__like" Type="CardButton.Variant.Like" OnClick="@(async () => await SubmitVote(VoteType.Upvote))" Active="@(CurrentVote == VoteType.Upvote)" />
+        <CardButton ClassName="m-card__like" Type="CardButton.Variant.Like" OnClick="@(async () => await SubmitVote(VoteType.Upvote))" Active="@(CurrentVote == VoteType.Upvote)"/>
         <div class="m-card__score">@Merchant.Votes</div>
-        <CardButton ClassName="m-card__dislike" Type="CardButton.Variant.Dislike" OnClick="@(async () => await SubmitVote(VoteType.Downvote))" Active="@(CurrentVote == VoteType.Downvote)" />
-        <CardButton ClassName="m-card__report" Hint="@ReportButtonHint" Type="CardButton.Variant.Report" OnClick="@OnClickReport" />
+        <CardButton ClassName="m-card__dislike" Type="CardButton.Variant.Dislike" OnClick="@(async () => await SubmitVote(VoteType.Downvote))" Active="@(CurrentVote == VoteType.Downvote)"/>
+        <CardButton ClassName="m-card__report" Hint="@ReportButtonHint" Type="CardButton.Variant.Report" OnClick="@OnClickReport"/>
     </div>
 </CardFrame>
 
 @code {
+
     [CascadingParameter]
     public ActiveDataController ActiveData { get; init; } = default!;
-
-    [CascadingParameter(Name = "CollapseCards")]
-    public bool CollapseCards { get; init; }
 
     [Parameter, EditorRequired]
     public ActiveMerchant Merchant { get; set; } = default!;
@@ -68,10 +65,7 @@
 
     public string LoctionActiveClass
     {
-        get
-        {
-            return OnLocationClick.HasDelegate ? "m-card__location--active" : "";
-        }
+        get { return OnLocationClick.HasDelegate ? "m-card__location--active" : ""; }
     }
 
     public void OnClickReport()
@@ -81,10 +75,7 @@
 
     public string ReportButtonHint
     {
-        get
-        {
-            return CurrentVote is not null ? "Suggest new location" : "Submit correction";
-        }
+        get { return CurrentVote is not null ? "Suggest new location" : "Submit correction"; }
     }
 
     public async Task SubmitVote(VoteType vote)
@@ -108,4 +99,5 @@
     {
         await OnLocationClick.InvokeAsync(Merchant.Zone);
     }
+
 }

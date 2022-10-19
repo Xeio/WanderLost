@@ -1,4 +1,21 @@
-﻿.merchants__controls {
+﻿.merchants__content {
+    margin: 0 auto;
+    padding: 0 12px;
+}
+
+.merchants__content--compact {
+    max-width: 1024px;
+}
+
+.merchants__content ::deep .merchants__future-grid {
+    width: min(600px, 100%);
+}
+
+.merchants__content--compact ::deep .merchants__future-grid {
+    width: calc(100% + 24px);
+}
+
+.merchants__controls {
     display: flex;
 }
 
@@ -7,7 +24,7 @@
 }
 
 .merchants__select-container + .merchants__select-container {
-    margin-left: 24px
+    margin: 0 24px;
 }
 
 .merchants__label {
@@ -22,6 +39,7 @@
     padding: 0.5em 3.5em 0.5em 1em;
 
     border: 1px solid #fff;
+    border-radius: 0;
 
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -48,66 +66,17 @@
     margin-left: auto;
 }
 
-.expire__timer {
-    font-size: 1em;
-    padding-top: 12px;
-    padding-left: 18px;
-}
-
-.collapse-toggle{
-    margin-left: 12px;
-}
-
-.collapse-toggle__container {
+.merchants__active-merchants {
     display: flex;
-    margin-top: 4px;
-    align-items: center;
-    height: 42px;
+
+    margin-top: 36px !important;
+
+    color: var(--brand-dimwhite);
 }
 
-.collapse-toggle__input {
-    height: 0;
-    width: 0;
-    visibility: hidden;
-}
-
-.collapse-toggle__label {
-    display: block;
-    position: relative;
-    width: 42px;
-    height: 22px;
-    cursor: pointer;
-    text-indent: -9999px;
-    background: transparent;
-    border: 1px solid #fff;
-    border-radius: 100px;
-}
-
-.collapse-toggle__label:after {
-    position: absolute;
-    top: 3px;
-    left: 4px;
-    width: 14px;
-    height: 14px;
-
-    content: '';
-
-    background: #fff;
-
-    border-radius: 50%;
-
-    transition: 0.3s;
-}
-
-.collapse-toggle__input:checked + .collapse-toggle__label {
-    background: #bfa251;
-}
-
-.collapse-toggle__input:checked + .collapse-toggle__label:after {
-    left: calc(100% - 5px);
-    transform: translateX(-100%);
-}
-
-.collapse-toggle__label:active:after {
-    width: 20px;
+.merchants__timer {
+    font-family: 'Share Tech Mono', monospace;
+    color: #daf6ff;
+    text-shadow: 0 0 20px rgba(10, 175, 230, 1), 0 0 20px rgb(10 175 230 / 0%);
+    margin-left: auto;
 }

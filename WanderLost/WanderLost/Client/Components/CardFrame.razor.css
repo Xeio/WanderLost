@@ -6,7 +6,7 @@
 }
 
 .rarity--Normal .card-frame__border-color {
-    fill: var(--white);
+    fill: var(--brand-dimwhite);
 }
 
 .rarity--Uncommon .card-frame__border-color {
@@ -43,9 +43,9 @@
 }
 
 .card-frame__inner {
-    padding: 24px 16px 16px;
+    padding: 28px 16px 16px;
     background: var(--mapbackground);
-    min-height: 420px;
+    min-height: 430px;
 }
 
 .card-frame__inner.small_card {
