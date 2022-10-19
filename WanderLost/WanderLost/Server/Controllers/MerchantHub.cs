@@ -98,6 +98,8 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
         merchant.UploadedBy = clientIp;
         merchant.UploadedByUserId = Context.UserIdentifier;
         merchant.RequiresProcessing = true;
+        //Add an auto-upvote so the user can see their own submissions by default
+        merchant.ClientVotes.Add(new Vote() { ClientId = clientIp, UserId = Context.UserIdentifier, VoteType = VoteType.Upvote });
         merchantGroup.ActiveMerchants.Add(merchant);
 
         await _merchantsDbContext.SaveChangesAsync();
