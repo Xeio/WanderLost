@@ -110,7 +110,6 @@ public class DataController
 
     private async Task<Dictionary<string, bool>?> BuildServerOnlineStates(ICacheEntry entry)
     {
-        entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(2);
         try
         {
             var html = await _httpClientFactory.CreateClient().GetStringAsync("https://www.playlostark.com/en-us/support/server-status");
@@ -137,13 +136,28 @@ public class DataController
             var allServers = (await GetServerRegions()).SelectMany(r => r.Value.Servers);
 
             var missingServers = allServers.Except(onlineStates.Keys);
+            var onlineCount = onlineStates.Count(s => s.Value);
+            var totalCount = allServers.Count();
 
             if (missingServers.Any())
             {
                 _logger.LogInformation("Servers not detected on status page: {missingServers}", string.Join(", ", missingServers));
+                //If servers are missing, then game is either in maintainence, or we got an intermittent issue on the status page
+                //Allow status checks a bit more often (if truly in maintenence, there will rarely be submission for this to fire anyway)
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30);
+            }
+            else if (onlineCount < totalCount)
+            {
+                //At least one server in maintenence mode
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(2);
+            }
+            else 
+            {
+                //All servers are online
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
             }
 
-            _logger.LogInformation("Server status {onlineCount} online of {total}.", onlineStates.Count(s => s.Value), allServers.Count());
+            _logger.LogInformation("Server status {onlineCount} online of {total}.", onlineCount, totalCount);
             return onlineStates;
         }
         catch(Exception e)
