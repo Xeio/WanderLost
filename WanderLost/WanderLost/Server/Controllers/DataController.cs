@@ -149,7 +149,7 @@ public class DataController
             else if (onlineCount < totalCount)
             {
                 //At least one server in maintenence mode
-                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(2);
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(2);
             }
             else 
             {
