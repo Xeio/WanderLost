@@ -160,7 +160,8 @@ app.UseStaticFiles(new StaticFileOptions()
     OnPrepareResponse = (staticFileContext) =>
     {
         if (staticFileContext.Context.Request.Path.StartsWithSegments(PathString.FromUriComponent("/media")) ||
-            staticFileContext.Context.Request.Path.StartsWithSegments(PathString.FromUriComponent("/images")))
+            staticFileContext.Context.Request.Path.StartsWithSegments(PathString.FromUriComponent("/images")) ||
+            staticFileContext.File.Name.EndsWith(".woff"))
         {
             staticFileContext.Context.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue()
             {
