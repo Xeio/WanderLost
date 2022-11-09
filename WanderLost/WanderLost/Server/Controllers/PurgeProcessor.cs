@@ -34,25 +34,28 @@ public class PurgeProcessor : BackgroundService
 
             merchantDbContext.Database.SetCommandTimeout(TimeSpan.FromMinutes(5));
 
+            var oldMerchants = merchantDbContext.ActiveMerchants
+                .Where(am => am.ActiveMerchantGroup.AppearanceExpires < DateTime.UtcNow.AddDays(-DAYS_TO_KEEP));
+
             //Cleanup votes table (totals will still be preserved)
-            var deletedVotes = await merchantDbContext.Database.ExecuteSqlInterpolatedAsync(@$"
-DELETE FROM V
-FROM Votes V WITH(NOLOCK)
-LEFT JOIN ActiveMerchants AM WITH(NOLOCK) ON V.ActiveMerchantId = AM.Id
-LEFT JOIN MerchantGroups MG WITH(NOLOCK) ON MG.Id = AM.ActiveMerchantGroupId
-WHERE MG.AppearanceExpires < DATEADD(DAY, {-DAYS_TO_KEEP}, SYSDATETIMEOFFSET())
-", stoppingToken);
+            var deletedVotes = await merchantDbContext.Votes
+                .TagWithCallSite()
+                .Where(v => oldMerchants.Any(m => m.Id == v.ActiveMerchantId))
+                .ExecuteDeleteAsync(stoppingToken);
 
             //Cleanup sent push notifications
-            var deletedPushes = await merchantDbContext.Database.ExecuteSqlInterpolatedAsync(@$"
-DELETE FROM P
-FROM SentPushNotifications P WITH(NOLOCK)
-LEFT JOIN ActiveMerchants AM WITH(NOLOCK) ON P.MerchantId = AM.Id
-LEFT JOIN MerchantGroups MG WITH(NOLOCK) ON MG.Id = AM.ActiveMerchantGroupId
-WHERE MG.AppearanceExpires < DATEADD(DAY, {-DAYS_TO_KEEP}, SYSDATETIMEOFFSET()) 
-", stoppingToken);
+            var deletedPushes = await merchantDbContext.SentPushNotifications
+                .TagWithCallSite()
+                .Where(p => oldMerchants.Any(m => m.Id == p.MerchantId))
+                .ExecuteDeleteAsync(stoppingToken);
 
-            _logger.LogInformation("Purged {votes} votes and {pushes} sent push notifications.", deletedVotes, deletedPushes);
+            //Purge subscriptions that aren't actually subscribed to any notifications
+            var deletedSubscriptions = await merchantDbContext.PushSubscriptions
+                .TagWithCallSite()
+                .Where(s => string.IsNullOrEmpty(s.Server) || (!s.SendTestNotification && !s.WeiNotify && !s.LegendaryRapportNotify))
+                .ExecuteDeleteAsync(stoppingToken);
+
+            _logger.LogInformation("Purged {votes} votes, {pushes} sent push notifications, and {subscriptions} empty subscriptions.", deletedVotes, deletedPushes, deletedSubscriptions);
         }
     }
 }

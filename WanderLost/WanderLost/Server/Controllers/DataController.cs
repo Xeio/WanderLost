@@ -25,13 +25,15 @@ public class DataController
 
     public async Task<Dictionary<string, MerchantData>> GetMerchantData()
     {
-        return await _memoryCache.GetOrCreateAsync(nameof(MerchantData), BuildMerchantData);
+        return await _memoryCache.GetOrCreateAsync(nameof(MerchantData), BuildMerchantData) ?? throw new NullReferenceException(nameof(BuildMerchantData));
     }
 
     private async Task<Dictionary<string, MerchantData>> BuildMerchantData(ICacheEntry entry)
     {
-        var serversFile = _webHostEnvironment.WebRootFileProvider.GetFileInfo("data/merchants.json");
-        var json = await File.ReadAllTextAsync(serversFile.PhysicalPath);
+        var merchantsFile = _webHostEnvironment.WebRootFileProvider.GetFileInfo("data/merchants.json").PhysicalPath;
+        if (string.IsNullOrWhiteSpace(merchantsFile)) throw new ApplicationException("Unable to get merchants.json physical path.");
+
+        var json = await File.ReadAllTextAsync(merchantsFile);
         var merchantData = JsonSerializer.Deserialize<Dictionary<string, MerchantData>>(json, Utils.JsonOptions) ?? new Dictionary<string, MerchantData>();
         Utils.GenerateDebugTestMerchant(merchantData);
         return merchantData;
@@ -39,13 +41,15 @@ public class DataController
 
     public async Task<Dictionary<string, ServerRegion>> GetServerRegions()
     {
-        return await _memoryCache.GetOrCreateAsync(nameof(ServerRegion), BuildServerData);
+        return await _memoryCache.GetOrCreateAsync(nameof(ServerRegion), BuildServerData) ?? throw new NullReferenceException(nameof(BuildServerData));
     }
 
     private async Task<Dictionary<string, ServerRegion>> BuildServerData(ICacheEntry entry)
     {
-        var serversFile = _webHostEnvironment.WebRootFileProvider.GetFileInfo("data/servers.json");
-        var json = await File.ReadAllTextAsync(serversFile.PhysicalPath);
+        var serversFile = _webHostEnvironment.WebRootFileProvider.GetFileInfo("data/servers.json").PhysicalPath;
+        if (string.IsNullOrWhiteSpace(serversFile)) throw new ApplicationException("Unable to get servers.json physical path.");
+
+        var json = await File.ReadAllTextAsync(serversFile);
         return JsonSerializer.Deserialize<Dictionary<string, ServerRegion>>(json, Utils.JsonOptions) ?? new Dictionary<string, ServerRegion>();
     }
 
@@ -57,7 +61,7 @@ public class DataController
             //Force the cache to expire once any merchant apperance expires
             cacheEntry.AbsoluteExpiration = merchantGroups.Min(m => m.AppearanceExpires);
             return merchantGroups;
-        });
+        }) ?? throw new NullReferenceException(nameof(GetActiveMerchantGroups));
     }
 
     private async Task<List<ActiveMerchantGroup>> BuildActiveMerchantGroups(string server)
@@ -92,7 +96,7 @@ public class DataController
                 _semaphore.Release();
             }
         }
-
+        
         if(statuses is null)
         {
             //Some error happened while retrieving statuses, assume servers are online

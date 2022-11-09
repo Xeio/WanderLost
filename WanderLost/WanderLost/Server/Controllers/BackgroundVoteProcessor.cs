@@ -64,16 +64,19 @@ public class BackgroundVoteProcessor : BackgroundService
                 {
                     if (stoppingToken.IsCancellationRequested) return;
 
-                    var oldTotal = merchant.Votes;
-                    merchant.Votes = CalculateVoteTotal(merchant);
-                    if (merchant.Votes != oldTotal)
+                    if (merchant.ActiveMerchantGroup.AppearanceExpires > DateTime.UtcNow)
                     {
-                        merchant.RequiresProcessing = true;
-                        voteUpdates.Add(new MerchantVoteUpdate()
+                        var oldTotal = merchant.Votes;
+                        merchant.Votes = CalculateVoteTotal(merchant);
+                        if (merchant.Votes != oldTotal)
                         {
-                            Id = merchant.Id,
-                            Votes = merchant.Votes,
-                        });
+                            merchant.RequiresProcessing = true;
+                            voteUpdates.Add(new MerchantVoteUpdate()
+                            {
+                                Id = merchant.Id,
+                                Votes = merchant.Votes,
+                            });
+                        }
                     }
 
                     merchant.RequiresVoteProcessing = false;

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -26,7 +25,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
         _memoryCache = memoryCache;
     }
 
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = nameof(RareCombinationRestricted))]
+    [Authorize(Policy = nameof(RareCombinationRestricted))]
     public async Task UpdateMerchant(string server, ActiveMerchant merchant)
     {
         if (merchant is null) return;
@@ -263,7 +262,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
 #if DEBUG
         //In debug mode, allow using the connection ID to simulate multiple clients
         return Context.ConnectionId;
-#endif
+#else
 
         //Check for header added by Nginx proxy
         //Potential security concern if this is not hosted behind a proxy that sets X-Real-IP,
@@ -277,6 +276,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
         //Fallback for dev environment
         var remoteAddr = Context.GetHttpContext()?.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
         return remoteAddr;
+#endif
     }
 
     public Task<bool> HasNewerClient(int version)
@@ -343,27 +343,20 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
     {
         if (string.IsNullOrEmpty(clientToken)) return;
 
-        try
-        {
-            var subscription = new PushSubscription()
-            {
-                Token = clientToken,
-            };
-            //Rather than delete, just purge all data from the record by storing blank values
-            //If we delete, then this occasionally causes a race condition for primary/foreign key updates
-            //in the background processors when pushing out notifications
-            //TODO: Clean these up later in a background process at a safe time. Maybe after EF7 bulk deletes?
-            _merchantsDbContext.Entry(subscription).State = EntityState.Modified;
-            await _merchantsDbContext.SaveChangesAsync();
-        }
-        catch(DbUpdateConcurrencyException)
-        {
-            //If a subscription didn't exist, just ignore the error.
-            //Probably happens mainly if a user multi-clicks delete before the request has completed
-        }
+        //Rather than delete, just purge the server data
+        //If we delete, then this occasionally causes a race condition for primary/foreign key updates
+        //in the background processors when pushing out notifications
+        //These orphaned subscriptions will be cleaned up by the PurgeProcessor periodically
+        await _merchantsDbContext.PushSubscriptions
+            .TagWithCallSite()
+            .Where(s => s.Token == clientToken)
+            .ExecuteUpdateAsync(s => 
+                s.SetProperty(i => i.Server, i => string.Empty)
+                 .SetProperty(i => i.LastModified, i => DateTimeOffset.UtcNow)
+            );
     }
 
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize]
     public async Task<ProfileStats> GetProfileStats()
     {
         var leaderboardEntry = await _merchantsDbContext.Leaderboards
@@ -418,7 +411,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
                 ServerWeiCounts = weiCounts.Select(c => (c.Server, c.Count)).ToList(),
                 RecentWeis = recentWeis.Select(r => (r.Server, r.NextAppearance)).ToList()
             };
-        });
+        }) ?? new();
     }
 
     public async Task<List<LeaderboardEntry>> GetLeaderboard(string? server)
@@ -439,7 +432,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
             .ToListAsync();
     }
 
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize]
     public async Task UpdateDisplayName(string? displayName)
     {
         if(Context.UserIdentifier is null) throw new AuthenticationException();
@@ -449,12 +442,9 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
             displayName = "Anonymous";
         }
 
-        //TODO: Use EF7 bulk update
-        var updateCount = await _merchantsDbContext.Database.ExecuteSqlInterpolatedAsync(@$"
-UPDATE Leaderboards
-SET DisplayName = {displayName}
-WHERE UserId = {Context.UserIdentifier}
-");
+        var updateCount = await _merchantsDbContext.Leaderboards
+            .Where(l => l.UserId == Context.UserIdentifier)
+            .ExecuteUpdateAsync(u => u.SetProperty(l => l.DisplayName, l => displayName));
 
         if (updateCount == 0)
         {

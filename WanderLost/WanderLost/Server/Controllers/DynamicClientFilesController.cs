@@ -33,7 +33,7 @@ public class DynamicClientFilesController : Controller
     [Route("/js/FirebaseConfig.js")]
     public IActionResult FirebaseConfig()
     {
-        var stream = System.IO.File.OpenRead(_configuration["FirebaseClientConfig"]);
+        var stream = System.IO.File.OpenRead(_configuration["FirebaseClientConfig"] ?? throw new ApplicationException("Missing FirebaseClientConfig configuration"));
         return File(stream, "application/javascript");
     }
 }
