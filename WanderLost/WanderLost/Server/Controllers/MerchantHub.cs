@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -26,7 +25,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
         _memoryCache = memoryCache;
     }
 
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = nameof(RareCombinationRestricted))]
+    [Authorize(Policy = nameof(RareCombinationRestricted))]
     public async Task UpdateMerchant(string server, ActiveMerchant merchant)
     {
         if (merchant is null) return;
@@ -357,7 +356,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
             );
     }
 
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize]
     public async Task<ProfileStats> GetProfileStats()
     {
         var leaderboardEntry = await _merchantsDbContext.Leaderboards
@@ -433,7 +432,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
             .ToListAsync();
     }
 
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize]
     public async Task UpdateDisplayName(string? displayName)
     {
         if(Context.UserIdentifier is null) throw new AuthenticationException();
