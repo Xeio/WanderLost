@@ -336,7 +336,8 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
         {
             _merchantsDbContext.Add(subscription);
         }
-        _merchantsDbContext.SaveChanges();
+
+        await _merchantsDbContext.SaveChangesAsync();
     }
 
     public async Task RemovePushSubscription(string clientToken)
@@ -454,7 +455,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
                 UserId = Context.UserIdentifier,
                 DisplayName = displayName,
             });
-            _merchantsDbContext.SaveChanges();
+            await _merchantsDbContext.SaveChangesAsync();
         }
     }
 }

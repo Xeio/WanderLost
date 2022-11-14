@@ -45,7 +45,8 @@ public class PushNotificationsController : ControllerBase
         {
             _merchantsDbContext.Add(subscription);
         }
-        _merchantsDbContext.SaveChanges();
+
+        await _merchantsDbContext.SaveChangesAsync();
 
         return Ok();
     }
