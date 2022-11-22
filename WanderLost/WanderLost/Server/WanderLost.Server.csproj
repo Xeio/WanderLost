@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="AspNet.Security.OAuth.Discord" Version="7.0.0" />
-    <PackageReference Include="BlazorWasmAntivirusProtection" Version="2.2.1" />
+    <PackageReference Include="BlazorWasmAntivirusProtection" Version="1.8.5" />
     <PackageReference Include="FirebaseAdmin" Version="2.3.0" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
     <PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="7.0.0" />
