@@ -188,14 +188,27 @@ using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>(
 {
     //Ensure model is created and up to date on startup
     using var merchantsContext = serviceScope.ServiceProvider.GetService<MerchantsDbContext>();
+
+    if (merchantsContext is null) throw new Exception("Failed to get required MerchantDbContext during startup migrations.");
+
+    using CancellationTokenSource timeoutTokenSource = new();
+    timeoutTokenSource.CancelAfter(TimeSpan.FromMinutes(10));
+
+    //Wait for the DB to be available(may happen if all the containers including SQL Server are restarted)
+    //Has a hard timeout based on the token source above
+    while (!await merchantsContext.Database.CanConnectAsync(timeoutTokenSource.Token))
+    {
+        await Task.Delay(TimeSpan.FromSeconds(5), timeoutTokenSource.Token);
+    }
+
     try
     {
-        merchantsContext?.Database.Migrate();
+        merchantsContext.Database.Migrate();
     }
     catch(Microsoft.Data.SqlClient.SqlException)
     {
         //Try migrating twice, since we potentially expect the CombineDbContexts migration to fail the first time
-        merchantsContext?.Database.Migrate();
+        merchantsContext.Database.Migrate();
     }
 }
 
