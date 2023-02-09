@@ -575,5 +575,84 @@
         "Rarity": "Legendary"
       }
     ]
+  },
+  "Serihan": {
+    "Name": "Serihan",
+    "Region": "Rowen",
+    "SortOrder": 15,
+    "AppearanceTimes": [ "01:30:00", "09:30:00", "15:30:00", "21:30:00" ],
+    "Zones": [ "Fang River", "The Wolflands" ],
+    "Cards": [
+      {
+        "Name": "Revellos",
+        "Rarity": "Uncommon"
+      },
+      {
+        "Name": "Rowen Zenlord",
+        "Rarity": "Uncommon"
+      },
+      {
+        "Name": "Anke",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Arno",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Baskia",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Hanun",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Marinna",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Piela",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Sylus",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Wilhelm",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Danika",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Myun Hidaka",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Osphere",
+        "Rarity": "Epic"
+      }
+    ],
+    "Rapports": [
+      {
+        "Name": "Enya Balm",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Top Quality Beef Jerky",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Wolf Fang Necklace",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Warm Earmuffs",
+        "Rarity": "Legendary"
+      }
+    ]
   }
 }
