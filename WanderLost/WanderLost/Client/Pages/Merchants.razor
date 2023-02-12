@@ -73,10 +73,10 @@ else if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.Hu
                         }
                         else
                         {
-                            <MerchantGrid  ActiveData="@ActiveData" Server="@Server"/>
+                            <MerchantGrid ActiveData="@ActiveData" Server="@Server"/>
                         }
                     }
-                    <FutureMerchantsGrid ClassName="merchants__future-grid" ActiveData="@ActiveData" Server="@Server"/>
+                    <FutureMerchantsGrid ClassName="merchants__future-grid" ActiveData="@ActiveData" />
                 </CascadingValue>
             </Overlay>
         </CascadingValue>

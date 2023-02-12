@@ -1,44 +1,29 @@
 ﻿<h3 class="future-merchants-grid__title mt-3">Upcoming Merchants</h3>
-<table class="future-merchants-grid__table merchant-grid-new @ClassName">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Next Appearance In</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var merchantGroup in ActiveData.MerchantGroups.OrderBy(m => m.IsActive ? m.FutureAppearance : m.NextAppearance))
-        {
-            <tr>
-                <td>
+<div class="future-merchants-grid__title @ClassName">
+    @foreach (var merchantSpawnGroup in ActiveData.MerchantGroups
+                                            .GroupBy(m => m.IsActive ? m.FutureAppearance : m.NextAppearance)
+                                            .OrderBy(g => g.Key))
+    {
+
+        <h5>Spawn in @((merchantSpawnGroup.Key - DateTimeOffset.UtcNow).ToString(@"hh\:mm\:ss"))</h5>
+        <div class="mt-1">
+            @foreach (var merchantGroup in merchantSpawnGroup)
+            {
+                <div class="border border-secondary rounded p-2 m-1 text-nowrap d-inline-block">
                     @if (IsMerchantNotified(merchantGroup))
                     {
                         <span class="oi oi-star favorite-badge" />
                     }
                     @merchantGroup.MerchantName (@merchantGroup.MerchantData.Region)
-                </td>
-                @if (merchantGroup.IsActive)
-                {
-                    <td>@((merchantGroup.FutureAppearance - DateTimeOffset.UtcNow).ToString(@"hh\:mm\:ss"))</td>
-                }
-                else
-                {
-                    <td>@((merchantGroup.NextAppearance - DateTimeOffset.UtcNow).ToString(@"hh\:mm\:ss"))</td>
-                }
-            </tr>
-            <tr>
-                <td class="separator" colspan="2" />
-            </tr>
-        }
-    </tbody>
-</table>
+                </div>
+            }
+        </div>
+    }
+</div>
 
 @code {
     [Parameter, EditorRequired]
     public ActiveDataController ActiveData { get; set; } = default!;
-
-    [Parameter, EditorRequired]
-    public string Server { get; init; } = string.Empty;
 
     [Parameter]
     public string ClassName { get; init; } = string.Empty;
