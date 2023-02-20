@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using LostMerchants.Services;
+using Microsoft.Extensions.Logging;
 
 namespace LostMerchants
 {
@@ -16,8 +17,15 @@ namespace LostMerchants
                 });
 
 #if DEBUG
-		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
+
+#if ANDROID
+            builder.Services.AddSingleton<INotifyHelper, NotifyHelper>();
+#endif
+
+            builder.Services.AddTransient<MainPage>();
+
 
             return builder.Build();
         }

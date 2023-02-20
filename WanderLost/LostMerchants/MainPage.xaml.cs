@@ -1,24 +1,46 @@
-﻿namespace LostMerchants
+﻿using LostMerchants.Services;
+using System.Diagnostics;
+using System.Net.Http.Json;
+using WanderLost.Shared.Data;
+
+namespace LostMerchants
 {
     public partial class MainPage : ContentPage
     {
-        int count = 0;
+        private readonly INotifyHelper _notifyHelper;
 
-        public MainPage()
+        public MainPage(INotifyHelper notifyHelper)
         {
             InitializeComponent();
+            _notifyHelper = notifyHelper;
         }
 
-        private void OnCounterClicked(object sender, EventArgs e)
+        private async void SendTestNotification(object sender, EventArgs e)
         {
-            count++;
+            var token = await _notifyHelper.GetToken();
 
-            if (count == 1)
-                CounterBtn.Text = $"Clicked {count} time";
-            else
-                CounterBtn.Text = $"Clicked {count} times";
+            CounterBtn.Text = token;
 
             SemanticScreenReader.Announce(CounterBtn.Text);
+
+            var access = await _notifyHelper.CheckNotifyPermissions();
+            if(access != PermissionStatus.Granted)
+            {
+                _notifyHelper.ShowToast("Notification permission required");
+                return;
+            }
+
+            var result = await new HttpClient().PostAsJsonAsync(
+                "https://lostmerchants.com/api/PushNotifications/UpdatePushSubscription",
+                new PushSubscription()
+                {
+                    Token = token,
+                    SendTestNotification = true,
+                });
+
+            Debug.Assert(result.IsSuccessStatusCode, "Failed update of subscription");
+
+            _notifyHelper.ShowToast("Updated subscription");
         }
     }
 }
