@@ -64,7 +64,7 @@
   },
   "SA": {
     "Name": "South America",
-    "UtcOffset": "-03:00:00",
+    "UtcOffset": "-04:00:00",
     "Servers": [
       "Arthetine",
       "Blackfang",
