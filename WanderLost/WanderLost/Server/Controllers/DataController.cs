@@ -76,7 +76,7 @@ public class DataController
         var activeMerchantGroups = merchants.Values.Select(m => new ActiveMerchantGroup() { MerchantData = m }).ToList();
         foreach (var activeMerchant in activeMerchantGroups)
         {
-            activeMerchant.CalculateNextAppearance(currentRegion.Value.UtcOffset);
+            activeMerchant.CalculateNextAppearance(currentRegion.Value.TimeZone);
         }
 
         return activeMerchantGroups;

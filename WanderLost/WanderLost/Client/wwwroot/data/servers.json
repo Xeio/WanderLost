@@ -1,7 +1,7 @@
 {
   "NAE": {
     "Name": "NA East",
-    "UtcOffset": "-04:00:00",
+    "TimeZone": "America/New_York",
     "Servers": [
       "Adrinne",
       "Aldebaran",
@@ -22,7 +22,7 @@
   },
   "NAW": {
     "Name": "NA West",
-    "UtcOffset": "-07:00:00",
+    "TimeZone": "America/Los_Angeles",
     "Servers": [
       "Akkan",
       "Bergstrom",
@@ -35,7 +35,7 @@
   },
   "EUC": {
     "Name": "EU Central",
-    "UtcOffset": "01:00:00",
+    "TimeZone": "Africa/Lagos",
     "Servers": [
       "Antares",
       "Armen",
@@ -56,7 +56,7 @@
   },
   "EUW": {
     "Name": "EU West",
-    "UtcOffset": "00:00:00",
+    "TimeZone": "Etc/UTC",
     "Servers": [
       "Ealyn",
       "Nia"
@@ -64,7 +64,7 @@
   },
   "SA": {
     "Name": "South America",
-    "UtcOffset": "-04:00:00",
+    "TimeZone": "America/La_Paz",
     "Servers": [
       "Arthetine",
       "Blackfang",

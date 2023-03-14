@@ -65,8 +65,10 @@ public class ActiveMerchantGroup
     [MessagePack.IgnoreMember]
     public bool IsActive => DateTimeOffset.UtcNow >= NextAppearance && DateTimeOffset.UtcNow < AppearanceExpires;
 
-    public void CalculateNextAppearance(TimeSpan serverUtcOffset)
+    public void CalculateNextAppearance(string timeZone)
     {
+        var serverUtcOffset = TimeZoneInfo.FindSystemTimeZoneById(timeZone).GetUtcOffset(DateTime.UtcNow);
+
         (NextAppearance, AppearanceExpires) = InternalCalculateAppearance(serverUtcOffset);
         FutureAppearance = InternalCalculateAppearance(serverUtcOffset, AppearanceExpires.AddSeconds(1)).NextAppearance;
     }
@@ -75,11 +77,11 @@ public class ActiveMerchantGroup
 
     private (DateTimeOffset NextAppearance, DateTimeOffset NextExpires) InternalCalculateAppearance(TimeSpan serverUtcOffset, DateTimeOffset? startingTime = null)
     {
-        if(startingTime is null)
+        if (startingTime is null)
         {
             startingTime = DateTimeOffset.Now;
         }
-
+        
         var nextAppearanceTime = MerchantData.AppearanceTimes
             .Select(apperance => new DateTimeOffset(DateTimeOffset.UtcNow.ToOffset(serverUtcOffset).Date, serverUtcOffset) + apperance)
             .Where(time => time >= startingTime - MerchantDuration)
