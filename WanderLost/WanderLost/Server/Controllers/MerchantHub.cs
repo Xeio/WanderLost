@@ -32,6 +32,9 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
 
         if (!await IsValidServer(server)) return;
 
+        //Compatability shim
+        if (merchant.Rapport.Name == "Surprise Chest") merchant.Rapport = new Item() { Name = "Pit-a-Pat Chest", Rarity = Rarity.Legendary };
+
         var allMerchantData = await _dataController.GetMerchantData();
         if (!merchant.IsValid(allMerchantData)) return;
 
