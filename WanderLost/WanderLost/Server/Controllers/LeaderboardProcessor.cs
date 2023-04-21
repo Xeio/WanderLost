@@ -102,16 +102,9 @@ public class LeaderboardProcessor : BackgroundService
             }
 
             //Can clear processing flag for all rows with this user since all rows are aggregated at once
-            await merchantDbContext.Database.ExecuteSqlInterpolatedAsync(@$"
-UPDATE ActiveMerchants
-SET RequiresLeaderboardProcessing = 0
-WHERE UploadedByUserId = {merchant.UploadedByUserId}
-", stoppingToken);
-
-            //TODO: Seems to be a bug with [Owned] properties and translations to Update execution
-            //await merchantDbContext.ActiveMerchants
-            //    .Where(m => m.UploadedByUserId == merchant.UploadedByUserId)
-            //    .ExecuteUpdateAsync(u => u.SetProperty(m => m.RequiresLeaderboardProcessing, m => false));
+            await merchantDbContext.ActiveMerchants
+                .Where(m => m.UploadedByUserId == merchant.UploadedByUserId)
+                .ExecuteUpdateAsync(u => u.SetProperty(m => m.RequiresLeaderboardProcessing, m => false));
         }
     }
 }
