@@ -527,6 +527,11 @@
         "Name": "Oreha Viewing Stone",
         "Rarity": "Legendary"
       }
+    ],
+    "Tradeskills": [
+      "(Only Green Pouch)",
+      "Secret Pouch: Soft Pouch",
+      "Secret Pouch: Splendid Platinum Pouch"
     ]
   },
   "Evan": {
@@ -574,6 +579,11 @@
         "Name": "Necromancer's Records",
         "Rarity": "Legendary"
       }
+    ],
+    "Tradeskills": [
+      "Secret Pouch: Gem-studded Pouch",
+      "Secret Pouch: Tough Leather Pouch",
+      "Secret Pouch: Marvelous Magick Pouch"
     ]
   },
   "Serihan": {

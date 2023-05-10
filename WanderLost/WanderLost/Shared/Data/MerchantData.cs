@@ -8,5 +8,6 @@ public class MerchantData
     public List<string> Zones { get; init; } = new();
     public List<Item> Cards { get; init; } = new();
     public List<Item> Rapports { get; init; } = new();
+    public List<string> Tradeskills { get; init; } = new();
     public int SortOrder { get; init; }
 }

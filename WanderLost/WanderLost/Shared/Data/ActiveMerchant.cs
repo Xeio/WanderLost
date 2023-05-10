@@ -29,6 +29,10 @@ public class ActiveMerchant
     [MessagePack.Key(5)]
     public int Votes { get; set; }
 
+    [MaxLength(50)]
+    [MessagePack.Key(6)]
+    public string? Tradeskill { get; set; }
+
     [JsonIgnore]
     [MessagePack.IgnoreMember]
     public List<Vote> ClientVotes { get; set; } = new();
@@ -97,9 +101,22 @@ public class ActiveMerchant
 
         if (!allMerchantData.TryGetValue(Name, out var data)) return false;
 
-        return data.Zones.Contains(Zone) &&
-                data.Cards.Contains(Card) &&
-                data.Rapports.Contains(Rapport);
+        if (!data.Zones.Contains(Zone) ||
+            !data.Cards.Contains(Card) ||
+            !data.Rapports.Contains(Rapport))
+        {
+            return false;
+        }
+
+        if(string.IsNullOrEmpty(Tradeskill) && data.Tradeskills.Count > 0) return false;
+        
+        if (Tradeskill is not null) 
+        {
+            if(data.Tradeskills.Count == 0) return false;
+            if(!data.Tradeskills.Contains(Tradeskill)) return false;
+        }
+
+        return true;
     }
 
     public bool IsEqualTo(ActiveMerchant merchant)
@@ -107,6 +124,7 @@ public class ActiveMerchant
         return Name == merchant.Name &&
             Zone == merchant.Zone &&
             Card.Equals(merchant.Card) &&
-            Rapport.Equals(merchant.Rapport);
+            Rapport.Equals(merchant.Rapport) &&
+            Tradeskill == merchant.Tradeskill;
     }
 }
