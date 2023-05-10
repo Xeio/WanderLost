@@ -57,6 +57,11 @@ public static class Utils
                 new Item() { Name = "Lightsaber", Rarity = Rarity.Legendary },
                 new Item() { Name = "Half-Eaten Cookie", Rarity = Rarity.Epic },
             },
+            Tradeskills =
+            {
+                "(Something)",
+                "A tradeskill pouch"
+            },
             AppearanceTimes = times,
         });
     }
