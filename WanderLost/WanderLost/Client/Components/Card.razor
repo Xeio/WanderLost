@@ -24,6 +24,18 @@
             }
             <ItemDisplay Item="@Merchant.Rapport"/>
         </div>
+        @if (Merchant.Tradeskill is not null)
+        {
+            <div class="stock__item">
+                @*@if (merchantNotificationSettings?.Rapports.Contains(Merchant.Rapport.Name) == true)
+                {
+                    TODO: Notifications for Tradeskill items
+                    <span class="oi oi-star favorite-badge" />
+                    <text>&nbsp;</text>
+                }*@
+                <ItemDisplay Item="@(new Item(){ Name = Merchant.Tradeskill, Rarity = Merchant.Tradeskill.Contains("(") ? Rarity.Normal : Rarity.Epic})" />
+            </div>
+        }
     </div>
     <div class="m-card__buttons">
         <CardButton ClassName="m-card__like" Type="CardButton.Variant.Like" OnClick="@(async () => await SubmitVote(VoteType.Upvote))" Active="@(CurrentVote == VoteType.Upvote)"/>
