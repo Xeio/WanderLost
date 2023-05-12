@@ -73,7 +73,7 @@
                                 <div class="form-check">
                                     <InputRadio class="form-check-input" Value="@item" id="@item" />
                                     <label class="form-check-label" for="@item">
-                                        <ItemDisplay Item="@(new Item(){ Name = item, Rarity = Rarity.Epic})" />
+                                        <ItemDisplay Item="@(new Item(){ Name = item, Rarity = item.Contains("(") ? Rarity.Normal : Rarity.Epic})" />
                                     </label>
                                 </div>
                             }

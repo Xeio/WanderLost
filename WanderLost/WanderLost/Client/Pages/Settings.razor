@@ -115,7 +115,7 @@
                             {
                                 <li class="d-block">
                                     <NotificationIcon Enabled="IsMerchantValueNotified(key, NotificationSettingType.Tradeskill, tradeskillName)" StateChanged="@(_ => OnNotificationToggle(NotificationSettingType.Tradeskill, key, tradeskillName))" />
-                                    <ItemDisplay Item="@(new Item(){ Name = tradeskillName, Rarity = Rarity.Epic})" />
+                                    <ItemDisplay Item="@(new Item(){ Name = tradeskillName, Rarity = tradeskillName.Contains("(") ? Rarity.Normal : Rarity.Epic})" />
                                 </li>
                             }
                         </ul>

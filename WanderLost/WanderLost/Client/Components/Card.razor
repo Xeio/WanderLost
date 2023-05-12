@@ -32,7 +32,7 @@
                     <span class="oi oi-star favorite-badge" />
                     <text>&nbsp;</text>
                 }
-                <ItemDisplay Item="@(new Item(){ Name = Merchant.Tradeskill, Rarity = Rarity.Epic})" />
+                <ItemDisplay Item="@(new Item(){ Name = Merchant.Tradeskill, Rarity = Merchant.Tradeskill.Contains("(") ? Rarity.Normal : Rarity.Epic})" />
             </div>
         }
     </div>
