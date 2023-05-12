@@ -108,6 +108,15 @@ public sealed class ClientNotificationService : IAsyncDisposable
             }
         }
 
+        foreach (var merchant in merchantGroup.ActiveMerchants.Where(m => m.Tradeskill is not null && notificationSetting.Tradeskills.Contains(m.Tradeskill)))
+        {
+            if (IsMerchantRapportVoteThresholdReached(merchant))
+            {
+                notifiedMerchant = merchant;
+                return true;
+            }
+        }
+
         return false;
     }
 
