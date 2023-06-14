@@ -664,5 +664,88 @@
         "Rarity": "Legendary"
       }
     ]
+  },
+  "Flanos": {
+    "Name": "Flanos",
+    "Region": "Elgacia",
+    "SortOrder": 16,
+    "AppearanceTimes": [ "00:30:00", "03:30:00", "04:30:00", "06:30:00", "07:30:00", "10:30:00", "12:30:00", "15:30:00", "16:30:00", "18:30:00", "19:30:00", "22:30:00" ],
+    "Zones": [ "Hestera Garden", "Mount Phylantos" ],
+    "Cards": [
+      {
+        "Name": "Cahni",
+        "Rarity": "Normal"
+      },
+      {
+        "Name": "Euclid",
+        "Rarity": "Uncommon"
+      },
+      {
+        "Name": "Great Celestial Serpent",
+        "Rarity": "Uncommon"
+      },
+      {
+        "Name": "Kirke",
+        "Rarity": "Uncommon"
+      },
+      {
+        "Name": "Prunya",
+        "Rarity": "Uncommon"
+      },
+      {
+        "Name": "Sky Whale",
+        "Rarity": "Uncommon"
+      },
+      {
+        "Name": "Tienis",
+        "Rarity": "Uncommon"
+      },
+      {
+        "Name": "Azakiel",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Belomet",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Diogenes",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Dyna",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Ark of Eternity Kayangel",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Lauriel",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Vairgrys",
+        "Rarity": "Legendary"
+      }
+    ],
+    "Rapports": [
+      {
+        "Name": "Credoff's Glass Magnifier",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Great Celestial Serpent Skin",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Light-infused Wine",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Lucky Starflower",
+        "Rarity": "Legendary"
+      }
+    ]
   }
 }
