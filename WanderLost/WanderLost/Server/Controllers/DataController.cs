@@ -116,7 +116,9 @@ public class DataController
     {
         try
         {
-            var html = await _httpClientFactory.CreateClient().GetStringAsync("https://www.playlostark.com/en-us/support/server-status");
+            var client = _httpClientFactory.CreateClient();
+            client.Timeout = TimeSpan.FromSeconds(5);
+            var html = await client.GetStringAsync("https://www.playlostark.com/en-us/support/server-status");
             var doc = new HtmlDocument();
             doc.LoadHtml(html);
             var serverStatusnodes = doc.DocumentNode.Descendants().Where(n => n.HasClass("ags-ServerStatus-content-responses-response-server"));
