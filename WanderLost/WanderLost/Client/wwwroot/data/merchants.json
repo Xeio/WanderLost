@@ -746,6 +746,11 @@
         "Name": "Lucky Starflower",
         "Rarity": "Legendary"
       }
+    ],
+    "Tradeskills": [
+      "(No Pouch)",
+      "Secret Pouch: Scented Pouch",
+      "Secret Pouch: Shiny Pouch"
     ]
   }
 }
