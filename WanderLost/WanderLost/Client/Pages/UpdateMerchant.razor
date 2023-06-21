@@ -11,70 +11,72 @@
 <PageTitle>Submit Merchant Location</PageTitle>
 <h1>Submit Location for @ActiveMerchant.Name - @MerchantData?.Region</h1>
 
-<EditForm Model="ActiveMerchant">
-    <div class="row">
-        <div class="col-sm-6">
-            <div class="card border-secondary mb-3">
-                <div class="card-header">Card</div>
-                <div class="card-body">
+<div class="row">
+    <div class="col-sm-6">
+        <div class="card border-secondary mb-3">
+            <div class="card-header">Card</div>
+            <div class="card-body">
+                <InputRadioGroup @bind-Value="CardName">
                     @foreach(var card in MerchantData?.Cards ?? Enumerable.Empty<Item>())
                     {
                         <div class="form-check">
-                            <input type="checkbox" class="form-check-input" checked="@(ActiveMerchant.Cards.Any(c => c.Name == card.Name))" @onchange="@((arg) => UpdateCardChecked(arg, card))" id="@card.Name" />
+                            <InputRadio class="form-check-input" Value="@card.Name" id="@card.Name"/>
                             <label class="form-check-label" for="@card.Name"><ItemDisplay Item="@card" /></label>
                         </div>
                     }
-                </div>
+                </InputRadioGroup>
             </div>
         </div>
-        <div class="col-sm-6">
-            <div class="card border-secondary mb-3">
-                <div class="card-header">Rapport Item</div>
-                <div class="card-body">
-                    @foreach(var rapport in MerchantData?.Rapports ?? Enumerable.Empty<Item>())
+    </div>
+    <div class="col-sm-6">
+        <div class="card border-secondary mb-3">
+            <div class="card-header">Rapport Item</div>
+            <div class="card-body">
+                <InputRadioGroup @bind-Value="RapportName">
+                    @foreach(var item in MerchantData?.Rapports ?? Enumerable.Empty<Item>())
                     {
                         <div class="form-check">
-                            <input type="checkbox" class="form-check-input" checked="@(ActiveMerchant.Rapports.Any(r => r.Name == rapport.Name))" @onchange="@((arg) => UpdateRapportChecked(arg, rapport))" id="@rapport.Name" />
-                            <label class="form-check-label" for="@rapport.Name"><ItemDisplay Item="@rapport" /></label>
+                            <InputRadio class="form-check-input" Value="@item.Name" id="@item.Name"/>
+                            <label class="form-check-label" for="@item.Name"><ItemDisplay Item="@item" /></label>
                         </div>
                     }
+                </InputRadioGroup>
+            </div>
+        </div>
+    </div>
+    @if (MerchantData?.Tradeskills?.Count > 0)
+    {
+        <div class="col-sm-6">
+            <div class="card border-secondary mb-3">
+                <div class="card-header">Tradeskill Pouch</div>
+                <div class="card-body">
+                    <InputRadioGroup @bind-Value="ActiveMerchant.Tradeskill">
+                        @foreach (var item in MerchantData.Tradeskills)
+                        {
+                            <div class="form-check">
+                                <InputRadio class="form-check-input" Value="@item" id="@item" />
+                                <label class="form-check-label" for="@item">
+                                    <ItemDisplay Item="@(new Item(){ Name = item, Rarity = item.Contains("(") ? Rarity.Normal : Rarity.Epic})" />
+                                </label>
+                            </div>
+                        }
+                    </InputRadioGroup>
                 </div>
             </div>
         </div>
-        @if (MerchantData?.Tradeskills?.Count > 0)
-        {
-            <div class="col-sm-6">
-                <div class="card border-secondary mb-3">
-                    <div class="card-header">Tradeskill Pouch</div>
-                    <div class="card-body">
-                        <InputRadioGroup @bind-Value="ActiveMerchant.Tradeskill">
-                            @foreach (var item in MerchantData.Tradeskills)
-                            {
-                                <div class="form-check">
-                                    <InputRadio class="form-check-input" Value="@item" id="@item" />
-                                    <label class="form-check-label" for="@item">
-                                        <ItemDisplay Item="@(new Item(){ Name = item, Rarity = item.Contains("(") ? Rarity.Normal : Rarity.Epic})" />
-                                    </label>
-                                </div>
-                            }
-                        </InputRadioGroup>
-                    </div>
-                </div>
-            </div>
-        }
-    </div>
-    @if (ActiveMerchant.IsRareCombination)
-    {
-        <AuthorizeView>
-            <NotAuthorized Context="AuthorizeWarn">
-                <div class="alert @_authMessageStyle">
-                    You are trying to submit a rare combination, which requires logging in.
-                </div>
-            </NotAuthorized>
-        </AuthorizeView>
     }
-    <button class="btn btn-success" @onclick="Submit" disabled="@(!ActiveMerchant.IsValid(StaticData.Merchants))">Submit</button>
-</EditForm>
+</div>
+@if (ActiveMerchant.IsRareCombination)
+{
+    <AuthorizeView>
+        <NotAuthorized Context="AuthorizeWarn">
+            <div class="alert @_authMessageStyle">
+                You are trying to submit a rare combination, which requires logging in.
+            </div>
+        </NotAuthorized>
+    </AuthorizeView>
+}
+<button class="btn btn-success" @onclick="Submit" disabled="@(!ActiveMerchant.IsValid(StaticData.Merchants))">Submit</button>
 
 @code{
     [Parameter]
