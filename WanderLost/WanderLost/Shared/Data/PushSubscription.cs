@@ -10,10 +10,10 @@ public class PushSubscription
     /// <summary>
     /// The Firebase Cloud Messaging client token
     /// </summary>
-    [Key]
     [MessagePack.Key(0)]
     public string Token { get; set; } = string.Empty;
 
+    [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [JsonIgnore]
     [MessagePack.IgnoreMember]

@@ -328,11 +328,15 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
     {
         if (string.IsNullOrEmpty(subscription.Token)) return;
 
-        bool exists = await _merchantsDbContext.PushSubscriptions
+        int existingSubscriptionId = await _merchantsDbContext.PushSubscriptions
                         .TagWithCallSite()
-                        .AnyAsync(s => s.Token == subscription.Token);
-        if (exists)
+                        .Where(s => s.Token == subscription.Token)
+                        .Select(s => s.Id)
+                        .FirstOrDefaultAsync();
+
+        if (existingSubscriptionId > 0)
         {
+            subscription.Id = existingSubscriptionId;
             _merchantsDbContext.Entry(subscription).State = EntityState.Modified;
         }
         else
