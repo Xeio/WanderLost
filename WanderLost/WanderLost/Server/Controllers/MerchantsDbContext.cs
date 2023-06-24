@@ -54,7 +54,7 @@ public class MerchantsDbContext : ApiAuthorizationDbContext<WanderlostUser>, IDa
             .HasKey(b => new { b.ClientId, b.ExpiresAt });
 
         modelBuilder.Entity<PushSubscription>()
-            .HasAlternateKey(p => new { p.Id });
+            .HasAlternateKey(p => p.Token);
 
         modelBuilder.Entity<PushSubscription>()
             .HasIndex(p => new { p.Server });
@@ -69,7 +69,6 @@ public class MerchantsDbContext : ApiAuthorizationDbContext<WanderlostUser>, IDa
         modelBuilder.Entity<SentPushNotification>()
             .HasOne<PushSubscription>()
             .WithMany()
-            .HasForeignKey(sn => sn.SubscriptionId)
-            .HasPrincipalKey(s => s.Id);
+            .HasForeignKey(sn => sn.SubscriptionId);
     }
 }
