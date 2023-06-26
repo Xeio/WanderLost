@@ -234,3 +234,7 @@ tr.separator:last-of-type {
 .loading-progress-text:after {
     content: var(--blazor-load-percentage-text, "Loading");
 }
+
+.rarity-dropdown {
+    background-color: var(--bs-body-bg)
+}

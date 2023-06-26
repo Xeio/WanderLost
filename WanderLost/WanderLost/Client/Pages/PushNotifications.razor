@@ -2,8 +2,8 @@
 
 @inject ClientSettingsController ClientSettings
 @inject ClientNotificationService NotificationService
+@inject ClientStaticDataController StaticData
 @inject MerchantHubClient HubClient
-
 
 @if (!string.IsNullOrWhiteSpace(Error))
 {
@@ -20,24 +20,42 @@ else if (!string.IsNullOrWhiteSpace(Message))
 
 
 <div class="container">
-    <div>On Android? Check out the <a href="https://github.com/Xeio/WanderLost/releases">Android app</a> if you'd prefer native notifications.</div>
-    <br/>
-
     @if(!string.IsNullOrWhiteSpace(PushSubscription.Token))
     {
         <h3>Subscribed to server: <strong>@PushSubscription.Server</strong></h3>
         <EditForm EditContext="@_editContext">
-            <div class="form-group form-check form-switch m-3">
-                <InputCheckbox class="form-check-input" id="chkWei" @bind-Value="PushSubscription.WeiNotify"/>
-                <label class="form-check-label" for="chkWei"> <ItemDisplay Item="@(new Item { Name = "Wei", Rarity = Rarity.Legendary })" /> card</label>
+            <div>
+                Add Card Notifications
+                <select @bind="@SelectedCard">
+                    <option value="" class="rarity-dropdown"></option>
+                    @foreach (var card in StaticData.Merchants.SelectMany(m => m.Value.Cards)
+                                                                .Where(c => c.Rarity >= Rarity.Epic)
+                                                                .Where(c => !PushSubscription.CardNotifications.Any(cn => cn.CardName == c.Name))
+                                                                .DistinctBy(c => c.Name)
+                                                                .OrderByDescending(c => c.Rarity)
+                                                                .ThenBy(c => c.Name))
+                    {
+                        <option value="@card.Name" class="rarity--@card.Rarity">@card.Name</option>
+                    }
+                </select>
             </div>
-            @if (PushSubscription.WeiNotify)
+            @if (PushSubscription.CardNotifications.Any())
             {
-                <div class="form-group form-check form-switch col-lg-3 m-3">
-                    <label class="form-label" for="rapportVoteThreshold">Minimum upvotes</label>
-                    <InputNumber class="form-control col-2" id="rapportVoteThreshold" @bind-Value="PushSubscription.WeiVoteThreshold" />
+                <div>
+                    Notified Cards
+                @foreach (var selectedCard in PushSubscription.CardNotifications.OrderBy(cn => cn.CardName))
+                {
+                    var card = StaticData.Merchants.SelectMany(m => m.Value.Cards).First(c => c.Name == selectedCard.CardName);
+                    <div class="border border-secondary rounded p-2 m-1 text-nowrap d-inline-block rarity--@card.Rarity">
+                        @selectedCard.CardName <span @onclick="@(() => RemoveCardSelection(selectedCard.CardName))">❌</span>
+                    </div>
+                }
                 </div>
-            } 
+                <div class="form-group form-check form-switch col-lg-3 m-3">
+                    <label class="form-label" for="rapportVoteThreshold">Minimum card upvotes</label>
+                    <InputNumber class="form-control col-2" id="cardVoteThreshold" @bind-Value="PushSubscription.CardVoteThreshold" />
+                </div>
+            }
 
             <div class="form-group form-check form-switch m-3">
                 <InputCheckbox class="form-check-input" id="chkRapport" @bind-Value="PushSubscription.LegendaryRapportNotify"/>
@@ -46,7 +64,7 @@ else if (!string.IsNullOrWhiteSpace(Message))
             @if (PushSubscription.LegendaryRapportNotify)
             {
                 <div class="form-group form-check form-switch col-lg-3 m-3">
-                    <label class="form-label" for="rapportVoteThreshold">Minimum upvotes</label>
+                    <label class="form-label" for="rapportVoteThreshold">Minimum rapport upvotes</label>
                     <InputNumber class="form-control col-2" id="rapportVoteThreshold" @bind-Value="PushSubscription.RapportVoteThreshold" />
                 </div>
             }
@@ -62,7 +80,7 @@ else if (!string.IsNullOrWhiteSpace(Message))
         <p>Push notifications are designed to work in the background or on a mobile device, and will not fire if this site is opened and in the foreground window at the time. Use the standard notifications settings if you have the site open in a visible browser tab.</p>
         <h4>Browser Compatability:</h4>
         <p><strong>Windows</strong>: Seems to work well in Firefox, Chrome, and Edge.</p>
-        <p><strong>Android</strong>: Chrome seems to work. Edge and Firefox on android <strong>do not</strong> appear to work and never recieve push notifications (still investigating this, but may be a browser issue since these both work on Desktop).</p>
+        <p><strong>Android</strong>: Chrome seems to work. Edge and Firefox on android <strong>do not</strong> appear to work and never recieve push notifications.</p>
         <p><strong>Other</strong>: Unknown, you'll want to test yourself.</p>
         <p>You should make sure to run a Test on your device, which will push a notification in the next polling window (usually delivered in around 30 seconds). You can click the button again to run another test.</p>
     </div>
@@ -76,8 +94,21 @@ else if (!string.IsNullOrWhiteSpace(Message))
     private EditContext _editContext = new(true);
     private bool _hasServerSubscription = false;
 
+    public string SelectedCard
+    {
+        get
+        {
+            return string.Empty;
+        }
+        set
+        {
+            AddCardSelection(value);
+        }
+    }
+
     protected async override Task OnInitializedAsync()
     {
+        await StaticData.Init();
         await ClientSettings.Init();
         await HubClient.Connect();
 
@@ -174,5 +205,20 @@ else if (!string.IsNullOrWhiteSpace(Message))
 
         Error = string.Empty;
         Message = @"Sending test notification... Should take around 30 seconds. Close this tab, or focus a different tab in the same window.";
+    }
+
+    private void AddCardSelection(string cardName)
+    {
+        PushSubscription.CardNotifications.Add(new CardNotification() { CardName = cardName });
+        _editContext.NotifyFieldChanged(_editContext.Field(nameof(PushSubscription.CardNotifications)));
+    }
+
+    private void RemoveCardSelection(string cardName)
+    {
+        if (PushSubscription.CardNotifications.FirstOrDefault(cn => cn.CardName == cardName) is CardNotification cardNotification)
+        {
+            PushSubscription.CardNotifications.Remove(cardNotification);
+            _editContext.NotifyFieldChanged(_editContext.Field(nameof(PushSubscription.CardNotifications)));
+        }
     }
 }

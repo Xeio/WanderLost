@@ -20,6 +20,7 @@ public class MerchantsDbContext : ApiAuthorizationDbContext<WanderlostUser>, IDa
     public DbSet<Vote> Votes { get; set; } = default!;
     public DbSet<Ban> Bans { get; set; } = default!;
     public DbSet<PushSubscription> PushSubscriptions { get; set; } = default!;
+    public DbSet<CardNotification> CardNotifications { get; set; } = default!;
     public DbSet<SentPushNotification> SentPushNotifications { get; set; } = default!;
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = default!;
     public DbSet<LeaderboardEntry> Leaderboards { get; set; } = default!;
@@ -70,5 +71,11 @@ public class MerchantsDbContext : ApiAuthorizationDbContext<WanderlostUser>, IDa
             .HasOne<PushSubscription>()
             .WithMany()
             .HasForeignKey(sn => sn.SubscriptionId);
+
+        modelBuilder.Entity<CardNotification>()
+            .HasKey(c => new { c.PushSubscriptionId, c.CardName });
+
+        modelBuilder.Entity<CardNotification>()
+            .HasIndex(c => c.CardName);
     }
 }
