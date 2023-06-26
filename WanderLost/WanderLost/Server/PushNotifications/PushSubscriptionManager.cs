@@ -1,41 +1,35 @@
-﻿
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WanderLost.Server.Controllers;
 using WanderLost.Shared.Data;
 
-namespace WanderLost.Server.Controllers;
+namespace WanderLost.Server.PushNotifications;
 
-[ApiController]
-[Route("api/PushNotifications")]
-public class PushNotificationsController : ControllerBase
+public class PushSubscriptionManager
 {
     private readonly MerchantsDbContext _merchantsDbContext;
     private readonly DataController _dataController;
 
-    public PushNotificationsController(MerchantsDbContext merchantsDbContext, DataController dataController)
+    public PushSubscriptionManager(MerchantsDbContext merchantsDbContext, DataController dataController)
     {
         _merchantsDbContext = merchantsDbContext;
         _dataController = dataController;
     }
 
-    [HttpPost]
-    [Route(nameof(GetPushSubscription))]
-    public async Task<PushSubscription?> GetPushSubscription([FromBody] string clientToken)
+    public async Task<PushSubscription?> GetPushSubscription(string clientToken)
     {
-        if (string.IsNullOrEmpty(clientToken)) return null;
+        if (string.IsNullOrWhiteSpace(clientToken)) return null;
 
         return await _merchantsDbContext.PushSubscriptions
             .TagWithCallSite()
             .AsNoTracking()
+            .Include(s => s.CardNotifications)
             .FirstOrDefaultAsync(s => s.Token == clientToken);
     }
 
-    [HttpPost]
-    [Route(nameof(UpdatePushSubscription))]
-    public async Task<StatusCodeResult> UpdatePushSubscription([FromBody] PushSubscription subscription)
+    public async Task UpdatePushSubscription(PushSubscription subscription)
     {
-        if (string.IsNullOrEmpty(subscription.Token)) return BadRequest();
-        if (!await ValidateCards(subscription)) return BadRequest();
+        if (!await ValidatePushSubscription(subscription)) return;
 
         var existingSubscription = await _merchantsDbContext.PushSubscriptions
                         .TagWithCallSite()
@@ -70,22 +64,20 @@ public class PushNotificationsController : ControllerBase
         }
 
         await _merchantsDbContext.SaveChangesAsync();
-
-        return Ok();
     }
 
-    private async Task<bool> ValidateCards(PushSubscription subscription)
+    public async Task<bool> ValidatePushSubscription(PushSubscription subscription)
     {
+        if (string.IsNullOrWhiteSpace(subscription.Token)) return false;
+
         var merchants = await _dataController.GetMerchantData();
         var cardNames = merchants.SelectMany(m => m.Value.Cards).Select(c => c.Name).ToHashSet();
         return subscription.CardNotifications.All(cn => cardNames.Contains(cn.CardName));
     }
 
-    [HttpPost]
-    [Route(nameof(RemovePushSubscription))]
-    public async Task<StatusCodeResult> RemovePushSubscription([FromBody] string clientToken)
+    public async Task RemovePushSubscription(string clientToken)
     {
-        if (string.IsNullOrEmpty(clientToken)) return BadRequest();
+        if (string.IsNullOrEmpty(clientToken)) return;
 
         //Rather than delete, just purge the server data
         //If we delete, then this occasionally causes a race condition for primary/foreign key updates
@@ -98,7 +90,5 @@ public class PushNotificationsController : ControllerBase
                 s.SetProperty(i => i.Server, i => string.Empty)
                  .SetProperty(i => i.LastModified, i => DateTimeOffset.UtcNow)
             );
-
-        return Ok();
     }
 }

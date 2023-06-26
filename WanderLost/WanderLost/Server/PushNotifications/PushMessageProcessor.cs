@@ -1,9 +1,10 @@
 ﻿using FirebaseAdmin.Messaging;
 using Microsoft.EntityFrameworkCore;
+using WanderLost.Server.Controllers;
 using WanderLost.Server.Data;
 using WanderLost.Shared.Data;
 
-namespace WanderLost.Server.Controllers;
+namespace WanderLost.Server.PushNotifications;
 
 public class PushMessageProcessor
 {
@@ -31,7 +32,7 @@ public class PushMessageProcessor
             .Where(s => s.SendTestNotification)
             .ToListAsync(stoppingToken);
 
-        foreach(var chunk in Enumerable.Chunk(testSubcsriptions, FirebaseBroadcastLimit))
+        foreach (var chunk in testSubcsriptions.Chunk(FirebaseBroadcastLimit))
         {
             if (stoppingToken.IsCancellationRequested) return;
 
@@ -80,7 +81,7 @@ public class PushMessageProcessor
 
             var batchResponse = await FirebaseMessaging.DefaultInstance.SendMulticastAsync(message, stoppingToken);
 
-            if(batchResponse.SuccessCount > 0)
+            if (batchResponse.SuccessCount > 0)
             {
                 _logger.LogInformation("{successCount} successful test messages sent.", batchResponse.SuccessCount);
             }
@@ -179,7 +180,7 @@ public class PushMessageProcessor
             .ToListAsync();
 
         await SendSubscriptionMessages(merchant, cardSubscriptions, isCard: true);
-        
+
         if (merchant.Rapport.Rarity >= Rarity.Legendary)
         {
             //Rapport notifications will only be sent for a subscription if it didn't already get notified for a card
@@ -258,7 +259,7 @@ public class PushMessageProcessor
                             });
                             break;
                     }
-                    if (subscription.ConsecutiveFailures > 100 && 
+                    if (subscription.ConsecutiveFailures > 100 &&
                         (firebaseException.MessagingErrorCode == MessagingErrorCode.ThirdPartyAuthError || firebaseException.MessagingErrorCode == MessagingErrorCode.Internal))
                     {
                         //If a susbscription is consistently failing due to third party errors, purge it

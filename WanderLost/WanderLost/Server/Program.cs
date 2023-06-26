@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using WanderLost.Server.Controllers;
 using WanderLost.Server.Data;
+using WanderLost.Server.PushNotifications;
 using WanderLost.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -91,6 +92,8 @@ builder.Services.AddResponseCompression(opts =>
 });
 
 builder.Services.AddScoped<PushMessageProcessor>();
+builder.Services.AddScoped<PushSubscriptionManager>();
+
 builder.Services.AddHostedService<PushWorkerService>();
 builder.Services.AddHostedService<BackgroundVoteProcessor>();
 builder.Services.AddHostedService<PurgeProcessor>();
