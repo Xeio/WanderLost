@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using System.Security.Authentication;
+using WanderLost.Server.PushNotifications;
 using WanderLost.Shared.Data;
 using WanderLost.Shared.Interfaces;
 
@@ -14,13 +15,15 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
 
     private readonly DataController _dataController;
     private readonly MerchantsDbContext _merchantsDbContext;
+    private readonly PushSubscriptionManager _pushSubscriptionManager;
     private readonly IConfiguration _configuration;
     private readonly IMemoryCache _memoryCache;
 
-    public MerchantHub(DataController dataController, MerchantsDbContext merchantsDbContext, IConfiguration configuration, IMemoryCache memoryCache)
+    public MerchantHub(DataController dataController, MerchantsDbContext merchantsDbContext, PushSubscriptionManager pushSubscriptionManager, IConfiguration configuration, IMemoryCache memoryCache)
     {
         _dataController = dataController;
         _merchantsDbContext = merchantsDbContext;
+        _pushSubscriptionManager = pushSubscriptionManager;
         _configuration = configuration;
         _memoryCache = memoryCache;
     }
@@ -316,77 +319,16 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
 
     public async Task<PushSubscription?> GetPushSubscription(string clientToken)
     {
-        if (string.IsNullOrEmpty(clientToken)) return null;
-
-        return await _merchantsDbContext.PushSubscriptions
-            .TagWithCallSite()
-            .AsNoTracking()
-            .Include(p => p.CardNotifications)
-            .FirstOrDefaultAsync(s => s.Token == clientToken);
+        return await _pushSubscriptionManager.GetPushSubscription(clientToken);
     }
 
     public async Task UpdatePushSubscription(PushSubscription subscription)
     {
-        if (string.IsNullOrEmpty(subscription.Token)) return;
-        if(!await ValidateCards(subscription)) return;
-
-        var existingSubscription = await _merchantsDbContext.PushSubscriptions
-                        .TagWithCallSite()
-                        .Where(s => s.Token == subscription.Token)
-                        .Include(s => s.CardNotifications)
-                        .FirstOrDefaultAsync();
-
-#pragma warning disable CS0618 // Type or member is obsolete
-        if (subscription.WeiNotify && !subscription.CardNotifications.Any(c => c.CardName == "Wei"))
-        {
-            //Compatability for old way to notify on Wei card
-            subscription.CardNotifications.Add(new CardNotification() { CardName = "Wei" });
-        }
-#pragma warning restore CS0618 // Type or member is obsolete
-
-        if (existingSubscription is not null)
-        {
-            existingSubscription.CardVoteThreshold = subscription.CardVoteThreshold;
-            existingSubscription.RapportVoteThreshold = subscription.RapportVoteThreshold;
-            existingSubscription.LegendaryRapportNotify = subscription.LegendaryRapportNotify;
-            existingSubscription.LastModified = DateTimeOffset.Now;
-            existingSubscription.ConsecutiveFailures = 0;
-            existingSubscription.CardNotifications.Clear();
-            foreach (var cardNotify in subscription.CardNotifications)
-            {
-                existingSubscription.CardNotifications.Add(cardNotify);
-            }
-        }
-        else
-        {
-            _merchantsDbContext.Add(subscription);
-        }
-
-        await _merchantsDbContext.SaveChangesAsync();
+        await _pushSubscriptionManager.UpdatePushSubscription(subscription);
     }
-
-    private async Task<bool> ValidateCards(PushSubscription subscription)
-    {
-        var merchants = await _dataController.GetMerchantData();
-        var cardNames = merchants.SelectMany(m => m.Value.Cards).Select(c => c.Name).ToHashSet();
-        return subscription.CardNotifications.All(cn => cardNames.Contains(cn.CardName));
-    }
-
     public async Task RemovePushSubscription(string clientToken)
     {
-        if (string.IsNullOrEmpty(clientToken)) return;
-
-        //Rather than delete, just purge the server data
-        //If we delete, then this occasionally causes a race condition for primary/foreign key updates
-        //in the background processors when pushing out notifications
-        //These orphaned subscriptions will be cleaned up by the PurgeProcessor periodically
-        await _merchantsDbContext.PushSubscriptions
-            .TagWithCallSite()
-            .Where(s => s.Token == clientToken)
-            .ExecuteUpdateAsync(s => 
-                s.SetProperty(i => i.Server, i => string.Empty)
-                 .SetProperty(i => i.LastModified, i => DateTimeOffset.UtcNow)
-            );
+        await _pushSubscriptionManager.RemovePushSubscription(clientToken);
     }
 
     [Authorize]

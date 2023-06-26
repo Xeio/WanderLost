@@ -1,6 +1,6 @@
 ﻿using FirebaseAdmin.Messaging;
 
-namespace WanderLost.Server.Controllers;
+namespace WanderLost.Server.PushNotifications;
 
 public class PushWorkerService : BackgroundService
 {
@@ -19,7 +19,7 @@ public class PushWorkerService : BackgroundService
         {
             await Task.Delay(TimeSpan.FromSeconds(20), stoppingToken);
 
-            if(FirebaseAdmin.FirebaseApp.DefaultInstance == null)
+            if (FirebaseAdmin.FirebaseApp.DefaultInstance == null)
             {
                 _logger.LogCritical("Firebase not configured, skipping message sending. Need 'FirebaseSecretFile' config setting for private key.");
                 continue;
@@ -36,7 +36,7 @@ public class PushWorkerService : BackgroundService
 
                 await messageProcessor.RunMerchantUpdates(stoppingToken);
             }
-            catch(FirebaseMessagingException e)
+            catch (FirebaseMessagingException e)
             {
                 //If for some reason the overall requests fail, log error and just try again next polling period
                 _logger.LogError(e, "Communication failure with Firebase.");
