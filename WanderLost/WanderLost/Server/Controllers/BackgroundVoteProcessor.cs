@@ -8,10 +8,10 @@ namespace WanderLost.Server.Controllers;
 public class BackgroundVoteProcessor : BackgroundService
 {
     private readonly IServiceProvider _services;
-    private readonly ILogger<PushWorkerService> _logger;
+    private readonly ILogger<BackgroundVoteProcessor> _logger;
     private readonly List<string> _servers = new();
 
-    public BackgroundVoteProcessor(ILogger<PushWorkerService> logger, IServiceProvider services)
+    public BackgroundVoteProcessor(ILogger<BackgroundVoteProcessor> logger, IServiceProvider services)
     {
         _logger = logger;
         _services = services;

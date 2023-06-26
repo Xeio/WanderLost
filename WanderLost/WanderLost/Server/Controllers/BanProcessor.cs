@@ -1,17 +1,15 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using WanderLost.Server.Data;
 using WanderLost.Shared.Data;
-using WanderLost.Shared.Interfaces;
 
 namespace WanderLost.Server.Controllers;
 
 public class BanProcessor : BackgroundService
 {
     private readonly IServiceProvider _services;
-    private readonly ILogger<PushWorkerService> _logger;
+    private readonly ILogger<BanProcessor> _logger;
 
-    public BanProcessor(ILogger<PushWorkerService> logger, IServiceProvider services)
+    public BanProcessor(ILogger<BanProcessor> logger, IServiceProvider services)
     {
         _logger = logger;
         _services = services;
