@@ -24,8 +24,9 @@ public class PushSubscription
     public string Server { get; set; } = string.Empty;
 
     [MessagePack.Key(2)]
-    public int WeiVoteThreshold { get; set; }
+    public int CardVoteThreshold { get; set; }
 
+    [Obsolete("Use CardNotifications for individual card subscriptions")]
     [MessagePack.Key(3)]
     public bool WeiNotify { get; set; }
 
@@ -40,6 +41,9 @@ public class PushSubscription
     /// </summary>
     [MessagePack.Key(6)]
     public bool SendTestNotification { get; set; }
+
+    [MessagePack.Key(7)]
+    public ICollection<CardNotification> CardNotifications { get; init; } = new List<CardNotification>();
 
     /// <summary>
     /// Number of consecutive messages that failed for Firebase, may be used to clean up defunct subscriptions.

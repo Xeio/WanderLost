@@ -169,19 +169,20 @@ public class PushMessageProcessor
             return;
         }
 
-        if (merchant.Card.Name == "Wei")
-        {
-            var weiSubscriptions = await _merchantContext.PushSubscriptions
-                .TagWithCallSite()
-                .Where(s => s.Server == merchant.ActiveMerchantGroup.Server)
-                .Where(s => s.WeiNotify && !_merchantContext.SentPushNotifications.Any(sent => sent.Merchant == merchant && sent.SubscriptionId == s.Id))
-                .Where(s => s.WeiVoteThreshold <= merchant.Votes)
-                .ToListAsync();
+        //First check cards for notifications
+        var cardSubscriptions = await _merchantContext.PushSubscriptions
+            .TagWithCallSite()
+            .Where(s => s.Server == merchant.ActiveMerchantGroup.Server)
+            .Where(s => s.CardNotifications.Any(c => c.CardName == merchant.Card.Name))
+            .Where(s => !_merchantContext.SentPushNotifications.Any(sent => sent.Merchant == merchant && sent.SubscriptionId == s.Id))
+            .Where(s => s.CardVoteThreshold <= merchant.Votes)
+            .ToListAsync();
 
-            await SendSubscriptionMessages(merchant, weiSubscriptions);
-        }
-        else if (merchant.Rapport.Rarity >= Rarity.Legendary)
+        await SendSubscriptionMessages(merchant, cardSubscriptions, isCard: true);
+        
+        if (merchant.Rapport.Rarity >= Rarity.Legendary)
         {
+            //Rapport notifications will only be sent for a subscription if it didn't already get notified for a card
             var rapportSubscriptions = await _merchantContext.PushSubscriptions
                 .TagWithCallSite()
                 .Where(s => s.Server == merchant.ActiveMerchantGroup.Server)
@@ -195,9 +196,9 @@ public class PushMessageProcessor
         merchant.RequiresProcessing = false;
     }
 
-    private async Task SendSubscriptionMessages(ActiveMerchant merchant, List<PushSubscription> subcriptions)
+    private async Task SendSubscriptionMessages(ActiveMerchant merchant, List<PushSubscription> subcriptions, bool isCard = false)
     {
-        var message = await BuildMulticast(merchant);
+        var message = await BuildMulticast(merchant, isCard);
 
         foreach (var chunk in subcriptions.Chunk(FirebaseBroadcastLimit))
         {
@@ -282,11 +283,10 @@ public class PushMessageProcessor
         }
     }
 
-    private async Task<MulticastMessage> BuildMulticast(ActiveMerchant merchant)
+    private async Task<MulticastMessage> BuildMulticast(ActiveMerchant merchant, bool isCard)
     {
         string region = (await _dataController.GetMerchantData())[merchant.Name].Region;
         int ttl = Math.Max(60 * (55 - DateTime.Now.Minute + 1), 60);
-        bool isWei = merchant.Card.Name == "Wei";
         return new MulticastMessage()
         {
             Webpush = new WebpushConfig()
@@ -297,10 +297,10 @@ public class PushMessageProcessor
                 },
                 Notification = new WebpushNotification()
                 {
-                    Title = isWei ? "Wei card!" : "Legendary Rapport",
+                    Title = isCard ? $"{merchant.Card.Name} Card" : "Legendary Rapport",
                     Body = $"{region} - {merchant.Zone}",
                     Icon = "/images/notifications/ExclamationMark.png",
-                    Tag = isWei ? "wei" : "rapport",
+                    Tag = isCard ? "wei" : "rapport",
                     Renotify = true,
                     Vibrate = new[] { 500, 100, 500, 100, 500 },
                 },
@@ -314,12 +314,12 @@ public class PushMessageProcessor
             {
                 Notification = new AndroidNotification()
                 {
-                    Title = isWei ? "Wei card!" : "Legendary Rapport",
+                    Title = isCard ? $"{merchant.Card.Name} Card" : "Legendary Rapport",
                     Body = $"{region} - {merchant.Zone}",
-                    Tag = isWei ? "wei" : "rapport",
-                    ChannelId = isWei ? "wei" : "rapport",
+                    Tag = isCard ? "wei" : "rapport",
+                    ChannelId = isCard ? "wei" : "rapport",
                     EventTimestamp = DateTime.Now,
-                    Priority = isWei ? NotificationPriority.MAX : NotificationPriority.HIGH,
+                    Priority = isCard ? NotificationPriority.MAX : NotificationPriority.HIGH,
                     ClickAction = "OPEN_LOSTMERCHANTS_BROWSER",
                 },
                 Priority = Priority.High,

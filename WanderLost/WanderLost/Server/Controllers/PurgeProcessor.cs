@@ -52,7 +52,7 @@ public class PurgeProcessor : BackgroundService
             //Purge subscriptions that aren't actually subscribed to any notifications
             var deletedSubscriptions = await merchantDbContext.PushSubscriptions
                 .TagWithCallSite()
-                .Where(s => string.IsNullOrEmpty(s.Server) || (!s.SendTestNotification && !s.WeiNotify && !s.LegendaryRapportNotify))
+                .Where(s => string.IsNullOrEmpty(s.Server) || (!s.SendTestNotification && !s.CardNotifications.Any() && !s.LegendaryRapportNotify))
                 .ExecuteDeleteAsync(stoppingToken);
 
             _logger.LogInformation("Purged {votes} votes, {pushes} sent push notifications, and {subscriptions} empty subscriptions.", deletedVotes, deletedPushes, deletedSubscriptions);

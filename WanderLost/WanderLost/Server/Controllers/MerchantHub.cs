@@ -321,23 +321,41 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
         return await _merchantsDbContext.PushSubscriptions
             .TagWithCallSite()
             .AsNoTracking()
+            .Include(p => p.CardNotifications)
             .FirstOrDefaultAsync(s => s.Token == clientToken);
     }
 
     public async Task UpdatePushSubscription(PushSubscription subscription)
     {
         if (string.IsNullOrEmpty(subscription.Token)) return;
+        if(!await ValidateCards(subscription)) return;
 
-        int existingSubscriptionId = await _merchantsDbContext.PushSubscriptions
+        var existingSubscription = await _merchantsDbContext.PushSubscriptions
                         .TagWithCallSite()
                         .Where(s => s.Token == subscription.Token)
-                        .Select(s => s.Id)
+                        .Include(s => s.CardNotifications)
                         .FirstOrDefaultAsync();
 
-        if (existingSubscriptionId > 0)
+#pragma warning disable CS0618 // Type or member is obsolete
+        if (subscription.WeiNotify && !subscription.CardNotifications.Any(c => c.CardName == "Wei"))
         {
-            subscription.Id = existingSubscriptionId;
-            _merchantsDbContext.Entry(subscription).State = EntityState.Modified;
+            //Compatability for old way to notify on Wei card
+            subscription.CardNotifications.Add(new CardNotification() { CardName = "Wei" });
+        }
+#pragma warning restore CS0618 // Type or member is obsolete
+
+        if (existingSubscription is not null)
+        {
+            existingSubscription.CardVoteThreshold = subscription.CardVoteThreshold;
+            existingSubscription.RapportVoteThreshold = subscription.RapportVoteThreshold;
+            existingSubscription.LegendaryRapportNotify = subscription.LegendaryRapportNotify;
+            existingSubscription.LastModified = DateTimeOffset.Now;
+            existingSubscription.ConsecutiveFailures = 0;
+            existingSubscription.CardNotifications.Clear();
+            foreach (var cardNotify in subscription.CardNotifications)
+            {
+                existingSubscription.CardNotifications.Add(cardNotify);
+            }
         }
         else
         {
@@ -345,6 +363,13 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
         }
 
         await _merchantsDbContext.SaveChangesAsync();
+    }
+
+    private async Task<bool> ValidateCards(PushSubscription subscription)
+    {
+        var merchants = await _dataController.GetMerchantData();
+        var cardNames = merchants.SelectMany(m => m.Value.Cards).Select(c => c.Name).ToHashSet();
+        return subscription.CardNotifications.All(cn => cardNames.Contains(cn.CardName));
     }
 
     public async Task RemovePushSubscription(string clientToken)

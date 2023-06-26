@@ -10,10 +10,12 @@ namespace WanderLost.Server.Controllers;
 public class PushNotificationsController : ControllerBase
 {
     private readonly MerchantsDbContext _merchantsDbContext;
+    private readonly DataController _dataController;
 
-    public PushNotificationsController(MerchantsDbContext merchantsDbContext)
+    public PushNotificationsController(MerchantsDbContext merchantsDbContext, DataController dataController)
     {
         _merchantsDbContext = merchantsDbContext;
+        _dataController = dataController;
     }
 
     [HttpPost]
@@ -33,13 +35,34 @@ public class PushNotificationsController : ControllerBase
     public async Task<StatusCodeResult> UpdatePushSubscription([FromBody] PushSubscription subscription)
     {
         if (string.IsNullOrEmpty(subscription.Token)) return BadRequest();
+        if (!await ValidateCards(subscription)) return BadRequest();
 
-        bool exists = await _merchantsDbContext.PushSubscriptions
+        var existingSubscription = await _merchantsDbContext.PushSubscriptions
                         .TagWithCallSite()
-                        .AnyAsync(s => s.Token == subscription.Token);
-        if (exists)
+                        .Where(s => s.Token == subscription.Token)
+                        .Include(s => s.CardNotifications)
+                        .FirstOrDefaultAsync();
+
+#pragma warning disable CS0618 // Type or member is obsolete
+        if (subscription.WeiNotify && !subscription.CardNotifications.Any(c => c.CardName == "Wei"))
         {
-            _merchantsDbContext.Entry(subscription).State = EntityState.Modified;
+            //Compatability for old way to notify on Wei card
+            subscription.CardNotifications.Add(new CardNotification() { CardName = "Wei" });
+        }
+#pragma warning restore CS0618 // Type or member is obsolete
+
+        if (existingSubscription is not null)
+        {
+            existingSubscription.CardVoteThreshold = subscription.CardVoteThreshold;
+            existingSubscription.RapportVoteThreshold = subscription.RapportVoteThreshold;
+            existingSubscription.LegendaryRapportNotify = subscription.LegendaryRapportNotify;
+            existingSubscription.LastModified = DateTimeOffset.Now;
+            existingSubscription.ConsecutiveFailures = 0;
+            existingSubscription.CardNotifications.Clear();
+            foreach (var cardNotify in subscription.CardNotifications)
+            {
+                existingSubscription.CardNotifications.Add(cardNotify);
+            }
         }
         else
         {
@@ -49,6 +72,13 @@ public class PushNotificationsController : ControllerBase
         await _merchantsDbContext.SaveChangesAsync();
 
         return Ok();
+    }
+
+    private async Task<bool> ValidateCards(PushSubscription subscription)
+    {
+        var merchants = await _dataController.GetMerchantData();
+        var cardNames = merchants.SelectMany(m => m.Value.Cards).Select(c => c.Name).ToHashSet();
+        return subscription.CardNotifications.All(cn => cardNames.Contains(cn.CardName));
     }
 
     [HttpPost]
