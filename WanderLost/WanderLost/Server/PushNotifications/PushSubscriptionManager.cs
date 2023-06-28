@@ -47,6 +47,7 @@ public class PushSubscriptionManager
 
         if (existingSubscription is not null)
         {
+            existingSubscription.Server = subscription.Server;
             existingSubscription.CardVoteThreshold = subscription.CardVoteThreshold;
             existingSubscription.RapportVoteThreshold = subscription.RapportVoteThreshold;
             existingSubscription.LegendaryRapportNotify = subscription.LegendaryRapportNotify;
