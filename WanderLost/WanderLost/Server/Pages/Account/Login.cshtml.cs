@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Security.Claims;
 using WanderLost.Server.Data;
 
 namespace WanderLost.Server.Pages.Account;
@@ -54,7 +55,18 @@ public class ExternalLoginModel : PageModel
         if (loginResult.Succeeded)
         {
             //User already has account
-            _logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity?.Name, info?.LoginProvider);
+            _logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity?.Name, info.LoginProvider);
+
+            //Check for updated discord ID/discriminator (discriminators may now be zero under new user system)
+            var existingUser = await _signInManager.UserManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+            var updatedName = BuildUserNameFromPrincipal(info.Principal);
+            if (existingUser is not null && !string.IsNullOrWhiteSpace(updatedName) && !string.Equals(existingUser.UserName, updatedName))
+            {
+                _logger.LogInformation("Updating name of user {UserId}.", existingUser.Id);
+                await _userStore.SetUserNameAsync(existingUser, updatedName, CancellationToken.None);
+                await _userManager.UpdateAsync(existingUser);
+            }
+
             return LocalRedirect(returnUrl);
         }
 
@@ -65,8 +77,7 @@ public class ExternalLoginModel : PageModel
             return GetErrorRedirect("Discord login requires an account with a Discord account with a verified e-mail.");
         }
 
-        var discriminator = info.Principal.FindFirst(DiscordAuthenticationConstants.Claims.Discriminator);
-        if (string.IsNullOrWhiteSpace(info.Principal.Identity?.Name) || string.IsNullOrWhiteSpace(discriminator?.Value))
+        if (string.IsNullOrWhiteSpace(info.Principal.Identity?.Name))
         {
             _logger.LogError("Missing claims from Discord.");
             return GetErrorRedirect("Missing discord claims.");
@@ -74,7 +85,7 @@ public class ExternalLoginModel : PageModel
 
         var user = Activator.CreateInstance<WanderlostUser>();
 
-        var username = $"{info.Principal.Identity.Name}#{discriminator.Value}"; 
+        var username = BuildUserNameFromPrincipal(info.Principal);
         await _userStore.SetUserNameAsync(user, username, CancellationToken.None);
 
         var createUserResult = await _userManager.CreateAsync(user);
@@ -101,5 +112,15 @@ public class ExternalLoginModel : PageModel
     private IActionResult GetErrorRedirect(string message)
     {
         return Redirect(new PathString($"/ErrorMessage/{message}"));
+    }
+
+    private string BuildUserNameFromPrincipal(ClaimsPrincipal principal)
+    {
+        var discriminator = principal.FindFirst(DiscordAuthenticationConstants.Claims.Discriminator);
+        if (discriminator is not null && !string.Equals(discriminator.Value, "0"))
+        {
+            return $"{principal.Identity?.Name}#{discriminator.Value}";
+        }
+        return principal.Identity?.Name ?? string.Empty;
     }
 }
