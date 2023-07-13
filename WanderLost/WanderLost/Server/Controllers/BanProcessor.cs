@@ -55,12 +55,12 @@ public class BanProcessor : BackgroundService
         bool permaban = false;
         int banDays = 0;
 
-        if (merchant.Card.Name == "Wei" && merchant.Votes < -3)
+        if (merchant.Card.Rarity >= Rarity.Legendary && merchant.Votes < -3)
         {
             var merchants = await GetAssociatedMerchants(merchant, merchantContext, stoppingToken);
-            if (merchants.Count(m => m.Card.Name == "Wei" && m.Votes < 0) > 1)
+            if (merchants.Count(m => m.Card.Rarity >= Rarity.Legendary && m.Votes < 0) > 1)
             {
-                //More than one bad Wei card
+                //More than one bad legendary card
                 permaban = true;
             }
             else if(!merchants.Any(m => m.Votes > 0))
