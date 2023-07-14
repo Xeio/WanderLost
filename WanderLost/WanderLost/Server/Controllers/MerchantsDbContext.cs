@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using WanderLost.Server.Data;
+using WanderLost.Server.Discord.Data;
 using WanderLost.Shared.Data;
 
 namespace WanderLost.Server.Controllers;
@@ -24,6 +25,9 @@ public class MerchantsDbContext : ApiAuthorizationDbContext<WanderlostUser>, IDa
     public DbSet<SentPushNotification> SentPushNotifications { get; set; } = default!;
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = default!;
     public DbSet<LeaderboardEntry> Leaderboards { get; set; } = default!;
+    public DbSet<DiscordNotification> DiscordNotifications { get; set; } = default!;
+    public DbSet<DiscordCardNotification> DiscordCardNotifications { get; set; } = default!;
+    public DbSet<SentDiscordNotification> SentDiscordNotifications { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -77,5 +81,22 @@ public class MerchantsDbContext : ApiAuthorizationDbContext<WanderlostUser>, IDa
 
         modelBuilder.Entity<CardNotification>()
             .HasIndex(c => c.CardName);
+
+        modelBuilder.Entity<DiscordNotification>()
+            .HasIndex(d => new { d.Server });
+
+        modelBuilder.Entity<DiscordCardNotification>()
+            .HasKey(d => new { d.DiscordNotificationUserId, d.CardName });
+
+        modelBuilder.Entity<DiscordCardNotification>()
+            .HasIndex(d => d.CardName);
+
+        modelBuilder.Entity<SentDiscordNotification>()
+            .HasKey(sd => new { sd.MerchantId, sd.DiscordNotificationUserId });
+
+        modelBuilder.Entity<SentDiscordNotification>()
+            .HasOne<DiscordNotification>()
+            .WithMany()
+            .HasForeignKey(dn => dn.DiscordNotificationUserId);
     }
 }
