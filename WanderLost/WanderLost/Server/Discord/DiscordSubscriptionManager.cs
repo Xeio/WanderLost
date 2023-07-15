@@ -44,7 +44,7 @@ public class DiscordSubscriptionManager
         }
     }
 
-    public async Task AddCardToSubscription(ulong userId, string cardName)
+    public async Task AddCardsToSubscription(ulong userId, IEnumerable<string> cardNames)
     {
         var currentSubscription = await _merchantsContext.DiscordNotifications
             .TagWithCallSite()
@@ -53,15 +53,19 @@ public class DiscordSubscriptionManager
 
         if (currentSubscription is not null)
         {
-            if (!currentSubscription.CardNotifications.Any(n => n.CardName == cardName))
+            foreach (var cardName in cardNames)
             {
-                currentSubscription.CardNotifications.Add(new DiscordCardNotification() { CardName = cardName });
-                await _merchantsContext.SaveChangesAsync();
+                if (!currentSubscription.CardNotifications.Any(n => n.CardName == cardName))
+                {
+                    currentSubscription.CardNotifications.Add(new DiscordCardNotification() { CardName = cardName });
+                }
             }
+
+            await _merchantsContext.SaveChangesAsync();
         }
     }
 
-    public async Task RemoveCardFromSubscription(ulong userId, string cardName)
+    public async Task RemoveCardFromSubscription(ulong userId, IEnumerable<string> cardNames)
     {
         var currentSubscription = await _merchantsContext.DiscordNotifications
             .TagWithCallSite()
@@ -70,12 +74,16 @@ public class DiscordSubscriptionManager
 
         if (currentSubscription is not null)
         {
-            var existingCardNotify = currentSubscription.CardNotifications.FirstOrDefault(n => n.CardName == cardName);
-            if (existingCardNotify is not null)
+            foreach (var cardName in cardNames)
             {
-                currentSubscription.CardNotifications.Remove(existingCardNotify);
-                await _merchantsContext.SaveChangesAsync();
+                var existingCardNotify = currentSubscription.CardNotifications.FirstOrDefault(n => n.CardName == cardName);
+                if (existingCardNotify is not null)
+                {
+                    currentSubscription.CardNotifications.Remove(existingCardNotify);
+                }
             }
+
+            await _merchantsContext.SaveChangesAsync();
         }
     }
 

@@ -88,20 +88,31 @@ public class ManageNotificationsCommand : IDiscordCommand
                     var currentSubscription = await _subscriptionManager.GetCurrentSubscription(arg.User.Id);
                     if (currentSubscription is null) return;
 
-                    var select = new SelectMenuBuilder();
-                    select.WithPlaceholder("Select card to add");
-                    select.WithCustomId(ADD_CARD_DROPDOWN);
                     var cards = await _dataController.GetEpicLegendaryCards();
+                    var select = new SelectMenuBuilder()
+                    {
+                         Placeholder = "Select card to add",
+                         CustomId = ADD_CARD_DROPDOWN,
+                         MinValues = 1,
+                    };
                     foreach (var card in cards
                         .Where(c => !currentSubscription.CardNotifications.Any(n => n.CardName == c.Name))
                         .Select(c => c.Name))
                     {
                         select.AddOption(card, card);
                     }
+                    select.MaxValues = select.Options.Count;
 
                     var builder = new ComponentBuilder().WithSelectMenu(select);
 
-                    await arg.RespondAsync("Card to add", components: builder.Build(), ephemeral: true);
+                    if (select.Options.Count > 0)
+                    {
+                        await arg.RespondAsync("Card to add", components: builder.Build(), ephemeral: true);
+                    }
+                    else
+                    {
+                        await arg.RespondAsync("You are already subscribed to all available cards.", ephemeral: true);
+                    }
 
                     break;
                 }
@@ -116,9 +127,13 @@ public class ManageNotificationsCommand : IDiscordCommand
                         return;
                     }
 
-                    var select = new SelectMenuBuilder();
-                    select.WithPlaceholder("Select card to remove");
-                    select.WithCustomId(REMOVE_CARD_DROPDOWN);
+                    var select = new SelectMenuBuilder()
+                    {
+                        Placeholder = "Select card to remove",
+                        CustomId = REMOVE_CARD_DROPDOWN,
+                        MaxValues = currentSubscription.CardNotifications.Count,
+                        MinValues = 1,
+                    };
                     foreach (var card in currentSubscription.CardNotifications.Select(n => n.CardName))
                     {
                         select.AddOption(card, card);
@@ -230,13 +245,10 @@ public class ManageNotificationsCommand : IDiscordCommand
                 }
             case ADD_CARD_DROPDOWN:
                 {
-                    var cardName = arg.Data.Values.FirstOrDefault();
-                    if (string.IsNullOrWhiteSpace(cardName)) return;
-
                     var cards = await _dataController.GetEpicLegendaryCards();
-                    if(!cards.Any(c => c.Name == cardName)) return;
+                    if(!arg.Data.Values.All(newCard => cards.Any(realCard => realCard.Name == newCard))) return;
 
-                    await _subscriptionManager.AddCardToSubscription(arg.User.Id, cardName);
+                    await _subscriptionManager.AddCardsToSubscription(arg.User.Id, arg.Data.Values);
 
                     await BuildBasicCommandResponse(arg);
 
@@ -244,10 +256,7 @@ public class ManageNotificationsCommand : IDiscordCommand
                 }
             case REMOVE_CARD_DROPDOWN:
                 {
-                    var cardName = arg.Data.Values.FirstOrDefault();
-                    if (string.IsNullOrWhiteSpace(cardName)) return;
-
-                    await _subscriptionManager.RemoveCardFromSubscription(arg.User.Id, cardName);
+                    await _subscriptionManager.RemoveCardFromSubscription(arg.User.Id, arg.Data.Values);
 
                     await BuildBasicCommandResponse(arg);
 
