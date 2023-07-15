@@ -21,7 +21,7 @@ namespace WanderLost.Server.Discord
             var commandBuilder = new SlashCommandBuilder()
             {
                 Name = SEND_TEST_NOTIFICATION_COMMAND,
-                Description = "Manage notifications from Lost Merchants",
+                Description = "Send a test notification from Lost Merchants",
                 IsDMEnabled = true,
             };
 
