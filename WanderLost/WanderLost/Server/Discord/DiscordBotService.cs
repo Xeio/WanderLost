@@ -18,18 +18,13 @@ public class DiscordBotService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Initializing discord commands");
+        _logger.LogInformation("Initializing discord bot service");
 
         _discordClient.SlashCommandExecuted += SlashCommandExecuted;
         _discordClient.SelectMenuExecuted += SelectMenuExecuted;
         _discordClient.ButtonExecuted += ButtonExecuted;
         _discordClient.ModalSubmitted += ModalSubmitted;
 
-        //var x = await _discordClient.GetGlobalApplicationCommandsAsync();
-        //foreach(var command in x)
-        //{
-        //    await command.DeleteAsync();
-        //}
         using (var scope = _services.CreateScope())
         {
             var commands = new List<SlashCommandProperties>();
