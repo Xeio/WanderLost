@@ -46,7 +46,10 @@ public class DiscordSubscriptionManager
 
     public async Task AddCardToSubscription(ulong userId, string cardName)
     {
-        var currentSubscription = await _merchantsContext.DiscordNotifications.FindAsync(userId);
+        var currentSubscription = await _merchantsContext.DiscordNotifications
+            .TagWithCallSite()
+            .Include(d => d.CardNotifications)
+            .FirstOrDefaultAsync(d => d.UserId == userId);
 
         if (currentSubscription is not null)
         {
