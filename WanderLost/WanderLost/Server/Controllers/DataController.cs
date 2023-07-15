@@ -1,6 +1,7 @@
 ﻿using HtmlAgilityPack;
 using Microsoft.Extensions.Caching.Memory;
 using System.Text.Json;
+using WanderLost.Client.Pages;
 using WanderLost.Shared;
 using WanderLost.Shared.Data;
 
@@ -173,5 +174,19 @@ public class DataController
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
             return null;
         }
+    }
+
+    public async Task<IEnumerable<Item>> GetEpicLegendaryCards()
+    {
+        return await _memoryCache.GetOrCreateAsync<IEnumerable<Item>?>(nameof(GetEpicLegendaryCards), async (cacheEntry) =>
+        {
+            var merchantData = await GetMerchantData();
+            return merchantData?.SelectMany(m => m.Value.Cards
+                .Where(c => c.Rarity >= Rarity.Epic))
+                .DistinctBy(c => c.Name)
+                .OrderByDescending(c => c.Rarity)
+                .ThenBy(c => c.Name)
+                .ToList();
+        }) ?? throw new ApplicationException($"Failed to build {nameof(GetEpicLegendaryCards)} cache");
     }
 }

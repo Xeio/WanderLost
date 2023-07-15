@@ -139,34 +139,12 @@ public class PushMessageProcessor
         _merchantContext.ChangeTracker.Clear();
     }
 
-    public async Task RunMerchantUpdates(CancellationToken stoppingToken)
-    {
-        if (stoppingToken.IsCancellationRequested) return;
-
-        //Process any merchants in need of update
-        var merchants = await _merchantContext.ActiveMerchants
-            .TagWithCallSite()
-            .Where(m => m.RequiresProcessing)
-            .Include(m => m.ActiveMerchantGroup)
-            .ToListAsync(stoppingToken);
-
-        foreach (var merchant in merchants)
-        {
-            if (stoppingToken.IsCancellationRequested) return;
-
-            await ProcessMerchant(merchant);
-        }
-
-        await _merchantContext.SaveChangesAsync(stoppingToken);
-    }
-
-    private async Task ProcessMerchant(ActiveMerchant merchant)
+    public async Task ProcessMerchant(ActiveMerchant merchant)
     {
         if (merchant.Votes < 0 || merchant.Hidden ||
             merchant.ActiveMerchantGroup.AppearanceExpires < DateTimeOffset.Now)
         {
             //Don't need to send notifications for downvoted/hidden/expired merchants
-            merchant.RequiresProcessing = false;
             return;
         }
 
@@ -193,8 +171,6 @@ public class PushMessageProcessor
 
             await SendSubscriptionMessages(merchant, rapportSubscriptions);
         }
-
-        merchant.RequiresProcessing = false;
     }
 
     private async Task SendSubscriptionMessages(ActiveMerchant merchant, List<PushSubscription> subcriptions, bool isCard = false)

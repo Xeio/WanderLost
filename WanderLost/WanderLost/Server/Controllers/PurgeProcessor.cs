@@ -43,16 +43,28 @@ public class PurgeProcessor : BackgroundService
                 .Where(v => oldMerchants.Any(m => m.Id == v.ActiveMerchantId))
                 .ExecuteDeleteAsync(stoppingToken);
 
-            //Cleanup sent push notifications
+            //Cleanup sent FCM push notifications
             var deletedPushes = await merchantDbContext.SentPushNotifications
                 .TagWithCallSite()
                 .Where(p => oldMerchants.Any(m => m.Id == p.MerchantId))
                 .ExecuteDeleteAsync(stoppingToken);
 
-            //Purge subscriptions that aren't actually subscribed to any notifications
+            //Cleanup sent discord push notifications
+            deletedPushes += await merchantDbContext.SentDiscordNotifications
+                .TagWithCallSite()
+                .Where(p => oldMerchants.Any(m => m.Id == p.MerchantId))
+                .ExecuteDeleteAsync(stoppingToken);
+
+            //Purge FCM subscriptions that aren't actually subscribed to any notifications
             var deletedSubscriptions = await merchantDbContext.PushSubscriptions
                 .TagWithCallSite()
                 .Where(s => string.IsNullOrEmpty(s.Server) || (!s.SendTestNotification && !s.CardNotifications.Any() && !s.LegendaryRapportNotify))
+                .ExecuteDeleteAsync(stoppingToken);
+
+            //Purge discord subscriptions that aren't actually subscribed to any notifications
+            deletedSubscriptions += await merchantDbContext.DiscordNotifications
+                .TagWithCallSite()
+                .Where(s => string.IsNullOrEmpty(s.Server) || (!s.SendTestNotification && !s.CardNotifications.Any()))
                 .ExecuteDeleteAsync(stoppingToken);
 
             _logger.LogInformation("Purged {votes} votes, {pushes} sent push notifications, and {subscriptions} empty subscriptions.", deletedVotes, deletedPushes, deletedSubscriptions);
