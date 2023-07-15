@@ -19,13 +19,60 @@ public class DiscordBotService : BackgroundService
     {
         _logger.LogInformation("Initializing discord commands");
 
+        _discordClient.SlashCommandExecuted += SlashCommandExecuted;
+        _discordClient.SelectMenuExecuted += SelectMenuExecuted;
+        _discordClient.ButtonExecuted += ButtonExecuted;
+        _discordClient.ModalSubmitted += ModalSubmitted;
+
         //var x = await _discordClient.GetGlobalApplicationCommandsAsync();
         //foreach(var command in x)
         //{
         //    await command.DeleteAsync();
         //}
-        await ActivatorUtilities.CreateInstance<ManageNotificationsCommand>(_services).Init();
+        using (var scope = _services.CreateScope())
+        {
+            foreach (var command in scope.ServiceProvider.GetServices<IDiscordCommand>())
+            {
+                await command.CreateCommand();
+            }
+        }
 
         await Task.Delay(Timeout.Infinite, stoppingToken);
+    }
+
+    private async Task ModalSubmitted(SocketModal arg)
+    {
+        using var scope = _services.CreateScope();
+        foreach (var command in scope.ServiceProvider.GetServices<IDiscordCommand>())
+        {
+            await command.ModalSubmitted(arg);
+        }
+    }
+
+    private async Task ButtonExecuted(SocketMessageComponent arg)
+    {
+        using var scope = _services.CreateScope();
+        foreach (var command in scope.ServiceProvider.GetServices<IDiscordCommand>())
+        {
+            await command.ButtonExecuted(arg);
+        }
+    }
+
+    private async Task SlashCommandExecuted(SocketSlashCommand arg)
+    {
+        using var scope = _services.CreateScope();
+        foreach (var command in scope.ServiceProvider.GetServices<IDiscordCommand>())
+        {
+            await command.SlashCommandExecuted(arg);
+        }
+    }
+
+    private async Task SelectMenuExecuted(SocketMessageComponent arg)
+    {
+        using var scope = _services.CreateScope();
+        foreach (var command in scope.ServiceProvider.GetServices<IDiscordCommand>())
+        {
+            await command.SelectMenuExecuted(arg);
+        }
     }
 }

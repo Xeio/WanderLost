@@ -1,20 +1,16 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using Microsoft.EntityFrameworkCore;
 using WanderLost.Server.Controllers;
 using WanderLost.Server.Discord.Data;
-using WanderLost.Shared.Data;
 
 namespace WanderLost.Server.Discord;
 
-public class ManageNotificationsCommand
+public class ManageNotificationsCommand : IDiscordCommand
 {
-    private readonly IServiceProvider _services;
+    private readonly DiscordSubscriptionManager _subscriptionManager;
     private readonly ILogger<ManageNotificationsCommand> _logger;
     private readonly DiscordSocketClient _discordClient;
-
-    private Dictionary<string, ServerRegion> _serverRegions = new();
-    private List<Item> _cards = new();
+    private readonly DataController _dataController;
 
     const string MANAGE_NOTIFICATION_COMMAND = "manage-merchant-notifications";
     const string SELECT_REGION_DROPDOWN = "select-region-dropdown";
@@ -29,20 +25,16 @@ public class ManageNotificationsCommand
     const string UPDATE_VOTES_BUTTON = "update-votes-button";
     const string REMOVE_ALL_NOTIFICATIONS_BUTTON = "remove-all-notifications-button";
 
-    public ManageNotificationsCommand(ILogger<ManageNotificationsCommand> logger, IServiceProvider services, DiscordSocketClient discordClient)
+    public ManageNotificationsCommand(ILogger<ManageNotificationsCommand> logger, DiscordSocketClient discordClient, DiscordSubscriptionManager subscriptionManager, DataController dataController)
     {
         _logger = logger;
-        _services = services;
         _discordClient = discordClient;
+        _subscriptionManager = subscriptionManager;
+        _dataController = dataController;
     }
 
-    public async Task Init()
+    public async Task CreateCommand()
     {
-        _discordClient.SlashCommandExecuted += SlashCommandExecuted;
-        _discordClient.SelectMenuExecuted += SelectMenuExecuted;
-        _discordClient.ButtonExecuted += ButtonExecuted;
-        _discordClient.ModalSubmitted += ModalSubmitted;
-
         var commandBuilder = new SlashCommandBuilder()
         {
             Name = MANAGE_NOTIFICATION_COMMAND,
@@ -50,24 +42,10 @@ public class ManageNotificationsCommand
             IsDMEnabled = true,
         };
 
-        using (var scope = _services.CreateScope())
-        {
-            var dataController = scope.ServiceProvider.GetRequiredService<DataController>();
-            _serverRegions = await dataController.GetServerRegions();
-            var merchants = await dataController.GetMerchantData();
-            _cards = merchants.SelectMany(m => m.Value.Cards.Where(c => c.Rarity >= Rarity.Epic))
-                .DistinctBy(c => c.Name)
-                .OrderByDescending(c => c.Rarity)
-                .ThenBy(c => c.Name)
-                .ToList();
-        }
-
-        var command = await _discordClient.CreateGlobalApplicationCommandAsync(commandBuilder.Build());
-
-        _logger.LogInformation("Command Initialized");
+        await _discordClient.CreateGlobalApplicationCommandAsync(commandBuilder.Build());
     }
 
-    private async Task ModalSubmitted(SocketModal arg)
+    public async Task ModalSubmitted(SocketModal arg)
     {
         switch (arg.Data.CustomId)
         {
@@ -76,7 +54,7 @@ public class ManageNotificationsCommand
                     var value = arg.Data.Components.FirstOrDefault(c => c.CustomId == UPDATE_VOTES_TEXTINPUT)?.Value;
                     if(int.TryParse(value, out var votes))
                     {
-                        await UpdateCardVoteThreshold(arg.User.Id, votes);
+                        await _subscriptionManager.UpdateCardVoteThreshold(arg.User.Id, votes);
                     }
                     
                     await BuildBasicCommandResponse(arg);
@@ -86,16 +64,18 @@ public class ManageNotificationsCommand
         }
     }
 
-    private async Task ButtonExecuted(SocketMessageComponent arg)
+    public async Task ButtonExecuted(SocketMessageComponent arg)
     {
         switch (arg.Data.CustomId)
         {
             case UPDATE_SERVER_BUTTON:
                 {
+                    var regions = await _dataController.GetServerRegions();
+
                     var select = new SelectMenuBuilder();
                     select.WithPlaceholder("Select server region");
                     select.WithCustomId(SELECT_REGION_DROPDOWN);
-                    foreach (var server in _serverRegions)
+                    foreach (var server in regions)
                     {
                         select.AddOption(server.Value.Name, server.Key);
                     }
@@ -107,13 +87,14 @@ public class ManageNotificationsCommand
                 }
             case ADD_CARD_BUTTON:
                 {
-                    var currentSubscription = await GetCurrentSubscription(arg.User.Id);
+                    var currentSubscription = await _subscriptionManager.GetCurrentSubscription(arg.User.Id);
                     if (currentSubscription is null) return; //TODO: Better error handling?
 
                     var select = new SelectMenuBuilder();
                     select.WithPlaceholder("Select card to add");
                     select.WithCustomId(ADD_CARD_DROPDOWN);
-                    foreach (var card in _cards
+                    var cards = await _dataController.GetEpicLegendaryCards();
+                    foreach (var card in cards
                         .Where(c => !currentSubscription.CardNotifications.Any(n => n.CardName == c.Name))
                         .Select(c => c.Name))
                     {
@@ -128,7 +109,7 @@ public class ManageNotificationsCommand
                 }
             case REMOVE_CARD_BUTTON:
                 {
-                    var currentSubscription = await GetCurrentSubscription(arg.User.Id);
+                    var currentSubscription = await _subscriptionManager.GetCurrentSubscription(arg.User.Id);
                     if (currentSubscription is null) return; //TODO: Better error handling?
                     if(currentSubscription.CardNotifications.Count == 0) return; //TODO: Better error handling?
 
@@ -171,7 +152,7 @@ public class ManageNotificationsCommand
             case REMOVE_ALL_NOTIFICATIONS_BUTTON:
                 {
                     //Just clear server to avoid concurrency issues, will purge these records later
-                    await UpdateSubscriptionServer(arg.User.Id, string.Empty);
+                    await _subscriptionManager.UpdateSubscriptionServer(arg.User.Id, string.Empty);
 
                     await BuildBasicCommandResponse(arg);
 
@@ -180,7 +161,7 @@ public class ManageNotificationsCommand
         }
     }
 
-    private async Task SlashCommandExecuted(SocketSlashCommand arg)
+    public async Task SlashCommandExecuted(SocketSlashCommand arg)
     {
         if (arg.CommandName == MANAGE_NOTIFICATION_COMMAND)
         {
@@ -190,7 +171,7 @@ public class ManageNotificationsCommand
 
     private async Task BuildBasicCommandResponse(IDiscordInteraction arg)
     {
-        var subscription = await GetCurrentSubscription(arg.User.Id);
+        var subscription = await _subscriptionManager.GetCurrentSubscription(arg.User.Id);
         var text = BuildCurrentSubscriptionText(subscription);
 
         var noSubscription = string.IsNullOrWhiteSpace(subscription?.Server);
@@ -205,7 +186,7 @@ public class ManageNotificationsCommand
         await arg.RespondAsync(text, components: c.Build(), ephemeral: true);
     }
 
-    private async Task SelectMenuExecuted(SocketMessageComponent arg)
+    public async Task SelectMenuExecuted(SocketMessageComponent arg)
     {
         switch (arg.Data.CustomId)
         {
@@ -214,16 +195,19 @@ public class ManageNotificationsCommand
                     var val = arg.Data.Values.FirstOrDefault();
                     if (string.IsNullOrWhiteSpace(val)) return;
 
+                    var regions = await _dataController.GetServerRegions();
+
                     var select = new SelectMenuBuilder();
                     select.WithPlaceholder("Select server");
                     select.WithCustomId(SELECT_SERVER_DROPDOWN);
-                    foreach (var server in _serverRegions[val].Servers)
+                    foreach (var server in regions[val].Servers)
                     {
                         select.AddOption(server, server);
                     }
 
                     var builder = new ComponentBuilder().WithSelectMenu(select);
 
+                    await arg.DeleteOriginalResponseAsync();
                     await arg.RespondAsync("Server", components: builder.Build(), ephemeral: true);
 
                     break;
@@ -235,7 +219,7 @@ public class ManageNotificationsCommand
 
                     //TODO: Validate server?
 
-                    await UpdateSubscriptionServer(arg.User.Id, server);
+                    await _subscriptionManager.UpdateSubscriptionServer(arg.User.Id, server);
 
                     await BuildBasicCommandResponse(arg);
 
@@ -248,7 +232,7 @@ public class ManageNotificationsCommand
 
                     //TODO: Validate card name?
 
-                    await AddCardToSubscription(arg.User.Id, cardName);
+                    await _subscriptionManager.AddCardToSubscription(arg.User.Id, cardName);
 
                     await BuildBasicCommandResponse(arg);
 
@@ -259,97 +243,13 @@ public class ManageNotificationsCommand
                     var cardName = arg.Data.Values.FirstOrDefault();
                     if (string.IsNullOrWhiteSpace(cardName)) return;
 
-                    await RemoveCardFromSubscription(arg.User.Id, cardName);
+                    await _subscriptionManager.RemoveCardFromSubscription(arg.User.Id, cardName);
 
                     await BuildBasicCommandResponse(arg);
 
                     break;
                 }
         }
-    }
-
-    private async Task UpdateSubscriptionServer(ulong userId, string server)
-    {
-        using var scope = _services.CreateScope();
-
-        var merchantContext = scope.ServiceProvider.GetRequiredService<MerchantsDbContext>();
-        var currentSubscription = await merchantContext.DiscordNotifications.FindAsync(userId);
-
-        if (currentSubscription is null)
-        {
-            var newSubscription = new DiscordNotification()
-            {
-                UserId = userId,
-                Server = server,
-            };
-            await merchantContext.AddAsync(newSubscription);
-        }
-        else
-        {
-            currentSubscription.Server = server;
-        }
-        await merchantContext.SaveChangesAsync();
-    }
-
-    private async Task UpdateCardVoteThreshold(ulong userId, int votes)
-    {
-        using var scope = _services.CreateScope();
-
-        var merchantContext = scope.ServiceProvider.GetRequiredService<MerchantsDbContext>();
-        var currentSubscription = await merchantContext.DiscordNotifications.FindAsync(userId);
-
-        if (currentSubscription is not null)
-        {
-            currentSubscription.CardVoteThreshold = votes;
-            await merchantContext.SaveChangesAsync();
-        }
-    }
-
-    private async Task AddCardToSubscription(ulong userId, string cardName)
-    {
-        using var scope = _services.CreateScope();
-
-        var merchantContext = scope.ServiceProvider.GetRequiredService<MerchantsDbContext>();
-        var currentSubscription = await merchantContext.DiscordNotifications.FindAsync(userId);
-
-        if (currentSubscription is not null)
-        {
-            currentSubscription.CardNotifications.Add(new DiscordCardNotification() { CardName = cardName });
-            await merchantContext.SaveChangesAsync();
-        }
-    }
-
-    private async Task RemoveCardFromSubscription(ulong userId, string cardName)
-    {
-        using var scope = _services.CreateScope();
-
-        var merchantContext = scope.ServiceProvider.GetRequiredService<MerchantsDbContext>();
-        var currentSubscription = await merchantContext.DiscordNotifications
-            .TagWithCallSite()
-            .Include(d => d.CardNotifications)
-            .SingleOrDefaultAsync(d => d.UserId == userId);
-
-        if (currentSubscription is not null)
-        {
-            var cardNotify = currentSubscription.CardNotifications.FirstOrDefault(n => n.CardName == cardName);
-            if (cardNotify != null)
-            {
-                currentSubscription.CardNotifications.Remove(cardNotify);
-                await merchantContext.SaveChangesAsync();
-            }
-        }
-    }
-
-    private async Task<DiscordNotification?> GetCurrentSubscription(ulong userId)
-    {
-        using var scope = _services.CreateScope();
-
-        var merchantContext = scope.ServiceProvider.GetRequiredService<MerchantsDbContext>();
-        return await merchantContext.DiscordNotifications
-            .TagWithCallSite()
-            .AsNoTracking()
-            .Include(d => d.CardNotifications)
-            .SingleOrDefaultAsync(d => d.UserId == userId);
     }
 
     private string BuildCurrentSubscriptionText(DiscordNotification? currentSubscription)
