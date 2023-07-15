@@ -130,6 +130,7 @@ if (!string.IsNullOrWhiteSpace(discordBotToken))
     builder.Services.AddHostedService<DiscordBotService>();
 
     builder.Services.AddScoped<DiscordSubscriptionManager>();
+    builder.Services.AddScoped<DiscordPushProcessor>();
     builder.Services.AddScoped<IDiscordCommand, ManageNotificationsCommand>();
     builder.Services.AddScoped<IDiscordCommand, SendTestNotificationCommand>();
 }

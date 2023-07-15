@@ -1,4 +1,7 @@
 ﻿using FirebaseAdmin.Messaging;
+using Microsoft.EntityFrameworkCore;
+using WanderLost.Server.Controllers;
+using WanderLost.Server.Discord;
 
 namespace WanderLost.Server.PushNotifications;
 
@@ -19,22 +22,57 @@ public class PushWorkerService : BackgroundService
         {
             await Task.Delay(TimeSpan.FromSeconds(20), stoppingToken);
 
-            if (FirebaseAdmin.FirebaseApp.DefaultInstance == null)
-            {
-                _logger.LogCritical("Firebase not configured, skipping message sending. Need 'FirebaseSecretFile' config setting for private key.");
-                continue;
-            }
-
             if (stoppingToken.IsCancellationRequested) return;
 
             using var scope = _services.CreateScope();
-            var messageProcessor = scope.ServiceProvider.GetRequiredService<PushMessageProcessor>();
+
+            var firebasePushProcessor = scope.ServiceProvider.GetRequiredService<PushMessageProcessor>();
+            var discordProcessor = scope.ServiceProvider.GetService<DiscordPushProcessor>();
+            var merchantContext = scope.ServiceProvider.GetRequiredService<MerchantsDbContext>();
+
+            if (FirebaseAdmin.FirebaseApp.DefaultInstance is null)
+            {
+                _logger.LogCritical("Firebase not configured, skipping firebase message sending. Need 'FirebaseSecretFile' config setting for private key.");
+            }
+            if(discordProcessor is null)
+            {
+                _logger.LogCritical("Discord push message processor is not resolved, missing 'DiscordBotToken' config.");
+            }
 
             try
             {
-                await messageProcessor.SendTestNotifications(stoppingToken);
+                if (FirebaseAdmin.FirebaseApp.DefaultInstance is not null)
+                {
+                    await firebasePushProcessor.SendTestNotifications(stoppingToken);
+                }
+                if (discordProcessor is not null)
+                {
+                    await discordProcessor.SendTestNotifications(stoppingToken);
+                }
 
-                await messageProcessor.RunMerchantUpdates(stoppingToken);
+                var merchants = await merchantContext.ActiveMerchants
+                    .TagWithCallSite()
+                    .Where(m => m.RequiresProcessing)
+                    .Include(m => m.ActiveMerchantGroup)
+                    .ToListAsync(stoppingToken);
+
+                foreach (var merchant in merchants)
+                {
+                    if (stoppingToken.IsCancellationRequested) break;
+
+                    if (FirebaseAdmin.FirebaseApp.DefaultInstance is not null)
+                    {
+                        await firebasePushProcessor.ProcessMerchant(merchant);
+                    }
+                    if (discordProcessor is not null)
+                    {
+                        await discordProcessor.ProcessMerchant(merchant);
+                    }
+
+                    merchant.RequiresProcessing = false;
+                }
+
+                await merchantContext.SaveChangesAsync(stoppingToken);
             }
             catch (FirebaseMessagingException e)
             {
