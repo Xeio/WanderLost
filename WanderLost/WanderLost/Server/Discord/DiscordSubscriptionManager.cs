@@ -49,7 +49,7 @@ public class DiscordSubscriptionManager
         var currentSubscription = await _merchantsContext.DiscordNotifications
             .TagWithCallSite()
             .Include(d => d.CardNotifications)
-            .FirstOrDefaultAsync(d => d.UserId == userId);
+            .SingleOrDefaultAsync(d => d.UserId == userId);
 
         if (currentSubscription is not null)
         {
@@ -70,10 +70,10 @@ public class DiscordSubscriptionManager
 
         if (currentSubscription is not null)
         {
-            var cardNotify = currentSubscription.CardNotifications.FirstOrDefault(n => n.CardName == cardName);
-            if (cardNotify != null)
+            var existingCardNotify = currentSubscription.CardNotifications.FirstOrDefault(n => n.CardName == cardName);
+            if (existingCardNotify is not null)
             {
-                currentSubscription.CardNotifications.Remove(cardNotify);
+                currentSubscription.CardNotifications.Remove(existingCardNotify);
                 await _merchantsContext.SaveChangesAsync();
             }
         }
