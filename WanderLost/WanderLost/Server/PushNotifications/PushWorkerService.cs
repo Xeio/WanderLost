@@ -79,6 +79,10 @@ public class PushWorkerService : BackgroundService
                 //If for some reason the overall requests fail, log error and just try again next polling period
                 _logger.LogError(e, "Communication failure with Firebase.");
             }
+            catch (HttpRequestException e)
+            {
+                _logger.LogError(e, "Failed communication with Discord.");
+            }
         }
     }
 }
