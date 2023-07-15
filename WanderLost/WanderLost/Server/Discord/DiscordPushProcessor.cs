@@ -33,6 +33,8 @@ public class DiscordPushProcessor
             .Where(s => s.SendTestNotification)
             .ToListAsync(stoppingToken);
 
+        if (!testSubscriptions.Any()) return;
+
         if (stoppingToken.IsCancellationRequested) return;
 
         _logger.LogInformation("Sending {attemptCount} test discord messages.", testSubscriptions.Count);
@@ -73,7 +75,10 @@ public class DiscordPushProcessor
             .Where(d => d.CardVoteThreshold <= merchant.Votes)
             .ToListAsync();
 
-        await SendSubscriptionMessages(merchant, cardSubscriptions);
+        if (cardSubscriptions.Any())
+        {
+            await SendSubscriptionMessages(merchant, cardSubscriptions);
+        }
     }
 
     private async Task SendSubscriptionMessages(ActiveMerchant merchant, List<DiscordNotification> subcriptions)
