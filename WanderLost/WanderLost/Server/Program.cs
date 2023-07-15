@@ -105,26 +105,26 @@ builder.Services.AddHostedService<LeaderboardProcessor>();
 var discordBotToken = builder.Configuration["DiscordBotToken"];
 if (!string.IsNullOrWhiteSpace(discordBotToken))
 {
-builder.Services.AddSingleton<DiscordSocketClient>((provider) => 
-{
-    provider.GetRequiredService<ILogger<Program>>().LogInformation("Starting and connecting discord client");
-    return Task.Run(async () =>
+    builder.Services.AddSingleton<DiscordSocketClient>((provider) => 
     {
-        var readyCompletion = new TaskCompletionSource();
-        Task OnClientReady()
+        provider.GetRequiredService<ILogger<Program>>().LogInformation("Starting and connecting discord client");
+        return Task.Run(async () =>
         {
-            readyCompletion.SetResult();
-            return Task.CompletedTask;
-        }
-        var client = new DiscordSocketClient();
-        client.Ready += OnClientReady;
-        await client.LoginAsync(Discord.TokenType.Bot, discordBotToken);
-        await client.StartAsync();
-        await readyCompletion.Task;
-        client.Ready -= OnClientReady;
-        return client;
-    }).Result;
-});
+            var readyCompletion = new TaskCompletionSource();
+            Task OnClientReady()
+            {
+                readyCompletion.SetResult();
+                return Task.CompletedTask;
+            }
+            var client = new DiscordSocketClient();
+            client.Ready += OnClientReady;
+            await client.LoginAsync(Discord.TokenType.Bot, discordBotToken);
+            await client.StartAsync();
+            await readyCompletion.Task;
+            client.Ready -= OnClientReady;
+            return client;
+        }).Result;
+    });
 
     builder.Services.AddHostedService<DiscordBotService>();
 
