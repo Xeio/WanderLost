@@ -1,4 +1,5 @@
-﻿using Discord.WebSocket;
+﻿using Discord;
+using Discord.WebSocket;
 
 namespace WanderLost.Server.Discord;
 
@@ -31,9 +32,14 @@ public class DiscordBotService : BackgroundService
         //}
         using (var scope = _services.CreateScope())
         {
+            var commands = new List<SlashCommandProperties>();
             foreach (var command in scope.ServiceProvider.GetServices<IDiscordCommand>())
             {
-                await command.CreateCommand();
+                commands.Add(command.CreateCommand());
+            }
+            if (commands.Count > 0)
+            {
+                await _discordClient.BulkOverwriteGlobalApplicationCommandsAsync(commands.ToArray());
             }
         }
 

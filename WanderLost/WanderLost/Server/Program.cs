@@ -126,9 +126,12 @@ if (!string.IsNullOrWhiteSpace(discordBotToken))
             return client;
         }).Result;
     });
+
     builder.Services.AddHostedService<DiscordBotService>();
+
     builder.Services.AddScoped<DiscordSubscriptionManager>();
     builder.Services.AddScoped<IDiscordCommand, ManageNotificationsCommand>();
+    builder.Services.AddScoped<IDiscordCommand, SendTestNotificationCommand>();
 }
 
 if (!string.IsNullOrWhiteSpace(builder.Configuration["FirebaseSecretFile"]))

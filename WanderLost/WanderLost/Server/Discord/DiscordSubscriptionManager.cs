@@ -76,6 +76,26 @@ public class DiscordSubscriptionManager
         }
     }
 
+    public async Task SetSubscriptionTestFlag(ulong userId)
+    {
+        var currentSubscription = await _merchantsContext.DiscordNotifications.FindAsync(userId);
+
+        if (currentSubscription is null)
+        {
+            var newSubscription = new DiscordNotification()
+            {
+                UserId = userId,
+                SendTestNotification = true,
+            };
+            await _merchantsContext.AddAsync(newSubscription);
+        }
+        else
+        {
+            currentSubscription.SendTestNotification = true;
+        }
+        await _merchantsContext.SaveChangesAsync();
+    }
+
     public async Task<DiscordNotification?> GetCurrentSubscription(ulong userId)
     {
         return await _merchantsContext.DiscordNotifications
