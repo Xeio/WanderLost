@@ -205,7 +205,6 @@ public class ManageNotificationsCommand : IDiscordCommand
 
                     var builder = new ComponentBuilder().WithSelectMenu(select);
 
-                    await arg.DeleteOriginalResponseAsync();
                     await arg.RespondAsync("Server", components: builder.Build(), ephemeral: true);
 
                     break;
