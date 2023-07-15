@@ -179,14 +179,14 @@ public class ManageNotificationsCommand : IDiscordCommand
 
         var noSubscription = string.IsNullOrWhiteSpace(subscription?.Server);
 
-        var c = new ComponentBuilder();
-        c.WithButton("Update Server", UPDATE_SERVER_BUTTON);
-        c.WithButton("Add Card", ADD_CARD_BUTTON, ButtonStyle.Success, disabled: noSubscription);
-        c.WithButton("Remove Card", REMOVE_CARD_BUTTON, ButtonStyle.Danger, disabled: string.IsNullOrWhiteSpace(subscription?.Server) || subscription.CardNotifications.Count == 0);
-        c.WithButton("Update Minimum Votes", UPDATE_VOTES_BUTTON, disabled: string.IsNullOrWhiteSpace(subscription?.Server) || subscription.CardNotifications.Count == 0);
-        c.WithButton("Remove All Notifications", REMOVE_ALL_NOTIFICATIONS_BUTTON, ButtonStyle.Danger, disabled: noSubscription);
+        var component = new ComponentBuilder();
+        component.WithButton("Update Server", UPDATE_SERVER_BUTTON);
+        component.WithButton("Add Card", ADD_CARD_BUTTON, ButtonStyle.Success, disabled: noSubscription);
+        component.WithButton("Remove Card", REMOVE_CARD_BUTTON, ButtonStyle.Danger, disabled: string.IsNullOrWhiteSpace(subscription?.Server) || subscription.CardNotifications.Count == 0);
+        component.WithButton("Update Minimum Votes", UPDATE_VOTES_BUTTON, disabled: noSubscription);
+        component.WithButton("Remove All Notifications", REMOVE_ALL_NOTIFICATIONS_BUTTON, ButtonStyle.Danger, disabled: noSubscription);
 
-        await arg.RespondAsync(text, components: c.Build(), ephemeral: true);
+        await arg.RespondAsync(text, components: component.Build(), ephemeral: true);
     }
 
     public async Task SelectMenuExecuted(SocketMessageComponent arg)
