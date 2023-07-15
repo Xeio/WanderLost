@@ -86,7 +86,7 @@ public class ManageNotificationsCommand : IDiscordCommand
             case ADD_CARD_BUTTON:
                 {
                     var currentSubscription = await _subscriptionManager.GetCurrentSubscription(arg.User.Id);
-                    if (currentSubscription is null) return; //TODO: Better error handling?
+                    if (currentSubscription is null) return;
 
                     var select = new SelectMenuBuilder();
                     select.WithPlaceholder("Select card to add");
@@ -108,8 +108,13 @@ public class ManageNotificationsCommand : IDiscordCommand
             case REMOVE_CARD_BUTTON:
                 {
                     var currentSubscription = await _subscriptionManager.GetCurrentSubscription(arg.User.Id);
-                    if (currentSubscription is null) return; //TODO: Better error handling?
-                    if(currentSubscription.CardNotifications.Count == 0) return; //TODO: Better error handling?
+                    if (currentSubscription is null) return;
+
+                    if (currentSubscription.CardNotifications.Count == 0)
+                    {
+                        await arg.RespondAsync("No card notifications to remove", ephemeral: true);
+                        return;
+                    }
 
                     var select = new SelectMenuBuilder();
                     select.WithPlaceholder("Select card to remove");
@@ -214,7 +219,8 @@ public class ManageNotificationsCommand : IDiscordCommand
                     var server = arg.Data.Values.FirstOrDefault();
                     if (string.IsNullOrWhiteSpace(server)) return;
 
-                    //TODO: Validate server?
+                    var regions = await _dataController.GetServerRegions();
+                    if (!regions.SelectMany(r => r.Value.Servers).Any(s => s == server)) return;
 
                     await _subscriptionManager.UpdateSubscriptionServer(arg.User.Id, server);
 
@@ -227,7 +233,8 @@ public class ManageNotificationsCommand : IDiscordCommand
                     var cardName = arg.Data.Values.FirstOrDefault();
                     if (string.IsNullOrWhiteSpace(cardName)) return;
 
-                    //TODO: Validate card name?
+                    var cards = await _dataController.GetEpicLegendaryCards();
+                    if(!cards.Any(c => c.Name == cardName)) return;
 
                     await _subscriptionManager.AddCardToSubscription(arg.User.Id, cardName);
 
