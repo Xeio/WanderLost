@@ -93,8 +93,6 @@ builder.Services.AddResponseCompression(opts =>
         new[] { "application/octet-stream" });
 });
 
-
-
 builder.Services.AddScoped<PushMessageProcessor>();
 builder.Services.AddScoped<PushSubscriptionManager>();
 
@@ -107,25 +105,26 @@ builder.Services.AddHostedService<LeaderboardProcessor>();
 var discordBotToken = builder.Configuration["DiscordBotToken"];
 if (!string.IsNullOrWhiteSpace(discordBotToken))
 {
-    builder.Services.AddSingleton<DiscordSocketClient>((provider) => 
+builder.Services.AddSingleton<DiscordSocketClient>((provider) => 
+{
+    provider.GetRequiredService<ILogger<Program>>().LogInformation("Starting and connecting discord client");
+    return Task.Run(async () =>
     {
-        return Task.Run(async () =>
+        var readyCompletion = new TaskCompletionSource();
+        Task OnClientReady()
         {
-            var readyCompletion = new TaskCompletionSource();
-            Task OnClientReady()
-            {
-                readyCompletion.SetResult();
-                return Task.CompletedTask;
-            }
-            var client = new DiscordSocketClient();
-            client.Ready += OnClientReady;
-            await client.LoginAsync(Discord.TokenType.Bot, discordBotToken);
-            await client.StartAsync();
-            await readyCompletion.Task;
-            client.Ready -= OnClientReady;
-            return client;
-        }).Result;
-    });
+            readyCompletion.SetResult();
+            return Task.CompletedTask;
+        }
+        var client = new DiscordSocketClient();
+        client.Ready += OnClientReady;
+        await client.LoginAsync(Discord.TokenType.Bot, discordBotToken);
+        await client.StartAsync();
+        await readyCompletion.Task;
+        client.Ready -= OnClientReady;
+        return client;
+    }).Result;
+});
 
     builder.Services.AddHostedService<DiscordBotService>();
 
