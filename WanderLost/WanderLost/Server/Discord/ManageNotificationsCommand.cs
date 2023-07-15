@@ -256,7 +256,7 @@ public class ManageNotificationsCommand : IDiscordCommand
         }
     }
 
-    private string BuildCurrentSubscriptionText(DiscordNotification? currentSubscription)
+    private static string BuildCurrentSubscriptionText(DiscordNotification? currentSubscription)
     {
         if(currentSubscription is null || string.IsNullOrWhiteSpace(currentSubscription.Server))
         {
