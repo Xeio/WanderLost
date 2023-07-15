@@ -85,6 +85,10 @@ public class MerchantsDbContext : ApiAuthorizationDbContext<WanderlostUser>, IDa
         modelBuilder.Entity<DiscordNotification>()
             .HasIndex(d => new { d.Server });
 
+        modelBuilder.Entity<DiscordNotification>()
+            .HasIndex(d => new { d.SendTestNotification })
+            .HasFilter($"[{nameof(DiscordNotification.SendTestNotification)}] = 1");
+
         modelBuilder.Entity<DiscordCardNotification>()
             .HasKey(d => new { d.DiscordNotificationUserId, d.CardName });
 
