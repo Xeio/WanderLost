@@ -418,63 +418,6 @@ namespace WanderLost.Server.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("WanderLost.Server.Discord.Data.DiscordCardNotification", b =>
-                {
-                    b.Property<decimal>("DiscordNotificationUserId")
-                        .HasColumnType("decimal(20,0)");
-
-                    b.Property<string>("CardName")
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
-
-                    b.HasKey("DiscordNotificationUserId", "CardName");
-
-                    b.HasIndex("CardName");
-
-                    b.ToTable("DiscordCardNotifications");
-                });
-
-            modelBuilder.Entity("WanderLost.Server.Discord.Data.DiscordNotification", b =>
-                {
-                    b.Property<decimal>("UserId")
-                        .HasColumnType("decimal(20,0)");
-
-                    b.Property<int>("CardVoteThreshold")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<bool>("SendTestNotification")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Server")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.HasKey("UserId");
-
-                    b.HasIndex("Server");
-
-                    b.ToTable("DiscordNotifications");
-                });
-
-            modelBuilder.Entity("WanderLost.Server.Discord.Data.SentDiscordNotification", b =>
-                {
-                    b.Property<Guid>("MerchantId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("DiscordNotificationUserId")
-                        .HasColumnType("decimal(20,0)");
-
-                    b.HasKey("MerchantId", "DiscordNotificationUserId");
-
-                    b.HasIndex("DiscordNotificationUserId");
-
-                    b.ToTable("SentDiscordNotifications");
-                });
-
             modelBuilder.Entity("WanderLost.Shared.Data.ActiveMerchant", b =>
                 {
                     b.Property<Guid>("Id")
@@ -768,24 +711,6 @@ namespace WanderLost.Server.Migrations
                     b.Navigation("Merchant");
                 });
 
-            modelBuilder.Entity("WanderLost.Server.Discord.Data.DiscordCardNotification", b =>
-                {
-                    b.HasOne("WanderLost.Server.Discord.Data.DiscordNotification", null)
-                        .WithMany("CardNotifications")
-                        .HasForeignKey("DiscordNotificationUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("WanderLost.Server.Discord.Data.SentDiscordNotification", b =>
-                {
-                    b.HasOne("WanderLost.Server.Discord.Data.DiscordNotification", null)
-                        .WithMany()
-                        .HasForeignKey("DiscordNotificationUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("WanderLost.Shared.Data.ActiveMerchant", b =>
                 {
                     b.HasOne("WanderLost.Shared.Data.ActiveMerchantGroup", "ActiveMerchantGroup")
@@ -859,11 +784,6 @@ namespace WanderLost.Server.Migrations
                         .HasForeignKey("ActiveMerchantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("WanderLost.Server.Discord.Data.DiscordNotification", b =>
-                {
-                    b.Navigation("CardNotifications");
                 });
 
             modelBuilder.Entity("WanderLost.Shared.Data.ActiveMerchant", b =>
