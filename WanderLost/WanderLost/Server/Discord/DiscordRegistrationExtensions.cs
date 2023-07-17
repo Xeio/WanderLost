@@ -41,7 +41,7 @@ public static class DiscordRegistrationExtensions
                     }
                     var discordSocketConfig = new DiscordSocketConfig()
                     {
-                        GatewayIntents =  GatewayIntents.None,
+                        GatewayIntents =  GatewayIntents.DirectMessages,
                     };
                     var client = new DiscordSocketClient(discordSocketConfig);
                     client.Log += LogDiscordClientMessage;

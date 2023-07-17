@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace WanderLost.Server.Discord;
 
@@ -24,6 +25,7 @@ public class DiscordBotService : BackgroundService
         _discordClient.SelectMenuExecuted += SelectMenuExecuted;
         _discordClient.ButtonExecuted += ButtonExecuted;
         _discordClient.ModalSubmitted += ModalSubmitted;
+        _discordClient.MessageReceived += MessageReceived;
 
         using (var scope = _services.CreateScope())
         {
@@ -39,6 +41,14 @@ public class DiscordBotService : BackgroundService
         }
 
         await Task.Delay(Timeout.Infinite, stoppingToken);
+    }
+
+    private async Task MessageReceived(SocketMessage arg)
+    {
+        if (arg.Type == MessageType.Default && arg is SocketUserMessage userMessage && arg.Channel.GetChannelType() == ChannelType.DM)
+        {
+            await userMessage.ReplyAsync($"To set up a subscription use the {Format.Code("/manage-merchant-notifications")} command.");
+        }
     }
 
     private async Task ModalSubmitted(SocketModal arg)
