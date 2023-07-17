@@ -102,37 +102,7 @@ builder.Services.AddHostedService<PurgeProcessor>();
 builder.Services.AddHostedService<BanProcessor>();
 builder.Services.AddHostedService<LeaderboardProcessor>();
 
-var discordBotToken = builder.Configuration["DiscordBotToken"];
-if (!string.IsNullOrWhiteSpace(discordBotToken))
-{
-    builder.Services.AddSingleton<DiscordSocketClient>((provider) => 
-    {
-        provider.GetRequiredService<ILogger<Program>>().LogInformation("Starting and connecting discord client");
-        return Task.Run(async () =>
-        {
-            var readyCompletion = new TaskCompletionSource();
-            Task OnClientReady()
-            {
-                readyCompletion.SetResult();
-                return Task.CompletedTask;
-            }
-            var client = new DiscordSocketClient();
-            client.Ready += OnClientReady;
-            await client.LoginAsync(Discord.TokenType.Bot, discordBotToken);
-            await client.StartAsync();
-            await readyCompletion.Task;
-            client.Ready -= OnClientReady;
-            return client;
-        }).Result;
-    });
-
-    builder.Services.AddHostedService<DiscordBotService>();
-
-    builder.Services.AddScoped<DiscordSubscriptionManager>();
-    builder.Services.AddScoped<DiscordPushProcessor>();
-    builder.Services.AddScoped<IDiscordCommand, ManageNotificationsCommand>();
-    builder.Services.AddScoped<IDiscordCommand, SendTestNotificationCommand>();
-}
+builder.AddDiscord();
 
 if (!string.IsNullOrWhiteSpace(builder.Configuration["FirebaseSecretFile"]))
 {
