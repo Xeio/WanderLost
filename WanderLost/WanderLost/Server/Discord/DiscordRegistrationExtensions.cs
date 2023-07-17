@@ -25,6 +25,7 @@ public static class DiscordRegistrationExtensions
                     }
                     var discordSocketConfig = new DiscordSocketConfig()
                     {
+                        GatewayIntents =  GatewayIntents.None,
                     };
                     var client = new DiscordSocketClient(discordSocketConfig);
                     client.Ready += OnClientReady;
