@@ -15,6 +15,22 @@ public static class DiscordRegistrationExtensions
                 var logger = provider.GetRequiredService<ILogger<DiscordSocketClient>>();
                 logger.LogInformation("Starting and connecting discord client");
 
+                Task LogDiscordClientMessage(LogMessage arg)
+                {
+                    var level = LogLevel.Trace;
+                    switch (arg.Severity)
+                    {
+                        case LogSeverity.Warning: level = LogLevel.Warning; break;
+                        case LogSeverity.Critical: level = LogLevel.Critical; break;
+                        case LogSeverity.Error: level = LogLevel.Error; break;
+                        case LogSeverity.Info: level = LogLevel.Information; break;
+                        case LogSeverity.Debug: level = LogLevel.Debug; break;
+                        case LogSeverity.Verbose: level = LogLevel.Trace; break;
+                    }
+                    logger.Log(level, arg.Message);
+                    return Task.CompletedTask;
+                }
+
                 return Task.Run(async () =>
                 {
                     var readyCompletion = new TaskCompletionSource();
@@ -28,6 +44,7 @@ public static class DiscordRegistrationExtensions
                         GatewayIntents =  GatewayIntents.None,
                     };
                     var client = new DiscordSocketClient(discordSocketConfig);
+                    client.Log += LogDiscordClientMessage;
                     client.Ready += OnClientReady;
                     await client.LoginAsync(TokenType.Bot, discordBotToken);
                     await client.StartAsync();
