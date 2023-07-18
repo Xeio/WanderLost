@@ -45,7 +45,10 @@ public class DiscordBotService : BackgroundService
 
     private async Task MessageReceived(SocketMessage arg)
     {
-        if (arg.Type == MessageType.Default && arg is SocketUserMessage userMessage && arg.Channel.GetChannelType() == ChannelType.DM)
+        if (arg.Type == MessageType.Default
+            && !arg.Author.IsBot 
+            && arg is SocketUserMessage userMessage
+            && arg.Channel is IDMChannel)
         {
             await userMessage.ReplyAsync($"To set up a subscription use the {Format.Code("/manage-merchant-notifications")} command.");
         }
