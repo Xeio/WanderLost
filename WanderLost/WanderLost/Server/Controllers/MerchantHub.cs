@@ -18,14 +18,16 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
     private readonly PushSubscriptionManager _pushSubscriptionManager;
     private readonly IConfiguration _configuration;
     private readonly IMemoryCache _memoryCache;
+    private readonly IWebHostEnvironment _environment;
 
-    public MerchantHub(DataController dataController, MerchantsDbContext merchantsDbContext, PushSubscriptionManager pushSubscriptionManager, IConfiguration configuration, IMemoryCache memoryCache)
+    public MerchantHub(DataController dataController, MerchantsDbContext merchantsDbContext, PushSubscriptionManager pushSubscriptionManager, IConfiguration configuration, IMemoryCache memoryCache, IWebHostEnvironment environment)
     {
         _dataController = dataController;
         _merchantsDbContext = merchantsDbContext;
         _pushSubscriptionManager = pushSubscriptionManager;
         _configuration = configuration;
         _memoryCache = memoryCache;
+        _environment = environment;
     }
 
     [Authorize(Policy = nameof(RareCombinationRestricted))]
@@ -265,13 +267,12 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
 
     private string GetClientIp()
     {
-#if DEBUG
-        //In debug mode, allow using the connection ID to simulate multiple clients
-        return Context.ConnectionId;
-#else
-        var remoteAddr = Context.GetHttpContext()?.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
-        return remoteAddr;
-#endif
+        if (_environment.IsDevelopment())
+        {
+            //In dev mode, allow using the connection ID to simulate multiple clients
+            return Context.ConnectionId;
+        }
+        return Context.GetHttpContext()?.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
     }
 
     public Task<bool> HasNewerClient(int version)
