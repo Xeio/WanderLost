@@ -204,9 +204,7 @@ app.UseStaticFiles(new StaticFileOptions()
 using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
 {
     //Ensure model is created and up to date on startup
-    using var merchantsContext = serviceScope.ServiceProvider.GetService<MerchantsDbContext>();
-
-    if (merchantsContext is null) throw new Exception("Failed to get required MerchantDbContext during startup migrations.");
+    using var merchantsContext = serviceScope.ServiceProvider.GetRequiredService<MerchantsDbContext>();
 
     using CancellationTokenSource timeoutTokenSource = new();
     timeoutTokenSource.CancelAfter(TimeSpan.FromMinutes(10));
