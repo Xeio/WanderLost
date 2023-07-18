@@ -41,8 +41,8 @@ public class DiscordPushProcessor
 
         foreach (var subscription in testSubscriptions)
         {
-            var user = await _discordClient.GetUserAsync(subscription.UserId) as SocketUser;
-            if(user is null)
+            var user = await _discordClient.GetUserAsync(subscription.UserId);
+            if (user is null)
             {
                 subscription.SendTestNotification = false;
                 _logger.LogWarning("Unable to get user {UserId} for test notification", subscription.UserId);

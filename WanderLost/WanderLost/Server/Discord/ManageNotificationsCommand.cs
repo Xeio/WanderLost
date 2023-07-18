@@ -8,7 +8,6 @@ namespace WanderLost.Server.Discord;
 public class ManageNotificationsCommand : IDiscordCommand
 {
     private readonly DiscordSubscriptionManager _subscriptionManager;
-    private readonly ILogger<ManageNotificationsCommand> _logger;
     private readonly DataController _dataController;
 
     const string MANAGE_NOTIFICATION_COMMAND = "manage-merchant-notifications";
@@ -24,9 +23,8 @@ public class ManageNotificationsCommand : IDiscordCommand
     const string UPDATE_VOTES_BUTTON = "update-votes-button";
     const string REMOVE_ALL_NOTIFICATIONS_BUTTON = "remove-all-notifications-button";
 
-    public ManageNotificationsCommand(ILogger<ManageNotificationsCommand> logger, DiscordSubscriptionManager subscriptionManager, DataController dataController)
+    public ManageNotificationsCommand(DiscordSubscriptionManager subscriptionManager, DataController dataController)
     {
-        _logger = logger;
         _subscriptionManager = subscriptionManager;
         _dataController = dataController;
     }
