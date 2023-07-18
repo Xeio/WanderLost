@@ -269,17 +269,6 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
         //In debug mode, allow using the connection ID to simulate multiple clients
         return Context.ConnectionId;
 #else
-
-        //Check for header added by Nginx proxy
-        //Potential security concern if this is not hosted behind a proxy that sets X-Real-IP,
-        //that a malicious user could inject this header to fake address. Maybe make this configurable?
-        var headers = Context.GetHttpContext()?.Request.Headers;
-        if(headers?["X-Real-IP"].ToString() is string realIp && !string.IsNullOrWhiteSpace(realIp))
-        {
-            return realIp;
-        }
-
-        //Fallback for dev environment
         var remoteAddr = Context.GetHttpContext()?.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
         return remoteAddr;
 #endif

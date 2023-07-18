@@ -1,15 +1,16 @@
-using Discord.WebSocket;
 using Duende.IdentityServer.Services;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
+using System.Net;
 using WanderLost.Server.Controllers;
 using WanderLost.Server.Data;
 using WanderLost.Server.Discord;
@@ -124,6 +125,15 @@ if (!builder.Environment.IsDevelopment())
 }
 
 var app = builder.Build();
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions()
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor,
+    KnownNetworks = {
+        new IPNetwork(IPAddress.Parse("127.16.0.0"), 12), //Docker subnets
+        new IPNetwork(IPAddress.Parse("::ffff:172.16.0.0"), 108), //Ipv6 docker subnet
+    }
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
