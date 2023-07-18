@@ -60,7 +60,7 @@ public class LeaderboardProcessor : BackgroundService
                 })
                 .FirstOrDefaultAsync(stoppingToken) ?? new { VoteTotal = 0, TotalSubmisisons = 0, OldestSubmission = DateTime.Now, NewestSubmission = DateTime.Now };
 
-            if(_validServers is null)
+            if (_validServers is null)
             {
                 var staticData = scope.ServiceProvider.GetRequiredService<DataController>();
                 _validServers = (await staticData.GetServerRegions()).SelectMany(sr => sr.Value.Servers).ToArray();
@@ -71,7 +71,8 @@ public class LeaderboardProcessor : BackgroundService
                 .Where(m => _validServers.Contains(m.ActiveMerchantGroup.Server))
                 .Where(m => m.UploadedByUserId == merchant.UploadedByUserId && m.Votes >= 0 && !m.Hidden)
                 .Include(m => m.ActiveMerchantGroup)
-                .GroupBy(m => m.ActiveMerchantGroup.Server, (server, rows) => new {
+                .GroupBy(m => m.ActiveMerchantGroup.Server, (server, rows) => new
+                {
                     Server = server,
                     Count = rows.Count()
                 })
@@ -87,7 +88,7 @@ public class LeaderboardProcessor : BackgroundService
                                 .SetProperty(l => l.PrimaryServer, l => server),
                                 stoppingToken);
 
-            if(updateCount == 0)
+            if (updateCount == 0)
             {
                 //Need to insert the leaderboard record instead
                 merchantDbContext.Add(new LeaderboardEntry()

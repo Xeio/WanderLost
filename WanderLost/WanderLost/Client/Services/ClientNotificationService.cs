@@ -78,7 +78,7 @@ public sealed class ClientNotificationService : IAsyncDisposable
     {
         return _merchantFoundNotificationCooldown.TryGetValue(merchantGroup.MerchantName, out DateTimeOffset cooldown) && DateTime.Now < cooldown;
     }
-    
+
     private bool AnyMerchantNotified(ActiveMerchantGroup merchantGroup, [NotNullWhen(true)] out ActiveMerchant? notifiedMerchant)
     {
         notifiedMerchant = null;
@@ -133,7 +133,7 @@ public sealed class ClientNotificationService : IAsyncDisposable
 
         _merchantFoundNotificationCooldown[merchantGroup.MerchantName] = merchantGroup.AppearanceExpires;
 
-        if(_activeData.Votes.ContainsKey(notifiedMerchant.Id))
+        if (_activeData.Votes.ContainsKey(notifiedMerchant.Id))
         {
             //Don't need to play alert for merchants user has upvoted (either submitted or otherwise)
             return;
@@ -161,7 +161,7 @@ public sealed class ClientNotificationService : IAsyncDisposable
         {
             body += "Conflicting merchant data, click for more information.";
         }
-        else if(nonNegativeMerchants.Count > 0)
+        else if (nonNegativeMerchants.Count > 0)
         {
             body += $"Location: {nonNegativeMerchants[0].Zone}\n";
             body += $"Card: {nonNegativeMerchants[0].Card.Name}\n";
@@ -199,7 +199,7 @@ public sealed class ClientNotificationService : IAsyncDisposable
 
     public async ValueTask ClearNotifications()
     {
-        foreach(var notification in _notifications)
+        foreach (var notification in _notifications)
         {
             await _jsRuntime.InvokeVoidAsync("Dismiss", notification);
             await notification.DisposeAsync();
@@ -225,7 +225,7 @@ public sealed class ClientNotificationService : IAsyncDisposable
 
         currentToken ??= await GetFCMToken();
 
-        if (!string.IsNullOrWhiteSpace(currentToken) && 
+        if (!string.IsNullOrWhiteSpace(currentToken) &&
             _clientSettings.SavedPushSubscription.Token != currentToken)
         {
             //Our token changed since we last subscribed

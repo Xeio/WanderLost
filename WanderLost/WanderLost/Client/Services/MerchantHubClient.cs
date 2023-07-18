@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.SignalR.Client;
-using WanderLost.Shared.Interfaces;
-using HubClientSourceGenerator;
-using WanderLost.Shared;
+﻿using HubClientSourceGenerator;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+using Microsoft.AspNetCore.SignalR.Client;
+using WanderLost.Shared;
+using WanderLost.Shared.Interfaces;
 
 namespace WanderLost.Client.Services;
 
@@ -17,7 +17,8 @@ public sealed partial class MerchantHubClient : IAsyncDisposable
     {
         _accessTokenProvider = accessTokenProvider;
         HubConnection = new HubConnectionBuilder()
-            .WithUrl(configuration["SocketEndpoint"] ?? throw new ApplicationException("Missing SocketEndpoint configuration"), options => { 
+            .WithUrl(configuration["SocketEndpoint"] ?? throw new ApplicationException("Missing SocketEndpoint configuration"), options =>
+            {
                 options.SkipNegotiation = true;
                 options.Transports = Microsoft.AspNetCore.Http.Connections.HttpTransportType.WebSockets;
                 options.AccessTokenProvider = GetToken;
@@ -36,7 +37,7 @@ public sealed partial class MerchantHubClient : IAsyncDisposable
         //Would like to increase this, but the browser seems to force-close "idle" sockets after ~3 minutes
         HubConnection.KeepAliveInterval = TimeSpan.FromMinutes(1);
     }
-    
+
     private async Task<string?> GetToken()
     {
         var tokenResult = await _accessTokenProvider.RequestAccessToken();

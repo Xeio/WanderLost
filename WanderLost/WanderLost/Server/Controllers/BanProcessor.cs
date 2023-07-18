@@ -63,12 +63,12 @@ public class BanProcessor : BackgroundService
                 //More than one bad legendary card
                 permaban = true;
             }
-            else if(!merchants.Any(m => m.Votes > 0))
+            else if (!merchants.Any(m => m.Votes > 0))
             {
                 //No positive submissions
                 permaban = true;
             }
-            else if(merchants.Sum(m => m.Votes) < 0)
+            else if (merchants.Sum(m => m.Votes) < 0)
             {
                 //Total votes on user are negative
                 permaban = true;
@@ -88,7 +88,7 @@ public class BanProcessor : BackgroundService
                 //No positive submissions
                 permaban = true;
             }
-            if(positiveLegendary == 0)
+            if (positiveLegendary == 0)
             {
                 //All the legendary rapports are negative
                 banDays = 14;
@@ -103,7 +103,7 @@ public class BanProcessor : BackgroundService
                 //User's total is negative
                 banDays = 30;
             }
-            if(merchants
+            if (merchants
                 .Where(m => m.ActiveMerchantGroup.AppearanceExpires > DateTimeOffset.Now.AddDays(-1))
                 .Where(m => m.Rapport.Rarity == Rarity.Legendary)
                 .Count(m => m.Votes < 0) > 1)
@@ -115,7 +115,7 @@ public class BanProcessor : BackgroundService
         else if (string.IsNullOrWhiteSpace(merchant.UploadedByUserId) && merchant.Votes < -2)
         {
             var merchants = await GetAssociatedMerchants(merchant, merchantContext, stoppingToken);
-            if(merchants.All(m => m.Votes <= 0) && merchants.Sum(m => m.Votes) < -9)
+            if (merchants.All(m => m.Votes <= 0) && merchants.Sum(m => m.Votes) < -9)
             {
                 //Anonymous user with no positive submissions
                 banDays = 14;
@@ -137,7 +137,7 @@ public class BanProcessor : BackgroundService
                     user.BannedAt = DateTimeOffset.Now;
                     _logger.LogInformation("Banning user {user} for merchant {merchantId}. Expires: {banExpires}", merchant.UploadedByUserId, merchant.Id, user.BanExpires);
                 }
-                else if(user.BanExpires < DateTimeOffset.Now)
+                else if (user.BanExpires < DateTimeOffset.Now)
                 {
                     //Banning again after expired ban, permaban
                     user.BanExpires = DateTimeOffset.Now.AddYears(100);
@@ -152,7 +152,7 @@ public class BanProcessor : BackgroundService
                     .AsNoTracking()
                     .Where(b => b.ClientId == merchant.UploadedBy)
                     .ToListAsync(stoppingToken);
-                if(!existingBans.Any(b => b.ExpiresAt > DateTimeOffset.Now))
+                if (!existingBans.Any(b => b.ExpiresAt > DateTimeOffset.Now))
                 {
                     //Extended ban if IP already has expired bans
                     var extendedBan = existingBans.Count > 0;
@@ -169,7 +169,7 @@ public class BanProcessor : BackgroundService
             }
         }
     }
-    
+
     public static async Task<List<ActiveMerchant>> GetAssociatedMerchants(ActiveMerchant merchant, MerchantsDbContext merchantContext, CancellationToken stoppingToken)
     {
         if (!string.IsNullOrWhiteSpace(merchant.UploadedByUserId))

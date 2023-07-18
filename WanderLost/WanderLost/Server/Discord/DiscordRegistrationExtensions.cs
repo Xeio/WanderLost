@@ -41,7 +41,7 @@ public static class DiscordRegistrationExtensions
                     }
                     var discordSocketConfig = new DiscordSocketConfig()
                     {
-                        GatewayIntents =  GatewayIntents.DirectMessages,
+                        GatewayIntents = GatewayIntents.DirectMessages,
                     };
                     var client = new DiscordSocketClient(discordSocketConfig);
                     client.Log += LogDiscordClientMessage;
@@ -61,5 +61,5 @@ public static class DiscordRegistrationExtensions
             builder.Services.AddScoped<IDiscordCommand, ManageNotificationsCommand>();
             builder.Services.AddScoped<IDiscordCommand, SendTestNotificationCommand>();
         }
-    }    
+    }
 }

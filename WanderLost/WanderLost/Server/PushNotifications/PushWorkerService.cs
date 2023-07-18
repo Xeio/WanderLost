@@ -34,7 +34,7 @@ public class PushWorkerService : BackgroundService
             {
                 _logger.LogCritical("Firebase not configured, skipping firebase message sending. Need 'FirebaseSecretFile' config setting for private key.");
             }
-            if(discordProcessor is null)
+            if (discordProcessor is null)
             {
                 _logger.LogCritical("Discord push message processor is not resolved, missing 'DiscordBotToken' config.");
             }

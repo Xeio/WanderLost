@@ -19,7 +19,7 @@ public class BackgroundVoteProcessor : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        using(var startupScope = _services.CreateScope())
+        using (var startupScope = _services.CreateScope())
         {
             //Get all the servers, which we'll process one at a time
             var dataController = startupScope.ServiceProvider.GetRequiredService<DataController>();
@@ -28,7 +28,7 @@ public class BackgroundVoteProcessor : BackgroundService
 
         }
 
-        if(_servers.Count == 0)
+        if (_servers.Count == 0)
         {
             _logger.LogCritical("Didn't find any servers to poll.");
             return;

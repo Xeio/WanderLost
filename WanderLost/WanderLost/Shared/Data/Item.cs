@@ -16,7 +16,7 @@ public class Item : IEquatable<Item>
     public bool Equals(Item? other)
     {
         return other is not null &&
-            Name == other.Name && 
+            Name == other.Name &&
             Rarity == other.Rarity;
     }
 }

@@ -9,7 +9,7 @@ public class ClickTrap
     public bool HasClicked
     {
         get { return _hasClicked; }
-        set 
+        set
         {
             if (HasClicked != value)
             {

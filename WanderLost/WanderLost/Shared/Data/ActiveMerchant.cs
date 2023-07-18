@@ -47,7 +47,7 @@ public class ActiveMerchant
     [MaxLength(60)]
     [JsonIgnore]
     [MessagePack.IgnoreMember]
-    public string UploadedBy { get;set; } = string.Empty;
+    public string UploadedBy { get; set; } = string.Empty;
 
     [MaxLength(60)]
     [JsonIgnore]
@@ -108,12 +108,12 @@ public class ActiveMerchant
             return false;
         }
 
-        if(string.IsNullOrEmpty(Tradeskill) && data.Tradeskills.Count > 0) return false;
-        
-        if (Tradeskill is not null) 
+        if (string.IsNullOrEmpty(Tradeskill) && data.Tradeskills.Count > 0) return false;
+
+        if (Tradeskill is not null)
         {
-            if(data.Tradeskills.Count == 0) return false;
-            if(!data.Tradeskills.Contains(Tradeskill)) return false;
+            if (data.Tradeskills.Count == 0) return false;
+            if (!data.Tradeskills.Contains(Tradeskill)) return false;
         }
 
         return true;

@@ -48,11 +48,11 @@ public class ManageNotificationsCommand : IDiscordCommand
             case UPDATE_VOTES_MODAL:
                 {
                     var value = arg.Data.Components.FirstOrDefault(c => c.CustomId == UPDATE_VOTES_TEXTINPUT)?.Value;
-                    if(int.TryParse(value, out var votes))
+                    if (int.TryParse(value, out var votes))
                     {
                         await _subscriptionManager.UpdateCardVoteThreshold(arg.User.Id, votes);
                     }
-                    
+
                     await BuildBasicCommandResponse(arg);
 
                     break;
@@ -89,9 +89,9 @@ public class ManageNotificationsCommand : IDiscordCommand
                     var cards = await _dataController.GetEpicLegendaryCards();
                     var select = new SelectMenuBuilder()
                     {
-                         Placeholder = "Select card to add",
-                         CustomId = ADD_CARD_DROPDOWN,
-                         MinValues = 1,
+                        Placeholder = "Select card to add",
+                        CustomId = ADD_CARD_DROPDOWN,
+                        MinValues = 1,
                     };
                     foreach (var card in cards
                         .Where(c => !currentSubscription.CardNotifications.Any(n => n.CardName == c.Name))
@@ -148,7 +148,7 @@ public class ManageNotificationsCommand : IDiscordCommand
                     var textInput = new TextInputBuilder()
                     {
                         Label = "Number of votes required before alerting",
-                        CustomId = UPDATE_VOTES_TEXTINPUT, 
+                        CustomId = UPDATE_VOTES_TEXTINPUT,
                         MinLength = 1,
                         MaxLength = 3,
                         Required = true,
@@ -244,7 +244,7 @@ public class ManageNotificationsCommand : IDiscordCommand
             case ADD_CARD_DROPDOWN:
                 {
                     var cards = await _dataController.GetEpicLegendaryCards();
-                    if(!arg.Data.Values.All(newCard => cards.Any(realCard => realCard.Name == newCard))) return;
+                    if (!arg.Data.Values.All(newCard => cards.Any(realCard => realCard.Name == newCard))) return;
 
                     await _subscriptionManager.AddCardsToSubscription(arg.User.Id, arg.Data.Values);
 
@@ -265,13 +265,13 @@ public class ManageNotificationsCommand : IDiscordCommand
 
     private static string BuildCurrentSubscriptionText(DiscordNotification? currentSubscription)
     {
-        if(currentSubscription is null || string.IsNullOrWhiteSpace(currentSubscription.Server))
+        if (currentSubscription is null || string.IsNullOrWhiteSpace(currentSubscription.Server))
         {
             return "You have no active subscription data. Select a server to begin.";
         }
 
         string cardsText;
-        if(currentSubscription.CardNotifications.Count > 0)
+        if (currentSubscription.CardNotifications.Count > 0)
         {
             cardsText = string.Join(", ", currentSubscription.CardNotifications.Select(n => n.CardName));
         }

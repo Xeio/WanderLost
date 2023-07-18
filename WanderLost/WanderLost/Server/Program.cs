@@ -29,7 +29,8 @@ builder.Services.AddDataProtection()
     .SetApplicationName("Wanderlost")
     .PersistKeysToDbContext<MerchantsDbContext>();
 
-builder.Services.AddIdentityCore<WanderlostUser>(opts => {
+builder.Services.AddIdentityCore<WanderlostUser>(opts =>
+{
     opts.User.AllowedUserNameCharacters = string.Empty;
 })
     .AddSignInManager()
@@ -220,7 +221,7 @@ using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>(
     {
         merchantsContext.Database.Migrate();
     }
-    catch(Microsoft.Data.SqlClient.SqlException)
+    catch (Microsoft.Data.SqlClient.SqlException)
     {
         //Try migrating twice, since we potentially expect the CombineDbContexts migration to fail the first time
         merchantsContext.Database.Migrate();

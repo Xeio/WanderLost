@@ -47,7 +47,7 @@ public static class Utils
             Name = "TESTONLY",
             Region = "TestRegion",
             Zones = { "Twilight Zone", "Cardassia Prime", "Medina Station" },
-            Cards = 
+            Cards =
             {
                 new Item() { Name = "Jack O'Neill", Rarity = Rarity.Legendary },
                 new Item() { Name = "Jaffa", Rarity = Rarity.Uncommon },

@@ -33,7 +33,7 @@ namespace WanderLost.Server.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateIndex( 
+            migrationBuilder.CreateIndex(
                 name: "IX_CardNotifications_CardName",
                 table: "CardNotifications",
                 column: "CardName");

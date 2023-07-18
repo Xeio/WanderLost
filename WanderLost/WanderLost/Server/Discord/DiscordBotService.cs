@@ -1,6 +1,5 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace WanderLost.Server.Discord;
 
@@ -46,7 +45,7 @@ public class DiscordBotService : BackgroundService
     private async Task MessageReceived(SocketMessage arg)
     {
         if (arg.Type == MessageType.Default
-            && !arg.Author.IsBot 
+            && !arg.Author.IsBot
             && arg is SocketUserMessage userMessage
             && arg.Channel is IDMChannel)
         {

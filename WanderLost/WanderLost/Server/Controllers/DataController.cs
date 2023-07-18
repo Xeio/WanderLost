@@ -1,7 +1,6 @@
 ﻿using HtmlAgilityPack;
 using Microsoft.Extensions.Caching.Memory;
 using System.Text.Json;
-using WanderLost.Client.Pages;
 using WanderLost.Shared;
 using WanderLost.Shared.Data;
 
@@ -97,8 +96,8 @@ public class DataController
                 _semaphore.Release();
             }
         }
-        
-        if(statuses is null)
+
+        if (statuses is null)
         {
             //Some error happened while retrieving statuses, assume servers are online
             return true;
@@ -123,7 +122,7 @@ public class DataController
             var doc = new HtmlDocument();
             doc.LoadHtml(html);
             var serverStatusnodes = doc.DocumentNode.Descendants().Where(n => n.HasClass("ags-ServerStatus-content-responses-response-server"));
-            
+
             var onlineStates = new Dictionary<string, bool>();
             foreach (var node in serverStatusnodes)
             {
@@ -132,7 +131,7 @@ public class DataController
                 var serverInMaintenance = node.Descendants().Any(n => n.HasClass("ags-ServerStatus-content-responses-response-server-status--maintenance"));
                 if (!string.IsNullOrWhiteSpace(name))
                 {
-                    if(Utils.HasMergedServer(name, out var mergedServer))
+                    if (Utils.HasMergedServer(name, out var mergedServer))
                     {
                         name = mergedServer;
                     }
@@ -158,7 +157,7 @@ public class DataController
                 //At least one server in maintenence mode
                 entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(2);
             }
-            else 
+            else
             {
                 //All servers are online
                 entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
@@ -167,7 +166,7 @@ public class DataController
             _logger.LogInformation("Server status {onlineCount} online of {total}.", onlineCount, totalCount);
             return onlineStates;
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             //If for any reason this fails, we'll just return a null and assume that all servers are online
             _logger.LogError(e, "Failed to retrieve Lost Ark server status.");

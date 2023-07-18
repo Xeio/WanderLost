@@ -13,7 +13,8 @@ internal static class Helpers
             .Where(m => m.MethodKind == MethodKind.PropertyGet)
             .FirstOrDefault(m => SymbolEqualityComparer.Default.Equals(m.ReturnType, hubConnectionType));
 
-        if (hubProperty == null) {
+        if (hubProperty == null)
+        {
             context.ReportDiagnostic(
                 Diagnostic.Create(
                     new DiagnosticDescriptor(

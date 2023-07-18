@@ -1,7 +1,5 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WanderLost.Server.Controllers;
 using WanderLost.Shared.Data;
 
 namespace WanderLost.Server.PushNotifications;

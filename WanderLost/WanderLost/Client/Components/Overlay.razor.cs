@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.JSInterop;
 using WanderLost.Shared.Data;
-using Microsoft.AspNetCore.Components.Routing;
 
 namespace WanderLost.Client.Components;
 

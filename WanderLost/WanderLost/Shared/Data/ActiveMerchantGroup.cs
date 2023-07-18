@@ -81,7 +81,7 @@ public class ActiveMerchantGroup
         {
             startingTime = DateTimeOffset.Now;
         }
-        
+
         var nextAppearanceTime = MerchantData.AppearanceTimes
             .Select(apperance => new DateTimeOffset(DateTimeOffset.UtcNow.ToOffset(serverUtcOffset).Date, serverUtcOffset) + apperance)
             .Where(time => time >= startingTime - MerchantDuration)

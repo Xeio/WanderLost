@@ -43,7 +43,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
         var allMerchantData = await _dataController.GetMerchantData();
         if (!merchant.IsValid(allMerchantData)) return;
 
-        if(!await _dataController.IsServerOnline(server)) return;
+        if (!await _dataController.IsServerOnline(server)) return;
 
         var merchantGroup = await _merchantsDbContext.MerchantGroups
             .TagWithCallSite()
@@ -51,7 +51,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
             .Include(g => g.ActiveMerchants)
             .FirstOrDefaultAsync();
 
-        if(merchantGroup == null)
+        if (merchantGroup == null)
         {
             //Merchant hasn't been saved to DB yet, get the in-memory one with expiration data calculated
             var activeMerchantGroups = await _dataController.GetActiveMerchantGroups(server);
@@ -118,7 +118,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
     }
 
     private async Task<bool> HandleBans(string clientIp, string server, ActiveMerchantGroup group, ActiveMerchant merchant)
-    {            
+    {
         //Skip out if no bans
         if (!await HasActiveBan(clientIp, Context.UserIdentifier)) return false;
 
@@ -164,7 +164,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
                .Where(v => v.ActiveMerchantId == merchantId)
                .FirstOrDefaultAsync(v => v.ClientId == clientId);
         }
-        if(existingVote is null)
+        if (existingVote is null)
         {
             var vote = new Vote()
             {
@@ -183,7 +183,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
             //Vote totals are tallied and sent by BackgroundVoteProcessor, just tell client their vote was counted
             await Clients.Caller.UpdateVoteSelf(merchantId, voteType);
         }
-        else if(existingVote.VoteType != voteType)
+        else if (existingVote.VoteType != voteType)
         {
             existingVote.VoteType = voteType;
 
@@ -212,7 +212,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, server);
         }
-    }        
+    }
 
     public async Task UnsubscribeFromServer(string server)
     {
@@ -233,9 +233,9 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
             .Where(g => g.Server == server && g.AppearanceExpires > DateTimeOffset.Now)
             .Select(mg => new ActiveMerchantGroup
             {
-                 Server = mg.Server,
-                 MerchantName = mg.MerchantName,
-                 ActiveMerchants = mg.ActiveMerchants
+                Server = mg.Server,
+                MerchantName = mg.MerchantName,
+                ActiveMerchants = mg.ActiveMerchants
                                         .Where(m => !m.Hidden || (clientIp != null && m.UploadedBy == clientIp) || (Context.UserIdentifier != null && m.UploadedByUserId == Context.UserIdentifier))
                                         .ToList(),
             })
@@ -291,7 +291,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
             var user = await _merchantsDbContext.Users
                 .TagWithCallSite()
                 .FirstOrDefaultAsync(u => u.Id == userId);
-            if(user is not null)
+            if (user is not null)
             {
                 return user.BanExpires > DateTimeOffset.Now;
             }
@@ -400,7 +400,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
     [Authorize]
     public async Task UpdateDisplayName(string? displayName)
     {
-        if(Context.UserIdentifier is null) throw new AuthenticationException();
+        if (Context.UserIdentifier is null) throw new AuthenticationException();
 
         if (string.IsNullOrWhiteSpace(displayName))
         {

@@ -25,7 +25,7 @@ public partial class Settings
     {
         await ClientSettings.SetNotifyBrowserSoundEnabled(!ClientSettings.NotifyBrowserSoundEnabled);
     }
-    
+
     protected async Task ToggleCompactMode()
     {
         await ClientSettings.SetCompactMode(!ClientSettings.CompactMode);
@@ -84,7 +84,7 @@ public partial class Settings
                 notificationSetting.Rapports.Add(rapport.Name);
             }
         }
-        else if(category == NotificationSettingType.Tradeskill && value is string tradeskillName)
+        else if (category == NotificationSettingType.Tradeskill && value is string tradeskillName)
         {
             if (notificationSetting.Tradeskills.Contains(tradeskillName))
             {
