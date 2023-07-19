@@ -69,6 +69,7 @@ public class DiscordPushProcessor
         //First check cards for notifications
         var cardSubscriptions = await _merchantContext.DiscordNotifications
             .TagWithCallSite()
+            .AsNoTracking()
             .Where(d => d.Server == merchant.ActiveMerchantGroup.Server)
             .Where(d => d.CardNotifications.Any(c => c.CardName == merchant.Card.Name))
             .Where(d => !_merchantContext.SentDiscordNotifications.Any(sent => sent.MerchantId == merchant.Id && sent.DiscordNotificationUserId == d.UserId))
@@ -87,24 +88,33 @@ public class DiscordPushProcessor
 
         _logger.LogInformation("Sending {attemptCount} Discord messages for merchant {merchantId}.", subcriptions.Count, merchant.Id);
 
-        foreach (var subscription in subcriptions)
+        foreach (var chunk in subcriptions.Chunk(20))
         {
-            var user = await _discordClient.GetUserAsync(subscription.UserId);
-            if (user is null)
+            try
             {
-                _logger.LogWarning("Unable to get user {UserId} for merchant notification", subscription.UserId);
-                continue;
+                foreach (var subscription in chunk)
+                {
+                    var user = await _discordClient.GetUserAsync(subscription.UserId);
+                    if (user is null)
+                    {
+                        _logger.LogWarning("Unable to get user {UserId} for merchant notification", subscription.UserId);
+                        continue;
+                    }
+                    await user.SendMessageAsync(embed: embed);
+
+                    await _merchantContext.SentDiscordNotifications.AddAsync(new SentDiscordNotification()
+                    {
+                        MerchantId = merchant.Id,
+                        DiscordNotificationUserId = subscription.UserId,
+                    });
+                }
             }
-            await user.SendMessageAsync(embed: embed);
-
-            await _merchantContext.SentDiscordNotifications.AddAsync(new SentDiscordNotification()
+            finally
             {
-                MerchantId = merchant.Id,
-                DiscordNotificationUserId = subscription.UserId,
-            });
+                //Make sure we record any sent responses
+                await _merchantContext.SaveChangesAsync();
+            }
         }
-
-        await _merchantContext.SaveChangesAsync();
     }
 
     private async Task<Embed> BuildMerchantMessage(ActiveMerchant merchant)
