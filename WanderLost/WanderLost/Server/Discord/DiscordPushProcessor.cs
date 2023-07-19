@@ -130,6 +130,7 @@ public class DiscordPushProcessor
         embed.AddField("Card", merchant.Card.Name);
         embed.AddField("Region", region);
         embed.AddField("Zone", merchant.Zone);
+        embed.AddField("Spawn expires", TimestampTag.FormatFromDateTimeOffset(merchant.ActiveMerchantGroup.AppearanceExpires, TimestampTagStyles.Relative));
 
         return embed.Build();
     }
