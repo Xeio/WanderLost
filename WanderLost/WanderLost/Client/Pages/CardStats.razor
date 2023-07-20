@@ -1,0 +1,92 @@
+﻿@page "/CardStats"
+<PageTitle>Card Stats</PageTitle>
+
+@inject ClientStaticDataController StaticData
+@inject MerchantHubClient HubClient
+
+<div class="container">
+    <div class="cardstats__select-container">
+        <div class="cardstats__label brand-label">Card Selection:</div>
+        <select class="cardstats__select" @bind="@SelectedCard">
+            <option></option>
+            @foreach (var card in StaticData.Merchants.SelectMany(m => m.Value.Cards)
+            .Where(c => c.Rarity >= Rarity.Legendary)
+            .DistinctBy(c => c.Name)
+            .OrderByDescending(c => c.Rarity)
+            .ThenBy(c => c.Name))
+            {
+                <option value="@card.Name" class="rarity--@card.Rarity">@card.Name</option>
+            }
+        </select>
+    </div>
+    <div class="row cardstats__content">
+        <div class="col-sm">
+            <div class="row">
+                <div class="h3 col">Recent Appearances</div>
+            </div>
+            <table class="table">
+                <tbody>
+                    @foreach (var recent in _currentStats.RecentAppearances)
+                    {
+                        <tr>
+                            <td>@recent.Server</td>
+                            <td>@recent.AppearanceTime.ToLocalTime().ToString("MM-dd HH:mm")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-sm">
+            <div class="row">
+                <div class="h3 col">Per-Server Counts</div>
+            </div>
+            <table class="table">
+                <tbody>
+                    @foreach (var counts in _currentStats.ServerCardCounts)
+                    {
+                        <tr>
+                            <td>@counts.Server</td>
+                            <td>@counts.Count</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string _selectedCard = string.Empty;
+
+    private string SelectedCard
+    {
+        get { return _selectedCard; }
+
+        set
+        {
+            if(_selectedCard != value)
+            {
+                _selectedCard = value;
+                Task.Run(UpdateStatsDisplay);
+            }
+        }
+    }
+
+    private WanderLost.Shared.Data.CardStats _currentStats = new();
+
+    private async Task UpdateStatsDisplay()
+    {
+        if (!string.IsNullOrWhiteSpace(SelectedCard))
+        {
+            _currentStats = await HubClient.GetCardStats(SelectedCard);
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await StaticData.Init();
+        await HubClient.Connect();
+    }
+}
