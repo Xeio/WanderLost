@@ -10,10 +10,10 @@
         <select class="cardstats__select" @bind="@SelectedCard">
             <option></option>
             @foreach (var card in StaticData.Merchants.SelectMany(m => m.Value.Cards)
-            .Where(c => c.Rarity >= Rarity.Legendary)
-            .DistinctBy(c => c.Name)
-            .OrderByDescending(c => c.Rarity)
-            .ThenBy(c => c.Name))
+                                                        .Where(c => c.Rarity >= Rarity.Legendary)
+                                                        .DistinctBy(c => c.Name)
+                                                        .OrderByDescending(c => c.Rarity)
+                                                        .ThenBy(c => c.Name))
             {
                 <option value="@card.Name" class="rarity--@card.Rarity">@card.Name</option>
             }
