@@ -15,7 +15,7 @@ public interface IMerchantHubServer
     Task UpdatePushSubscription(PushSubscription subscription);
     Task RemovePushSubscription(string clientToken);
     Task<ProfileStats> GetProfileStats();
-    Task<WeiStats> GetWeiStats();
+    Task<CardStats> GetCardStats(string cardName);
     Task<List<LeaderboardEntry>> GetLeaderboard(string? server);
     Task UpdateDisplayName(string? displayName);
 }

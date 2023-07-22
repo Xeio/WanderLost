@@ -340,19 +340,20 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
         };
     }
 
-    public async Task<WeiStats> GetWeiStats()
+    public async Task<CardStats> GetCardStats(string cardName)
     {
-        return await _memoryCache.GetOrCreateAsync(nameof(GetWeiStats), async (cacheEntry) =>
+        var validCards = await _dataController.GetEpicLegendaryCards();
+        if (!validCards.Any(c => c.Name == cardName)) return new();
+
+        return await _memoryCache.GetOrCreateAsync($"CardStats_{cardName}", async (cacheEntry) =>
         {
             cacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
 
             await _merchantsDbContext.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadUncommitted);
 
-            WeiStats stats = new();
-
-            var weiCounts = await _merchantsDbContext.ActiveMerchants
+            var cardCounts = await _merchantsDbContext.ActiveMerchants
                 .TagWithCallSite()
-                .Where(m => m.Card.Name == "Wei" && !m.Hidden && m.Votes > 0)
+                .Where(m => m.Card.Name == cardName && !m.Hidden && m.Votes > 0)
                 .GroupBy(m => m.ActiveMerchantGroup.Server, (server, rows) => new
                 {
                     Server = server,
@@ -361,9 +362,9 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
                 .OrderByDescending(i => i.Count)
                 .ToListAsync();
 
-            var recentWeis = await _merchantsDbContext.ActiveMerchants
+            var recentAppearances = await _merchantsDbContext.ActiveMerchants
                 .TagWithCallSite()
-                .Where(m => m.Card.Name == "Wei" && !m.Hidden && m.Votes > 0)
+                .Where(m => m.Card.Name == cardName && !m.Hidden && m.Votes > 0)
                 .OrderByDescending(m => m.ActiveMerchantGroup.NextAppearance)
                 .Select(m => new { m.ActiveMerchantGroup.Server, m.ActiveMerchantGroup.NextAppearance })
                 .Take(50)
@@ -371,10 +372,10 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
 
             await _merchantsDbContext.Database.RollbackTransactionAsync();
 
-            return new WeiStats()
+            return new CardStats()
             {
-                ServerWeiCounts = weiCounts.Select(c => (c.Server, c.Count)).ToList(),
-                RecentWeis = recentWeis.Select(r => (r.Server, r.NextAppearance)).ToList()
+                ServerCardCounts = cardCounts.Select(c => (c.Server, c.Count)).ToList(),
+                RecentAppearances = recentAppearances.Select(r => (r.Server, r.NextAppearance)).ToList()
             };
         }) ?? new();
     }
