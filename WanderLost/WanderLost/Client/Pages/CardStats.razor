@@ -8,7 +8,6 @@
     <div class="cardstats__select-container">
         <div class="cardstats__label brand-label">Card Selection:</div>
         <select class="cardstats__select" @bind="@SelectedCard">
-            <option></option>
             @foreach (var card in StaticData.Merchants.SelectMany(m => m.Value.Cards)
                                                         .Where(c => c.Rarity >= Rarity.Legendary)
                                                         .DistinctBy(c => c.Name)
@@ -57,7 +56,7 @@
 </div>
 
 @code {
-    private string _selectedCard = string.Empty;
+    private string _selectedCard = "Wei";
 
     private string SelectedCard
     {
@@ -88,5 +87,6 @@
     {
         await StaticData.Init();
         await HubClient.Connect();
+        await UpdateStatsDisplay();
     }
 }

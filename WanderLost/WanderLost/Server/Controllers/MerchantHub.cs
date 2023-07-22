@@ -342,13 +342,14 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
 
     public async Task<CardStats> GetCardStats(string cardName)
     {
-        return await _memoryCache.GetOrCreateAsync(cardName, async (cacheEntry) =>
+        var validCards = await _dataController.GetEpicLegendaryCards();
+        if (!validCards.Any(c => c.Name == cardName)) return new();
+
+        return await _memoryCache.GetOrCreateAsync($"CardStats_{cardName}", async (cacheEntry) =>
         {
             cacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
 
             await _merchantsDbContext.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadUncommitted);
-
-            CardStats stats = new();
 
             var cardCounts = await _merchantsDbContext.ActiveMerchants
                 .TagWithCallSite()
