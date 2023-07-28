@@ -20,6 +20,9 @@ else if (!string.IsNullOrWhiteSpace(Message))
 
 
 <div class="container">
+    <div>Want to try the new Discord bot for DM notifications? Add it to your server with <a href="https://discord.com/api/oauth2/authorize?client_id=968712113189175317&permissions=2147485696&scope=bot">this link</a> and message the bot to configure.</div>
+    <br/>
+
     @if(!string.IsNullOrWhiteSpace(PushSubscription.Token))
     {
         <h3>Subscribed to server: <strong>@PushSubscription.Server</strong></h3>
