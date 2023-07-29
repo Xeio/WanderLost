@@ -40,24 +40,34 @@ public class DiscordPushProcessor
 
         _logger.LogInformation("Sending {attemptCount} test discord messages.", testSubscriptions.Count);
 
-        foreach (var subscription in testSubscriptions)
+        try
         {
-            var user = await _discordClient.GetUserAsync(subscription.UserId);
-            if (user is null)
+            foreach (var subscription in testSubscriptions)
             {
-                subscription.SendTestNotification = false;
-                _logger.LogWarning("Unable to get user {UserId} for test notification", subscription.UserId);
-                continue;
+
+                try
+                {
+                    var user = await _discordClient.GetUserAsync(subscription.UserId);
+                    if (user is null)
+                    {
+                        _logger.LogWarning("Unable to get user {UserId} for test notification", subscription.UserId);
+                        continue;
+                    }
+                    await user.SendMessageAsync("Test notification for Lost Merchants");
+                }
+                catch (HttpException e) when (e.DiscordCode == DiscordErrorCode.CannotSendMessageToUser)
+                {
+                    _logger.LogInformation("Unable to send test message to discord user {UserId}", subscription.UserId);
+                }
+                finally
+                {
+                    subscription.SendTestNotification = false;
+                }
             }
-            try
-            {
-                await user.SendMessageAsync("Test notification for Lost Merchants");
-            }
-            finally
-            {
-                subscription.SendTestNotification = false;
-                await _merchantContext.SaveChangesAsync(stoppingToken);
-            }
+        }
+        finally
+        {
+            await _merchantContext.SaveChangesAsync(stoppingToken);
         }
 
         _merchantContext.ChangeTracker.Clear();
