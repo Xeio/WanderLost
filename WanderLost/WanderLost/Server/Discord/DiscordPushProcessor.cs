@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Discord.Net;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using WanderLost.Server.Controllers;
@@ -105,13 +106,22 @@ public class DiscordPushProcessor
                         _logger.LogWarning("Unable to get user {UserId} for merchant notification", subscription.UserId);
                         continue;
                     }
-                    await user.SendMessageAsync(embed: embed);
-
-                    await _merchantContext.SentDiscordNotifications.AddAsync(new SentDiscordNotification()
+                    try
                     {
-                        MerchantId = merchant.Id,
-                        DiscordNotificationUserId = subscription.UserId,
-                    });
+                        await user.SendMessageAsync(embed: embed);
+
+                        await _merchantContext.SentDiscordNotifications.AddAsync(new SentDiscordNotification()
+                        {
+                            MerchantId = merchant.Id,
+                            DiscordNotificationUserId = subscription.UserId,
+                        });
+                    }
+                    catch(HttpException e) when (e.DiscordCode == DiscordErrorCode.CannotSendMessageToUser)
+                    {
+                        //User disallows DMs or the bot otherwise can't send the message, purge the subscription
+                        _logger.LogInformation("Unable to message discord user {UserId}, purging subscription.", subscription.UserId);
+                        _merchantContext.Entry(subscription).State = EntityState.Deleted;
+                    }
                 }
             }
             finally
