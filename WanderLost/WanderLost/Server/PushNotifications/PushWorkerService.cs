@@ -1,4 +1,5 @@
-﻿using FirebaseAdmin.Messaging;
+﻿using Discord.Net;
+using FirebaseAdmin.Messaging;
 using Microsoft.EntityFrameworkCore;
 using WanderLost.Server.Controllers;
 using WanderLost.Server.Discord;
@@ -82,6 +83,10 @@ public class PushWorkerService : BackgroundService
             catch (HttpRequestException e)
             {
                 _logger.LogError(e, "Failed communication with Discord.");
+            }
+            catch (HttpException e)
+            {
+                _logger.LogError(e, "Discord exception.");
             }
         }
     }

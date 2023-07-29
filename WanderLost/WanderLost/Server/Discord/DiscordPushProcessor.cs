@@ -48,11 +48,16 @@ public class DiscordPushProcessor
                 _logger.LogWarning("Unable to get user {UserId} for test notification", subscription.UserId);
                 continue;
             }
-            await user.SendMessageAsync("Test notification for Lost Merchants");
-            subscription.SendTestNotification = false;
+            try
+            {
+                await user.SendMessageAsync("Test notification for Lost Merchants");
+            }
+            finally
+            {
+                subscription.SendTestNotification = false;
+                await _merchantContext.SaveChangesAsync(stoppingToken);
+            }
         }
-
-        await _merchantContext.SaveChangesAsync(stoppingToken);
 
         _merchantContext.ChangeTracker.Clear();
     }
