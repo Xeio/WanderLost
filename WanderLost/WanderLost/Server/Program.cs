@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
+using Prometheus;
 using System.Net;
 using WanderLost.Server.Controllers;
 using WanderLost.Server.Data;
@@ -201,6 +202,8 @@ app.UseStaticFiles(new StaticFileOptions()
         }
     }
 });
+
+app.MapMetrics();
 
 using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
 {
