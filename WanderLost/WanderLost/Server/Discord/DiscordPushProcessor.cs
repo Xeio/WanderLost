@@ -148,7 +148,7 @@ public class DiscordPushProcessor
 
         var embed = new EmbedBuilder()
         {
-            Title = "Lost Merchants card notification",
+            Title = $"{merchant.Card.Name} Card - {region} - {merchant.Zone}",
             Url = _configuration["IdentityServerOrigin"],
             Color = merchant.Card.Rarity == Rarity.Legendary ? Color.Gold : Color.DarkPurple,
         };
