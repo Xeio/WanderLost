@@ -12,6 +12,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using Prometheus;
 using System.Net;
+using WanderLost.Server.Authorization;
 using WanderLost.Server.Controllers;
 using WanderLost.Server.Data;
 using WanderLost.Server.Discord;
@@ -50,6 +51,10 @@ builder.Services.AddAuthorization(authorizationOptions =>
     authorizationOptions.AddPolicy(nameof(RareCombinationRestricted), policy =>
     {
         policy.Requirements.Add(new RareCombinationRestricted());
+    });
+    authorizationOptions.AddPolicy(nameof(DockerSubnetOnly), policy =>
+    {
+        policy.Requirements.Add(new DockerSubnetOnly());
     });
 });
 
@@ -128,14 +133,15 @@ if (!builder.Environment.IsDevelopment())
 
 var app = builder.Build();
 
-app.UseForwardedHeaders(new ForwardedHeadersOptions()
+var forwardedHeaderOptions = new ForwardedHeadersOptions()
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedFor,
-    KnownNetworks = {
-        new IPNetwork(IPAddress.Parse("127.16.0.0"), 12), //Docker subnets
-        new IPNetwork(IPAddress.Parse("::ffff:172.16.0.0"), 108), //Ipv6 docker subnet
-    }
-});
+};
+foreach (var network in DockerSubnetOnly.DockerSubnets)
+{
+    forwardedHeaderOptions.KnownNetworks.Add(network);
+}
+app.UseForwardedHeaders(forwardedHeaderOptions);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -203,7 +209,7 @@ app.UseStaticFiles(new StaticFileOptions()
     }
 });
 
-app.MapMetrics();
+app.MapMetrics().RequireAuthorization(nameof(DockerSubnetOnly));
 
 using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
 {
