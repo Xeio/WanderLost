@@ -2,6 +2,7 @@
 using Discord.Net;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
+using Prometheus;
 using WanderLost.Server.Controllers;
 using WanderLost.Server.Discord.Data;
 using WanderLost.Shared.Data;
@@ -10,6 +11,9 @@ namespace WanderLost.Server.Discord;
 
 public class DiscordPushProcessor
 {
+    private static readonly Counter SentDiscordNotifications = Metrics.CreateCounter("lostmerchants_sent_discord_notifications", "Number of push notifications sent via discord.");
+    private static readonly Counter FailedDiscordNotifications = Metrics.CreateCounter("lostmerchants_failed_discord_notifications", "Number of push notifications that failed to send via discord.");
+
     private readonly ILogger<DiscordPushProcessor> _logger;
     private readonly MerchantsDbContext _merchantContext;
     private readonly DataController _dataController;
@@ -119,6 +123,8 @@ public class DiscordPushProcessor
                     try
                     {
                         await user.SendMessageAsync(embed: embed);
+                        
+                        SentDiscordNotifications.Inc();
 
                         await _merchantContext.SentDiscordNotifications.AddAsync(new SentDiscordNotification()
                         {
@@ -129,8 +135,14 @@ public class DiscordPushProcessor
                     catch(HttpException e) when (e.DiscordCode == DiscordErrorCode.CannotSendMessageToUser)
                     {
                         //User disallows DMs or the bot otherwise can't send the message, purge the subscription
+                        FailedDiscordNotifications.Inc();
                         _logger.LogInformation("Unable to message discord user {UserId}, purging subscription.", subscription.UserId);
                         _merchantContext.Entry(subscription).State = EntityState.Deleted;
+                    }
+                    catch
+                    {
+                        FailedDiscordNotifications.Inc();
+                        throw;
                     }
                 }
             }
