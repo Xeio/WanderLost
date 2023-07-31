@@ -1,5 +1,6 @@
 ﻿using FirebaseAdmin.Messaging;
 using Microsoft.EntityFrameworkCore;
+using Prometheus;
 using WanderLost.Server.Controllers;
 using WanderLost.Server.Data;
 using WanderLost.Shared.Data;
@@ -9,6 +10,9 @@ namespace WanderLost.Server.PushNotifications;
 public class PushMessageProcessor
 {
     private const int FirebaseBroadcastLimit = 500;
+
+    private static readonly Counter SentFirebaseNotifications = Metrics.CreateCounter("lostmerchants_sent_firebase_notifications", "Number of push notifications sent via firebase.");
+    private static readonly Counter FailedFirebaseNotifications = Metrics.CreateCounter("lostmerchants_failed_firebase_notifications", "Number of push notifications that failed to send via firebase.");
 
     private readonly ILogger<PushMessageProcessor> _logger;
     private readonly MerchantsDbContext _merchantContext;
@@ -187,10 +191,12 @@ public class PushMessageProcessor
 
             if (batchResponse.SuccessCount > 0)
             {
+                SentFirebaseNotifications.Inc(batchResponse.SuccessCount);
                 _logger.LogInformation("{successCount} successful messages sent.", batchResponse.SuccessCount);
             }
             if (batchResponse.FailureCount > 0)
             {
+                FailedFirebaseNotifications.Inc(batchResponse.FailureCount);
                 _logger.LogInformation("{failureCount} messages failed to send.", batchResponse.FailureCount);
             }
 
