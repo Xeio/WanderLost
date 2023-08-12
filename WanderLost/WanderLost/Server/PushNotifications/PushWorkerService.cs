@@ -88,6 +88,11 @@ public class PushWorkerService : BackgroundService
             {
                 _logger.LogError(e, "Discord exception.");
             }
+            catch (TaskCanceledException e) when (e.InnerException is TimeoutException)
+            {
+                //Can happen during connectivity outages, Firebase does not catch timeouts from the socket
+                _logger.LogError(e, "Timeout during push sends.");
+            }
         }
     }
 }
