@@ -80,7 +80,7 @@ public class DiscordPushProcessor
     public async Task ProcessMerchant(ActiveMerchant merchant)
     {
         if (merchant.Votes < 0 || merchant.Hidden ||
-            merchant.ActiveMerchantGroup.AppearanceExpires < DateTimeOffset.Now)
+            merchant.ActiveMerchantGroup.AppearanceExpires < DateTimeOffset.Now.AddMinutes(-5))
         {
             //Don't need to send notifications for downvoted/hidden/expired merchants
             return;
