@@ -55,11 +55,28 @@ public class PushWorkerService : BackgroundService
                     .TagWithCallSite()
                     .Where(m => m.RequiresProcessing)
                     .Include(m => m.ActiveMerchantGroup)
+                    .ThenInclude(g => g.ActiveMerchants)
                     .ToListAsync(stoppingToken);
 
                 foreach (var merchant in merchants)
                 {
                     if (stoppingToken.IsCancellationRequested) break;
+
+                    if (merchant.Votes < 0 || merchant.Hidden ||
+                        merchant.ActiveMerchantGroup.AppearanceExpires < DateTimeOffset.Now.AddMinutes(-5))
+                    {
+                        //Don't need to send notifications for downvoted/hidden/expired merchants
+                        merchant.RequiresProcessing = false;
+                        continue;
+                    }
+
+                    int bestScore = merchant.ActiveMerchantGroup.ActiveMerchants.Max(m => m.Votes);
+                    if(merchant.Votes < bestScore)
+                    {
+                        //Only send notifications if the merchant is the highest voted in the group
+                        merchant.RequiresProcessing = false;
+                        continue;
+                    }
 
                     if (FirebaseAdmin.FirebaseApp.DefaultInstance is not null)
                     {
@@ -69,8 +86,6 @@ public class PushWorkerService : BackgroundService
                     {
                         await discordProcessor.ProcessMerchant(merchant);
                     }
-
-                    merchant.RequiresProcessing = false;
                 }
 
                 await merchantContext.SaveChangesAsync(stoppingToken);

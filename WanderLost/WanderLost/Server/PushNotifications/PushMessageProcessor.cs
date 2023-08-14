@@ -145,13 +145,6 @@ public class PushMessageProcessor
 
     public async Task ProcessMerchant(ActiveMerchant merchant)
     {
-        if (merchant.Votes < 0 || merchant.Hidden ||
-            merchant.ActiveMerchantGroup.AppearanceExpires < DateTimeOffset.Now.AddMinutes(-5))
-        {
-            //Don't need to send notifications for downvoted/hidden/expired merchants
-            return;
-        }
-
         //First check cards for notifications
         var cardSubscriptions = await _merchantContext.PushSubscriptions
             .TagWithCallSite()
