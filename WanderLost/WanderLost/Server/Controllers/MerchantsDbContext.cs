@@ -55,6 +55,18 @@ public class MerchantsDbContext : ApiAuthorizationDbContext<WanderlostUser>, IDa
             .HasIndex(m => new { m.RequiresLeaderboardProcessing })
             .HasFilter($"[{nameof(ActiveMerchant.RequiresLeaderboardProcessing)}] = 1");
 
+        modelBuilder.Entity<ActiveMerchant>().OwnsMany(m => m.Rapports, b =>
+        {
+            b.WithOwner().HasForeignKey("ActiveMerchantId");
+            b.HasKey("ActiveMerchantId", "Name");
+        });
+
+        modelBuilder.Entity<ActiveMerchant>().OwnsMany(m => m.Cards, b =>
+        {
+            b.WithOwner().HasForeignKey("ActiveMerchantId");
+            b.HasKey("ActiveMerchantId", "Name");
+        });
+
         modelBuilder.Entity<Ban>()
             .HasKey(b => new { b.ClientId, b.ExpiresAt });
 
