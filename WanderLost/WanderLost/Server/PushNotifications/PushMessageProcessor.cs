@@ -145,18 +145,19 @@ public class PushMessageProcessor
 
     public async Task ProcessMerchant(ActiveMerchant merchant)
     {
+        var cardsToCheck = merchant.Cards.Select(c => c.Name).ToList();
         //First check cards for notifications
         var cardSubscriptions = await _merchantContext.PushSubscriptions
             .TagWithCallSite()
             .Where(s => s.Server == merchant.ActiveMerchantGroup.Server)
-            .Where(s => s.CardNotifications.Any(c => c.CardName == merchant.Card.Name))
+            .Where(d => d.CardNotifications.Any(cn => cardsToCheck.Any(c => cn.CardName == c)))
             .Where(s => !_merchantContext.SentPushNotifications.Any(sent => sent.Merchant == merchant && sent.SubscriptionId == s.Id))
             .Where(s => s.CardVoteThreshold <= merchant.Votes)
             .ToListAsync();
 
         await SendSubscriptionMessages(merchant, cardSubscriptions, isCard: true);
 
-        if (merchant.Rapport.Rarity >= Rarity.Legendary)
+        if (merchant.Rapports.Max(r => r.Rarity) >= Rarity.Legendary)
         {
             //Rapport notifications will only be sent for a subscription if it didn't already get notified for a card
             var rapportSubscriptions = await _merchantContext.PushSubscriptions
@@ -263,6 +264,7 @@ public class PushMessageProcessor
     {
         string region = (await _dataController.GetMerchantData())[merchant.Name].Region;
         int ttl = Math.Max(60 * (55 - DateTime.Now.Minute + 1), 60);
+        var topCard = merchant.Cards.MaxBy(c => c.Rarity) ?? new();
         return new MulticastMessage()
         {
             Webpush = new WebpushConfig()
@@ -273,7 +275,7 @@ public class PushMessageProcessor
                 },
                 Notification = new WebpushNotification()
                 {
-                    Title = isCard ? $"{merchant.Card.Name} Card" : "Legendary Rapport",
+                    Title = isCard ? $"{topCard.Name} Card" : "Legendary Rapport",
                     Body = $"{region} - {merchant.Zone}",
                     Icon = "/images/notifications/ExclamationMark.png",
                     Tag = isCard ? "wei" : "rapport",
@@ -290,7 +292,7 @@ public class PushMessageProcessor
             {
                 Notification = new AndroidNotification()
                 {
-                    Title = isCard ? $"{merchant.Card.Name} Card" : "Legendary Rapport",
+                    Title = isCard ? $"{topCard.Name} Card" : "Legendary Rapport",
                     Body = $"{region} - {merchant.Zone}",
                     Tag = isCard ? "wei" : "rapport",
                     ChannelId = isCard ? "wei" : "rapport",

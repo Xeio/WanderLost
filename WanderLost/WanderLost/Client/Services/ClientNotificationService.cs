@@ -64,13 +64,13 @@ public sealed class ClientNotificationService : IAsyncDisposable
 
     private bool IsMerchantCardVoteThresholdReached(ActiveMerchant merchant)
     {
-        _clientSettings.CardVoteThresholdForNotification.TryGetValue(merchant.Card.Rarity, out int voteThreshold); //if TryGetValue fails, voteThreshold will be 0, actual true/false result does no matter in this case
+        _clientSettings.CardVoteThresholdForNotification.TryGetValue(merchant.Cards.Max(c => c.Rarity), out int voteThreshold); //if TryGetValue fails, voteThreshold will be 0, actual true/false result does no matter in this case
         return merchant.Votes >= voteThreshold;
     }
 
     private bool IsMerchantRapportVoteThresholdReached(ActiveMerchant merchant)
     {
-        _clientSettings.RapportVoteThresholdForNotification.TryGetValue(merchant.Rapport.Rarity, out int voteThreshold); //if TryGetValue fails, voteThreshold will be 0, actual true/false result does no matter in this case
+        _clientSettings.RapportVoteThresholdForNotification.TryGetValue(merchant.Rapports.Max(r => r.Rarity), out int voteThreshold); //if TryGetValue fails, voteThreshold will be 0, actual true/false result does no matter in this case
         return merchant.Votes >= voteThreshold;
     }
 
@@ -90,7 +90,7 @@ public sealed class ClientNotificationService : IAsyncDisposable
         }
 
         //check cards
-        foreach (var merchant in merchantGroup.ActiveMerchants.Where(m => notificationSetting.Cards.Contains(m.Card.Name)))
+        foreach (var merchant in merchantGroup.ActiveMerchants.Where(m => m.Cards.Any(c => notificationSetting.Cards.Contains(c.Name))))
         {
             if (IsMerchantCardVoteThresholdReached(merchant))
             {
@@ -99,7 +99,7 @@ public sealed class ClientNotificationService : IAsyncDisposable
             }
         }
         //check rapports
-        foreach (var merchant in merchantGroup.ActiveMerchants.Where(m => notificationSetting.Rapports.Contains(m.Rapport.Name)))
+        foreach (var merchant in merchantGroup.ActiveMerchants.Where(m => m.Rapports.Any(r => notificationSetting.Rapports.Contains(r.Name))))
         {
             if (IsMerchantRapportVoteThresholdReached(merchant))
             {
@@ -164,8 +164,8 @@ public sealed class ClientNotificationService : IAsyncDisposable
         else if (nonNegativeMerchants.Count > 0)
         {
             body += $"Location: {nonNegativeMerchants[0].Zone}\n";
-            body += $"Card: {nonNegativeMerchants[0].Card.Name}\n";
-            body += $"Rapport: {nonNegativeMerchants[0].Rapport.Name}\n";
+            body += $"Cards: {string.Join(", ", nonNegativeMerchants[0].Cards.Select(c => c.Name))}\n";
+            body += $"Rapports: {string.Join(", ", nonNegativeMerchants[0].Rapports.Select(r => r.Name))}\n";
         }
 
         await CreateNotification($"Wandering Merchant \"{merchantGroup.MerchantName}\" found", new { Body = body, Renotify = true, Tag = $"found_{merchantGroup.MerchantName}", Icon = "images/notifications/ExclamationMark.png" });

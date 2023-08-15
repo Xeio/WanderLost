@@ -5,7 +5,7 @@ namespace WanderLost.Shared.Data;
 
 [Owned]
 [MessagePack.MessagePackObject]
-public class Item : IEquatable<Item>
+public class Item : IEquatable<Item>, IComparable<Item>
 {
     [MaxLength(40)]
     [MessagePack.Key(0)]
@@ -18,5 +18,15 @@ public class Item : IEquatable<Item>
         return other is not null &&
             Name == other.Name &&
             Rarity == other.Rarity;
+    }
+
+    public int CompareTo(Item? other)
+    {
+        int cmp = Rarity.CompareTo(other?.Rarity);
+        if(cmp != 0)
+        {
+            return cmp;
+        }
+        return string.Compare(Name, other?.Name);
     }
 }

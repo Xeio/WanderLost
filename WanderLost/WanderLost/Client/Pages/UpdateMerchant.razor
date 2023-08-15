@@ -33,15 +33,13 @@
             <div class="card border-secondary mb-3">
                 <div class="card-header">Card</div>
                 <div class="card-body">
-                    <InputRadioGroup @bind-Value="CardName">
-                        @foreach(var card in MerchantData?.Cards ?? Enumerable.Empty<Item>())
-                        {
-                            <div class="form-check">
-                                <InputRadio class="form-check-input" Value="@card.Name" id="@card.Name"/>
-                                <label class="form-check-label" for="@card.Name"><ItemDisplay Item="@card" /></label>
-                            </div>
-                        }
-                    </InputRadioGroup>
+                    @foreach(var card in MerchantData?.Cards ?? Enumerable.Empty<Item>())
+                    {
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" checked="@(ActiveMerchant.Cards.Any(c => c.Name == card.Name))" @onchange="@((arg) => UpdateCardChecked(arg, card))" id="@card.Name" />
+                            <label class="form-check-label" for="@card.Name"><ItemDisplay Item="@card" /></label>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -49,15 +47,13 @@
             <div class="card border-secondary mb-3">
                 <div class="card-header">Rapport Item</div>
                 <div class="card-body">
-                    <InputRadioGroup @bind-Value="RapportName">
-                        @foreach(var item in MerchantData?.Rapports ?? Enumerable.Empty<Item>())
-                        {
-                            <div class="form-check">
-                                <InputRadio class="form-check-input" Value="@item.Name" id="@item.Name"/>
-                                <label class="form-check-label" for="@item.Name"><ItemDisplay Item="@item" /></label>
-                            </div>
-                        }
-                    </InputRadioGroup>
+                    @foreach(var rapport in MerchantData?.Rapports ?? Enumerable.Empty<Item>())
+                    {
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" checked="@(ActiveMerchant.Rapports.Any(r => r.Name == rapport.Name))" @onchange="@((arg) => UpdateRapportChecked(arg, rapport))" id="@rapport.Name" />
+                            <label class="form-check-label" for="@rapport.Name"><ItemDisplay Item="@rapport" /></label>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -111,32 +107,6 @@
 
     private string _authMessageStyle = "alert-warning";
 
-    public string CardName
-    {
-        get{ return ActiveMerchant.Card.Name; }
-        set 
-        {
-            var card = MerchantData?.Cards?.FirstOrDefault(c => value == c.Name);
-            if(card is not null)
-            {
-                ActiveMerchant.Card = card;
-            }
-        }
-    }
-
-    public string RapportName
-    {
-        get{ return ActiveMerchant.Rapport.Name; }
-        set 
-        {
-            var rapport = MerchantData?.Rapports?.FirstOrDefault(c => value == c.Name);
-            if(rapport is not null)
-            {
-                ActiveMerchant.Rapport = rapport;
-            }
-        }
-    }
-
     protected override async Task OnInitializedAsync()
     {
         await StaticData.Init();
@@ -182,5 +152,29 @@
         _hubEvents.Clear();
 
         return ValueTask.CompletedTask;
+    }
+
+    private void UpdateCardChecked(ChangeEventArgs args, Item card)
+    {
+        if(args.Value is bool val && val)
+        {
+            ActiveMerchant.Cards.Add(card);
+        }
+        else
+        {
+            ActiveMerchant.Cards.Remove(card);
+        }
+    }
+
+    private void UpdateRapportChecked(ChangeEventArgs args, Item rapport)
+    {
+        if (args.Value is bool val && val)
+        {
+            ActiveMerchant.Rapports.Add(rapport);
+        }
+        else
+        {
+            ActiveMerchant.Rapports.Remove(rapport);
+        }
     }
 }

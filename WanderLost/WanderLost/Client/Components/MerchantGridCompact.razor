@@ -43,20 +43,26 @@
                     </a>
                 </td>
                 <td>
-                    @if (merchantNotificationSettings?.Cards.Contains(merchant.Card.Name) == true)
+                    @foreach (var card in merchant.Cards)
                     {
-                        <span class="oi oi-star favorite-badge"/>
-                        <text>&nbsp;</text>
+                        @if (merchantNotificationSettings?.Cards.Contains(card.Name) == true)
+                        {
+                            <span class="oi oi-star favorite-badge"/>
+                            <text>&nbsp;</text>
+                        }
+                        <ItemDisplay Item="@card" /><br/>
                     }
-                    <ItemDisplay Item="@merchant.Card"/>
                 </td>
                 <td>
-                    @if (merchantNotificationSettings?.Rapports.Contains(merchant.Rapport.Name) == true)
+                    @foreach(var rapport in merchant.Rapports)
                     {
-                        <span class="oi oi-star favorite-badge"/>
-                        <text>&nbsp;</text>
+                        @if (merchantNotificationSettings?.Rapports.Contains(rapport.Name) == true)
+                        {
+                            <span class="oi oi-star favorite-badge"/>
+                            <text>&nbsp;</text>
+                        }
+                        <ItemDisplay Item="@rapport" /><br/>
                     }
-                    <ItemDisplay Item="@merchant.Rapport"/>
                 </td>
                 <td>
                     @merchant.Votes
@@ -96,20 +102,26 @@
                     </a>
                 </td>
                 <td>
-                    @if (merchantNotificationSettings?.Cards.Contains(merchant.Card.Name) == true)
+                    @foreach (var card in merchant.Cards)
                     {
-                        <span class="oi oi-star favorite-badge"/>
-                        <text>&nbsp;</text>
+                        @if (merchantNotificationSettings?.Cards.Contains(card.Name) == true)
+                        {
+                            <span class="oi oi-star favorite-badge" />
+                            <text>&nbsp;</text>
+                        }
+                        <ItemDisplay Item="@card" /><br/>
                     }
-                    <ItemDisplay Item="@merchant.Card"/>
                 </td>
                 <td>
-                    @if (merchantNotificationSettings?.Rapports.Contains(merchant.Rapport.Name) == true)
+                    @foreach(var rapport in merchant.Rapports)
                     {
-                        <span class="oi oi-star favorite-badge"/>
-                        <text>&nbsp;</text>
+                        @if (merchantNotificationSettings?.Rapports.Contains(rapport.Name) == true)
+                        {
+                            <span class="oi oi-star favorite-badge"/>
+                            <text>&nbsp;</text>
+                        }
+                        <ItemDisplay Item="@rapport" /><br/>
                     }
-                    <ItemDisplay Item="@merchant.Rapport"/>
                 </td>
                 <td>
                     @merchant.Votes

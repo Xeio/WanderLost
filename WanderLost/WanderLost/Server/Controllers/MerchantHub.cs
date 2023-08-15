@@ -37,9 +37,6 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
 
         if (!await IsValidServer(server)) return;
 
-        //Compatability shim
-        if (merchant.Rapport.Name == "Surprise Chest") merchant.Rapport = new Item() { Name = "Pit-a-Pat Chest", Rarity = Rarity.Legendary };
-
         var allMerchantData = await _dataController.GetMerchantData();
         if (!merchant.IsValid(allMerchantData)) return;
 
@@ -353,7 +350,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
 
             var cardCounts = await _merchantsDbContext.ActiveMerchants
                 .TagWithCallSite()
-                .Where(m => m.Card.Name == cardName && !m.Hidden && m.Votes > 0)
+                .Where(m => m.Cards.Any(c => c.Name == cardName) && !m.Hidden && m.Votes > 0)
                 .GroupBy(m => m.ActiveMerchantGroup.Server, (server, rows) => new
                 {
                     Server = server,
@@ -364,7 +361,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
 
             var recentAppearances = await _merchantsDbContext.ActiveMerchants
                 .TagWithCallSite()
-                .Where(m => m.Card.Name == cardName && !m.Hidden && m.Votes > 0)
+                .Where(m => m.Cards.Any(c => c.Name == cardName) && !m.Hidden && m.Votes > 0)
                 .OrderByDescending(m => m.ActiveMerchantGroup.NextAppearance)
                 .Select(m => new { m.ActiveMerchantGroup.Server, m.ActiveMerchantGroup.NextAppearance })
                 .Take(50)

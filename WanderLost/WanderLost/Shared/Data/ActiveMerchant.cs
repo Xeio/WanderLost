@@ -21,10 +21,10 @@ public class ActiveMerchant
     public string Zone { get; set; } = string.Empty;
 
     [MessagePack.Key(3)]
-    public Item Card { get; set; } = new();
+    public List<Item> Cards { get; set; } = new();
 
     [MessagePack.Key(4)]
-    public Item Rapport { get; set; } = new();
+    public List<Item> Rapports { get; set; } = new();
 
     [MessagePack.Key(5)]
     public int Votes { get; set; }
@@ -60,7 +60,7 @@ public class ActiveMerchant
     {
         get
         {
-            return Card.Rarity >= Rarity.Legendary || Rapport.Rarity >= Rarity.Legendary;
+            return Cards.Any(c => c.Rarity >= Rarity.Legendary) || Rapports.Any(r => r.Rarity >= Rarity.Legendary);
         }
     }
 
@@ -94,7 +94,9 @@ public class ActiveMerchant
     public bool IsValid(Dictionary<string, MerchantData> allMerchantData)
     {
         if (string.IsNullOrWhiteSpace(Name) ||
-            string.IsNullOrWhiteSpace(Zone))
+            string.IsNullOrWhiteSpace(Zone) ||
+            !Cards.Any() || 
+            !Rapports.Any())
         {
             return false;
         }
@@ -102,8 +104,8 @@ public class ActiveMerchant
         if (!allMerchantData.TryGetValue(Name, out var data)) return false;
 
         if (!data.Zones.Contains(Zone) ||
-            !data.Cards.Contains(Card) ||
-            !data.Rapports.Contains(Rapport))
+            !Cards.All(data.Cards.Contains) ||
+            !Rapports.All(data.Rapports.Contains))
         {
             return false;
         }
@@ -123,8 +125,8 @@ public class ActiveMerchant
     {
         return Name == merchant.Name &&
             Zone == merchant.Zone &&
-            Card.Equals(merchant.Card) &&
-            Rapport.Equals(merchant.Rapport) &&
+            Enumerable.SequenceEqual(Cards.Order(), merchant.Cards.Order()) &&
+            Enumerable.SequenceEqual(Rapports.Order(), merchant.Rapports.Order()) &&
             Tradeskill == merchant.Tradeskill;
     }
 }
