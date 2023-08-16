@@ -65,7 +65,7 @@ else if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.Hu
                     {
                         <h3 class="mt-3 merchants__active-merchants">
                             Active Merchants
-                            <span class="merchants__timer">Expires in @((activeGroup.AppearanceExpires - DateTimeOffset.UtcNow).ToString(@"mm\:ss"))</span>
+                            <span class="merchants__timer">Expires in @((activeGroup.AppearanceExpires - DateTimeOffset.UtcNow).ToString(@"hh\:mm\:ss"))</span>
                         </h3>
                         @if (ClientSettings.CompactMode)
                         {
