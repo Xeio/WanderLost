@@ -195,7 +195,7 @@
     "Name": "Ben",
     "Region": "Rethramis",
     "SortOrder": 1,
-    "AppearanceTimes": [ "04:00:00", "16:00:00" ],
+    "AppearanceTimes": [ "10:00:00", "16:00:00" ],
     "Zones": [ "Ankumo Mountain", "Loghill", "Rethramis Border" ],
     "Cards": [
       {
@@ -234,7 +234,7 @@
     "Name": "Laitir",
     "Region": "Yorn",
     "SortOrder": 11,
-    "AppearanceTimes": [ "04:00:00", "16:00:00" ],
+    "AppearanceTimes": [ "10:00:00", "16:00:00" ],
     "Zones": [ "Black Anvil Mine", "Hall of Promise", "Iron Hammer Mine", "Unfinished Garden", "Yorn's Cradle" ],
     "Cards": [
       {
@@ -269,7 +269,7 @@
     "Name": "Peter",
     "Region": "North Vern",
     "SortOrder": 8,
-    "AppearanceTimes": [ "04:00:00", "16:00:00" ],
+    "AppearanceTimes": [ "10:00:00", "16:00:00" ],
     "Zones": [ "Balankar Mountains", "Fesnar Highland", "Parna Forest", "Port Krona", "Vernese Forest" ],
     "Cards": [
       {
@@ -554,7 +554,7 @@
     "Name": "Evan",
     "Region": "South Vern",
     "SortOrder": 14,
-    "AppearanceTimes": [ "04:00:00", "16:00:00" ],
+    "AppearanceTimes": [ "10:00:00", "16:00:00" ],
     "Zones": [ "Bellion Ruins", "Candaria Territory" ],
     "Cards": [
       {
@@ -680,7 +680,7 @@
     "Name": "Flanos",
     "Region": "Elgacia",
     "SortOrder": 16,
-    "AppearanceTimes": [ "04:00:00", "16:00:00" ],
+    "AppearanceTimes": [ "10:00:00", "16:00:00" ],
     "Zones": [ "Hestera Garden", "Mount Phylantos" ],
     "Cards": [
       {
