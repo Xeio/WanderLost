@@ -33,8 +33,6 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
     [Authorize(Policy = nameof(RareCombinationRestricted))]
     public async Task UpdateMerchant(string server, ActiveMerchant merchant)
     {
-        if (merchant is not null) return; //Temporarily disable submission
-
         if (merchant is null) return;
 
         if (!await IsValidServer(server)) return;
