@@ -82,10 +82,20 @@ public class ActiveMerchantGroup
             startingTime = DateTimeOffset.Now;
         }
 
+        //Since merchants spawn for 6 hours, the spawn timer may have been in the previous day so check that first
         var nextAppearanceTime = MerchantData.AppearanceTimes
+            .Select(apperance => new DateTimeOffset(DateTimeOffset.UtcNow.ToOffset(serverUtcOffset).Date.AddDays(-1), serverUtcOffset) + apperance)
+            .Where(time => time >= startingTime - MerchantDuration)
+            .FirstOrDefault();
+
+        if (nextAppearanceTime == default)
+        {
+            //Check current date
+            nextAppearanceTime = MerchantData.AppearanceTimes
             .Select(apperance => new DateTimeOffset(DateTimeOffset.UtcNow.ToOffset(serverUtcOffset).Date, serverUtcOffset) + apperance)
             .Where(time => time >= startingTime - MerchantDuration)
             .FirstOrDefault();
+        }
 
         if (nextAppearanceTime == default)
         {
