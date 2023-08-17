@@ -38,7 +38,7 @@ public static class Utils
     public static void GenerateDebugTestMerchant(Dictionary<string, MerchantData> merchants)
     {
         List<TimeSpan> times = new();
-        for (var time = TimeSpan.Zero; time < TimeSpan.FromHours(24); time = time.Add(TimeSpan.FromMinutes(25)))
+        for (var time = TimeSpan.Zero; time < TimeSpan.FromHours(24); time = time.Add(ActiveMerchantGroup.MerchantDuration))
         {
             times.Add(time);
         }

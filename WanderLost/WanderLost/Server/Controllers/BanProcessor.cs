@@ -55,10 +55,10 @@ public class BanProcessor : BackgroundService
         bool permaban = false;
         int banDays = 0;
 
-        if (merchant.Card.Rarity >= Rarity.Legendary && merchant.Votes < -3)
+        if (merchant.Cards.Max(c => c.Rarity) >= Rarity.Legendary && merchant.Votes < -3)
         {
             var merchants = await GetAssociatedMerchants(merchant, merchantContext, stoppingToken);
-            if (merchants.Count(m => m.Card.Rarity >= Rarity.Legendary && m.Votes < 0) > 1)
+            if (merchants.Count(m => m.Cards.Max(c => c.Rarity) >= Rarity.Legendary && m.Votes < 0) > 1)
             {
                 //More than one bad legendary card
                 permaban = true;
@@ -78,11 +78,11 @@ public class BanProcessor : BackgroundService
                 banDays = 30;
             }
         }
-        else if (merchant.Rapport.Rarity >= Rarity.Legendary && merchant.Votes < -3)
+        else if (merchant.Rapports.Max(r => r.Rarity) >= Rarity.Legendary && merchant.Votes < -3)
         {
             var merchants = await GetAssociatedMerchants(merchant, merchantContext, stoppingToken);
-            int negativeLegendary = merchants.Count(m => m.Rapport.Rarity == Rarity.Legendary && m.Votes < 0);
-            int positiveLegendary = merchants.Count(m => m.Rapport.Rarity == Rarity.Legendary && m.Votes > 0);
+            int negativeLegendary = merchants.Count(m => m.Rapports.Max(r => r.Rarity) == Rarity.Legendary && m.Votes < 0);
+            int positiveLegendary = merchants.Count(m => m.Rapports.Max(r => r.Rarity) == Rarity.Legendary && m.Votes > 0);
             if (!merchants.Any(m => m.Votes > 0))
             {
                 //No positive submissions
@@ -105,7 +105,7 @@ public class BanProcessor : BackgroundService
             }
             if (merchants
                 .Where(m => m.ActiveMerchantGroup.AppearanceExpires > DateTimeOffset.Now.AddDays(-1))
-                .Where(m => m.Rapport.Rarity == Rarity.Legendary)
+                .Where(m => m.Rapports.Max(r => r.Rarity) == Rarity.Legendary)
                 .Count(m => m.Votes < 0) > 1)
             {
                 //Multiple negative submissions in the last day

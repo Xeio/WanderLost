@@ -73,7 +73,7 @@ public class ActiveMerchantGroup
         FutureAppearance = InternalCalculateAppearance(serverUtcOffset, AppearanceExpires.AddSeconds(1)).NextAppearance;
     }
 
-    static readonly TimeSpan MerchantDuration = TimeSpan.FromMinutes(25);
+    public static readonly TimeSpan MerchantDuration = TimeSpan.FromHours(5) + TimeSpan.FromMinutes(30);
 
     private (DateTimeOffset NextAppearance, DateTimeOffset NextExpires) InternalCalculateAppearance(TimeSpan serverUtcOffset, DateTimeOffset? startingTime = null)
     {

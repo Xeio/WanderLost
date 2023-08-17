@@ -8,22 +8,28 @@
         @{
             ClientSettings.Notifications.TryGetValue(Merchant.Name, out var merchantNotificationSettings);
         }
-        <div class="stock__item">
-            @if (merchantNotificationSettings?.Cards.Contains(Merchant.Card.Name) == true)
-            {
-                <span class="oi oi-star favorite-badge"/>
-                <text>&nbsp;</text>
-            }
-            <ItemDisplay Item="@Merchant.Card"/>
-        </div>
-        <div class="stock__item">
-            @if (merchantNotificationSettings?.Rapports.Contains(Merchant.Rapport.Name) == true)
-            {
-                <span class="oi oi-star favorite-badge"/>
-                <text>&nbsp;</text>
-            }
-            <ItemDisplay Item="@Merchant.Rapport"/>
-        </div>
+        @foreach(var card in Merchant.Cards)
+        {
+            <div class="stock__item">
+                @if (merchantNotificationSettings?.Cards.Contains(card.Name) == true)
+                {
+                    <span class="oi oi-star favorite-badge"/>
+                    <text>&nbsp;</text>
+                }
+                <ItemDisplay Item="@card" />
+            </div>
+        }
+        @foreach(var rapport in Merchant.Rapports)
+        {
+            <div class="stock__item">
+                @if (merchantNotificationSettings?.Rapports.Contains(rapport.Name) == true)
+                {
+                    <span class="oi oi-star favorite-badge"/>
+                    <text>&nbsp;</text>
+                }
+                <ItemDisplay Item="@rapport" />
+            </div>
+        }
         @if (Merchant.Tradeskill is not null)
         {
             <div class="stock__item">
@@ -70,7 +76,7 @@
         {
             // Due to rapport items being either epic or legs, we only change border colour upon leg rapport
             // Otherwise the card rarity colour is more informative
-            return Merchant.Rapport.Rarity >= Rarity.Legendary ? Merchant.Rapport.Rarity : Merchant.Card.Rarity;
+            return Merchant.Rapports.Max(r => r.Rarity) >= Rarity.Legendary ? Rarity.Legendary : Merchant.Cards.Max(c => c.Rarity);
         }
     }
 

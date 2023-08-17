@@ -79,19 +79,13 @@ public class DiscordPushProcessor
 
     public async Task ProcessMerchant(ActiveMerchant merchant)
     {
-        if (merchant.Votes < 0 || merchant.Hidden ||
-            merchant.ActiveMerchantGroup.AppearanceExpires < DateTimeOffset.Now)
-        {
-            //Don't need to send notifications for downvoted/hidden/expired merchants
-            return;
-        }
-
+        var cardsToCheck = merchant.Cards.Select(c => c.Name).ToList();
         //First check cards for notifications
         var cardSubscriptions = await _merchantContext.DiscordNotifications
             .TagWithCallSite()
             .AsNoTracking()
             .Where(d => d.Server == merchant.ActiveMerchantGroup.Server)
-            .Where(d => d.CardNotifications.Any(c => c.CardName == merchant.Card.Name))
+            .Where(d => d.CardNotifications.Any(cn => cardsToCheck.Any(c => cn.CardName == c)))
             .Where(d => !_merchantContext.SentDiscordNotifications.Any(sent => sent.MerchantId == merchant.Id && sent.DiscordNotificationUserId == d.UserId))
             .Where(d => d.CardVoteThreshold <= merchant.Votes)
             .ToListAsync();
@@ -158,13 +152,14 @@ public class DiscordPushProcessor
     {
         string region = (await _dataController.GetMerchantData())[merchant.Name].Region;
 
+        var topCard = merchant.Cards.MaxBy(c => c.Rarity) ?? new();
         var embed = new EmbedBuilder()
         {
-            Title = $"{merchant.Card.Name} Card - {region} - {merchant.Zone}",
+            Title = $"{topCard.Name} Card - {region} - {merchant.Zone}",
             Url = _configuration["IdentityServerOrigin"],
-            Color = merchant.Card.Rarity == Rarity.Legendary ? Color.Gold : Color.DarkPurple,
+            Color = topCard.Rarity == Rarity.Legendary ? Color.Gold : Color.DarkPurple,
         };
-        embed.AddField("Card", merchant.Card.Name);
+        embed.AddField("Cards", string.Join(", ", merchant.Cards.Select(c => c.Name)));
         embed.AddField("Region", region);
         embed.AddField("Zone", merchant.Zone);
         embed.AddField("Spawn expires", TimestampTag.FormatFromDateTimeOffset(merchant.ActiveMerchantGroup.AppearanceExpires, TimestampTagStyles.Relative));
