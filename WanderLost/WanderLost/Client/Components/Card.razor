@@ -2,8 +2,7 @@
 @inject NavigationManager NavManager
 @inject ClientSettingsController ClientSettings
 
-<CardFrame Title="@Region" Subtitle="@Merchant.Zone" Rarity="@TopRarity" ClassName="@ClassName">
-    <div class="m-card__location @LoctionActiveClass" @onclick="@LocationClick" style="background-image: url(/images/zones/@(Uri.EscapeDataString(Merchant.Zone)).jpg)"/>
+<CardFrame Title="@Region" Rarity="@TopRarity" ClassName="@ClassName">
     <div class="stock">
         @{
             ClientSettings.Notifications.TryGetValue(Merchant.Name, out var merchantNotificationSettings);
@@ -111,10 +110,4 @@
             return null;
         }
     }
-
-    private async Task LocationClick()
-    {
-        await OnLocationClick.InvokeAsync(Merchant.Zone);
-    }
-
 }

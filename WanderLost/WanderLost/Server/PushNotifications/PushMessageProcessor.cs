@@ -276,7 +276,7 @@ public class PushMessageProcessor
                 Notification = new WebpushNotification()
                 {
                     Title = isCard ? $"{topCard.Name} Card" : "Legendary Rapport",
-                    Body = $"{region} - {merchant.Zone}",
+                    Body = $"{region}",
                     Icon = "/images/notifications/ExclamationMark.png",
                     Tag = isCard ? "wei" : "rapport",
                     Renotify = true,
@@ -293,7 +293,7 @@ public class PushMessageProcessor
                 Notification = new AndroidNotification()
                 {
                     Title = isCard ? $"{topCard.Name} Card" : "Legendary Rapport",
-                    Body = $"{region} - {merchant.Zone}",
+                    Body = $"{region}",
                     Tag = isCard ? "wei" : "rapport",
                     ChannelId = isCard ? "wei" : "rapport",
                     EventTimestamp = DateTime.Now,

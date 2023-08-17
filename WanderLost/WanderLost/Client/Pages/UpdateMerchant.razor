@@ -15,22 +15,6 @@
     <div class="row">
         <div class="col-sm-6">
             <div class="card border-secondary mb-3">
-                <div class="card-header">Zone</div>
-                <div class="card-body">
-                    <InputRadioGroup @bind-Value="ActiveMerchant.Zone">
-                        @foreach(var zone in MerchantData?.Zones ?? Enumerable.Empty<string>())
-                        {
-                            <div class="form-check">
-                                <InputRadio class="form-check-input" Value="@zone" id="@zone"/>
-                                <label class="form-check-label" for="@zone"><ZoneDisplay ZoneName="@zone"/></label>
-                            </div>
-                        }
-                    </InputRadioGroup>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6">
-            <div class="card border-secondary mb-3">
                 <div class="card-header">Card</div>
                 <div class="card-body">
                     @foreach(var card in MerchantData?.Cards ?? Enumerable.Empty<Item>())

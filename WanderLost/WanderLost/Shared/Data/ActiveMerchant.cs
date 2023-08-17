@@ -18,6 +18,7 @@ public class ActiveMerchant
 
     [MaxLength(40)]
     [MessagePack.Key(2)]
+    [Obsolete("No longer needed")]
     public string Zone { get; set; } = string.Empty;
 
     [MessagePack.Key(3)]
@@ -94,7 +95,6 @@ public class ActiveMerchant
     public bool IsValid(Dictionary<string, MerchantData> allMerchantData)
     {
         if (string.IsNullOrWhiteSpace(Name) ||
-            string.IsNullOrWhiteSpace(Zone) ||
             !Cards.Any() || 
             !Rapports.Any())
         {
@@ -103,8 +103,7 @@ public class ActiveMerchant
 
         if (!allMerchantData.TryGetValue(Name, out var data)) return false;
 
-        if (!data.Zones.Contains(Zone) ||
-            !Cards.All(data.Cards.Contains) ||
+        if (!Cards.All(data.Cards.Contains) ||
             !Rapports.All(data.Rapports.Contains))
         {
             return false;
@@ -124,7 +123,6 @@ public class ActiveMerchant
     public bool IsEqualTo(ActiveMerchant merchant)
     {
         return Name == merchant.Name &&
-            Zone == merchant.Zone &&
             Enumerable.SequenceEqual(Cards.Order(), merchant.Cards.Order()) &&
             Enumerable.SequenceEqual(Rapports.Order(), merchant.Rapports.Order()) &&
             Tradeskill == merchant.Tradeskill;
