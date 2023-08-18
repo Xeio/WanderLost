@@ -601,7 +601,7 @@
     "Name": "Serihan",
     "Region": "Rowen",
     "SortOrder": 15,
-    "AppearanceTimes": [ "16:00:00" ],
+    "AppearanceTimes": [ "10:00:00", "16:00:00" ],
     "Zones": [ "Fang River", "The Wolflands" ],
     "Cards": [
       {
