@@ -16,11 +16,6 @@ public class ActiveMerchant
     [MessagePack.Key(1)]
     public string Name { get; init; } = string.Empty;
 
-    [MaxLength(40)]
-    [MessagePack.Key(2)]
-    [Obsolete("No longer needed")]
-    public string Zone { get; set; } = string.Empty;
-
     [MessagePack.Key(3)]
     public List<Item> Cards { get; set; } = new();
 
