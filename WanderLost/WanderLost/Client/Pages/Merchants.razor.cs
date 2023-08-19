@@ -86,6 +86,8 @@ public partial class Merchants : IAsyncDisposable
                 }
             }
 
+            SortMerchants();
+
             await InvokeAsync(StateHasChanged);
         }));
 
@@ -130,6 +132,24 @@ public partial class Merchants : IAsyncDisposable
         await HubClient.Connect();
 
         await Notifications.ValidatePushSubscription(HubClient);
+    }
+
+    private void SortMerchants()
+    {
+        ActiveData.MerchantGroups.Sort((x, y) =>
+        {
+            //Show groups with merchants first
+            var hasMerchantsX = x.ActiveMerchants.Any() ? 0 : 1;
+            var hasMerchantsY = y.ActiveMerchants.Any() ? 0 : 1;
+
+            var compare = hasMerchantsX.CompareTo(hasMerchantsY);
+            if (compare == 0)
+            {
+                compare = x.MerchantData.SortOrder.CompareTo(y.MerchantData.SortOrder);
+            }
+
+            return compare;
+        });
     }
 
     private async Task HubConnection_Reconnected(string? arg)
@@ -238,6 +258,8 @@ public partial class Merchants : IAsyncDisposable
             }
         }
 
+        SortMerchants();
+
         await InvokeAsync(StateHasChanged);
     }
 
@@ -252,7 +274,7 @@ public partial class Merchants : IAsyncDisposable
         if (string.IsNullOrWhiteSpace(_serverRegion)) return;
         if (ActiveData.MerchantGroups.Count == 0) return;
 
-        bool resort = false;
+        bool spawnsChanged = false;
 
         if (!_spawnNotified && ActiveData.MerchantGroups.Any(mg => mg.IsActive))
         {
@@ -269,27 +291,16 @@ public partial class Merchants : IAsyncDisposable
                 ActiveData.MerchantDictionary.Clear();
                 ActiveData.Votes.Clear();
                 _spawnNotified = false;
-                resort = true;
+                spawnsChanged = true;
 
                 //Clear previous notifications that are no longer relevant
                 await Notifications.ClearNotifications();
             }
         }
 
-        if (resort)
+        if (spawnsChanged)
         {
             if (ActiveData.MerchantGroups.Any(mg => mg.IsActive)) _spawnNotified = true;
-
-            ActiveData.MerchantGroups.Sort((x, y) =>
-            {
-                var compare = x.NextAppearance.CompareTo(y.NextAppearance);
-                if (compare == 0)
-                {
-                    compare = x.MerchantData.SortOrder.CompareTo(y.MerchantData.SortOrder);
-                }
-
-                return compare;
-            });
         }
     }
 }
