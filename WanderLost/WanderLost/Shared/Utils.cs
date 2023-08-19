@@ -1,10 +1,8 @@
 ﻿using MessagePack;
 using Microsoft.AspNetCore.SignalR;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using WanderLost.Shared.Data;
 
 namespace WanderLost.Shared;
 
@@ -33,39 +31,6 @@ public static class Utils
             .WithSecurity(MessagePackSecurity.UntrustedData)
             .WithCompression(MessagePackCompression.Lz4Block);
     }
-
-    [Conditional("DEBUG")]
-    public static void GenerateDebugTestMerchant(Dictionary<string, MerchantData> merchants)
-    {
-        List<TimeSpan> times = new();
-        for (var time = TimeSpan.Zero; time < TimeSpan.FromHours(24); time = time.Add(ActiveMerchantGroup.MerchantDuration))
-        {
-            times.Add(time);
-        }
-        merchants.Add("TESTONLY", new MerchantData()
-        {
-            Name = "TESTONLY",
-            Region = "TestRegion",
-            Zones = { "Twilight Zone", "Cardassia Prime", "Medina Station" },
-            Cards =
-            {
-                new Item() { Name = "Jack O'Neill", Rarity = Rarity.Legendary },
-                new Item() { Name = "Jaffa", Rarity = Rarity.Uncommon },
-            },
-            Rapports =
-            {
-                new Item() { Name = "Lightsaber", Rarity = Rarity.Legendary },
-                new Item() { Name = "Half-Eaten Cookie", Rarity = Rarity.Epic },
-            },
-            Tradeskills =
-            {
-                "(Something)",
-                "A tradeskill pouch"
-            },
-            AppearanceTimes = times,
-        });
-    }
-
 
     private static readonly Dictionary<string, string> _serverMerges = new()
     {

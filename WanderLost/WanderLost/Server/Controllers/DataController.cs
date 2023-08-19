@@ -35,7 +35,7 @@ public class DataController
 
         var json = await File.ReadAllTextAsync(merchantsFile);
         var merchantData = JsonSerializer.Deserialize<Dictionary<string, MerchantData>>(json, Utils.JsonOptions) ?? new Dictionary<string, MerchantData>();
-        Utils.GenerateDebugTestMerchant(merchantData);
+
         return merchantData;
     }
 
