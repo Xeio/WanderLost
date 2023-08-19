@@ -3,7 +3,6 @@
     "Name": "Dorella",
     "Region": "Feiton",
     "SortOrder": 12,
-    "Zones": [ "Kalaja" ],
     "Cards": [
       {
         "Name": "Goulding",
@@ -45,7 +44,6 @@
     "Name": "Morris",
     "Region": "East Luterra",
     "SortOrder": 4,
-    "Zones": [ "Dyorika Plain", "Flowering Orchard", "Sunbright Hill" ],
     "Cards": [
       {
         "Name": "Brinewt",
@@ -92,7 +90,6 @@
     "Name": "Lucas",
     "Region": "Yudia",
     "SortOrder": 2,
-    "Zones": [ "Ozhorn Hill", "Saland Hill" ],
     "Cards": [
       {
         "Name": "Giant Worm",
@@ -126,7 +123,6 @@
     "Name": "Mac",
     "Region": "Anikka",
     "SortOrder": 6,
-    "Zones": [ "Delphi Township", "Melody Forest", "Prisma Valley", "Rattan Hill", "Twilight Mists" ],
     "Cards": [
       {
         "Name": "Madam Moonscent",
@@ -160,7 +156,6 @@
     "Name": "Jeffrey",
     "Region": "Shushire",
     "SortOrder": 9,
-    "Zones": [ "Bitterwind Hill", "Frozen Sea", "Iceblood Plateau", "Icewing Heights", "Lake Eternity" ],
     "Cards": [
       {
         "Name": "Javern",
@@ -190,7 +185,6 @@
     "Name": "Ben",
     "Region": "Rethramis",
     "SortOrder": 1,
-    "Zones": [ "Ankumo Mountain", "Loghill", "Rethramis Border" ],
     "Cards": [
       {
         "Name": "Siera",
@@ -228,7 +222,6 @@
     "Name": "Laitir",
     "Region": "Yorn",
     "SortOrder": 11,
-    "Zones": [ "Black Anvil Mine", "Hall of Promise", "Iron Hammer Mine", "Unfinished Garden", "Yorn's Cradle" ],
     "Cards": [
       {
         "Name": "Great Castle Neria",
@@ -262,7 +255,6 @@
     "Name": "Peter",
     "Region": "North Vern",
     "SortOrder": 8,
-    "Zones": [ "Balankar Mountains", "Fesnar Highland", "Parna Forest", "Port Krona", "Vernese Forest" ],
     "Cards": [
       {
         "Name": "Gideon",
@@ -308,7 +300,6 @@
     "Name": "Malone",
     "Region": "West Luterra",
     "SortOrder": 3,
-    "Zones": [ "Battlebound Plains", "Bilbrin Forest", "Lakebar", "Medrick Monastery", "Mount Zagoras" ],
     "Cards": [
       {
         "Name": "Berhart",
@@ -350,7 +341,6 @@
     "Name": "Burt",
     "Region": "East Luterra",
     "SortOrder": 4,
-    "Zones": [ "Blackrose Chapel", "Borea's Domain", "Croconys Seashore", "Leyar Terrace" ],
     "Cards": [
       {
         "Name": "Nox",
@@ -388,7 +378,6 @@
     "Name": "Oliver",
     "Region": "Tortoyk",
     "SortOrder": 5,
-    "Zones": [ "Forest of Giants", "Seaswept Woods", "Skyreach Steppe", "Sweetwater Forest" ],
     "Cards": [
       {
         "Name": "Egg of Creation",
@@ -426,7 +415,6 @@
     "Name": "Nox",
     "Region": "Arthetine",
     "SortOrder": 7,
-    "Zones": [ "Arid Path", "Nebelhorn", "Riza Falls", "Scraplands", "Totrich", "Windbringer Hills" ],
     "Cards": [
       {
         "Name": "Bergstrom",
@@ -456,7 +444,6 @@
     "Name": "Aricer",
     "Region": "Rohendel",
     "SortOrder": 10,
-    "Zones": [ "Breezesome Brae", "Elzowin's Shade", "Glass Lotus Lake", "Lake Shiverwave", "Xeneela Ruins" ],
     "Cards": [
       {
         "Name": "Alifer",
@@ -498,7 +485,6 @@
     "Name": "Rayni",
     "Region": "Punika",
     "SortOrder": 13,
-    "Zones": [ "Secret Forest", "Starsand Beach", "Tideshelf Path", "Tikatika Colony" ],
     "Cards": [
       {
         "Name": "Cicerra",
@@ -540,7 +526,6 @@
     "Name": "Evan",
     "Region": "South Vern",
     "SortOrder": 14,
-    "Zones": [ "Bellion Ruins", "Candaria Territory" ],
     "Cards": [
       {
         "Name": "Killian",
@@ -586,7 +571,6 @@
     "Name": "Serihan",
     "Region": "Rowen",
     "SortOrder": 15,
-    "Zones": [ "Fang River", "The Wolflands" ],
     "Cards": [
       {
         "Name": "Revellos",
@@ -664,7 +648,6 @@
     "Name": "Flanos",
     "Region": "Elgacia",
     "SortOrder": 16,
-    "Zones": [ "Hestera Garden", "Mount Phylantos" ],
     "Cards": [
       {
         "Name": "Cahni",

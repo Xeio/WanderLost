@@ -18,7 +18,6 @@ public class ClientSettingsController
     public PushSubscription? SavedPushSubscription { get; private set; }
     public bool BrowserNotifications { get; private set; }
     public bool RareSoundsOnly { get; private set; }
-    public bool CompactMode { get; private set; }
 
     private bool _initialized = false;
 
@@ -49,7 +48,6 @@ public class ClientSettingsController
             SavedPushSubscription = await _localStorageService.GetItemAsync<PushSubscription?>(nameof(SavedPushSubscription));
             RareSoundsOnly = await _localStorageService.GetItemAsync<bool?>(nameof(RareSoundsOnly)) ?? false;
             BrowserNotifications = await _localStorageService.GetItemAsync<bool?>(nameof(BrowserNotifications)) ?? false;
-            CompactMode = await _localStorageService.GetItemAsync<bool?>(nameof(CompactMode)) ?? false;
 
             if (Utils.HasMergedServer(Server, out var newServer))
             {
@@ -136,11 +134,5 @@ public class ClientSettingsController
     public async Task SaveRapportVoteThresholdForNotification()
     {
         await _localStorageService.SetItemAsync(nameof(RapportVoteThresholdForNotification), RapportVoteThresholdForNotification);
-    }
-
-    public async Task SetCompactMode(bool compactMode)
-    {
-        CompactMode = compactMode;
-        await _localStorageService.SetItemAsync(nameof(CompactMode), compactMode);
     }
 }

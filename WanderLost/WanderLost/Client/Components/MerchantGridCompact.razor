@@ -8,7 +8,6 @@
     <thead>
     <tr>
         <th>Merchant</th>
-        <th>Location</th>
         <th>Card</th>
         <th>Rapport</th>
         <th>Votes</th>
@@ -24,24 +23,14 @@
             {
                 <td>?</td>
                 <td>?</td>
-                <td>?</td>
                 <td colspan="2">
-                    <a class="merchant-grid-compact__submit-location" href="/UpdateMerchant/@Server/@merchantGroup.MerchantName">Submit Location</a>
+                    <a class="merchant-grid-compact__submit-location" href="/UpdateMerchant/@Server/@merchantGroup.MerchantName">Submit</a>
                 </td>
             }
             else
             {
                 var merchant = merchantGroup.ActiveMerchants.OrderByDescending(m => m.Votes).First();
                 ClientSettings.Notifications.TryGetValue(merchant.Name, out var merchantNotificationSettings);
-                <td>
-                    <a
-                        class="merchant-grid-compact__zone"
-                        href="/images/zones/@(Uri.EscapeDataString(merchant.Zone)).jpg"
-                        @onclick="@(async () => await Overlay.ShowMap(merchant.Zone))"
-                        @onclick:preventDefault="true">
-                        @merchant.Zone
-                    </a>
-                </td>
                 <td>
                     @foreach (var card in merchant.Cards)
                     {
@@ -92,15 +81,6 @@
             ClientSettings.Notifications.TryGetValue(merchant.Name, out var merchantNotificationSettings);
             <tr style="@rowStyle">
                 <td/>
-                <td>
-                    <a
-                        class="merchant-grid-compact__zone"
-                        href="/images/zones/@(Uri.EscapeDataString(merchant.Zone)).jpg"
-                        @onclick="@(async () => await Overlay.ShowMap(merchant.Zone))"
-                        @onclick:preventDefault="true">
-                        @merchant.Zone
-                    </a>
-                </td>
                 <td>
                     @foreach (var card in merchant.Cards)
                     {
@@ -162,9 +142,9 @@
     public string Server { get; set; } = default!;
 
 
-    private List<ActiveMerchantGroup> ActiveMerchantGroups
+    private IEnumerable<ActiveMerchantGroup> ActiveMerchantGroups
     {
-        get { return ActiveData.MerchantGroups.Where(m => m.IsActive).ToList(); }
+        get { return ActiveData.MerchantGroups.Where(m => m.IsActive); }
     }
 
     private string GetRowStyle(ActiveMerchant merchant)

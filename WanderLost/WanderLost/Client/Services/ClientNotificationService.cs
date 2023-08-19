@@ -163,7 +163,6 @@ public sealed class ClientNotificationService : IAsyncDisposable
         }
         else if (nonNegativeMerchants.Count > 0)
         {
-            body += $"Location: {nonNegativeMerchants[0].Zone}\n";
             body += $"Cards: {string.Join(", ", nonNegativeMerchants[0].Cards.Select(c => c.Name))}\n";
             body += $"Rapports: {string.Join(", ", nonNegativeMerchants[0].Rapports.Select(r => r.Name))}\n";
         }

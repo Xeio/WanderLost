@@ -8,7 +8,6 @@
     </svg>
     <div class="card-frame__inner">
         <div class="card-frame__title">@Title</div>
-        <div class="card-frame__title">@($"({Subtitle})")</div>
         @ChildContent
     </div>
 </div>
@@ -17,9 +16,6 @@
 
     [Parameter]
     public string Title { get; init; } = string.Empty;
-
-    [Parameter]
-    public string Subtitle { get; init; } = string.Empty;
 
     [Parameter]
     public Rarity Rarity { get; init; }

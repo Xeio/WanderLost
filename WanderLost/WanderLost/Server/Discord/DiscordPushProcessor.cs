@@ -155,13 +155,12 @@ public class DiscordPushProcessor
         var topCard = merchant.Cards.MaxBy(c => c.Rarity) ?? new();
         var embed = new EmbedBuilder()
         {
-            Title = $"{topCard.Name} Card - {region} - {merchant.Zone}",
+            Title = $"{topCard.Name} Card - {region}",
             Url = _configuration["IdentityServerOrigin"],
             Color = topCard.Rarity == Rarity.Legendary ? Color.Gold : Color.DarkPurple,
         };
         embed.AddField("Cards", string.Join(", ", merchant.Cards.Select(c => c.Name)));
         embed.AddField("Region", region);
-        embed.AddField("Zone", merchant.Zone);
         embed.AddField("Spawn expires", TimestampTag.FormatFromDateTimeOffset(merchant.ActiveMerchantGroup.AppearanceExpires, TimestampTagStyles.Relative));
 
         return embed.Build();

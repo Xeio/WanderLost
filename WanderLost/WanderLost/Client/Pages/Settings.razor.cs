@@ -26,11 +26,6 @@ public partial class Settings
         await ClientSettings.SetNotifyBrowserSoundEnabled(!ClientSettings.NotifyBrowserSoundEnabled);
     }
 
-    protected async Task ToggleCompactMode()
-    {
-        await ClientSettings.SetCompactMode(!ClientSettings.CompactMode);
-    }
-
     protected async Task ToggleRareSoundOnly()
     {
         await ClientSettings.SetRareSoundsOnly(!ClientSettings.RareSoundsOnly);
