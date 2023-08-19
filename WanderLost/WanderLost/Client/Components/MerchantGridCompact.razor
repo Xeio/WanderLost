@@ -142,9 +142,9 @@
     public string Server { get; set; } = default!;
 
 
-    private List<ActiveMerchantGroup> ActiveMerchantGroups
+    private IEnumerable<ActiveMerchantGroup> ActiveMerchantGroups
     {
-        get { return ActiveData.MerchantGroups.Where(m => m.IsActive).ToList(); }
+        get { return ActiveData.MerchantGroups.Where(m => m.IsActive); }
     }
 
     private string GetRowStyle(ActiveMerchant merchant)
