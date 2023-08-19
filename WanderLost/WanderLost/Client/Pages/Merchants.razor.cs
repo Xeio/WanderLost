@@ -48,11 +48,6 @@ public partial class Merchants : IAsyncDisposable
         }
     }
 
-    private string ContentClass
-    {
-        get { return ClientSettings.CompactMode ? "merchants__content--compact" : String.Empty; }
-    }
-
     private Timer? _timer;
     private readonly List<IDisposable> _hubEvents = new();
     private bool _spawnNotified = true;
