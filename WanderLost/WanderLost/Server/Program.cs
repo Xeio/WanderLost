@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using Prometheus;
-using System.Net;
 using WanderLost.Server.Authorization;
 using WanderLost.Server.Controllers;
 using WanderLost.Server.Data;
@@ -24,7 +23,10 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration["SqlConnectionString"];
 builder.Services.AddDbContext<MerchantsDbContext>(opts =>
 {
-    opts.UseSqlServer(connectionString);
+    opts.UseSqlServer(connectionString, o =>
+    {
+        o.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
+    });
 });
 
 builder.Services.AddDataProtection()
