@@ -281,7 +281,7 @@ public partial class Merchants : IAsyncDisposable
         {
             if (force || merchantGroup.AppearanceExpires < DateTimeOffset.UtcNow)
             {
-                merchantGroup.CalculateNextAppearance(StaticData.ServerRegions[_serverRegion].TimeZone);
+                merchantGroup.CalculateNextAppearance(StaticData.ServerRegions[_serverRegion].TimeZone, DateTimeOffset.Now);
                 merchantGroup.ClearInstances();
                 ActiveData.MerchantDictionary.Clear();
                 ActiveData.Votes.Clear();

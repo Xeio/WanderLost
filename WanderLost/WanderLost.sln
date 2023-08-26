@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WanderLost.Shared", "Wander
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HubClientSourceGenerator", "WanderLost\HubClientSourceGenerator\HubClientSourceGenerator.csproj", "{C4C1CF53-326B-4F38-96A9-0ADD0F7F4051}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WanderLost.Tests", "WanderLost\Tests\WanderLost.Tests.csproj", "{52017324-39C1-4E96-83F3-B0E9E48AA212}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{C4C1CF53-326B-4F38-96A9-0ADD0F7F4051}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4C1CF53-326B-4F38-96A9-0ADD0F7F4051}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4C1CF53-326B-4F38-96A9-0ADD0F7F4051}.Release|Any CPU.Build.0 = Release|Any CPU
+		{52017324-39C1-4E96-83F3-B0E9E48AA212}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52017324-39C1-4E96-83F3-B0E9E48AA212}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52017324-39C1-4E96-83F3-B0E9E48AA212}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52017324-39C1-4E96-83F3-B0E9E48AA212}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
