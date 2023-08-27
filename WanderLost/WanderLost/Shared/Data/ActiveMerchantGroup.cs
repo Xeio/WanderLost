@@ -19,7 +19,7 @@ public class ActiveMerchantGroup
     [NotMapped]
     [JsonIgnore]
     [MessagePack.IgnoreMember]
-    public MerchantData MerchantData { get; init; } = new();
+    public MerchantData MerchantData { get; set; } = new();
 
     private string _merchantName = string.Empty;
     [MaxLength(20)]
@@ -76,26 +76,28 @@ public class ActiveMerchantGroup
     public static readonly TimeSpan MerchantDuration = TimeSpan.FromHours(5) + TimeSpan.FromMinutes(30);
     public static readonly TimeSpan InventoryResetDelay = TimeSpan.FromHours(2);
 
-    public static readonly IReadOnlyList<TimeSpan> SpawnTimes = new List<TimeSpan>() {
-        TimeSpan.FromHours(4),
-        TimeSpan.FromHours(10),
-        TimeSpan.FromHours(16),
-        TimeSpan.FromHours(22),
-    };
+    private IEnumerable<TimeSpan> GetSpawnTimes(DateTimeOffset date)
+    {
+        int dayOfWeek = (int)date.DayOfWeek;
+        yield return TimeSpan.FromHours(MerchantData.SpawnTimes[dayOfWeek]);
+        yield return TimeSpan.FromHours(MerchantData.SpawnTimes[dayOfWeek] + 12);
+    }
 
-    private static (DateTimeOffset NextAppearance, DateTimeOffset NextExpires) InternalCalculateAppearance(TimeSpan serverUtcOffset, DateTimeOffset startingTime)
+    private (DateTimeOffset NextAppearance, DateTimeOffset NextExpires) InternalCalculateAppearance(TimeSpan serverUtcOffset, DateTimeOffset startingTime)
     {
         //Since merchants spawn for 6 hours, the spawn timer may have been in the previous day so check that first
-        var nextAppearanceTime = SpawnTimes
-            .Select(apperance => new DateTimeOffset(startingTime.ToOffset(serverUtcOffset).Date.AddDays(-1), serverUtcOffset) + apperance)
+        var dateToCheck = new DateTimeOffset(startingTime.ToOffset(serverUtcOffset).Date.AddDays(-1), serverUtcOffset);
+        var nextAppearanceTime = GetSpawnTimes(dateToCheck)
+            .Select(apperance => dateToCheck + apperance)
             .Where(time => time >= startingTime - MerchantDuration)
             .FirstOrDefault();
 
         if (nextAppearanceTime == default)
         {
+            dateToCheck = new DateTimeOffset(startingTime.ToOffset(serverUtcOffset).Date, serverUtcOffset);
             //Check current date
-            nextAppearanceTime = SpawnTimes
-            .Select(apperance => new DateTimeOffset(startingTime.ToOffset(serverUtcOffset).Date, serverUtcOffset) + apperance)
+            nextAppearanceTime = GetSpawnTimes(dateToCheck)
+            .Select(apperance => dateToCheck + apperance)
             .Where(time => time >= startingTime - MerchantDuration)
             .FirstOrDefault();
         }
@@ -103,7 +105,8 @@ public class ActiveMerchantGroup
         if (nextAppearanceTime == default)
         {
             //Next apperance is the following day
-            nextAppearanceTime = SpawnTimes
+            dateToCheck = new DateTimeOffset(startingTime.ToOffset(serverUtcOffset).Date.AddDays(1), serverUtcOffset);
+            nextAppearanceTime = GetSpawnTimes(dateToCheck)
                 .Select(apperance => new DateTimeOffset(startingTime.ToOffset(serverUtcOffset).Date.AddDays(1), serverUtcOffset) + apperance)
                 .Where(time => time >= startingTime - MerchantDuration)
                 .FirstOrDefault();

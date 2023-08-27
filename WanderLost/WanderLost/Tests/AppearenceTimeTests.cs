@@ -51,27 +51,40 @@ namespace Tests
                 return;
             }
 
+            if(!MerchantData.TryGetValue(group.MerchantName, out var merchantData))
+            {
+                Assert.Fail("Merchant not available in data");
+                return;
+            }
+
+            group.MerchantData = merchantData;
+
             var originalAppearance = group.NextAppearance;
             var originalExpires = group.AppearanceExpires;
 
             group.CalculateNextAppearance(timeZone, originalAppearance.AddMinutes(-1));
 
-            Assert.AreEqual(originalExpires, group.AppearanceExpires, "Calculated AppearanceExpires invalid");
-            Assert.AreEqual(originalAppearance, group.NextAppearance, "Calculated NextAppearance invalid");
+            Assert.AreEqual(originalExpires, group.AppearanceExpires, $"Calculated AppearanceExpires invalid for ${BuildMerchantString(group)}");
+            Assert.AreEqual(originalAppearance, group.NextAppearance, $"Calculated NextAppearance invalid for ${BuildMerchantString(group)}");
 
             group.CalculateNextAppearance(timeZone, originalAppearance.AddMinutes(5));
 
-            Assert.AreEqual(originalExpires, group.AppearanceExpires, "NextAppearance should still be the same during merchant's active window");
+            Assert.AreEqual(originalExpires, group.AppearanceExpires, $"NextAppearance should still be the same during merchant's active window for ${BuildMerchantString(group)}");
 
             group.CalculateNextAppearance(timeZone, originalAppearance.AddHours(5).AddMinutes(31));
 
-            Assert.IsTrue(group.NextAppearance > originalAppearance, "After merchant expires should calculate future appearance");
+            Assert.IsTrue(group.NextAppearance > originalAppearance, $"After merchant expires should calculate future appearance for ${BuildMerchantString(group)}");
         }
 
         public string FindServerTimeZone(string server)
         {
             var region = ServerRegions.FirstOrDefault(r => r.Value.Servers.Contains(server));
             return region.Value.TimeZone;
+        }
+
+        private static string BuildMerchantString(ActiveMerchantGroup group)
+        {
+            return $"Merchant: {group.MerchantName}, Group ID: {group.Id}";
         }
     }
 }
