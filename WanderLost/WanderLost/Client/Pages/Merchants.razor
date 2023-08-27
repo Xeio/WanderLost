@@ -65,11 +65,20 @@ else if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.Hu
                     Active Merchants
                     <span class="merchants__timer">Expires in @((activeGroup.AppearanceExpires - DateTimeOffset.UtcNow).ToString(@"hh\:mm\:ss"))</span>
                 </h3>
-                var inventoryResetAt = activeGroup.NextAppearance + ActiveMerchantGroup.InventoryResetDelay;
-                @if (inventoryResetAt > DateTimeOffset.UtcNow)
+                DateTimeOffset? inventoryResetAt = null;
+                @if (ServerRegion == "NAE")
+                {
+                    //TODO: Maybe figure out what the actual logic is for the restock than server-specific timers
+                    inventoryResetAt = activeGroup.NextAppearance + TimeSpan.FromHours(2);
+                }
+                else if (ServerRegion == "NAW")
+                {
+                    inventoryResetAt = activeGroup.NextAppearance + TimeSpan.FromHours(5);
+                }
+                @if (inventoryResetAt is not null && inventoryResetAt > DateTimeOffset.UtcNow)
                 {
                     <h3 class="mt-3 merchants__active-merchants">
-                        <span class="merchants__timer">Inventory refreshes in @((inventoryResetAt - DateTimeOffset.UtcNow).ToString(@"hh\:mm\:ss"))</span>
+                        <span class="merchants__timer">Inventory restocks in @((inventoryResetAt.Value - DateTimeOffset.UtcNow).ToString(@"hh\:mm\:ss"))</span>
                     </h3>
                 }
                 <MerchantGridCompact ActiveData="@ActiveData" Server="@Server" />

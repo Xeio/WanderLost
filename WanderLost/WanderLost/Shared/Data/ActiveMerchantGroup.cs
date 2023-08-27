@@ -74,7 +74,6 @@ public class ActiveMerchantGroup
     }
 
     public static readonly TimeSpan MerchantDuration = TimeSpan.FromHours(5) + TimeSpan.FromMinutes(30);
-    public static readonly TimeSpan InventoryResetDelay = TimeSpan.FromHours(2);
 
     private IEnumerable<TimeSpan> GetSpawnTimes(DateTimeOffset date)
     {
