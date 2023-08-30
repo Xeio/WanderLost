@@ -10,16 +10,16 @@
 
 @code {
     /// <summary>
-    /// Increment this to track new message.
+    /// Increment this to track new message. Negative used to hide messages (and keep track of last used value)
     /// </summary>
-    private const int MESSAGE_ID = 9;
+    private const int MESSAGE_ID = -9;
 
     private bool _showMessage = false;
 
     protected override async Task OnInitializedAsync()
     {
         await ClientSettings.Init();
-        _showMessage = MESSAGE_ID > ClientSettings.LastDisplayedMessageId;
+        _showMessage = MESSAGE_ID > 0 && MESSAGE_ID > ClientSettings.LastDisplayedMessageId;
     }
 
     private async Task CloseMessage()
