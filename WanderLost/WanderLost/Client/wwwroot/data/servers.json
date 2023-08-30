@@ -41,25 +41,19 @@
       "Armen",
       "Asta",
       "Calvasus",
+      "Ealyn",
       "Evergrace",
       "Ezrebet",
       "Kadan",
       "Lazenith",
       "Mokoko",
       "Neria",
+      "Nia",
       "Slen",
       "Thirain",
       "Trixion",
       "Wei",
       "Zinnervale"
-    ]
-  },
-  "EUW": {
-    "Name": "EU West",
-    "TimeZone": "Europe/London",
-    "Servers": [
-      "Ealyn",
-      "Nia"
     ]
   },
   "SA": {

@@ -54,6 +54,11 @@ public class ClientSettingsController
                 //Compatability for old servers after merge, will auto-select new server
                 await SetServer(newServer);
             }
+            if (Region == "EUW")
+            {
+                //Compatibility for region merge
+                await SetRegion("EUC");
+            }
 
             _initialized = true;
         }
