@@ -36,7 +36,7 @@ public class LeaderboardProcessor : BackgroundService
             {
                 //No merchants to process, can sleep for a bit
                 scope.Dispose();
-                await Task.Delay(TimeSpan.FromMinutes(10), stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
                 continue;
             }
 

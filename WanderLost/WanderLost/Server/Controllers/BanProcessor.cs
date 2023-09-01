@@ -19,19 +19,16 @@ public class BanProcessor : BackgroundService
     {
         while (true)
         {
-            await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(25), stoppingToken);
 
             if (stoppingToken.IsCancellationRequested) return;
-
-            //Run this between :15 and :19 after the hour
-            if (DateTime.Now.Minute < 15 || DateTime.Now.Minute > 19) continue;
 
             using var scope = _services.CreateScope();
             var merchantDbContext = scope.ServiceProvider.GetRequiredService<MerchantsDbContext>();
 
             var merchantsToProcess = await merchantDbContext.ActiveMerchants
                 .TagWithCallSite()
-                .Where(m => !m.PostProcessComplete)
+                .Where(m => !m.PostProcessComplete && m.ActiveMerchantGroup.AppearanceExpires < DateTime.UtcNow)
                 .ToListAsync(stoppingToken);
 
             foreach (var merchant in merchantsToProcess)

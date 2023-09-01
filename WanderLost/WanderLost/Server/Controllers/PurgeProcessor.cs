@@ -10,7 +10,7 @@ public class PurgeProcessor : BackgroundService
     private readonly IServiceProvider _services;
     private readonly ILogger<PurgeProcessor> _logger;
 
-    const int DAYS_TO_KEEP = 14;
+    const int DAYS_TO_KEEP = 7;
 
     public PurgeProcessor(ILogger<PurgeProcessor> logger, IServiceProvider services)
     {
@@ -22,12 +22,9 @@ public class PurgeProcessor : BackgroundService
     {
         while (true)
         {
-            await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(70), stoppingToken);
 
             if (stoppingToken.IsCancellationRequested) return;
-
-            //Only want to run this when site isn't normally active, which is usually around the top of the hour
-            if (DateTime.Now.Minute > 4) continue;
 
             using var scope = _services.CreateScope();
             var merchantDbContext = scope.ServiceProvider.GetRequiredService<MerchantsDbContext>();
