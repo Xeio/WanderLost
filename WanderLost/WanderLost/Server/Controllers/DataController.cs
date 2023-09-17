@@ -127,7 +127,7 @@ public class DataController
             foreach (var node in serverStatusnodes)
             {
                 var nameNode = node.Descendants().FirstOrDefault(n => n.HasClass("ags-ServerStatus-content-responses-response-server-name"));
-                var name = nameNode?.InnerText?.Trim();
+                var name = nameNode?.InnerText?.Replace("(Jump-Start)", string.Empty).Trim();
                 var serverInMaintenance = node.Descendants().Any(n => n.HasClass("ags-ServerStatus-content-responses-response-server-status--maintenance"));
                 if (!string.IsNullOrWhiteSpace(name))
                 {
