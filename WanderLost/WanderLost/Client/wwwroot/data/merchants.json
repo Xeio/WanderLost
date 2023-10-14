@@ -3,7 +3,7 @@
     "Name": "Dorella",
     "Region": "Feiton",
     "SortOrder": 12,
-    "SpawnTimes": [10, 4, 4, 4, 4, 10, 10],
+    "SpawnTimes": [ 10, 4, 4, 4, 4, 10, 10 ],
     "Cards": [
       {
         "Name": "Goulding",
@@ -308,7 +308,7 @@
     "Name": "Malone",
     "Region": "West Luterra",
     "SortOrder": 3,
-    "SpawnTimes": [ 4, 10, 4, 10, 10, 10, 4],
+    "SpawnTimes": [ 4, 10, 4, 10, 10, 10, 4 ],
     "Cards": [
       {
         "Name": "Berhart",
@@ -346,7 +346,7 @@
     "Name": "Burt",
     "Region": "East Luterra",
     "SortOrder": 4,
-    "SpawnTimes": [ 4, 10, 4, 10, 10, 10, 4],
+    "SpawnTimes": [ 4, 10, 4, 10, 10, 10, 4 ],
     "Cards": [
       {
         "Name": "Nox",
@@ -730,6 +730,56 @@
       },
       {
         "Name": "Lucky Starflower",
+        "Rarity": "Legendary"
+      }
+    ]
+  },
+  "Pedro": {
+    "Name": "Pedro",
+    "Region": "Pleccia",
+    "SortOrder": 17,
+    "SpawnTimes": [ 10, 4, 4, 4, 4, 10, 10 ],
+    "Cards": [
+      {
+        "Name": "Alfonso",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Bishop Antonio",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Claudia",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Rosaline Vediche",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Zakra",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Young Armen",
+        "Rarity": "Epic"
+      }
+    ],
+    "Rapports": [
+      {
+        "Name": "Colorful Claw Toy",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Educational Chart",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Mysterious Mouth",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Festival of Fire and Ice",
         "Rarity": "Legendary"
       }
     ]
