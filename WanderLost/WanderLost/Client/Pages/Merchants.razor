@@ -65,12 +65,6 @@ else if (HubClient.HubConnection.State == Microsoft.AspNetCore.SignalR.Client.Hu
                     Active Merchants
                     <span class="merchants__timer">Expires in @((activeGroup.AppearanceExpires - DateTimeOffset.UtcNow).ToString(@"hh\:mm\:ss"))</span>
                 </h3>
-                @if (activeGroup.RestockTime > DateTimeOffset.UtcNow)
-                {
-                    <h3 class="mt-3 merchants__active-merchants">
-                        <span class="merchants__timer">Inventory restocks in @((activeGroup.RestockTime - DateTimeOffset.UtcNow).ToString(@"hh\:mm\:ss"))</span>
-                    </h3>
-                }
                 <MerchantGridCompact ActiveData="@ActiveData" Server="@Server" />
             }
             <FutureMerchantsGrid ClassName="merchants__future-grid" ActiveData="@ActiveData" />

@@ -78,51 +78,6 @@ public class AppearenceTimeTests
         Assert.IsTrue(group.NextAppearance > originalAppearance, $"After merchant expires should calculate future appearance for {BuildMerchantString(group)}");
     }
 
-    [DataTestMethod]
-    [DynamicData(nameof(KnownMerchants))]
-    public void TestRestockTimeCalculation(ActiveMerchantGroup group)
-    {
-        var serverRegion = FindServerRegion(group.Server);
-        if (string.IsNullOrWhiteSpace(serverRegion.TimeZone))
-        {
-            //Couldn't find the time zone for the data to validate against
-            return;
-        }
-
-        if (!MerchantData.TryGetValue(group.MerchantName, out var merchantData))
-        {
-            Assert.Fail("Merchant not available in data");
-            return;
-        }
-
-        group.MerchantData = merchantData;
-
-        group.CalculateNextAppearance(serverRegion.TimeZone, group.NextAppearance.AddMinutes(-1));
-
-        switch (serverRegion.Name)
-        {
-            //These tests may not be accurate after DST shifts
-            case "NA East":
-                Assert.AreEqual(group.NextAppearance.AddHours(2), group.RestockTime, $"Calculated RestockTime invalid for '{serverRegion.Name}' Group: '{group.Id}'");
-                break;
-            case "NA West":
-                Assert.AreEqual(group.NextAppearance.AddHours(5), group.RestockTime, $"Calculated RestockTime invalid for '{serverRegion.Name}' Group: '{group.Id}'");
-                break;
-            case "South America":
-                Assert.AreEqual(group.NextAppearance.AddHours(2), group.RestockTime, $"Calculated RestockTime invalid for '{serverRegion.Name}' Group: '{group.Id}'");
-                break;
-            case "EU Central":
-                Assert.AreEqual(group.NextAppearance.AddHours(2), group.RestockTime, $"Calculated RestockTime invalid for '{serverRegion.Name}' Group: '{group.Id}'");
-                break;
-            case "EU West":
-                Assert.AreEqual(group.NextAppearance.AddHours(1), group.RestockTime, $"Calculated RestockTime invalid for '{serverRegion.Name}' Group: '{group.Id}'");
-                break;
-            default:
-                Assert.Fail($"Unhandled region '{serverRegion.Name}'");
-                break;
-        }
-    }
-
     public ServerRegion FindServerRegion(string server)
     {
         var region = ServerRegions.FirstOrDefault(r => r.Value.Servers.Contains(server));

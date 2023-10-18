@@ -63,11 +63,6 @@ public class ActiveMerchantGroup
     [NotMapped]
     [JsonIgnore]
     [MessagePack.IgnoreMember]
-    public DateTimeOffset RestockTime { get; set; }
-
-    [NotMapped]
-    [JsonIgnore]
-    [MessagePack.IgnoreMember]
     public bool IsActive => DateTimeOffset.UtcNow >= NextAppearance && DateTimeOffset.UtcNow < AppearanceExpires;
 
     public void CalculateNextAppearance(string timeZone, DateTimeOffset calculateFrom)
@@ -76,8 +71,6 @@ public class ActiveMerchantGroup
 
         (NextAppearance, AppearanceExpires) = InternalCalculateAppearance(serverUtcOffset, calculateFrom);
         FutureAppearance = InternalCalculateAppearance(serverUtcOffset, AppearanceExpires.AddSeconds(1)).NextAppearance;
-
-        RestockTime = InternalCalculateRestockTime(NextAppearance);
     }
 
     public static readonly TimeSpan MerchantDuration = TimeSpan.FromHours(5) + TimeSpan.FromMinutes(30);
@@ -119,31 +112,6 @@ public class ActiveMerchantGroup
         }
 
         return (nextAppearanceTime, nextAppearanceTime + MerchantDuration);
-    }
-    
-    private static DateTimeOffset InternalCalculateRestockTime(DateTimeOffset startingTime)
-    {
-        //This does not appear to use any server-specific offsets
-        //May need to re-evaluate after DST swaps to ensure there hasn't been any weird shift
-        var utcStartingTime = startingTime.ToUniversalTime();
-        if (utcStartingTime.Hour >= 22)
-        {
-            //Midnight the next day
-            return new DateTimeOffset(utcStartingTime.Date.AddDays(1).AddHours(4), TimeSpan.Zero);
-        }
-        if (utcStartingTime.Hour >= 16)
-        {
-            return new DateTimeOffset(utcStartingTime.Date.AddHours(22), TimeSpan.Zero);
-        }
-        if (utcStartingTime.Hour >= 10)
-        {
-            return new DateTimeOffset(utcStartingTime.Date.AddHours(16), TimeSpan.Zero);
-        }
-        if (utcStartingTime.Hour >= 4)
-        {
-            return new DateTimeOffset(utcStartingTime.Date.AddHours(10), TimeSpan.Zero);
-        }
-        return new DateTimeOffset(utcStartingTime.Date.AddHours(4), TimeSpan.Zero);
     }
 
     public void ClearInstances()
