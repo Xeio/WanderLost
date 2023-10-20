@@ -61,7 +61,7 @@
   },
   "SA": {
     "Name": "South America",
-    "TimeZone": "America/La_Paz",
+    "TimeZone": "America/Sao_Paulo",
     "Servers": [
       "Arthetine",
       "Blackfang",
