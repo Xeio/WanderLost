@@ -37,7 +37,7 @@
   },
   "EUC": {
     "Name": "EU Central",
-    "TimeZone": "Europe/Warsaw",
+    "TimeZone": "Europe/Sofia",
     "Servers": [
       "Antares",
       "Armen",
