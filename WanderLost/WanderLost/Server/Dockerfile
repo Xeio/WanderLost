@@ -9,7 +9,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY ["WanderLost/Server/WanderLost.Server.csproj", "WanderLost/Server/"]
 COPY ["WanderLost/Client/WanderLost.Client.csproj", "WanderLost/Client/"]
-COPY ["WanderLost/Shared/WanderLost.Shared.csproj", "WanderLost/Shared/"] 
+COPY ["WanderLost/Shared/WanderLost.Shared.csproj", "WanderLost/Shared/"]
 RUN dotnet restore "WanderLost/Server/WanderLost.Server.csproj"
 COPY . .
 WORKDIR "/src/WanderLost/Server"
