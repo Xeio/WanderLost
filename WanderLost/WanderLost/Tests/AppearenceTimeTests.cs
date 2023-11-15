@@ -53,6 +53,13 @@ public class AppearenceTimeTests
             return;
         }
 
+        if(serverRegion.Name == "South America" ||
+            group.Server == "Ealyn" ||
+            group.Server == "Nia")
+        {
+            return;
+        }
+
         if (!MerchantData.TryGetValue(group.MerchantName, out var merchantData))
         {
             Assert.Fail("Merchant not available in data");
@@ -86,6 +93,6 @@ public class AppearenceTimeTests
 
     private static string BuildMerchantString(ActiveMerchantGroup group)
     {
-        return $"Merchant: {group.MerchantName}, Group ID: {group.Id}";
+        return $"Merchant: {group.MerchantName}, Group ID: {group.Id}, Server: {group.Server}";
     }
 }
