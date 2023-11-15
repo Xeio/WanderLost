@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.HttpOverrides;
 using System.Net;
+using IPNetwork = Microsoft.AspNetCore.HttpOverrides.IPNetwork;
 
 namespace WanderLost.Server.Authorization;
 
@@ -11,8 +11,8 @@ public class DockerSubnetOnly : AuthorizationHandler<DockerSubnetOnly, HttpConte
 {
     public static readonly IList<IPNetwork> DockerSubnets = new List<IPNetwork>()
     {
-        new IPNetwork(IPAddress.Parse("127.16.0.0"), 12), //Docker subnets
-        new IPNetwork(IPAddress.Parse("::ffff:172.16.0.0"), 108), //Ipv6 version of the above
+        new(IPAddress.Parse("127.16.0.0"), 12), //Docker subnets
+        new(IPAddress.Parse("::ffff:172.16.0.0"), 108), //Ipv6 version of the above
         //There are other possible docker subnets though the above will be used by default first
     };
 
