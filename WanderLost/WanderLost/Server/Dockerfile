@@ -1,16 +1,15 @@
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-FROM mcr.microsoft.com/dotnet/nightly/aspnet:8.0-preview AS base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/nightly/sdk:8.0-preview AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY ["WanderLost/Server/WanderLost.Server.csproj", "WanderLost/Server/"]
 COPY ["WanderLost/Client/WanderLost.Client.csproj", "WanderLost/Client/"]
-COPY ["WanderLost/Shared/WanderLost.Shared.csproj", "WanderLost/Shared/"]
-RUN dotnet nuget add source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet8/nuget/v3/index.json -n dotnetnightly 
+COPY ["WanderLost/Shared/WanderLost.Shared.csproj", "WanderLost/Shared/"] 
 RUN dotnet restore "WanderLost/Server/WanderLost.Server.csproj"
 COPY . .
 WORKDIR "/src/WanderLost/Server"
