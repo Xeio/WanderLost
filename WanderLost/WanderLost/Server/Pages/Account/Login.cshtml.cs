@@ -109,12 +109,12 @@ public class ExternalLoginModel : PageModel
         return GetErrorRedirect(createUserResult.Errors.FirstOrDefault()?.Description ?? "Error creating user.");
     }
 
-    private IActionResult GetErrorRedirect(string message)
+    private RedirectResult GetErrorRedirect(string message)
     {
         return Redirect(new PathString($"/ErrorMessage/{message}"));
     }
 
-    private string BuildUserNameFromPrincipal(ClaimsPrincipal principal)
+    private static string BuildUserNameFromPrincipal(ClaimsPrincipal principal)
     {
         var discriminator = principal.FindFirst(DiscordAuthenticationConstants.Claims.Discriminator);
         if (discriminator is not null && !string.Equals(discriminator.Value, "0"))

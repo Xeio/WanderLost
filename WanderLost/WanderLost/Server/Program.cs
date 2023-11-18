@@ -48,17 +48,15 @@ builder.Services.AddIdentityServer()
         o.EnableTokenCleanup = true;
     });
 
-builder.Services.AddAuthorization(authorizationOptions =>
-{
-    authorizationOptions.AddPolicy(nameof(RareCombinationRestricted), policy =>
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy(nameof(RareCombinationRestricted), policy =>
     {
         policy.Requirements.Add(new RareCombinationRestricted());
-    });
-    authorizationOptions.AddPolicy(nameof(DockerSubnetOnly), policy =>
+    })
+    .AddPolicy(nameof(DockerSubnetOnly), policy =>
     {
         policy.Requirements.Add(new DockerSubnetOnly());
     });
-});
 
 builder.Services.AddAuthentication(authenticationOptions =>
 {

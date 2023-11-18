@@ -23,14 +23,14 @@ public sealed partial class MerchantHubClient : IAsyncDisposable
                 options.Transports = Microsoft.AspNetCore.Http.Connections.HttpTransportType.WebSockets;
                 options.AccessTokenProvider = GetToken;
             })
-            .WithAutomaticReconnect(new[] {
+            .WithAutomaticReconnect([
                 //Stargger reconnections a bit so server doesn't get hammered after a restart
                 TimeSpan.FromSeconds(Random.Shared.Next(5,360)),
                 TimeSpan.FromMinutes(6),
                 TimeSpan.FromMinutes(5),
                 TimeSpan.FromMinutes(5),
                 TimeSpan.FromMinutes(5),
-            })
+            ])
             .AddMessagePackProtocol(Utils.BuildMessagePackOptions)
             .Build();
         HubConnection.ServerTimeout = TimeSpan.FromMinutes(8);

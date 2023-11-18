@@ -34,7 +34,7 @@ public class DataController
         if (string.IsNullOrWhiteSpace(merchantsFile)) throw new ApplicationException("Unable to get merchants.json physical path.");
 
         var json = await File.ReadAllTextAsync(merchantsFile);
-        var merchantData = JsonSerializer.Deserialize<Dictionary<string, MerchantData>>(json, Utils.JsonOptions) ?? new Dictionary<string, MerchantData>();
+        var merchantData = JsonSerializer.Deserialize<Dictionary<string, MerchantData>>(json, Utils.JsonOptions) ?? [];
 
         return merchantData;
     }
@@ -50,7 +50,7 @@ public class DataController
         if (string.IsNullOrWhiteSpace(serversFile)) throw new ApplicationException("Unable to get servers.json physical path.");
 
         var json = await File.ReadAllTextAsync(serversFile);
-        return JsonSerializer.Deserialize<Dictionary<string, ServerRegion>>(json, Utils.JsonOptions) ?? new Dictionary<string, ServerRegion>();
+        return JsonSerializer.Deserialize<Dictionary<string, ServerRegion>>(json, Utils.JsonOptions) ?? [];
     }
 
     public async Task<List<ActiveMerchantGroup>> GetActiveMerchantGroups(string server)

@@ -17,10 +17,10 @@ public class ActiveMerchant
     public string Name { get; init; } = string.Empty;
 
     [MessagePack.Key(3)]
-    public List<Item> Cards { get; set; } = new();
+    public List<Item> Cards { get; set; } = [];
 
     [MessagePack.Key(4)]
-    public List<Item> Rapports { get; set; } = new();
+    public List<Item> Rapports { get; set; } = [];
 
     [MessagePack.Key(5)]
     public int Votes { get; set; }
@@ -31,7 +31,7 @@ public class ActiveMerchant
 
     [JsonIgnore]
     [MessagePack.IgnoreMember]
-    public List<Vote> ClientVotes { get; set; } = new();
+    public List<Vote> ClientVotes { get; set; } = [];
 
     [JsonIgnore]
     [MessagePack.IgnoreMember]
@@ -90,8 +90,8 @@ public class ActiveMerchant
     public bool IsValid(Dictionary<string, MerchantData> allMerchantData)
     {
         if (string.IsNullOrWhiteSpace(Name) ||
-            !Cards.Any() || 
-            !Rapports.Any())
+            Cards.Count == 0 || 
+            Rapports.Count == 0)
         {
             return false;
         }

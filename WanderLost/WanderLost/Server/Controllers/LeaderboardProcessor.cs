@@ -105,7 +105,7 @@ public class LeaderboardProcessor : BackgroundService
             //Can clear processing flag for all rows with this user since all rows are aggregated at once
             await merchantDbContext.ActiveMerchants
                 .Where(m => m.UploadedByUserId == merchant.UploadedByUserId)
-                .ExecuteUpdateAsync(u => u.SetProperty(m => m.RequiresLeaderboardProcessing, m => false));
+                .ExecuteUpdateAsync(u => u.SetProperty(m => m.RequiresLeaderboardProcessing, m => false), cancellationToken: stoppingToken);
         }
     }
 }

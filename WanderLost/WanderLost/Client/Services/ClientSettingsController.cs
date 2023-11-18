@@ -10,9 +10,9 @@ public class ClientSettingsController
     public string Server { get; private set; } = string.Empty;
     public bool NotificationsEnabled { get; private set; }
     public bool NotifyBrowserSoundEnabled { get; private set; }
-    public Dictionary<string, MerchantNotificationSetting> Notifications { get; private set; } = new();
-    public Dictionary<Rarity, int> CardVoteThresholdForNotification { get; set; } = new();
-    public Dictionary<Rarity, int> RapportVoteThresholdForNotification { get; set; } = new();
+    public Dictionary<string, MerchantNotificationSetting> Notifications { get; private set; } = [];
+    public Dictionary<Rarity, int> CardVoteThresholdForNotification { get; set; } = [];
+    public Dictionary<Rarity, int> RapportVoteThresholdForNotification { get; set; } = [];
     public int LastDisplayedMessageId { get; private set; }
     public float SoundVolume { get; private set; }
     public PushSubscription? SavedPushSubscription { get; private set; }
@@ -40,9 +40,9 @@ public class ClientSettingsController
             Server = await _localStorageService.GetItemAsync<string?>(nameof(Server)) ?? string.Empty;
             NotificationsEnabled = await _localStorageService.GetItemAsync<bool?>(nameof(NotificationsEnabled)) ?? false;
             NotifyBrowserSoundEnabled = await _localStorageService.GetItemAsync<bool?>(nameof(NotifyBrowserSoundEnabled)) ?? false;
-            Notifications = await _localStorageService.GetItemAsync<Dictionary<string, MerchantNotificationSetting>?>(nameof(Notifications)) ?? new();
-            CardVoteThresholdForNotification = await _localStorageService.GetItemAsync<Dictionary<Rarity, int>?>(nameof(CardVoteThresholdForNotification)) ?? new();
-            RapportVoteThresholdForNotification = await _localStorageService.GetItemAsync<Dictionary<Rarity, int>?>(nameof(RapportVoteThresholdForNotification)) ?? new();
+            Notifications = await _localStorageService.GetItemAsync<Dictionary<string, MerchantNotificationSetting>?>(nameof(Notifications)) ?? [];
+            CardVoteThresholdForNotification = await _localStorageService.GetItemAsync<Dictionary<Rarity, int>?>(nameof(CardVoteThresholdForNotification)) ?? [];
+            RapportVoteThresholdForNotification = await _localStorageService.GetItemAsync<Dictionary<Rarity, int>?>(nameof(RapportVoteThresholdForNotification)) ?? [];
             LastDisplayedMessageId = await _localStorageService.GetItemAsync<int?>(nameof(LastDisplayedMessageId)) ?? 0;
             SoundVolume = await _localStorageService.GetItemAsync<float?>(nameof(SoundVolume)) ?? 1f;
             SavedPushSubscription = await _localStorageService.GetItemAsync<PushSubscription?>(nameof(SavedPushSubscription));

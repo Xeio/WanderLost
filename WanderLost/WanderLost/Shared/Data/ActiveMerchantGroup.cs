@@ -45,7 +45,7 @@ public class ActiveMerchantGroup
     }
 
     [MessagePack.Key(3)]
-    public List<ActiveMerchant> ActiveMerchants { get; init; } = new List<ActiveMerchant>();
+    public List<ActiveMerchant> ActiveMerchants { get; init; } = [];
 
     [JsonIgnore]
     [MessagePack.IgnoreMember]

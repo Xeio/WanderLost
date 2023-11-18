@@ -49,7 +49,7 @@ public partial class Merchants : IAsyncDisposable
     }
 
     private Timer? _timer;
-    private readonly List<IDisposable> _hubEvents = new();
+    private readonly List<IDisposable> _hubEvents = [];
     private bool _spawnNotified = true;
 
     protected override async Task OnInitializedAsync()

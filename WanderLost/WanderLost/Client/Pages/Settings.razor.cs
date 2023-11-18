@@ -59,33 +59,21 @@ public partial class Settings
         }
         else if (category == NotificationSettingType.Card && value is Item card)
         {
-            if (notificationSetting.Cards.Contains(card.Name))
-            {
-                notificationSetting.Cards.Remove(card.Name);
-            }
-            else
+            if (!notificationSetting.Cards.Remove(card.Name))
             {
                 notificationSetting.Cards.Add(card.Name);
             }
         }
         else if (category == NotificationSettingType.Rapport && value is Item rapport)
         {
-            if (notificationSetting.Rapports.Contains(rapport.Name))
-            {
-                notificationSetting.Rapports.Remove(rapport.Name);
-            }
-            else
+            if (!notificationSetting.Rapports.Remove(rapport.Name))
             {
                 notificationSetting.Rapports.Add(rapport.Name);
             }
         }
         else if (category == NotificationSettingType.Tradeskill && value is string tradeskillName)
         {
-            if (notificationSetting.Tradeskills.Contains(tradeskillName))
-            {
-                notificationSetting.Tradeskills.Remove(tradeskillName);
-            }
-            else
+            if (!notificationSetting.Tradeskills.Remove(tradeskillName))
             {
                 notificationSetting.Tradeskills.Add(tradeskillName);
             }

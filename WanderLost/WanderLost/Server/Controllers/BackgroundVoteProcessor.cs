@@ -9,7 +9,7 @@ public class BackgroundVoteProcessor : BackgroundService
 {
     private readonly IServiceProvider _services;
     private readonly ILogger<BackgroundVoteProcessor> _logger;
-    private readonly List<string> _servers = new();
+    private readonly List<string> _servers = [];
 
     public BackgroundVoteProcessor(ILogger<BackgroundVoteProcessor> logger, IServiceProvider services)
     {

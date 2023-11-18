@@ -8,5 +8,5 @@ public class ServerRegion
     /// to be compatible in the Blazor WASM environment.
     /// </summary>
     public string TimeZone { get; init; } = string.Empty;
-    public List<string> Servers { get; init; } = new();
+    public List<string> Servers { get; init; } = [];
 }

@@ -4,9 +4,9 @@ namespace WanderLost.Client.Services;
 
 public class ActiveDataController
 {
-    public List<ActiveMerchantGroup> MerchantGroups { get; private set; } = new();
-    public Dictionary<Guid, ActiveMerchant> MerchantDictionary { get; private set; } = new();
-    public Dictionary<Guid, VoteType> Votes { get; private set; } = new();
+    public List<ActiveMerchantGroup> MerchantGroups { get; private set; } = [];
+    public Dictionary<Guid, ActiveMerchant> MerchantDictionary { get; private set; } = [];
+    public Dictionary<Guid, VoteType> Votes { get; private set; } = [];
 
     private readonly ClientStaticDataController StaticData;
 

@@ -56,7 +56,7 @@ public class PushMessageProcessor
                         Icon = "/images/notifications/ExclamationMark.png",
                         Tag = "test",
                         Renotify = true,
-                        Vibrate = new[] { 500, 100, 500, 100, 500 },
+                        Vibrate = [500, 100, 500, 100, 500],
                     },
                     Headers = new Dictionary<string, string>()
                     {
@@ -240,7 +240,7 @@ public class PushMessageProcessor
                     {
                         //If a susbscription is consistently failing due to third party errors, purge it
                         _merchantContext.Entry(subscription).State = EntityState.Deleted;
-                        _logger.LogInformation($"Purging subscription '{subscription.Id}' due to repeated failures.");
+                        _logger.LogInformation("Purging subscription '{subscription.Id}' due to repeated failures.", subscription.Id);
                     }
                 }
                 else
@@ -280,7 +280,7 @@ public class PushMessageProcessor
                     Icon = "/images/notifications/ExclamationMark.png",
                     Tag = isCard ? "wei" : "rapport",
                     Renotify = true,
-                    Vibrate = new[] { 500, 100, 500, 100, 500 },
+                    Vibrate = [500, 100, 500, 100, 500],
                 },
                 Headers = new Dictionary<string, string>()
                 {

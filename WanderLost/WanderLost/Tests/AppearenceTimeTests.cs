@@ -13,8 +13,8 @@ public class AppearenceTimeTests
 {
     public static IEnumerable<object[]> KnownMerchants => GetMerchantsFromDatabase();
 
-    public Dictionary<string, MerchantData> MerchantData { get; set; } = new();
-    public Dictionary<string, ServerRegion> ServerRegions { get; set; } = new();
+    public Dictionary<string, MerchantData> MerchantData { get; set; } = [];
+    public Dictionary<string, ServerRegion> ServerRegions { get; set; } = [];
 
     public static IEnumerable<object[]> GetMerchantsFromDatabase()
     {
@@ -36,10 +36,10 @@ public class AppearenceTimeTests
     public void Initialize()
     {
         var merchantsFile = File.ReadAllText(@"..\..\..\..\Client\wwwroot\data\merchants.json");
-        MerchantData = JsonSerializer.Deserialize<Dictionary<string, MerchantData>>(merchantsFile, Utils.JsonOptions) ?? new();
+        MerchantData = JsonSerializer.Deserialize<Dictionary<string, MerchantData>>(merchantsFile, Utils.JsonOptions) ?? [];
 
         var serversFile = File.ReadAllText(@"..\..\..\..\Client\wwwroot\data\servers.json");
-        ServerRegions = JsonSerializer.Deserialize<Dictionary<string, ServerRegion>>(serversFile, Utils.JsonOptions) ?? new();
+        ServerRegions = JsonSerializer.Deserialize<Dictionary<string, ServerRegion>>(serversFile, Utils.JsonOptions) ?? [];
     }
 
     [DataTestMethod]

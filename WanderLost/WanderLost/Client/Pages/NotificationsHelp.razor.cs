@@ -6,7 +6,7 @@ public partial class NotificationsHelp
 {
     [Parameter] public string? Section { get; set; }
 
-    private readonly Dictionary<string, bool> _initialSectionState = new();
+    private readonly Dictionary<string, bool> _initialSectionState = [];
 
     protected override void OnInitialized()
     {

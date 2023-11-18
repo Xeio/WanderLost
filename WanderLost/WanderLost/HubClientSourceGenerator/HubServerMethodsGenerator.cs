@@ -33,7 +33,7 @@ namespace HubClientSourceGenerator
 
     public void Execute(GeneratorExecutionContext context)
     {
-        if (!(context.SyntaxContextReceiver is HubGeneratorReciever receiver))
+        if (context.SyntaxContextReceiver is not HubGeneratorReciever receiver)
             return;
 
 
@@ -62,7 +62,7 @@ namespace HubClientSourceGenerator
             var hubPropertyName = Helpers.FindHubConnectionProperty(clientClass, context);
             if (string.IsNullOrWhiteSpace(hubPropertyName)) return;
 
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
             var ns = clientClass.ContainingNamespace.ToDisplayString();
             var className = clientClass.Name;

@@ -9,8 +9,8 @@ public sealed class ClientNotificationService : IAsyncDisposable
     private readonly ActiveDataController _activeData;
     private readonly ClientSettingsController _clientSettings;
     private readonly IJSRuntime _jsRuntime;
-    private readonly List<IJSObjectReference> _notifications = new();
-    private readonly Dictionary<string, DateTimeOffset> _merchantFoundNotificationCooldown = new();
+    private readonly List<IJSObjectReference> _notifications = [];
+    private readonly Dictionary<string, DateTimeOffset> _merchantFoundNotificationCooldown = [];
 
     public ClientNotificationService(ClientSettingsController clientSettings, IJSRuntime js, ActiveDataController activeData)
     {
