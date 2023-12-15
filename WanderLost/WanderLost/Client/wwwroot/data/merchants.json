@@ -60,10 +60,6 @@
         "Rarity": "Rare"
       },
       {
-        "Name": "Thunderwings",
-        "Rarity": "Epic"
-      },
-      {
         "Name": "Delain Armen",
         "Rarity": "Legendary"
       }
@@ -355,10 +351,6 @@
       {
         "Name": "Seria",
         "Rarity": "Rare"
-      },
-      {
-        "Name": "Thunderwings",
-        "Rarity": "Epic"
       }
     ],
     "Rapports": [
@@ -553,6 +545,10 @@
       {
         "Name": "Xereon",
         "Rarity": "Rare"
+      },
+      {
+        "Name": "Thunderwings",
+        "Rarity": "Epic"
       }
     ],
     "Rapports": [
@@ -780,6 +776,84 @@
       },
       {
         "Name": "Festival of Fire and Ice",
+        "Rarity": "Legendary"
+      }
+    ]
+  },
+  "Gudis": {
+    "Name": "Gudis",
+    "Region": "Voldis",
+    "SortOrder": 18,
+    "SpawnTimes": [ 4, 10, 4, 10, 10, 10, 4 ],
+    "Cards": [
+      {
+        "Name": "Nilai",
+        "Rarity": "Uncommon"
+      },
+      {
+        "Name": "Verad",
+        "Rarity": "Uncommon"
+      },
+      {
+        "Name": "Isaac",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Kalinar Neria",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Marega",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Mariu",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Behemoth",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Firehorn",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Kaltaya",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Lazaram",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Rakathus",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Zeherade",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Varkan",
+        "Rarity": "Legendary"
+      }
+    ],
+    "Rapports": [
+      {
+        "Name": "Kuriguri Potion",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Mysterious Tail",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Whispering Whispy",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Voldisian Stone",
         "Rarity": "Legendary"
       }
     ]
