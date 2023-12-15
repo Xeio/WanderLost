@@ -175,17 +175,25 @@ public class DataController
         }
     }
 
-    public async Task<IEnumerable<Item>> GetEpicLegendaryCards()
+    static readonly HashSet<string> ImportantNonLegendaryCards = [
+        "Jederico",
+        "Krause",
+        "Myun Hidaka",
+        "Osphere",
+        "Thar",
+    ];
+
+    public async Task<IEnumerable<Item>> GetImportantCards()
     {
-        return await _memoryCache.GetOrCreateAsync<IEnumerable<Item>?>(nameof(GetEpicLegendaryCards), async (cacheEntry) =>
+        return await _memoryCache.GetOrCreateAsync<IEnumerable<Item>?>(nameof(GetImportantCards), async (cacheEntry) =>
         {
             var merchantData = await GetMerchantData();
             return merchantData?.SelectMany(m => m.Value.Cards
-                .Where(c => c.Rarity >= Rarity.Epic))
+                .Where(c => c.Rarity >= Rarity.Legendary || ImportantNonLegendaryCards.Contains(c.Name)))
                 .DistinctBy(c => c.Name)
                 .OrderByDescending(c => c.Rarity)
                 .ThenBy(c => c.Name)
                 .ToList();
-        }) ?? throw new ApplicationException($"Failed to build {nameof(GetEpicLegendaryCards)} cache");
+        }) ?? throw new ApplicationException($"Failed to build {nameof(GetImportantCards)} cache");
     }
 }

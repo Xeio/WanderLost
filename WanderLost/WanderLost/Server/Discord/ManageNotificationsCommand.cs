@@ -86,7 +86,7 @@ public class ManageNotificationsCommand : IDiscordCommand
                     var currentSubscription = await _subscriptionManager.GetCurrentSubscription(arg.User.Id);
                     if (currentSubscription is null) return;
 
-                    var cards = await _dataController.GetEpicLegendaryCards();
+                    var cards = await _dataController.GetImportantCards();
                     var select = new SelectMenuBuilder()
                     {
                         Placeholder = "Select card to add",
@@ -243,7 +243,7 @@ public class ManageNotificationsCommand : IDiscordCommand
                 }
             case ADD_CARD_DROPDOWN:
                 {
-                    var cards = await _dataController.GetEpicLegendaryCards();
+                    var cards = await _dataController.GetImportantCards();
                     if (!arg.Data.Values.All(newCard => cards.Any(realCard => realCard.Name == newCard))) return;
 
                     await _subscriptionManager.AddCardsToSubscription(arg.User.Id, arg.Data.Values);

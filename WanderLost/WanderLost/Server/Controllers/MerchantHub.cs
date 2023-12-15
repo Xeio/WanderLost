@@ -339,7 +339,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
 
     public async Task<CardStats> GetCardStats(string cardName)
     {
-        var validCards = await _dataController.GetEpicLegendaryCards();
+        var validCards = await _dataController.GetImportantCards();
         if (!validCards.Any(c => c.Name == cardName)) return new();
 
         return await _memoryCache.GetOrCreateAsync($"CardStats_{cardName}", async (cacheEntry) =>
