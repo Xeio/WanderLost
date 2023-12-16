@@ -32,16 +32,16 @@ public static class Utils
             .WithCompression(MessagePackCompression.Lz4Block);
     }
 
-    private static readonly Dictionary<string, string> _serverMerges = new()
+    public static readonly IReadOnlyDictionary<string, string> ServerMerges = new Dictionary<string, string>()
     {
-        { "Shadespire", "Rethramis" },
-        { "Petrania", "Tortoyk" },
-        { "Tragon", "Moonkeep" },
-        { "Stonehearth", "Punika" },
-        { "Kurzan", "Agaton" },
-        { "Prideholme", "Vern" },
-        { "Yorn", "Gienah" },
-        { "Feiton", "Arcturus" },
+        { "Shadespire", "Ealyn" },
+        { "Petrania", "Ealyn" },
+        { "Tragon", "Nia" },
+        { "Stonehearth", "Nia" },
+        { "Kurzan", "Arthetine" },
+        { "Prideholme", "Arthetine" },
+        { "Yorn", "Blackfang" },
+        { "Feiton", "Blackfang" },
         { "Sirius", "Armen" },
         { "Sceptrum", "Armen" },
         { "Thaemine", "Lazenith" },
@@ -58,22 +58,15 @@ public static class Utils
         { "Vern", "Arthetine" },
         { "Gienah", "Blackfang" },
         { "Arcturus", "Blackfang" },
-        //Fix misspelling
-        { "Eyalyn", "Ealyn" },
     };
 
     public static bool HasMergedServer(string server, [NotNullWhen(true)] out string? mergedServer)
     {
-        if (_serverMerges.TryGetValue(server, out var newServer))
-        {
-            mergedServer = newServer;
-            if (_serverMerges.TryGetValue(newServer, out var secondaryServer))
-            {
-                mergedServer = secondaryServer;
-            }
-            return true;
-        }
         mergedServer = null;
-        return false;
+        while (ServerMerges.TryGetValue(server, out var newServer))
+        {
+            server = mergedServer = newServer;
+        }
+        return !string.IsNullOrWhiteSpace(mergedServer);
     }
 }

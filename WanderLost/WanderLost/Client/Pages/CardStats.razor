@@ -38,7 +38,7 @@
 
         <div class="col-sm">
             <div class="row">
-                <div class="h3 col">Per-Server Counts</div>
+                <div class="h3 col">Server Counts and Recent Spawn</div>
             </div>
             <table class="table">
                 <tbody>
@@ -47,6 +47,7 @@
                         <tr>
                             <td>@counts.Server</td>
                             <td>@counts.Count</td>
+                            <td>@counts.MostRecentAppearance.ToString("yyyy-MM-dd")</td>
                         </tr>
                     }
                 </tbody>

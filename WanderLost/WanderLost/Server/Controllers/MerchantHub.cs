@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using System.Security.Authentication;
 using WanderLost.Server.PushNotifications;
+using WanderLost.Shared;
 using WanderLost.Shared.Data;
 using WanderLost.Shared.Interfaces;
 
@@ -348,13 +349,17 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
 
             await _merchantsDbContext.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadUncommitted);
 
+            var mergedServers = Utils.ServerMerges.Keys.ToList();
+
             var cardCounts = await _merchantsDbContext.ActiveMerchants
                 .TagWithCallSite()
                 .Where(m => m.Cards.Any(c => c.Name == cardName) && !m.Hidden && m.Votes > 0)
+                .Where(m => !mergedServers.Contains(m.ActiveMerchantGroup.Server))
                 .GroupBy(m => m.ActiveMerchantGroup.Server, (server, rows) => new
                 {
                     Server = server,
-                    Count = rows.Count()
+                    Count = rows.Count(),
+                    MostRecentAppearance = rows.Max(m => m.ActiveMerchantGroup.NextAppearance)
                 })
                 .OrderByDescending(i => i.Count)
                 .ToListAsync();
@@ -371,7 +376,7 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
 
             return new CardStats()
             {
-                ServerCardCounts = cardCounts.Select(c => (c.Server, c.Count)).ToList(),
+                ServerCardCounts = cardCounts.Select(c => (c.Server, c.Count, DateOnly.FromDateTime(c.MostRecentAppearance.Date))).ToList(),
                 RecentAppearances = recentAppearances.Select(r => (r.Server, r.NextAppearance)).ToList()
             };
         }) ?? new();

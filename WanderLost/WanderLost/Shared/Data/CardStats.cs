@@ -4,7 +4,7 @@
     public class CardStats
     {
         [MessagePack.Key(0)]
-        public List<(string Server, int Count)> ServerCardCounts { get; set; } = [];
+        public List<(string Server, int Count, DateOnly MostRecentAppearance)> ServerCardCounts { get; set; } = [];
 
         [MessagePack.Key(1)]
         public List<(string Server, DateTimeOffset AppearanceTime)> RecentAppearances { get; set; } = [];
