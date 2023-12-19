@@ -61,6 +61,23 @@
             </div>
         </div>
     }
+    @if (MerchantData?.MiscItems?.Count > 0)
+    {
+        <div class="col-sm-6">
+            <div class="card border-secondary mb-3">
+                <div class="card-header">Misc Items</div>
+                <div class="card-body">
+                    @foreach(var miscItem in MerchantData?.MiscItems ?? Enumerable.Empty<Item>())
+                    {
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" checked="@(ActiveMerchant.MiscItems.Any(m => m.Name == miscItem.Name))" @onchange="@((arg) => UpdateMiscItemChecked(arg, miscItem))" id="@miscItem.Name" />
+                            <label class="form-check-label" for="@miscItem.Name"><ItemDisplay Item="@miscItem" /></label>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
 </div>
 @if (ActiveMerchant.IsRareCombination)
 {
@@ -157,6 +174,18 @@
         else
         {
             ActiveMerchant.Rapports.Remove(rapport);
+        }
+    }
+
+    private void UpdateMiscItemChecked(ChangeEventArgs args, Item rapport)
+    {
+        if (args.Value is bool val && val)
+        {
+            ActiveMerchant.MiscItems.Add(rapport);
+        }
+        else
+        {
+            ActiveMerchant.MiscItems.Remove(rapport);
         }
     }
 }

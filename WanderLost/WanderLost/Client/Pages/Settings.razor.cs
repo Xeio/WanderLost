@@ -71,6 +71,13 @@ public partial class Settings
                 notificationSetting.Rapports.Add(rapport.Name);
             }
         }
+        else if (category == NotificationSettingType.MiscItem && value is Item miscItem)
+        {
+            if (!notificationSetting.MiscItems.Remove(miscItem.Name))
+            {
+                notificationSetting.MiscItems.Add(miscItem.Name);
+            }
+        }
         else if (category == NotificationSettingType.Tradeskill && value is string tradeskillName)
         {
             if (!notificationSetting.Tradeskills.Remove(tradeskillName))
@@ -107,6 +114,11 @@ public partial class Settings
         if (category == NotificationSettingType.Rapport && value is Item rapport)
         {
             return setting.Rapports.Contains(rapport.Name);
+        }
+
+        if (category == NotificationSettingType.MiscItem && value is Item miscItem)
+        {
+            return setting.MiscItems.Contains(miscItem.Name);
         }
 
         if (category == NotificationSettingType.Tradeskill && value is string tradeskill)

@@ -856,6 +856,16 @@
         "Name": "Voldisian Stone",
         "Rarity": "Legendary"
       }
+    ],
+    "MiscItems": [
+      {
+        "Name": "Stabilized Ductility Catalyst",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Squid",
+        "Rarity": "Legendary"
+      }
     ]
   }
 }

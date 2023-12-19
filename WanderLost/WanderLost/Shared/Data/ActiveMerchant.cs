@@ -29,6 +29,9 @@ public class ActiveMerchant
     [MessagePack.Key(6)]
     public string? Tradeskill { get; set; }
 
+    [MessagePack.Key(7)]
+    public List<Item> MiscItems { get; set; } = [];
+
     [JsonIgnore]
     [MessagePack.IgnoreMember]
     public List<Vote> ClientVotes { get; set; } = [];
@@ -99,7 +102,8 @@ public class ActiveMerchant
         if (!allMerchantData.TryGetValue(Name, out var data)) return false;
 
         if (!Cards.All(data.Cards.Contains) ||
-            !Rapports.All(data.Rapports.Contains))
+            !Rapports.All(data.Rapports.Contains) ||
+            !MiscItems.All(data.MiscItems.Contains))
         {
             return false;
         }
@@ -120,6 +124,7 @@ public class ActiveMerchant
         return Name == merchant.Name &&
             Enumerable.SequenceEqual(Cards.Order(), merchant.Cards.Order()) &&
             Enumerable.SequenceEqual(Rapports.Order(), merchant.Rapports.Order()) &&
+            Enumerable.SequenceEqual(MiscItems.Order(), merchant.MiscItems.Order()) &&
             Tradeskill == merchant.Tradeskill;
     }
 }

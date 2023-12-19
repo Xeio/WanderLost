@@ -4,129 +4,169 @@
 
 @using System.Globalization
 
+@{
+    var anyMiscItems = ActiveMerchantGroups.Any(g => g.ActiveMerchants.Any(a => a.MiscItems.Count > 0)); 
+}
 <table class="merchant-grid-compact merchant-grid-new">
     <thead>
-    <tr>
-        <th>Merchant</th>
-        <th>Card</th>
-        <th>Rapport</th>
-        <th>Votes</th>
-        <th></th>
-    </tr>
+        <tr>
+            <th>Merchant</th>
+            <th>Card</th>
+            <th>Rapport</th>
+            @if (anyMiscItems)
+            {
+                <th>Misc</th>
+            }
+            <th>Votes</th>
+            <th></th>
+        </tr>
     </thead>
     <tbody>
-    @foreach (var merchantGroup in ActiveMerchantGroups)
-    {
-        <tr>
-            <td>@merchantGroup.MerchantName (@merchantGroup.MerchantData.Region)</td>
-            @if (merchantGroup.ActiveMerchants.Count == 0)
-            {
-                <td>?</td>
-                <td>?</td>
-                <td colspan="2">
-                    <a class="merchant-grid-compact__submit-location" href="/UpdateMerchant/@Server/@merchantGroup.MerchantName">Submit</a>
-                </td>
-            }
-            else
-            {
-                var merchant = merchantGroup.ActiveMerchants.OrderByDescending(m => m.Votes).First();
-                ClientSettings.Notifications.TryGetValue(merchant.Name, out var merchantNotificationSettings);
-                <td>
-                    @foreach (var card in merchant.Cards)
-                    {
-                        @if (merchantNotificationSettings?.Cards.Contains(card.Name) == true)
-                        {
-                            <span class="oi oi-star favorite-badge"/>
-                            <text>&nbsp;</text>
-                        }
-                        <ItemDisplay Item="@card" /><br/>
-                    }
-                </td>
-                <td>
-                    @foreach(var rapport in merchant.Rapports)
-                    {
-                        @if (merchantNotificationSettings?.Rapports.Contains(rapport.Name) == true)
-                        {
-                            <span class="oi oi-star favorite-badge"/>
-                            <text>&nbsp;</text>
-                        }
-                        <ItemDisplay Item="@rapport" /><br/>
-                    }
-                </td>
-                <td>
-                    @merchant.Votes
-                </td>
-                <td>
-                    <CardButton
-                        ClassName="merchant-grid-compact__button"
-                        Type="@CardButton.Variant.Like"
-                        Active="@(CurrentVote(merchant.Id) == VoteType.Upvote)"
-                        OnClick="@(async () => await SubmitVote(merchant.Id, VoteType.Upvote))"/>
-                    <CardButton
-                        ClassName="merchant-grid-compact__button"
-                        Type="@CardButton.Variant.Dislike"
-                        Active="@(CurrentVote(merchant.Id) == VoteType.Downvote)"
-                        OnClick="@(async () => await SubmitVote(merchant.Id, VoteType.Downvote))"/>
-                    <CardButton
-                        ClassName="merchant-grid-compact__button"
-                        Type="@CardButton.Variant.Report"
-                        Hint="@GetReportHint(merchant.Id)"
-                        OnClick="@(() => NavigateToSubmitPage(merchant.Name))"/>
-                </td>
-            }
-        </tr>
-        @foreach (var merchant in merchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).Skip(1))
-        {
-            string rowStyle = @GetRowStyle(merchant);
-            ClientSettings.Notifications.TryGetValue(merchant.Name, out var merchantNotificationSettings);
-            <tr style="@rowStyle">
-                <td/>
-                <td>
-                    @foreach (var card in merchant.Cards)
-                    {
-                        @if (merchantNotificationSettings?.Cards.Contains(card.Name) == true)
-                        {
-                            <span class="oi oi-star favorite-badge" />
-                            <text>&nbsp;</text>
-                        }
-                        <ItemDisplay Item="@card" /><br/>
-                    }
-                </td>
-                <td>
-                    @foreach(var rapport in merchant.Rapports)
-                    {
-                        @if (merchantNotificationSettings?.Rapports.Contains(rapport.Name) == true)
-                        {
-                            <span class="oi oi-star favorite-badge"/>
-                            <text>&nbsp;</text>
-                        }
-                        <ItemDisplay Item="@rapport" /><br/>
-                    }
-                </td>
-                <td>
-                    @merchant.Votes
-                </td>
-                <td>
-                    <CardButton
-                        ClassName="merchant-grid-compact__button"
-                        Type="@CardButton.Variant.Like"
-                        Active="@(CurrentVote(merchant.Id) == VoteType.Upvote)"
-                        OnClick="@(async () => await SubmitVote(merchant.Id, VoteType.Upvote))"/>
-                    <CardButton
-                        ClassName="merchant-grid-compact__button"
-                        Type="@CardButton.Variant.Dislike"
-                        Active="@(CurrentVote(merchant.Id) == VoteType.Downvote)"
-                        OnClick="@(async () => await SubmitVote(merchant.Id, VoteType.Downvote))"/>
-                </td>
-            </tr>
-        }
-        @if (merchantGroup.IsActive)
+        @foreach (var merchantGroup in ActiveMerchantGroups)
         {
             <tr>
-                <td class="separator" colspan="99"></td>
+                <td>@merchantGroup.MerchantName (@merchantGroup.MerchantData.Region)</td>
+                @if (merchantGroup.ActiveMerchants.Count == 0)
+                {
+                    <td>?</td>
+                    <td>?</td>
+                    @if (anyMiscItems)
+                    {
+                        <td>?</td>
+                    }
+                    <td colspan="2">
+                        <a class="merchant-grid-compact__submit-location" href="/UpdateMerchant/@Server/@merchantGroup.MerchantName">Submit</a>
+                    </td>
+                }
+                else
+                {
+                    var merchant = merchantGroup.ActiveMerchants.OrderByDescending(m => m.Votes).First();
+                    ClientSettings.Notifications.TryGetValue(merchant.Name, out var merchantNotificationSettings);
+                    <td>
+                        @foreach (var card in merchant.Cards)
+                        {
+                            @if (merchantNotificationSettings?.Cards.Contains(card.Name) == true)
+                            {
+                                <span class="oi oi-star favorite-badge" />
+                                <text>&nbsp;</text>
+                            }
+                            <ItemDisplay Item="@card" />
+                            <br />
+                        }
+                    </td>
+                    <td>
+                        @foreach (var rapport in merchant.Rapports)
+                        {
+                            @if (merchantNotificationSettings?.Rapports.Contains(rapport.Name) == true)
+                            {
+                                <span class="oi oi-star favorite-badge" />
+                                <text>&nbsp;</text>
+                            }
+                            <ItemDisplay Item="@rapport" />
+                            <br />
+                        }
+                    </td>
+                    @if (anyMiscItems)
+                    {
+                        <td>
+                            @foreach (var miscItem in merchant.MiscItems)
+                            {
+                                @if (merchantNotificationSettings?.MiscItems.Contains(miscItem.Name) == true)
+                                {
+                                    <span class="oi oi-star favorite-badge" />
+                                    <text>&nbsp;</text>
+                                }
+                                <ItemDisplay Item="@miscItem" />
+                                <br />
+                            }
+                        </td>
+                    }
+                    <td class="votesCol">
+                        @merchant.Votes
+                    </td>
+                    <td class="controlsCol">
+                        <CardButton ClassName="merchant-grid-compact__button"
+                                    Type="@CardButton.Variant.Like"
+                                    Active="@(CurrentVote(merchant.Id) == VoteType.Upvote)"
+                                    OnClick="@(async () => await SubmitVote(merchant.Id, VoteType.Upvote))" />
+                        <CardButton ClassName="merchant-grid-compact__button"
+                                    Type="@CardButton.Variant.Dislike"
+                                    Active="@(CurrentVote(merchant.Id) == VoteType.Downvote)"
+                                    OnClick="@(async () => await SubmitVote(merchant.Id, VoteType.Downvote))" />
+                        <CardButton ClassName="merchant-grid-compact__button"
+                                    Type="@CardButton.Variant.Report"
+                                    Hint="@GetReportHint(merchant.Id)"
+                                    OnClick="@(() => NavigateToSubmitPage(merchant.Name))" />
+                    </td>
+                }
             </tr>
+            @foreach (var merchant in merchantGroup.ActiveMerchants.OrderByDescending(x => x.Votes).Skip(1))
+            {
+                string rowStyle = @GetRowStyle(merchant);
+                ClientSettings.Notifications.TryGetValue(merchant.Name, out var merchantNotificationSettings);
+                <tr style="@rowStyle">
+                    <td />
+                    <td>
+                        @foreach (var card in merchant.Cards)
+                        {
+                            @if (merchantNotificationSettings?.Cards.Contains(card.Name) == true)
+                            {
+                                <span class="oi oi-star favorite-badge" />
+                                <text>&nbsp;</text>
+                            }
+                            <ItemDisplay Item="@card" />
+                            <br />
+                        }
+                    </td>
+                    <td>
+                        @foreach (var rapport in merchant.Rapports)
+                        {
+                            @if (merchantNotificationSettings?.Rapports.Contains(rapport.Name) == true)
+                            {
+                                <span class="oi oi-star favorite-badge" />
+                                <text>&nbsp;</text>
+                            }
+                            <ItemDisplay Item="@rapport" />
+                            <br />
+                        }
+                    </td>
+                    @if (anyMiscItems)
+                    {
+                        <td>
+                            @foreach (var miscItem in merchant.MiscItems)
+                            {
+                                @if (merchantNotificationSettings?.MiscItems.Contains(miscItem.Name) == true)
+                                {
+                                    <span class="oi oi-star favorite-badge" />
+                                    <text>&nbsp;</text>
+                                }
+                                <ItemDisplay Item="@miscItem" />
+                                <br />
+                            }
+                        </td>
+                    }
+                    <td class ="votesCol">
+                        @merchant.Votes
+                    </td>
+                    <td class="controlsCol">
+                        <CardButton ClassName="merchant-grid-compact__button"
+                                    Type="@CardButton.Variant.Like"
+                                    Active="@(CurrentVote(merchant.Id) == VoteType.Upvote)"
+                                    OnClick="@(async () => await SubmitVote(merchant.Id, VoteType.Upvote))" />
+                        <CardButton ClassName="merchant-grid-compact__button"
+                                    Type="@CardButton.Variant.Dislike"
+                                    Active="@(CurrentVote(merchant.Id) == VoteType.Downvote)"
+                                    OnClick="@(async () => await SubmitVote(merchant.Id, VoteType.Downvote))" />
+                    </td>
+                </tr>
+            }
+            @if (merchantGroup.IsActive)
+            {
+                <tr>
+                    <td class="separator" colspan="99"></td>
+                </tr>
+            }
         }
-    }
     </tbody>
 </table>
 

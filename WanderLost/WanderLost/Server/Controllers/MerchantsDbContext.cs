@@ -67,6 +67,12 @@ public class MerchantsDbContext : ApiAuthorizationDbContext<WanderlostUser>, IDa
             b.HasKey("ActiveMerchantId", "Name");
         });
 
+        modelBuilder.Entity<ActiveMerchant>().OwnsMany(m => m.MiscItems, b =>
+        {
+            b.WithOwner().HasForeignKey("ActiveMerchantId");
+            b.HasKey("ActiveMerchantId", "Name");
+        });
+
         modelBuilder.Entity<Ban>()
             .HasKey(b => new { b.ClientId, b.ExpiresAt });
 

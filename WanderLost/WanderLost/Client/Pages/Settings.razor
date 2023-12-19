@@ -99,6 +99,23 @@
                     </ul>
                 </li>
             </ul>
+            @if (merchant.MiscItems.Count > 0)
+            {
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <h6 class="card-subtitle mb-2 text-muted">Misc Items</h6>
+                        <ul>
+                            @foreach (var item in merchant.MiscItems)
+                            {
+                                <li class="d-block">
+                                    <NotificationIcon Enabled="IsMerchantValueNotified(key, NotificationSettingType.MiscItem, item)" StateChanged="@(_ => OnNotificationToggle(NotificationSettingType.MiscItem, key, item))" />
+                                    <ItemDisplay Item="@item" />
+                                </li>
+                            }
+                        </ul>
+                    </li>
+                </ul>
+            }
             @if(merchant.Tradeskills.Count > 0)
             {
                 <ul class="list-group list-group-flush">
