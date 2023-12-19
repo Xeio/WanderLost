@@ -78,13 +78,6 @@ public partial class Settings
                 notificationSetting.MiscItems.Add(miscItem.Name);
             }
         }
-        else if (category == NotificationSettingType.Tradeskill && value is string tradeskillName)
-        {
-            if (!notificationSetting.Tradeskills.Remove(tradeskillName))
-            {
-                notificationSetting.Tradeskills.Add(tradeskillName);
-            }
-        }
 
         await ClientSettings.SaveNotificationSettings();
     }
@@ -119,11 +112,6 @@ public partial class Settings
         if (category == NotificationSettingType.MiscItem && value is Item miscItem)
         {
             return setting.MiscItems.Contains(miscItem.Name);
-        }
-
-        if (category == NotificationSettingType.Tradeskill && value is string tradeskill)
-        {
-            return setting.Tradeskills.Contains(tradeskill);
         }
 
         return false;

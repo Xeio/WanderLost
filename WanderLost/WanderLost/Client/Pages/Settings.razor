@@ -116,23 +116,6 @@
                     </li>
                 </ul>
             }
-            @if(merchant.Tradeskills.Count > 0)
-            {
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">
-                        <h6 class="card-subtitle mb-2 text-muted">Tradeskills</h6>
-                        <ul>
-                            @foreach (var tradeskillName in merchant.Tradeskills)
-                            {
-                                <li class="d-block">
-                                    <NotificationIcon Enabled="IsMerchantValueNotified(key, NotificationSettingType.Tradeskill, tradeskillName)" StateChanged="@(_ => OnNotificationToggle(NotificationSettingType.Tradeskill, key, tradeskillName))" />
-                                    <ItemDisplay Item="@(new Item(){ Name = tradeskillName, Rarity = tradeskillName.Contains("(") ? Rarity.Normal : Rarity.Epic})" />
-                                </li>
-                            }
-                        </ul>
-                    </li>
-                </ul>
-            }
         </div>
     }
 </div>

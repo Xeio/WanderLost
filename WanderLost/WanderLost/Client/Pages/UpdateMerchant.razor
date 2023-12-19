@@ -40,27 +40,6 @@
             </div>
         </div>
     </div>
-    @if (MerchantData?.Tradeskills?.Count > 0)
-    {
-        <div class="col-sm-6">
-            <div class="card border-secondary mb-3">
-                <div class="card-header">Tradeskill Pouch</div>
-                <div class="card-body">
-                    <InputRadioGroup @bind-Value="ActiveMerchant.Tradeskill">
-                        @foreach (var item in MerchantData.Tradeskills)
-                        {
-                            <div class="form-check">
-                                <InputRadio class="form-check-input" Value="@item" id="@item" />
-                                <label class="form-check-label" for="@item">
-                                    <ItemDisplay Item="@(new Item(){ Name = item, Rarity = item.Contains("(") ? Rarity.Normal : Rarity.Epic})" />
-                                </label>
-                            </div>
-                        }
-                    </InputRadioGroup>
-                </div>
-            </div>
-        </div>
-    }
     @if (MerchantData?.MiscItems?.Count > 0)
     {
         <div class="col-sm-6">

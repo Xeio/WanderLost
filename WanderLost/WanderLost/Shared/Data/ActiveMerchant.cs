@@ -25,10 +25,6 @@ public class ActiveMerchant
     [MessagePack.Key(5)]
     public int Votes { get; set; }
 
-    [MaxLength(50)]
-    [MessagePack.Key(6)]
-    public string? Tradeskill { get; set; }
-
     [MessagePack.Key(7)]
     public List<Item> MiscItems { get; set; } = [];
 
@@ -108,14 +104,6 @@ public class ActiveMerchant
             return false;
         }
 
-        if (string.IsNullOrEmpty(Tradeskill) && data.Tradeskills.Count > 0) return false;
-
-        if (Tradeskill is not null)
-        {
-            if (data.Tradeskills.Count == 0) return false;
-            if (!data.Tradeskills.Contains(Tradeskill)) return false;
-        }
-
         return true;
     }
 
@@ -124,7 +112,6 @@ public class ActiveMerchant
         return Name == merchant.Name &&
             Enumerable.SequenceEqual(Cards.Order(), merchant.Cards.Order()) &&
             Enumerable.SequenceEqual(Rapports.Order(), merchant.Rapports.Order()) &&
-            Enumerable.SequenceEqual(MiscItems.Order(), merchant.MiscItems.Order()) &&
-            Tradeskill == merchant.Tradeskill;
+            Enumerable.SequenceEqual(MiscItems.Order(), merchant.MiscItems.Order());
     }
 }

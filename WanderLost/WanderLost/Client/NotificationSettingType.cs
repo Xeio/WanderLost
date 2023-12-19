@@ -6,5 +6,4 @@ public enum NotificationSettingType
     Rapport,
     Spawn,
     MiscItem,
-    Tradeskill,
 }
