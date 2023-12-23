@@ -107,6 +107,26 @@ public class DiscordSubscriptionManager
         await _merchantsContext.SaveChangesAsync();
     }
 
+    public async Task SetCatalystNotification(ulong userId, bool notifyCatalyst)
+    {
+        var currentSubscription = await _merchantsContext.DiscordNotifications.FindAsync(userId);
+
+        if (currentSubscription is null)
+        {
+            var newSubscription = new DiscordNotification()
+            {
+                UserId = userId,
+                CatalystNotification = notifyCatalyst,
+            };
+            await _merchantsContext.AddAsync(newSubscription);
+        }
+        else
+        {
+            currentSubscription.CatalystNotification = notifyCatalyst;
+        }
+        await _merchantsContext.SaveChangesAsync();
+    }
+
     public async Task<DiscordNotification?> GetCurrentSubscription(ulong userId)
     {
         return await _merchantsContext.DiscordNotifications

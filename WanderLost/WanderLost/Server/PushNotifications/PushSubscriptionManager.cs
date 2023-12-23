@@ -50,6 +50,7 @@ public class PushSubscriptionManager
             existingSubscription.CardVoteThreshold = subscription.CardVoteThreshold;
             existingSubscription.RapportVoteThreshold = subscription.RapportVoteThreshold;
             existingSubscription.LegendaryRapportNotify = subscription.LegendaryRapportNotify;
+            existingSubscription.CatalystNotification = subscription.CatalystNotification;
             existingSubscription.SendTestNotification = subscription.SendTestNotification;
             existingSubscription.LastModified = DateTimeOffset.Now;
             existingSubscription.ConsecutiveFailures = 0;

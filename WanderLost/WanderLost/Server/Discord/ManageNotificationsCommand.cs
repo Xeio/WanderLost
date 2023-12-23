@@ -20,6 +20,8 @@ public class ManageNotificationsCommand : IDiscordCommand
     const string UPDATE_SERVER_BUTTON = "update-server-button";
     const string ADD_CARD_BUTTON = "add-card-button";
     const string REMOVE_CARD_BUTTON = "remove-card-button";
+    const string REMOVE_CATALYST_NOTIFICATION_BUTTON = "remove-catalyst-button";
+    const string ADD_CATALYST_NOTIFICATION_BUTTON = "add-catalyst-button";
     const string UPDATE_VOTES_BUTTON = "update-votes-button";
     const string REMOVE_ALL_NOTIFICATIONS_BUTTON = "remove-all-notifications-button";
 
@@ -165,6 +167,22 @@ public class ManageNotificationsCommand : IDiscordCommand
 
                     break;
                 }
+            case REMOVE_CATALYST_NOTIFICATION_BUTTON:
+                {
+                    await _subscriptionManager.SetCatalystNotification(arg.User.Id, false);
+
+                    await BuildBasicCommandResponse(arg);
+
+                    break;
+                }
+            case ADD_CATALYST_NOTIFICATION_BUTTON:
+                {
+                    await _subscriptionManager.SetCatalystNotification(arg.User.Id, true);
+
+                    await BuildBasicCommandResponse(arg);
+
+                    break;
+                }
             case REMOVE_ALL_NOTIFICATIONS_BUTTON:
                 {
                     //Just clear server to avoid concurrency issues, will purge these records later
@@ -196,6 +214,14 @@ public class ManageNotificationsCommand : IDiscordCommand
         component.WithButton("Update Server", UPDATE_SERVER_BUTTON);
         component.WithButton("Add Card", ADD_CARD_BUTTON, ButtonStyle.Success, disabled: noSubscription);
         component.WithButton("Remove Card", REMOVE_CARD_BUTTON, ButtonStyle.Danger, disabled: string.IsNullOrWhiteSpace(subscription?.Server) || subscription.CardNotifications.Count == 0);
+        if (subscription?.CatalystNotification == true)
+        {
+            component.WithButton("Remove Elixir Catalyst", REMOVE_CATALYST_NOTIFICATION_BUTTON, ButtonStyle.Danger, disabled: noSubscription);
+        }
+        else
+        {
+            component.WithButton("Add Elixir Catalyst", ADD_CATALYST_NOTIFICATION_BUTTON, ButtonStyle.Success, disabled: noSubscription);
+        }
         component.WithButton("Update Minimum Votes", UPDATE_VOTES_BUTTON, disabled: noSubscription);
         component.WithButton("Remove All Notifications", REMOVE_ALL_NOTIFICATIONS_BUTTON, ButtonStyle.Danger, disabled: noSubscription);
 
@@ -283,6 +309,7 @@ public class ManageNotificationsCommand : IDiscordCommand
         return @$"
 Subscribed Server: {Format.Bold(currentSubscription.Server)}
 Selected Cards: {cardsText}
+Elixir Catalyst Alert: {Format.Bold(currentSubscription.CatalystNotification ? "Yes" : "No")}
 Minimum votes to trigger alert: {currentSubscription.CardVoteThreshold}
 ";
     }

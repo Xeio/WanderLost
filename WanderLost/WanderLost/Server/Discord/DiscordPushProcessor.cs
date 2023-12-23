@@ -94,6 +94,23 @@ public class DiscordPushProcessor
         {
             await SendSubscriptionMessages(merchant, cardSubscriptions);
         }
+
+        if(merchant.MiscItems.Any(i => i.Name == "Stabilized Ductility Catalyst"))
+        {
+            var catalystSubscriptions = await _merchantContext.DiscordNotifications
+                .TagWithCallSite()
+                .AsNoTracking()
+                .Where(d => d.Server == merchant.ActiveMerchantGroup.Server)
+                .Where(d => d.CatalystNotification)
+                .Where(d => !_merchantContext.SentDiscordNotifications.Any(sent => sent.MerchantId == merchant.Id && sent.DiscordNotificationUserId == d.UserId))
+                .Where(d => d.CardVoteThreshold <= merchant.Votes)
+                .ToListAsync();
+
+            if (catalystSubscriptions.Any())
+            {
+                await SendSubscriptionMessages(merchant, catalystSubscriptions);
+            }
+        }
     }
 
     private async Task SendSubscriptionMessages(ActiveMerchant merchant, List<DiscordNotification> subcriptions)
@@ -160,6 +177,10 @@ public class DiscordPushProcessor
             Color = topCard.Rarity == Rarity.Legendary ? Color.Gold : Color.DarkPurple,
         };
         embed.AddField("Cards", string.Join(", ", merchant.Cards.Select(c => c.Name)));
+        if (merchant.MiscItems.Count > 0)
+        {
+            embed.AddField("Items", string.Join(", ", merchant.MiscItems.Select(i => i.Name)));
+        }
         embed.AddField("Region", region);
         embed.AddField("Spawn expires", TimestampTag.FormatFromDateTimeOffset(merchant.ActiveMerchantGroup.AppearanceExpires, TimestampTagStyles.Relative));
 

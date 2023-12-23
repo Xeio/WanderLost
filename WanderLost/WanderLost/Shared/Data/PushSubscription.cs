@@ -45,6 +45,9 @@ public class PushSubscription
     [MessagePack.Key(7)]
     public ICollection<CardNotification> CardNotifications { get; init; } = new List<CardNotification>();
 
+    [MessagePack.Key(8)]
+    public bool CatalystNotification { get; set; }
+
     /// <summary>
     /// Number of consecutive messages that failed for Firebase, may be used to clean up defunct subscriptions.
     /// This automatically clears when a user updates their subscription.

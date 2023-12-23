@@ -74,6 +74,11 @@ else if (!string.IsNullOrWhiteSpace(Message))
                 </div>
             }
 
+            <div class="form-group form-check form-switch m-3">
+                <InputCheckbox class="form-check-input" id="chkCatalyst" @bind-Value="PushSubscription.CatalystNotification" />
+                <label class="form-check-label" for="chkCatalyst"> <ItemDisplay Item="@(new Item { Name = "Stabilized Ductility Catalyst", Rarity = Rarity.Rare })" /></label>
+            </div>
+
             <button class="btn btn-success m-2" @onclick="AddUpdateSubcription" disabled="@(!_editContext.IsModified())">Update/Add subscription</button>
             <button class="btn btn-danger m-2" @onclick="DeleteSubcription" disabled="@(!_hasServerSubscription)">Delete subscription</button>
 

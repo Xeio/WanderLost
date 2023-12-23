@@ -155,7 +155,7 @@ public class PushMessageProcessor
             .Where(s => s.CardVoteThreshold <= merchant.Votes)
             .ToListAsync();
 
-        await SendSubscriptionMessages(merchant, cardSubscriptions, isCard: true);
+        await SendSubscriptionMessages(merchant, cardSubscriptions, MessageType.Card);
 
         if (merchant.Rapports.Max(r => r.Rarity) >= Rarity.Legendary)
         {
@@ -163,17 +163,34 @@ public class PushMessageProcessor
             var rapportSubscriptions = await _merchantContext.PushSubscriptions
                 .TagWithCallSite()
                 .Where(s => s.Server == merchant.ActiveMerchantGroup.Server)
-                .Where(s => s.LegendaryRapportNotify && !_merchantContext.SentPushNotifications.Any(sent => sent.Merchant == merchant && sent.SubscriptionId == s.Id))
+                .Where(s => s.LegendaryRapportNotify)
+                .Where(s => !_merchantContext.SentPushNotifications.Any(sent => sent.Merchant == merchant && sent.SubscriptionId == s.Id))
                 .Where(s => s.RapportVoteThreshold <= merchant.Votes)
                 .ToListAsync();
 
-            await SendSubscriptionMessages(merchant, rapportSubscriptions);
+            await SendSubscriptionMessages(merchant, rapportSubscriptions, MessageType.Rapport);
+        }
+
+        if (merchant.MiscItems.Any(i => i.Name == "Stabilized Ductility Catalyst"))
+        {
+            var catalystSubscriptions = await _merchantContext.PushSubscriptions
+                .TagWithCallSite()
+                .Where(s => s.Server == merchant.ActiveMerchantGroup.Server)
+                .Where(s => s.CatalystNotification)
+                .Where(s => !_merchantContext.SentPushNotifications.Any(sent => sent.Merchant == merchant && sent.SubscriptionId == s.Id))
+                .Where(s => s.RapportVoteThreshold <= merchant.Votes)
+                .ToListAsync();
+
+            if (catalystSubscriptions.Any())
+            {
+                await SendSubscriptionMessages(merchant, catalystSubscriptions, MessageType.Elixir);
+            }
         }
     }
 
-    private async Task SendSubscriptionMessages(ActiveMerchant merchant, List<PushSubscription> subcriptions, bool isCard = false)
+    private async Task SendSubscriptionMessages(ActiveMerchant merchant, List<PushSubscription> subcriptions, MessageType messageType)
     {
-        var message = await BuildMulticast(merchant, isCard);
+        var message = await BuildMulticast(merchant, messageType);
 
         foreach (var chunk in subcriptions.Chunk(FirebaseBroadcastLimit))
         {
@@ -260,11 +277,31 @@ public class PushMessageProcessor
         }
     }
 
-    private async Task<MulticastMessage> BuildMulticast(ActiveMerchant merchant, bool isCard)
+    private enum MessageType
+    {
+        Card,
+        Rapport,
+        Elixir,
+    }
+
+    private async Task<MulticastMessage> BuildMulticast(ActiveMerchant merchant, MessageType messageType)
     {
         string region = (await _dataController.GetMerchantData())[merchant.Name].Region;
         int ttl = Math.Max(60 * (55 - DateTime.Now.Minute + 1), 60);
         var topCard = merchant.Cards.MaxBy(c => c.Rarity) ?? new();
+        var title = string.Empty;
+        switch (messageType)
+        {
+            case MessageType.Card:
+                title = $"{topCard.Name} Card";
+                break;
+            case MessageType.Rapport:
+                title = "Legendary Rapport";
+                break;
+            case MessageType.Elixir:
+                title = "Elixir Catalyst";
+                break;
+        }
         return new MulticastMessage()
         {
             Webpush = new WebpushConfig()
@@ -275,10 +312,10 @@ public class PushMessageProcessor
                 },
                 Notification = new WebpushNotification()
                 {
-                    Title = isCard ? $"{topCard.Name} Card" : "Legendary Rapport",
+                    Title = title,
                     Body = $"{region}",
                     Icon = "/images/notifications/ExclamationMark.png",
-                    Tag = isCard ? "wei" : "rapport",
+                    Tag = messageType == MessageType.Card ? "wei" : "rapport",
                     Renotify = true,
                     Vibrate = [500, 100, 500, 100, 500],
                 },
@@ -292,12 +329,12 @@ public class PushMessageProcessor
             {
                 Notification = new AndroidNotification()
                 {
-                    Title = isCard ? $"{topCard.Name} Card" : "Legendary Rapport",
+                    Title = title,
                     Body = $"{region}",
-                    Tag = isCard ? "wei" : "rapport",
-                    ChannelId = isCard ? "wei" : "rapport",
+                    Tag = messageType == MessageType.Card ? "wei" : "rapport",
+                    ChannelId = messageType == MessageType.Card ? "wei" : "rapport",
                     EventTimestamp = DateTime.Now,
-                    Priority = isCard ? NotificationPriority.MAX : NotificationPriority.HIGH,
+                    Priority = messageType == MessageType.Card ? NotificationPriority.MAX : NotificationPriority.HIGH,
                     ClickAction = "OPEN_LOSTMERCHANTS_BROWSER",
                 },
                 Priority = Priority.High,
