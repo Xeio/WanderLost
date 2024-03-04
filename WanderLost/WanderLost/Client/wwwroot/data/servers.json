@@ -3,35 +3,23 @@
     "Name": "NA East",
     "TimeZone": "America/New_York",
     "Servers": [
-      "Adrinne",
-      "Aldebaran",
       "Avesta",
       "Azakiel",
       "Azena",
-      "Danube",
-      "Elzowin",
       "Galatur",
       "Karta",
-      "Kharmine",
       "Ladon",
       "Regulus",
-      "Sasha",
-      "Una",
-      "Vykas",
-      "Zosma"
+      "Una"
     ]
   },
   "NAW": {
     "Name": "NA West",
     "TimeZone": "America/Los_Angeles",
     "Servers": [
-      "Akkan",
-      "Bergstrom",
-      "Enviska",
       "Lauriel",
       "Mari",
       "Rohendel",
-      "Shandi",
       "Valtan"
     ]
   },
@@ -39,22 +27,13 @@
     "Name": "EU Central",
     "TimeZone": "Europe/Warsaw",
     "Servers": [
-      "Antares",
-      "Armen",
       "Asta",
-      "Calvasus",
       "Ealyn",
-      "Evergrace",
-      "Ezrebet",
       "Kadan",
       "Kayangel",
-      "Lazenith",
-      "Mokoko",
       "Neria",
       "Nia",
-      "Slen",
       "Thirain",
-      "Trixion",
       "Wei",
       "Zinnervale"
     ]
@@ -64,9 +43,7 @@
     "TimeZone": "America/Sao_Paulo",
     "Servers": [
       "Arthetine",
-      "Blackfang",
-      "Elgacia",
-      "Kazeros"
+      "Elgacia"
     ]
   }
 }
