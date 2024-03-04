@@ -3,47 +3,36 @@
     "Name": "NA East",
     "TimeZone": "America/New_York",
     "Servers": [
-      "Avesta",
-      "Azakiel",
-      "Azena",
-      "Galatur",
-      "Karta",
-      "Ladon",
-      "Regulus",
-      "Una"
+      "Balthorr",
+      "Inanna",
+      "Luterra",
+      "Nineveh"
     ]
   },
   "NAW": {
     "Name": "NA West",
     "TimeZone": "America/Los_Angeles",
     "Servers": [
-      "Lauriel",
-      "Mari",
-      "Rohendel",
-      "Valtan"
+      "Brelshaza",
+      "Thaemine"
     ]
   },
   "EUC": {
     "Name": "EU Central",
     "TimeZone": "Europe/Warsaw",
     "Servers": [
-      "Asta",
-      "Ealyn",
-      "Kadan",
-      "Kayangel",
-      "Neria",
-      "Nia",
-      "Thirain",
-      "Wei",
-      "Zinnervale"
+      "Arcturus",
+      "Elpon",
+      "Gienah",
+      "Ortuus",
+      "Ratik"
     ]
   },
   "SA": {
     "Name": "South America",
     "TimeZone": "America/Sao_Paulo",
     "Servers": [
-      "Arthetine",
-      "Elgacia"
+      "Vairgrys"
     ]
   }
 }
