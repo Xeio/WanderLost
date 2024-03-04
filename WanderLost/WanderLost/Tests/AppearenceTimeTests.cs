@@ -47,7 +47,7 @@ public class AppearenceTimeTests
     public void TestMerchantAppearanceTimeCalculation(ActiveMerchantGroup group)
     {
         var serverRegion = FindServerRegion(group.Server);
-        if (string.IsNullOrWhiteSpace(serverRegion.TimeZone))
+        if (string.IsNullOrWhiteSpace(serverRegion?.TimeZone))
         {
             //Couldn't find the time zone for the data to validate against
             return;
