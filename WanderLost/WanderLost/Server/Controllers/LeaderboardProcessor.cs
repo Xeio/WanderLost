@@ -9,7 +9,6 @@ namespace WanderLost.Server.Controllers;
 public class LeaderboardProcessor : BackgroundService
 {
     private readonly IServiceProvider _services;
-    private string[]? _validServers;
 
     public LeaderboardProcessor(IServiceProvider services)
     {
@@ -60,24 +59,11 @@ public class LeaderboardProcessor : BackgroundService
                 })
                 .FirstOrDefaultAsync(stoppingToken) ?? new { VoteTotal = 0, TotalSubmisisons = 0, OldestSubmission = DateTime.Now, NewestSubmission = DateTime.Now };
 
-            if (_validServers is null)
-            {
-                var staticData = scope.ServiceProvider.GetRequiredService<DataController>();
-                _validServers = (await staticData.GetServerRegions()).SelectMany(sr => sr.Value.Servers).ToArray();
-            }
-
             var server = await merchantDbContext.ActiveMerchants
                 .TagWithCallSite()
-                .Where(m => _validServers.Contains(m.ActiveMerchantGroup.Server))
                 .Where(m => m.UploadedByUserId == merchant.UploadedByUserId && m.Votes >= 0 && !m.Hidden)
-                .Include(m => m.ActiveMerchantGroup)
-                .GroupBy(m => m.ActiveMerchantGroup.Server, (server, rows) => new
-                {
-                    Server = server,
-                    Count = rows.Count()
-                })
-                .OrderByDescending(i => i.Count)
-                .Select(i => i.Server)
+                .OrderByDescending(m => m.ActiveMerchantGroup.AppearanceExpires)
+                .Select(m => m.ActiveMerchantGroup.Server)
                 .FirstOrDefaultAsync(stoppingToken) ?? string.Empty;
 
             var updateCount = await merchantDbContext.Leaderboards
