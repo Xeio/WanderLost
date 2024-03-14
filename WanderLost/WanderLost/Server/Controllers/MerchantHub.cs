@@ -355,6 +355,9 @@ public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
                 .TagWithCallSite()
                 .Where(m => m.Cards.Any(c => c.Name == cardName) && !m.Hidden && m.Votes > 0)
                 .Where(m => !mergedServers.Contains(m.ActiveMerchantGroup.Server))
+                //Some server names were re-used during merges
+                //So just ignoring really old merchant data for card stats
+                .Where(m => m.ActiveMerchantGroup.AppearanceExpires > new DateTimeOffset(2024, 03, 12, 0, 0, 0, TimeSpan.Zero))
                 .GroupBy(m => m.ActiveMerchantGroup.Server, (server, rows) => new
                 {
                     Server = server,
