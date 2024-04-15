@@ -28,7 +28,7 @@ public class DiscordPushProcessor(
             .Where(s => s.SendTestNotification)
             .ToListAsync(stoppingToken);
 
-        if (!testSubscriptions.Any()) return;
+        if (testSubscriptions.Count == 0) return;
 
         if (stoppingToken.IsCancellationRequested) return;
 
@@ -80,7 +80,7 @@ public class DiscordPushProcessor(
             .Where(d => d.CardVoteThreshold <= merchant.Votes)
             .ToListAsync();
 
-        if (cardSubscriptions.Any())
+        if (cardSubscriptions.Count != 0)
         {
             await SendSubscriptionMessages(merchant, cardSubscriptions);
         }
@@ -96,7 +96,7 @@ public class DiscordPushProcessor(
                 .Where(d => d.CardVoteThreshold <= merchant.Votes)
                 .ToListAsync();
 
-            if (catalystSubscriptions.Any())
+            if (catalystSubscriptions.Count != 0)
             {
                 await SendSubscriptionMessages(merchant, catalystSubscriptions);
             }

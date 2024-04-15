@@ -134,8 +134,8 @@ public partial class Merchants : IAsyncDisposable
         ActiveData.MerchantGroups.Sort((x, y) =>
         {
             //Show groups with merchants first
-            var hasMerchantsX = x.ActiveMerchants.Any() ? 0 : 1;
-            var hasMerchantsY = y.ActiveMerchants.Any() ? 0 : 1;
+            var hasMerchantsX = x.ActiveMerchants.Count != 0 ? 0 : 1;
+            var hasMerchantsY = y.ActiveMerchants.Count != 0 ? 0 : 1;
 
             var compare = hasMerchantsX.CompareTo(hasMerchantsY);
             if (compare == 0)

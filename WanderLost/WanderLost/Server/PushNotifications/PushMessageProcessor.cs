@@ -168,7 +168,7 @@ public class PushMessageProcessor(ILogger<PushMessageProcessor> _logger, Merchan
                 .Where(s => s.RapportVoteThreshold <= merchant.Votes)
                 .ToListAsync();
 
-            if (catalystSubscriptions.Any())
+            if (catalystSubscriptions.Count != 0)
             {
                 await SendSubscriptionMessages(merchant, catalystSubscriptions, MessageType.Elixir);
             }

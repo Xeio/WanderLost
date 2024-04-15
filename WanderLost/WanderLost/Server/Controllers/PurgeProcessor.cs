@@ -46,13 +46,13 @@ public class PurgeProcessor(ILogger<PurgeProcessor> _logger, IServiceProvider _s
             //Purge FCM subscriptions that aren't actually subscribed to any notifications
             var deletedSubscriptions = await merchantDbContext.PushSubscriptions
                 .TagWithCallSite()
-                .Where(s => string.IsNullOrEmpty(s.Server) || (!s.SendTestNotification && !s.CardNotifications.Any() && !s.LegendaryRapportNotify))
+                .Where(s => string.IsNullOrEmpty(s.Server) || (!s.SendTestNotification && s.CardNotifications.Count == 0 && !s.LegendaryRapportNotify))
                 .ExecuteDeleteAsync(stoppingToken);
 
             //Purge discord subscriptions that aren't actually subscribed to any notifications
             deletedSubscriptions += await merchantDbContext.DiscordNotifications
                 .TagWithCallSite()
-                .Where(s => string.IsNullOrEmpty(s.Server) || (!s.SendTestNotification && !s.CardNotifications.Any()))
+                .Where(s => string.IsNullOrEmpty(s.Server) || (!s.SendTestNotification && s.CardNotifications.Count == 0))
                 .ExecuteDeleteAsync(stoppingToken);
 
             _logger.LogInformation("Purged {votes} votes, {pushes} sent push notifications, and {subscriptions} empty subscriptions.", deletedVotes, deletedPushes, deletedSubscriptions);
