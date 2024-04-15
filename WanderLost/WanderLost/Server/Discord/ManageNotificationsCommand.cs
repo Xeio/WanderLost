@@ -28,7 +28,7 @@ public class ManageNotificationsCommand(DiscordSubscriptionManager _subscription
         {
             Name = MANAGE_NOTIFICATION_COMMAND,
             Description = "Manage notifications from Lost Merchants",
-            IsDMEnabled = true,
+            ContextTypes = [InteractionContextType.BotDm, InteractionContextType.Guild],
         };
 
         return commandBuilder.Build();

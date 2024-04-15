@@ -13,7 +13,7 @@ namespace WanderLost.Server.Discord
             {
                 Name = SEND_TEST_NOTIFICATION_COMMAND,
                 Description = "Send a test notification from Lost Merchants",
-                IsDMEnabled = true,
+                ContextTypes = [InteractionContextType.BotDm, InteractionContextType.Guild],
             };
 
             return commandBuilder.Build();
