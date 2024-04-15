@@ -83,7 +83,7 @@ public class PushMessageProcessor
 
             _logger.LogInformation("Sending {attemptCount} test FCM messages.", chunk.Length);
 
-            var batchResponse = await FirebaseMessaging.DefaultInstance.SendMulticastAsync(message, stoppingToken);
+            var batchResponse = await FirebaseMessaging.DefaultInstance.SendEachForMulticastAsync(message, stoppingToken);
 
             if (batchResponse.SuccessCount > 0)
             {
@@ -198,7 +198,7 @@ public class PushMessageProcessor
 
             _logger.LogInformation("Sending {attemptCount} FCM messages for merchant {merchantId}.", chunk.Length, merchant.Id);
 
-            var batchResponse = await FirebaseMessaging.DefaultInstance.SendMulticastAsync(message);
+            var batchResponse = await FirebaseMessaging.DefaultInstance.SendEachForMulticastAsync(message);
 
             if (batchResponse.SuccessCount > 0)
             {
