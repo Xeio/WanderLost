@@ -4,15 +4,8 @@ using WanderLost.Server.Discord.Data;
 
 namespace WanderLost.Server.Discord;
 
-public class DiscordSubscriptionManager
+public class DiscordSubscriptionManager(MerchantsDbContext _merchantsContext)
 {
-    private readonly MerchantsDbContext _merchantsContext;
-
-    public DiscordSubscriptionManager(MerchantsDbContext merchantsContext)
-    {
-        _merchantsContext = merchantsContext;
-    }
-
     public async Task UpdateSubscriptionServer(ulong userId, string server)
     {
         var currentSubscription = await _merchantsContext.DiscordNotifications.FindAsync(userId);

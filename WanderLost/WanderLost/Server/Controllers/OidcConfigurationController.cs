@@ -3,14 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WanderLost.Server.Controllers;
 
-public class OidcConfigurationController : Controller
+public class OidcConfigurationController(IClientRequestParametersProvider _clientRequestParametersProvider) : Controller
 {
-    public OidcConfigurationController(IClientRequestParametersProvider clientRequestParametersProvider)
-    {
-        ClientRequestParametersProvider = clientRequestParametersProvider;
-    }
-
-    public IClientRequestParametersProvider ClientRequestParametersProvider { get; }
+    public IClientRequestParametersProvider ClientRequestParametersProvider { get; } = _clientRequestParametersProvider;
 
     [HttpGet("_configuration/{clientId}")]
     public IActionResult GetClientRequestParameters([FromRoute] string clientId)

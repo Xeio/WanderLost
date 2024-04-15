@@ -3,15 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WanderLost.Server.Controllers;
 
-public class DynamicClientFilesController : Controller
+public class DynamicClientFilesController(IConfiguration _configuration) : Controller
 {
-    private readonly IConfiguration _configuration;
-
-    public DynamicClientFilesController(IConfiguration configuration)
-    {
-        _configuration = configuration;
-    }
-
     [ResponseCache(Duration = 120)]
     [Route("/appsettings.json")]
     public IActionResult AppSettings()

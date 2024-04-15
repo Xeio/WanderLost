@@ -4,17 +4,8 @@ using WanderLost.Shared.Data;
 
 namespace WanderLost.Server.PushNotifications;
 
-public class PushSubscriptionManager
+public class PushSubscriptionManager(MerchantsDbContext _merchantsDbContext, DataController _dataController)
 {
-    private readonly MerchantsDbContext _merchantsDbContext;
-    private readonly DataController _dataController;
-
-    public PushSubscriptionManager(MerchantsDbContext merchantsDbContext, DataController dataController)
-    {
-        _merchantsDbContext = merchantsDbContext;
-        _dataController = dataController;
-    }
-
     public async Task<PushSubscription?> GetPushSubscription(string clientToken)
     {
         if (string.IsNullOrWhiteSpace(clientToken)) return null;

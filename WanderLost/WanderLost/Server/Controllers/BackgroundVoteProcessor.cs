@@ -5,17 +5,9 @@ using WanderLost.Shared.Interfaces;
 
 namespace WanderLost.Server.Controllers;
 
-public class BackgroundVoteProcessor : BackgroundService
+public class BackgroundVoteProcessor(ILogger<BackgroundVoteProcessor> _logger, IServiceProvider _services) : BackgroundService
 {
-    private readonly IServiceProvider _services;
-    private readonly ILogger<BackgroundVoteProcessor> _logger;
     private readonly List<string> _servers = [];
-
-    public BackgroundVoteProcessor(ILogger<BackgroundVoteProcessor> logger, IServiceProvider services)
-    {
-        _logger = logger;
-        _services = services;
-    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {

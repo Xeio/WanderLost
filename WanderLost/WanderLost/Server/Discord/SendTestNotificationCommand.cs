@@ -3,18 +3,9 @@ using Discord.WebSocket;
 
 namespace WanderLost.Server.Discord
 {
-    public class SendTestNotificationCommand : IDiscordCommand
+    public class SendTestNotificationCommand(DiscordSubscriptionManager _subscriptionManager) : IDiscordCommand
     {
-        private readonly DiscordSubscriptionManager _subscriptionManager;
-        private readonly ILogger<SendTestNotificationCommand> _logger;
-
         const string SEND_TEST_NOTIFICATION_COMMAND = "send-test-notification";
-
-        public SendTestNotificationCommand(ILogger<SendTestNotificationCommand> logger, DiscordSubscriptionManager subscriptionManager)
-        {
-            _logger = logger;
-            _subscriptionManager = subscriptionManager;
-        }
 
         public SlashCommandProperties CreateCommand()
         {

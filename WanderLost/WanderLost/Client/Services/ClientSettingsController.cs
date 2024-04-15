@@ -4,7 +4,7 @@ using WanderLost.Shared.Data;
 
 namespace WanderLost.Client.Services;
 
-public class ClientSettingsController
+public class ClientSettingsController(ILocalStorageService _localStorageService, ClientStaticDataController _staticData)
 {
     public string Region { get; private set; } = string.Empty;
     public string Server { get; private set; } = string.Empty;
@@ -20,15 +20,6 @@ public class ClientSettingsController
     public bool RareSoundsOnly { get; private set; }
 
     private bool _initialized = false;
-
-    private readonly ILocalStorageService _localStorageService;
-    private readonly ClientStaticDataController _staticData;
-
-    public ClientSettingsController(ILocalStorageService localStorageService, ClientStaticDataController staticData)
-    {
-        _localStorageService = localStorageService;
-        _staticData = staticData;
-    }
 
     public async Task Init()
     {

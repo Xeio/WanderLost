@@ -5,18 +5,9 @@ namespace WanderLost.Server.Controllers;
 /// <summary>
 /// Handles cleanup of old data to constrain growth of database
 /// </summary>
-public class PurgeProcessor : BackgroundService
+public class PurgeProcessor(ILogger<PurgeProcessor> _logger, IServiceProvider _services) : BackgroundService
 {
-    private readonly IServiceProvider _services;
-    private readonly ILogger<PurgeProcessor> _logger;
-
     const int DAYS_TO_KEEP = 7;
-
-    public PurgeProcessor(ILogger<PurgeProcessor> logger, IServiceProvider services)
-    {
-        _logger = logger;
-        _services = services;
-    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {

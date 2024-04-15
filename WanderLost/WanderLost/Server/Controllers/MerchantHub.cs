@@ -10,26 +10,15 @@ using WanderLost.Shared.Interfaces;
 
 namespace WanderLost.Server.Controllers;
 
-public class MerchantHub : Hub<IMerchantHubClient>, IMerchantHubServer
+public class MerchantHub(
+    DataController _dataController,
+    MerchantsDbContext _merchantsDbContext,
+    PushSubscriptionManager _pushSubscriptionManager,
+    IConfiguration _configuration,
+    IMemoryCache _memoryCache,
+    IWebHostEnvironment _environment) : Hub<IMerchantHubClient>, IMerchantHubServer
 {
     public static string Path { get; } = "MerchantHub";
-
-    private readonly DataController _dataController;
-    private readonly MerchantsDbContext _merchantsDbContext;
-    private readonly PushSubscriptionManager _pushSubscriptionManager;
-    private readonly IConfiguration _configuration;
-    private readonly IMemoryCache _memoryCache;
-    private readonly IWebHostEnvironment _environment;
-
-    public MerchantHub(DataController dataController, MerchantsDbContext merchantsDbContext, PushSubscriptionManager pushSubscriptionManager, IConfiguration configuration, IMemoryCache memoryCache, IWebHostEnvironment environment)
-    {
-        _dataController = dataController;
-        _merchantsDbContext = merchantsDbContext;
-        _pushSubscriptionManager = pushSubscriptionManager;
-        _configuration = configuration;
-        _memoryCache = memoryCache;
-        _environment = environment;
-    }
 
     [Authorize(Policy = nameof(RareCombinationRestricted))]
     public async Task UpdateMerchant(string server, ActiveMerchant merchant)

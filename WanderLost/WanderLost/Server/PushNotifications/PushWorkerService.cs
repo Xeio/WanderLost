@@ -6,17 +6,8 @@ using WanderLost.Server.Discord;
 
 namespace WanderLost.Server.PushNotifications;
 
-public class PushWorkerService : BackgroundService
+public class PushWorkerService(ILogger<PushWorkerService> _logger, IServiceProvider _services) : BackgroundService
 {
-    private readonly IServiceProvider _services;
-    private readonly ILogger<PushWorkerService> _logger;
-
-    public PushWorkerService(ILogger<PushWorkerService> logger, IServiceProvider services)
-    {
-        _logger = logger;
-        _services = services;
-    }
-
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (true)

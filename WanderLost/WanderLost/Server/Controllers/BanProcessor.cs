@@ -4,17 +4,8 @@ using WanderLost.Shared.Data;
 
 namespace WanderLost.Server.Controllers;
 
-public class BanProcessor : BackgroundService
+public class BanProcessor(ILogger<BanProcessor> _logger, IServiceProvider _services) : BackgroundService
 {
-    private readonly IServiceProvider _services;
-    private readonly ILogger<BanProcessor> _logger;
-
-    public BanProcessor(ILogger<BanProcessor> logger, IServiceProvider services)
-    {
-        _logger = logger;
-        _services = services;
-    }
-
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (true)

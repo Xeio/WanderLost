@@ -6,15 +6,8 @@ namespace WanderLost.Server.Controllers;
 /// <summary>
 /// Processes leaderboard stats after merchants expire
 /// </summary>
-public class LeaderboardProcessor : BackgroundService
+public class LeaderboardProcessor(IServiceProvider _services) : BackgroundService
 {
-    private readonly IServiceProvider _services;
-
-    public LeaderboardProcessor(IServiceProvider services)
-    {
-        _services = services;
-    }
-
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (true)

@@ -5,21 +5,12 @@ using WanderLost.Shared.Data;
 
 namespace WanderLost.Client.Services;
 
-public class ClientStaticDataController
+public class ClientStaticDataController(NavigationManager _navigationManager, HttpClient _httpClient)
 {
     public bool Initialized { get; private set; }
     public Dictionary<string, ServerRegion> ServerRegions { get; private set; } = [];
     public Dictionary<string, MerchantData> Merchants { get; private set; } = [];
     public Dictionary<string, string> Tooltips { get; private set; } = [];
-
-    private readonly NavigationManager _navigationManager;
-    private readonly HttpClient _httpClient;
-
-    public ClientStaticDataController(NavigationManager navigationManager, HttpClient httpClient)
-    {
-        _navigationManager = navigationManager;
-        _httpClient = httpClient;
-    }
 
     public async Task Init()
     {

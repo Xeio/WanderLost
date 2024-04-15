@@ -6,22 +6,13 @@ using WanderLost.Shared.Data;
 
 namespace WanderLost.Server.Controllers;
 
-public class DataController
+public class DataController(
+    IWebHostEnvironment _webHostEnvironment,
+    IMemoryCache _memoryCache,
+    ILogger<DataController> _logger,
+    IHttpClientFactory _httpClientFactory)
 {
     private static readonly SemaphoreSlim _semaphore = new(1);
-
-    private readonly IWebHostEnvironment _webHostEnvironment;
-    private readonly IMemoryCache _memoryCache;
-    private readonly ILogger<DataController> _logger;
-    private readonly IHttpClientFactory _httpClientFactory;
-
-    public DataController(IWebHostEnvironment webHostEnvironment, IMemoryCache memoryCache, ILogger<DataController> logger, IHttpClientFactory httpClientFactory)
-    {
-        _webHostEnvironment = webHostEnvironment;
-        _memoryCache = memoryCache;
-        _httpClientFactory = httpClientFactory;
-        _logger = logger;
-    }
 
     public async Task<Dictionary<string, MerchantData>> GetMerchantData()
     {

@@ -4,20 +4,10 @@ using WanderLost.Shared.Data;
 
 namespace WanderLost.Client.Services;
 
-public sealed class ClientNotificationService : IAsyncDisposable
+public sealed class ClientNotificationService(ClientSettingsController _clientSettings, IJSRuntime _jsRuntime, ActiveDataController _activeData) : IAsyncDisposable
 {
-    private readonly ActiveDataController _activeData;
-    private readonly ClientSettingsController _clientSettings;
-    private readonly IJSRuntime _jsRuntime;
     private readonly List<IJSObjectReference> _notifications = [];
     private readonly Dictionary<string, DateTimeOffset> _merchantFoundNotificationCooldown = [];
-
-    public ClientNotificationService(ClientSettingsController clientSettings, IJSRuntime js, ActiveDataController activeData)
-    {
-        _clientSettings = clientSettings;
-        _jsRuntime = js;
-        _activeData = activeData;
-    }
 
     public async Task Init()
     {

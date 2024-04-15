@@ -9,25 +9,12 @@ using WanderLost.Server.Data;
 namespace WanderLost.Server.Pages.Account;
 
 [AllowAnonymous]
-public class ExternalLoginModel : PageModel
+public class ExternalLoginModel(
+    SignInManager<WanderlostUser> _signInManager,
+    UserManager<WanderlostUser> _userManager,
+    IUserStore<WanderlostUser> _userStore,
+    ILogger<ExternalLoginModel> _logger) : PageModel
 {
-    private readonly SignInManager<WanderlostUser> _signInManager;
-    private readonly UserManager<WanderlostUser> _userManager;
-    private readonly IUserStore<WanderlostUser> _userStore;
-    private readonly ILogger<ExternalLoginModel> _logger;
-
-    public ExternalLoginModel(
-        SignInManager<WanderlostUser> signInManager,
-        UserManager<WanderlostUser> userManager,
-        IUserStore<WanderlostUser> userStore,
-        ILogger<ExternalLoginModel> logger)
-    {
-        _signInManager = signInManager;
-        _userManager = userManager;
-        _userStore = userStore;
-        _logger = logger;
-    }
-
     const string LOGIN_PROVIDER = "Discord";
 
     public IActionResult OnGet(string? returnUrl = null)

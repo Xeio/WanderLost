@@ -7,25 +7,12 @@ using WanderLost.Shared.Data;
 
 namespace WanderLost.Server.PushNotifications;
 
-public class PushMessageProcessor
+public class PushMessageProcessor(ILogger<PushMessageProcessor> _logger, MerchantsDbContext _merchantContext, DataController _dataController, IConfiguration _configuration)
 {
     private const int FirebaseBroadcastLimit = 500;
 
     private static readonly Counter SentFirebaseNotifications = Metrics.CreateCounter("lostmerchants_sent_firebase_notifications", "Number of push notifications sent via firebase.");
     private static readonly Counter FailedFirebaseNotifications = Metrics.CreateCounter("lostmerchants_failed_firebase_notifications", "Number of push notifications that failed to send via firebase.");
-
-    private readonly ILogger<PushMessageProcessor> _logger;
-    private readonly MerchantsDbContext _merchantContext;
-    private readonly DataController _dataController;
-    private readonly IConfiguration _configuration;
-
-    public PushMessageProcessor(ILogger<PushMessageProcessor> logger, MerchantsDbContext merchantDbContext, DataController dataController, IConfiguration configuration)
-    {
-        _logger = logger;
-        _merchantContext = merchantDbContext;
-        _dataController = dataController;
-        _configuration = configuration;
-    }
 
     public async Task SendTestNotifications(CancellationToken stoppingToken)
     {

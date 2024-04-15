@@ -9,13 +9,8 @@ using WanderLost.Shared.Data;
 
 namespace WanderLost.Server.Controllers;
 
-public class MerchantsDbContext : ApiAuthorizationDbContext<WanderlostUser>, IDataProtectionKeyContext
+public class MerchantsDbContext(DbContextOptions<MerchantsDbContext> options, IOptions<OperationalStoreOptions> operationalStoreOptions) : ApiAuthorizationDbContext<WanderlostUser>(options, operationalStoreOptions), IDataProtectionKeyContext
 {
-    public MerchantsDbContext(DbContextOptions<MerchantsDbContext> options, IOptions<OperationalStoreOptions> operationalStoreOptions)
-        : base(options, operationalStoreOptions)
-    {
-    }
-
     public DbSet<ActiveMerchantGroup> MerchantGroups { get; set; } = default!;
     public DbSet<ActiveMerchant> ActiveMerchants { get; set; } = default!;
     public DbSet<Vote> Votes { get; set; } = default!;

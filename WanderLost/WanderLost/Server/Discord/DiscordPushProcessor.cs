@@ -9,25 +9,15 @@ using WanderLost.Shared.Data;
 
 namespace WanderLost.Server.Discord;
 
-public class DiscordPushProcessor
+public class DiscordPushProcessor(
+    ILogger<DiscordPushProcessor> _logger,
+    MerchantsDbContext _merchantContext, 
+    DataController _dataController,
+    DiscordSocketClient _discordClient,
+    IConfiguration _configuration)
 {
     private static readonly Counter SentDiscordNotifications = Metrics.CreateCounter("lostmerchants_sent_discord_notifications", "Number of push notifications sent via discord.");
     private static readonly Counter FailedDiscordNotifications = Metrics.CreateCounter("lostmerchants_failed_discord_notifications", "Number of push notifications that failed to send via discord.");
-
-    private readonly ILogger<DiscordPushProcessor> _logger;
-    private readonly MerchantsDbContext _merchantContext;
-    private readonly DataController _dataController;
-    private readonly IConfiguration _configuration;
-    private readonly DiscordSocketClient _discordClient;
-
-    public DiscordPushProcessor(ILogger<DiscordPushProcessor> logger, MerchantsDbContext merchantDbContext, DataController dataController, DiscordSocketClient discordClient, IConfiguration configuration)
-    {
-        _logger = logger;
-        _merchantContext = merchantDbContext;
-        _dataController = dataController;
-        _configuration = configuration;
-        _discordClient = discordClient;
-    }
 
     public async Task SendTestNotifications(CancellationToken stoppingToken)
     {

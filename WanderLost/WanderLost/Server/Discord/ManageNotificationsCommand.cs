@@ -5,11 +5,8 @@ using WanderLost.Server.Discord.Data;
 
 namespace WanderLost.Server.Discord;
 
-public class ManageNotificationsCommand : IDiscordCommand
+public class ManageNotificationsCommand(DiscordSubscriptionManager _subscriptionManager, DataController _dataController) : IDiscordCommand
 {
-    private readonly DiscordSubscriptionManager _subscriptionManager;
-    private readonly DataController _dataController;
-
     const string MANAGE_NOTIFICATION_COMMAND = "manage-merchant-notifications";
     const string SELECT_REGION_DROPDOWN = "select-region-dropdown";
     const string SELECT_SERVER_DROPDOWN = "select-server-dropdown";
@@ -24,12 +21,6 @@ public class ManageNotificationsCommand : IDiscordCommand
     const string ADD_CATALYST_NOTIFICATION_BUTTON = "add-catalyst-button";
     const string UPDATE_VOTES_BUTTON = "update-votes-button";
     const string REMOVE_ALL_NOTIFICATIONS_BUTTON = "remove-all-notifications-button";
-
-    public ManageNotificationsCommand(DiscordSubscriptionManager subscriptionManager, DataController dataController)
-    {
-        _subscriptionManager = subscriptionManager;
-        _dataController = dataController;
-    }
 
     public SlashCommandProperties CreateCommand()
     {

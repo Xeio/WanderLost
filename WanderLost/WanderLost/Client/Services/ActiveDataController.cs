@@ -2,26 +2,19 @@
 
 namespace WanderLost.Client.Services;
 
-public class ActiveDataController
+public class ActiveDataController(ClientStaticDataController _staticData)
 {
     public List<ActiveMerchantGroup> MerchantGroups { get; private set; } = [];
     public Dictionary<Guid, ActiveMerchant> MerchantDictionary { get; private set; } = [];
     public Dictionary<Guid, VoteType> Votes { get; private set; } = [];
 
-    private readonly ClientStaticDataController StaticData;
-
-    public ActiveDataController(ClientStaticDataController staticData)
-    {
-        StaticData = staticData;
-    }
-
     public async Task Init()
     {
-        await StaticData.Init();
+        await _staticData.Init();
 
         if (MerchantGroups.Count == 0)
         {
-            MerchantGroups.AddRange(StaticData.Merchants.Values.Select(m => new ActiveMerchantGroup() { MerchantData = m }));
+            MerchantGroups.AddRange(_staticData.Merchants.Values.Select(m => new ActiveMerchantGroup() { MerchantData = m }));
         }
     }
 }

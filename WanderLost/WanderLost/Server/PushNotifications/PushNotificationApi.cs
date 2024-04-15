@@ -6,15 +6,8 @@ namespace WanderLost.Server.PushNotifications;
 
 [ApiController]
 [Route("api/PushNotifications")]
-public class PushNotificationsController : ControllerBase
+public class PushNotificationsController(PushSubscriptionManager _pushSubscriptionManager) : ControllerBase
 {
-    private readonly PushSubscriptionManager _pushSubscriptionManager;
-
-    public PushNotificationsController(PushSubscriptionManager pushSubscriptionManager)
-    {
-        _pushSubscriptionManager = pushSubscriptionManager;
-    }
-
     [HttpPost]
     [Route(nameof(GetPushSubscription))]
     public async Task<ActionResult<PushSubscription?>> GetPushSubscription([FromBody] string clientToken)
