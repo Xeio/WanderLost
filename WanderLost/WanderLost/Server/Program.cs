@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using Prometheus;
+using System.Net.Mime;
 using WanderLost.Server.Authorization;
 using WanderLost.Server.Controllers;
 using WanderLost.Server.Data;
@@ -97,8 +98,7 @@ builder.Services.AddScoped<DataController>();
 
 builder.Services.AddResponseCompression(opts =>
 {
-    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
-        new[] { "application/octet-stream" });
+    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat([MediaTypeNames.Application.Octet]);
 });
 
 builder.Services.AddScoped<PushMessageProcessor>();

@@ -21,7 +21,7 @@ public class DiscordNotification
 
     public bool CatalystNotification { get; set; }
 
-    public ICollection<DiscordCardNotification> CardNotifications { get; init; } = new List<DiscordCardNotification>();
+    public ICollection<DiscordCardNotification> CardNotifications { get; init; } = [];
 
     public DateTimeOffset LastModified { get; set; } = DateTimeOffset.Now;
 }

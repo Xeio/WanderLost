@@ -43,7 +43,7 @@ public class PushSubscription
     public bool SendTestNotification { get; set; }
 
     [MessagePack.Key(7)]
-    public ICollection<CardNotification> CardNotifications { get; init; } = new List<CardNotification>();
+    public ICollection<CardNotification> CardNotifications { get; init; } = [];
 
     [MessagePack.Key(8)]
     public bool CatalystNotification { get; set; }
