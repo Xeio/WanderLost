@@ -875,5 +875,77 @@
         "Rarity": "Legendary"
       }
     ]
+  },
+  "Donia": {
+    "Name": "Donia",
+    "Region": "South Kurzan",
+    "SortOrder": 19,
+    "SpawnTimes": [ 10, 4, 4, 4, 4, 10, 10 ],
+    "Cards": [
+      {
+        "Name": "Gemet",
+        "Rarity": "Uncommon"
+      },
+      {
+        "Name": "Kami",
+        "Rarity": "Uncommon"
+      },
+      {
+        "Name": "Nefer",
+        "Rarity": "Uncommon"
+      },
+      {
+        "Name": "Pehta",
+        "Rarity": "Uncommon"
+      },
+      {
+        "Name": "Narkiel",
+        "Rarity": "Epic"
+      }
+    ],
+    "Rapports": [
+      {
+        "Name": "Obisidian Mirror",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Press-Grilled Sulfur Mushrooms",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Tuketooth Whale Oil",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Undying Flame",
+        "Rarity": "Legendary"
+      }
+    ],
+    "MiscItems": [
+      {
+        "Name": "Simple Purifier",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Quality Purifier",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Military Supply Purifier",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Copper Ring",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Secret Pouch: Sooty Pouch",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Tiara Made of Stems",
+        "Rarity": "Epic"
+      }
+    ]
   }
 }
