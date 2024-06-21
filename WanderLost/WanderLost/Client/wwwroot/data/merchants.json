@@ -920,32 +920,6 @@
         "Name": "Undying Flame",
         "Rarity": "Legendary"
       }
-    ],
-    "MiscItems": [
-      {
-        "Name": "Simple Purifier",
-        "Rarity": "Rare"
-      },
-      {
-        "Name": "Quality Purifier",
-        "Rarity": "Epic"
-      },
-      {
-        "Name": "Military Supply Purifier",
-        "Rarity": "Epic"
-      },
-      {
-        "Name": "Copper Ring",
-        "Rarity": "Rare"
-      },
-      {
-        "Name": "Secret Pouch: Sooty Pouch",
-        "Rarity": "Epic"
-      },
-      {
-        "Name": "Tiara Made of Stems",
-        "Rarity": "Epic"
-      }
     ]
   }
 }
