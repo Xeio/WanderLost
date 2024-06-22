@@ -6,7 +6,6 @@ namespace WanderLost.Client.Services;
 
 public class ClientSettingsController(ILocalStorageService _localStorageService, ClientStaticDataController _staticData)
 {
-    public string Region { get; private set; } = string.Empty;
     public string Server { get; private set; } = string.Empty;
     public bool NotificationsEnabled { get; private set; }
     public bool NotifyBrowserSoundEnabled { get; private set; }
@@ -27,7 +26,6 @@ public class ClientSettingsController(ILocalStorageService _localStorageService,
         {
             await _staticData.Init();
 
-            Region = await _localStorageService.GetItemAsync<string?>(nameof(Region)) ?? string.Empty;
             Server = await _localStorageService.GetItemAsync<string?>(nameof(Server)) ?? string.Empty;
             NotificationsEnabled = await _localStorageService.GetItemAsync<bool?>(nameof(NotificationsEnabled)) ?? false;
             NotifyBrowserSoundEnabled = await _localStorageService.GetItemAsync<bool?>(nameof(NotifyBrowserSoundEnabled)) ?? false;
@@ -45,20 +43,9 @@ public class ClientSettingsController(ILocalStorageService _localStorageService,
                 //Compatability for old servers after merge, will auto-select new server
                 await SetServer(newServer);
             }
-            if (Region == "EUW")
-            {
-                //Compatibility for region merge
-                await SetRegion("EUC");
-            }
 
             _initialized = true;
         }
-    }
-
-    public async Task SetRegion(string region)
-    {
-        Region = region;
-        await _localStorageService.SetItemAsync(nameof(Region), region);
     }
 
     public async Task SetServer(string server)

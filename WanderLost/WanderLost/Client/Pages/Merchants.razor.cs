@@ -25,7 +25,6 @@ public partial class Merchants : IAsyncDisposable
             {
                 _serverRegion = value;
                 Server = null;
-                Task.Run(() => ClientSettings.SetRegion(_serverRegion ?? string.Empty));
                 Task.Run(() => UpdateMerchants(true));
             }
         }
@@ -60,8 +59,11 @@ public partial class Merchants : IAsyncDisposable
 
         _timer = new Timer(TimerTick, null, 1, 1000);
 
-        ServerRegion = ClientSettings.Region;
-        Server = ClientSettings.Server;
+        if (StaticData.ServerRegions.FirstOrDefault(r => r.Value.Servers.Contains(ClientSettings.Server)) is var region) 
+        {
+            ServerRegion = region.Key;
+            Server = ClientSettings.Server;
+        }
 
         _hubEvents.Add(HubClient.OnUpdateMerchantGroup(async (server, serverMerchantGroup) =>
         {
