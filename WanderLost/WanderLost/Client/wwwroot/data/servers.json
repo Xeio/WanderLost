@@ -6,7 +6,8 @@
       "Balthorr",
       "Inanna",
       "Luterra",
-      "Nineveh"
+      "Nineveh",
+      "Vairgrys"
     ]
   },
   "NAW": {
@@ -26,13 +27,6 @@
       "Gienah",
       "Ortuus",
       "Ratik"
-    ]
-  },
-  "SA": {
-    "Name": "South America",
-    "TimeZone": "America/Sao_Paulo",
-    "Servers": [
-      "Vairgrys"
     ]
   }
 }
