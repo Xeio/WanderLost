@@ -921,5 +921,30 @@
         "Rarity": "Legendary"
       }
     ]
+  },
+  "Colvin": {
+    "Name": "Colvin",
+    "Region": "North Kurzan",
+    "SortOrder": 20,
+    "SpawnTimes": [ 4, 4, 10, 4, 10, 4, 10 ],
+    "Cards": [
+      {
+        "Name": "Agris",
+        "Rarity": "Uncommon"
+      },
+      {
+        "Name": "Alcaone",
+        "Rarity": "Uncommon"
+      },
+      {
+        "Name": "Tamut",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Ren",
+        "Rarity": "Epic"
+      }
+    ],
+    "Rapports": []
   }
 }
