@@ -89,13 +89,18 @@ public class ActiveMerchant
     public bool IsValid(Dictionary<string, MerchantData> allMerchantData)
     {
         if (string.IsNullOrWhiteSpace(Name) ||
-            Cards.Count == 0 || 
-            Rapports.Count == 0)
+            Cards.Count == 0)
         {
             return false;
         }
 
         if (!allMerchantData.TryGetValue(Name, out var data)) return false;
+
+        if (Rapports.Count == 0 && data.Rapports.Count > 0)
+        {
+            //Merchants that have rapports always spawn with at least one
+            return false;
+        }
 
         if (!Cards.All(data.Cards.Contains) ||
             !Rapports.All(data.Rapports.Contains) ||
