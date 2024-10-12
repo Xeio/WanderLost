@@ -66,11 +66,11 @@ public class BanProcessor(ILogger<BanProcessor> _logger, IServiceProvider _servi
                 banDays = 30;
             }
         }
-        else if (merchant.Rapports.Max(r => r.Rarity) >= Rarity.Legendary && merchant.Votes < -3)
+        else if (merchant.Rapports.Any(r => r.Rarity >= Rarity.Legendary) && merchant.Votes < -3)
         {
             var merchants = await GetAssociatedMerchants(merchant, merchantContext, stoppingToken);
-            int negativeLegendary = merchants.Count(m => m.Rapports.Max(r => r.Rarity) == Rarity.Legendary && m.Votes < 0);
-            int positiveLegendary = merchants.Count(m => m.Rapports.Max(r => r.Rarity) == Rarity.Legendary && m.Votes > 0);
+            int negativeLegendary = merchants.Count(m => m.Rapports.Any(r => r.Rarity >= Rarity.Legendary) && m.Votes < 0);
+            int positiveLegendary = merchants.Count(m => m.Rapports.Any(r => r.Rarity >= Rarity.Legendary) && m.Votes > 0);
             if (!merchants.Any(m => m.Votes > 0))
             {
                 //No positive submissions
@@ -93,7 +93,7 @@ public class BanProcessor(ILogger<BanProcessor> _logger, IServiceProvider _servi
             }
             if (merchants
                 .Where(m => m.ActiveMerchantGroup.AppearanceExpires > DateTimeOffset.Now.AddDays(-1))
-                .Where(m => m.Rapports.Max(r => r.Rarity) == Rarity.Legendary)
+                .Where(m => m.Rapports.Any(r => r.Rarity >= Rarity.Legendary))
                 .Count(m => m.Votes < 0) > 1)
             {
                 //Multiple negative submissions in the last day

@@ -60,6 +60,7 @@ public sealed class ClientNotificationService(ClientSettingsController _clientSe
 
     private bool IsMerchantRapportVoteThresholdReached(ActiveMerchant merchant)
     {
+        if (merchant.Rapports.Count == 0) return merchant.Votes > 0;
         _clientSettings.RapportVoteThresholdForNotification.TryGetValue(merchant.Rapports.Max(r => r.Rarity), out int voteThreshold); //if TryGetValue fails, voteThreshold will be 0, actual true/false result does no matter in this case
         return merchant.Votes >= voteThreshold;
     }
@@ -154,7 +155,10 @@ public sealed class ClientNotificationService(ClientSettingsController _clientSe
         else if (nonNegativeMerchants.Count > 0)
         {
             body += $"Cards: {string.Join(", ", nonNegativeMerchants[0].Cards.Select(c => c.Name))}\n";
-            body += $"Rapports: {string.Join(", ", nonNegativeMerchants[0].Rapports.Select(r => r.Name))}\n";
+            if (nonNegativeMerchants[0].Rapports.Count > 0)
+            {
+                body += $"Rapports: {string.Join(", ", nonNegativeMerchants[0].Rapports.Select(r => r.Name))}\n";
+            }
         }
 
         await CreateNotification($"Wandering Merchant \"{merchantGroup.MerchantName}\" found", new { Body = body, Renotify = true, Tag = $"found_{merchantGroup.MerchantName}", Icon = "images/notifications/ExclamationMark.png" });

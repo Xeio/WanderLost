@@ -144,7 +144,7 @@ public class PushMessageProcessor(ILogger<PushMessageProcessor> _logger, Merchan
 
         await SendSubscriptionMessages(merchant, cardSubscriptions, MessageType.Card);
 
-        if (merchant.Rapports.Max(r => r.Rarity) >= Rarity.Legendary)
+        if (merchant.Rapports.Any(r => r.Rarity >= Rarity.Legendary))
         {
             //Rapport notifications will only be sent for a subscription if it didn't already get notified for a card
             var rapportSubscriptions = await _merchantContext.PushSubscriptions
