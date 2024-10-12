@@ -46,9 +46,16 @@ public class BanProcessor(ILogger<BanProcessor> _logger, IServiceProvider _servi
         if (merchant.Cards.Max(c => c.Rarity) >= Rarity.Legendary && merchant.Votes < -3)
         {
             var merchants = await GetAssociatedMerchants(merchant, merchantContext, stoppingToken);
-            if (merchants.Count(m => m.Cards.Max(c => c.Rarity) >= Rarity.Legendary && m.Votes < 0) > 1)
+            var badLegendaryCount = merchants.Count(m => m.Cards.Max(c => c.Rarity) >= Rarity.Legendary && m.Votes < 0);
+            var goodLegendaryCount = merchants.Count(m => m.Cards.Max(c => c.Rarity) >= Rarity.Legendary && m.Votes >= 0);
+            if (badLegendaryCount > 1 && badLegendaryCount > goodLegendaryCount)
             {
-                //More than one bad legendary card
+                //High ratio of bad legendary submissions
+                permaban = true;
+            }
+            else if(goodLegendaryCount == 0)
+            {
+                //No positive legendary submissions
                 permaban = true;
             }
             else if (!merchants.Any(m => m.Votes > 0))
@@ -60,10 +67,6 @@ public class BanProcessor(ILogger<BanProcessor> _logger, IServiceProvider _servi
             {
                 //Total votes on user are negative
                 permaban = true;
-            }
-            else
-            {
-                banDays = 30;
             }
         }
         else if (merchant.Rapports.Any(r => r.Rarity >= Rarity.Legendary) && merchant.Votes < -3)
