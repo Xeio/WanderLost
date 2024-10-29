@@ -945,6 +945,12 @@
         "Rarity": "Epic"
       }
     ],
-    "Rapports": []
+    "Rapports": [],
+    "MiscItems": [
+      {
+        "Name": "Suspicious Map",
+        "Rarity": "Epic"
+      }
+    ]
   }
 }
