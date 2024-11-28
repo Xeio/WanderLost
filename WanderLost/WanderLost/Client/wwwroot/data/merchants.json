@@ -945,7 +945,24 @@
         "Rarity": "Epic"
       }
     ],
-    "Rapports": [],
+    "Rapports": [
+      { 
+        "Name": "Combat Rations",
+        "Rarity": "Epic"
+      },
+      { 
+        "Name": "Round Tree Tea",
+        "Rarity": "Epic"
+      },
+      { 
+        "Name": "Assar Mask",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Broken Clay Doll",
+        "Rarity": "Legendary"
+      }
+    ],
     "MiscItems": [
       {
         "Name": "Suspicious Map",
