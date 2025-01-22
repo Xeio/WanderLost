@@ -349,6 +349,10 @@
     "SpawnTimes": [ 4, 10, 4, 10, 10, 10, 4 ],
     "Cards": [
       {
+        "Name": "Executor Solas",
+        "Rarity": "Uncommon"
+      },
+      {
         "Name": "Nox",
         "Rarity": "Rare"
       },
