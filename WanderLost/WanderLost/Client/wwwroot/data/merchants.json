@@ -973,5 +973,51 @@
         "Rarity": "Epic"
       }
     ]
+  },
+  "Zama": {
+    "Name": "Zama",
+    "Region": "Rimeria",
+    "SortOrder": 21,
+    "SpawnTimes": [ 4, 4, 10, 4, 10, 4, 10 ],
+    "Cards": [
+      {
+        "Name": "Ghin",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Lynn",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Tarakolum",
+        "Rarity": "Rare"
+      },
+      {
+        "Name": "Yonfay",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Heanu",
+        "Rarity": "Epic"
+      }
+    ],
+    "Rapports": [
+      {
+        "Name": "Eerie Teapot",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Illusion Ink",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Weather Box",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Glass Butterfly",
+        "Rarity": "Legendary"
+      }
+    ]
   }
 }
