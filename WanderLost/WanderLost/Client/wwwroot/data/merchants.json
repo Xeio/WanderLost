@@ -62,6 +62,10 @@
       {
         "Name": "Delain Armen",
         "Rarity": "Legendary"
+      },
+      {
+        "Name": "Zinnervale",
+        "Rarity": "Legendary"
       }
 
     ],
@@ -135,6 +139,14 @@
       {
         "Name": "Sir Valleylead",
         "Rarity": "Uncommon"
+      },
+      {
+        "Name": "Guardian Luen",
+        "Rarity": "Legendary"
+      },
+      {
+        "Name": "Sien",
+        "Rarity": "Legendary"
       },
       {
         "Name": "Wei",
@@ -244,6 +256,10 @@
       },
       {
         "Name": "Balthorr",
+        "Rarity": "Legendary"
+      },
+      {
+        "Name": "Galatur",
         "Rarity": "Legendary"
       }
     ],
@@ -359,6 +375,10 @@
       {
         "Name": "Seria",
         "Rarity": "Rare"
+      },
+      {
+        "Name": "Luterra",
+        "Rarity": "Legendary"
       }
     ],
     "Rapports": [
@@ -511,6 +531,10 @@
       {
         "Name": "Albion",
         "Rarity": "Epic"
+      },
+      {
+        "Name": "Weakened Kakul-Saydon",
+        "Rarity": "Legendary"
       }
     ],
     "Rapports": [
@@ -717,6 +741,14 @@
       {
         "Name": "Lauriel",
         "Rarity": "Epic"
+      },
+      {
+        "Name": "Lauriel",
+        "Rarity": "Legendary"
+      },
+      {
+        "Name": "Beatrice",
+        "Rarity": "Legendary"
       },
       {
         "Name": "Vairgrys",
@@ -993,11 +1025,19 @@
         "Rarity": "Rare"
       },
       {
-        "Name": "Yonfay",
+        "Name": "Heanu",
         "Rarity": "Epic"
       },
       {
-        "Name": "Heanu",
+        "Name": "Pahu",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Yaruz",
+        "Rarity": "Epic"
+      },
+      {
+        "Name": "Yonfay",
         "Rarity": "Epic"
       }
     ],
