@@ -24,12 +24,16 @@ public sealed partial class MerchantHubClient : IAsyncDisposable
                 options.AccessTokenProvider = GetToken;
             })
             .WithAutomaticReconnect([
-                //Stargger reconnections a bit so server doesn't get hammered after a restart
-                TimeSpan.FromSeconds(Random.Shared.Next(5,360)),
-                TimeSpan.FromMinutes(6),
-                TimeSpan.FromMinutes(5),
-                TimeSpan.FromMinutes(5),
-                TimeSpan.FromMinutes(5),
+                //Stagger reconnections a bit so server doesn't get hammered after a restart
+                TimeSpan.FromSeconds(Random.Shared.Next(5,10)),
+                TimeSpan.FromSeconds(30),
+                TimeSpan.FromMinutes(1),
+                TimeSpan.FromMinutes(2),
+                TimeSpan.FromMinutes(4),
+                TimeSpan.FromMinutes(8),
+                TimeSpan.FromMinutes(16),
+                TimeSpan.FromMinutes(30),
+                TimeSpan.FromMinutes(30),
             ])
             .AddMessagePackProtocol(Utils.BuildMessagePackOptions)
             .Build();
