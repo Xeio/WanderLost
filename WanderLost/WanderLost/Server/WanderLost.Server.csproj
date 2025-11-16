@@ -20,7 +20,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AspNet.Security.OAuth.Discord" Version="9.0.0" />
+    <PackageReference Include="AspNet.Security.OAuth.Discord" Version="10.0.0" />
     <PackageReference Include="Discord.Net" Version="3.14.1" />
     <PackageReference Include="Duende.IdentityServer" Version="6.0.5" />
     <PackageReference Include="FirebaseAdmin" Version="2.4.1" />
