@@ -59,6 +59,8 @@ public class ManageNotificationsCommand(DiscordSubscriptionManager _subscription
         {
             case UPDATE_SERVER_BUTTON:
                 {
+                    await arg.DeferAsync(ephemeral: true);
+
                     var regions = await _dataController.GetServerRegions();
 
                     var select = new SelectMenuBuilder();
@@ -71,11 +73,13 @@ public class ManageNotificationsCommand(DiscordSubscriptionManager _subscription
 
                     var builder = new ComponentBuilder().WithSelectMenu(select);
 
-                    await arg.RespondAsync("Server Region", components: builder.Build(), ephemeral: true);
+                    await arg.FollowupAsync("Server Region", components: builder.Build(), ephemeral: true);
                     break;
                 }
             case ADD_CARD_BUTTON:
                 {
+                    await arg.DeferAsync(ephemeral: true);
+
                     var currentSubscription = await _subscriptionManager.GetCurrentSubscription(arg.User.Id);
                     if (currentSubscription is null) return;
 
@@ -98,23 +102,25 @@ public class ManageNotificationsCommand(DiscordSubscriptionManager _subscription
 
                     if (select.Options.Count > 0)
                     {
-                        await arg.RespondAsync("Card to add", components: builder.Build(), ephemeral: true);
+                        await arg.FollowupAsync("Card to add", components: builder.Build(), ephemeral: true);
                     }
                     else
                     {
-                        await arg.RespondAsync("You are already subscribed to all available cards.", ephemeral: true);
+                        await arg.FollowupAsync("You are already subscribed to all available cards.", ephemeral: true);
                     }
 
                     break;
                 }
             case REMOVE_CARD_BUTTON:
                 {
+                    await arg.DeferAsync(ephemeral: true);
+
                     var currentSubscription = await _subscriptionManager.GetCurrentSubscription(arg.User.Id);
                     if (currentSubscription is null) return;
 
                     if (currentSubscription.CardNotifications.Count == 0)
                     {
-                        await arg.RespondAsync("No card notifications to remove", ephemeral: true);
+                        await arg.FollowupAsync("No card notifications to remove", ephemeral: true);
                         return;
                     }
 
@@ -132,7 +138,7 @@ public class ManageNotificationsCommand(DiscordSubscriptionManager _subscription
 
                     var builder = new ComponentBuilder().WithSelectMenu(select);
 
-                    await arg.RespondAsync("Card to remove", components: builder.Build(), ephemeral: true);
+                    await arg.FollowupAsync("Card to remove", components: builder.Build(), ephemeral: true);
 
                     break;
                 }
@@ -196,6 +202,8 @@ public class ManageNotificationsCommand(DiscordSubscriptionManager _subscription
 
     private async Task BuildBasicCommandResponse(IDiscordInteraction arg)
     {
+        await arg.DeferAsync(ephemeral: true);
+
         var subscription = await _subscriptionManager.GetCurrentSubscription(arg.User.Id);
         var text = BuildCurrentSubscriptionText(subscription);
 
@@ -216,7 +224,7 @@ public class ManageNotificationsCommand(DiscordSubscriptionManager _subscription
         component.WithButton("Update Minimum Votes", UPDATE_VOTES_BUTTON, disabled: noSubscription);
         component.WithButton("Remove All Notifications", REMOVE_ALL_NOTIFICATIONS_BUTTON, ButtonStyle.Danger, disabled: noSubscription);
 
-        await arg.RespondAsync(text, components: component.Build(), ephemeral: true);
+        await arg.FollowupAsync(text, components: component.Build(), ephemeral: true);
     }
 
     public async Task SelectMenuExecuted(SocketMessageComponent arg)
@@ -225,6 +233,8 @@ public class ManageNotificationsCommand(DiscordSubscriptionManager _subscription
         {
             case SELECT_REGION_DROPDOWN:
                 {
+                    await arg.DeferAsync(ephemeral: true);
+
                     var val = arg.Data.Values.FirstOrDefault();
                     if (string.IsNullOrWhiteSpace(val)) return;
 
@@ -240,7 +250,7 @@ public class ManageNotificationsCommand(DiscordSubscriptionManager _subscription
 
                     var builder = new ComponentBuilder().WithSelectMenu(select);
 
-                    await arg.RespondAsync("Server", components: builder.Build(), ephemeral: true);
+                    await arg.FollowupAsync("Server", components: builder.Build(), ephemeral: true);
 
                     break;
                 }

@@ -23,9 +23,11 @@ namespace WanderLost.Server.Discord
         {
             if (arg.CommandName == SEND_TEST_NOTIFICATION_COMMAND)
             {
+                await arg.DeferAsync(ephemeral: true);
+
                 await _subscriptionManager.SetSubscriptionTestFlag(arg.User.Id);
 
-                await arg.RespondAsync("Test notification should be sent in the next 30 seconds. If you don't receive a message the bot is unable to DM you.", ephemeral: true);
+                await arg.FollowupAsync("Test notification should be sent in the next 30 seconds. If you don't receive a message the bot is unable to DM you.", ephemeral: true);
             }
         }
 
