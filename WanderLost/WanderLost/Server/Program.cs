@@ -139,7 +139,7 @@ var forwardedHeaderOptions = new ForwardedHeadersOptions()
 };
 foreach (var network in DockerSubnetOnly.DockerSubnets)
 {
-    forwardedHeaderOptions.KnownNetworks.Add(network);
+    forwardedHeaderOptions.KnownIPNetworks.Add(network);
 }
 app.UseForwardedHeaders(forwardedHeaderOptions);
 
