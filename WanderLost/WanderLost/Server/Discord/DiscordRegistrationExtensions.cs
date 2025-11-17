@@ -27,7 +27,14 @@ public static class DiscordRegistrationExtensions
                         case LogSeverity.Debug: level = LogLevel.Debug; break;
                         case LogSeverity.Verbose: level = LogLevel.Trace; break;
                     }
-                    logger.Log(level, "{Message}", arg.Message);
+                    if (arg.Exception != null)
+                    {
+                        logger.LogError(arg.Exception, "{Message}", arg.Message);
+                    }
+                    else
+                    {
+                        logger.Log(level, "{Message}", arg.Message);
+                    }
                     return Task.CompletedTask;
                 }
 
