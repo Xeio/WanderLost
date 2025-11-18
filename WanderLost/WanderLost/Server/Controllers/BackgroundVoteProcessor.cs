@@ -5,13 +5,13 @@ using WanderLost.Shared.Interfaces;
 
 namespace WanderLost.Server.Controllers;
 
-public class BackgroundVoteProcessor(ILogger<BackgroundVoteProcessor> _logger, IServiceProvider _services) : BackgroundService
+public class BackgroundVoteProcessor(ILogger<BackgroundVoteProcessor> _logger, IServiceScopeFactory _scopeFactory) : BackgroundService
 {
     private readonly List<string> _servers = [];
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        using (var startupScope = _services.CreateScope())
+        using (var startupScope = _scopeFactory.CreateScope())
         {
             //Get all the servers, which we'll process one at a time
             var dataController = startupScope.ServiceProvider.GetRequiredService<DataController>();
@@ -38,7 +38,7 @@ public class BackgroundVoteProcessor(ILogger<BackgroundVoteProcessor> _logger, I
 
                 if (stoppingToken.IsCancellationRequested) return;
 
-                using var scope = _services.CreateScope();
+                using var scope = _scopeFactory.CreateScope();
                 var merchantDbContext = scope.ServiceProvider.GetRequiredService<MerchantsDbContext>();
                 var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<MerchantHub, IMerchantHubClient>>();
 

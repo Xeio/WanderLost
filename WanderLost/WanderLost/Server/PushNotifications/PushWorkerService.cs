@@ -6,7 +6,7 @@ using WanderLost.Server.Discord;
 
 namespace WanderLost.Server.PushNotifications;
 
-public class PushWorkerService(ILogger<PushWorkerService> _logger, IServiceProvider _services) : BackgroundService
+public class PushWorkerService(ILogger<PushWorkerService> _logger, IServiceScopeFactory _scopeFactory) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -16,7 +16,7 @@ public class PushWorkerService(ILogger<PushWorkerService> _logger, IServiceProvi
 
             if (stoppingToken.IsCancellationRequested) return;
 
-            using var scope = _services.CreateScope();
+            using var scope = _scopeFactory.CreateScope();
 
             var firebasePushProcessor = scope.ServiceProvider.GetRequiredService<PushMessageProcessor>();
             var discordProcessor = scope.ServiceProvider.GetService<DiscordPushProcessor>();

@@ -4,7 +4,7 @@ using WanderLost.Shared.Data;
 
 namespace WanderLost.Server.Controllers;
 
-public class BanProcessor(ILogger<BanProcessor> _logger, IServiceProvider _services) : BackgroundService
+public class BanProcessor(ILogger<BanProcessor> _logger, IServiceScopeFactory _scopeFactory) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -14,7 +14,7 @@ public class BanProcessor(ILogger<BanProcessor> _logger, IServiceProvider _servi
 
             if (stoppingToken.IsCancellationRequested) return;
 
-            using var scope = _services.CreateScope();
+            using var scope = _scopeFactory.CreateScope();
             var merchantDbContext = scope.ServiceProvider.GetRequiredService<MerchantsDbContext>();
 
             var merchantsToProcess = await merchantDbContext.ActiveMerchants

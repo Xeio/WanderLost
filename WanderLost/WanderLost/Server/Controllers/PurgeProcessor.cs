@@ -5,7 +5,7 @@ namespace WanderLost.Server.Controllers;
 /// <summary>
 /// Handles cleanup of old data to constrain growth of database
 /// </summary>
-public class PurgeProcessor(ILogger<PurgeProcessor> _logger, IServiceProvider _services) : BackgroundService
+public class PurgeProcessor(ILogger<PurgeProcessor> _logger, IServiceScopeFactory _scopeFactory) : BackgroundService
 {
     const int DAYS_TO_KEEP = 7;
 
@@ -17,7 +17,7 @@ public class PurgeProcessor(ILogger<PurgeProcessor> _logger, IServiceProvider _s
 
             if (stoppingToken.IsCancellationRequested) return;
 
-            using var scope = _services.CreateScope();
+            using var scope = _scopeFactory.CreateScope();
             var merchantDbContext = scope.ServiceProvider.GetRequiredService<MerchantsDbContext>();
 
             merchantDbContext.Database.SetCommandTimeout(TimeSpan.FromMinutes(5));

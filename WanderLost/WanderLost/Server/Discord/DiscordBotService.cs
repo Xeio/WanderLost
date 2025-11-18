@@ -6,15 +6,15 @@ namespace WanderLost.Server.Discord;
 
 public class DiscordBotService : BackgroundService
 {
-    private readonly IServiceProvider _services;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<DiscordBotService> _logger;
     private readonly DiscordSocketClient _discordClient;
     private readonly Counter<int> _interactionsCounter;
 
-    public DiscordBotService(ILogger<DiscordBotService> logger, IServiceProvider services, DiscordSocketClient discordClient, IMeterFactory meterFactory)
+    public DiscordBotService(ILogger<DiscordBotService> logger, IServiceScopeFactory services, DiscordSocketClient discordClient, IMeterFactory meterFactory)
     {
         _logger = logger;
-        _services = services;
+        _scopeFactory = services;
         _discordClient = discordClient;
 
         var meter = meterFactory.Create("LostMerchants");
@@ -31,7 +31,7 @@ public class DiscordBotService : BackgroundService
         _discordClient.ModalSubmitted += ModalSubmitted;
         _discordClient.MessageReceived += MessageReceived;
 
-        using (var scope = _services.CreateScope())
+        using (var scope = _scopeFactory.CreateScope())
         {
             var commands = new List<SlashCommandProperties>();
             foreach (var command in scope.ServiceProvider.GetServices<IDiscordCommand>())
@@ -62,7 +62,7 @@ public class DiscordBotService : BackgroundService
     private async Task ModalSubmitted(SocketModal arg)
     {
         _interactionsCounter.Add(1, new KeyValuePair<string, object?>("interactionType", nameof(ModalSubmitted)));
-        using var scope = _services.CreateScope();
+        using var scope = _scopeFactory.CreateScope();
         foreach (var command in scope.ServiceProvider.GetServices<IDiscordCommand>())
         {
             await command.ModalSubmitted(arg);
@@ -72,7 +72,7 @@ public class DiscordBotService : BackgroundService
     private async Task ButtonExecuted(SocketMessageComponent arg)
     {
         _interactionsCounter.Add(1, new KeyValuePair<string, object?>("interactionType", nameof(ButtonExecuted)));
-        using var scope = _services.CreateScope();
+        using var scope = _scopeFactory.CreateScope();
         foreach (var command in scope.ServiceProvider.GetServices<IDiscordCommand>())
         {
             await command.ButtonExecuted(arg);
@@ -82,7 +82,7 @@ public class DiscordBotService : BackgroundService
     private async Task SlashCommandExecuted(SocketSlashCommand arg)
     {
         _interactionsCounter.Add(1, new KeyValuePair<string, object?>("interactionType", nameof(SlashCommandExecuted)));
-        using var scope = _services.CreateScope();
+        using var scope = _scopeFactory.CreateScope();
         foreach (var command in scope.ServiceProvider.GetServices<IDiscordCommand>())
         {
             await command.SlashCommandExecuted(arg);
@@ -92,7 +92,7 @@ public class DiscordBotService : BackgroundService
     private async Task SelectMenuExecuted(SocketMessageComponent arg)
     {
         _interactionsCounter.Add(1, new KeyValuePair<string, object?>("interactionType", nameof(SelectMenuExecuted)));
-        using var scope = _services.CreateScope();
+        using var scope = _scopeFactory.CreateScope();
         foreach (var command in scope.ServiceProvider.GetServices<IDiscordCommand>())
         {
             await command.SelectMenuExecuted(arg);

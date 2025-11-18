@@ -6,7 +6,7 @@ namespace WanderLost.Server.Controllers;
 /// <summary>
 /// Processes leaderboard stats after merchants expire
 /// </summary>
-public class LeaderboardProcessor(IServiceProvider _services) : BackgroundService
+public class LeaderboardProcessor(IServiceProvider _scopeFactory) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -16,7 +16,7 @@ public class LeaderboardProcessor(IServiceProvider _services) : BackgroundServic
 
             if (stoppingToken.IsCancellationRequested) return;
 
-            using var scope = _services.CreateScope();
+            using var scope = _scopeFactory.CreateScope();
             var merchantDbContext = scope.ServiceProvider.GetRequiredService<MerchantsDbContext>();
 
             var merchant = await merchantDbContext.ActiveMerchants
