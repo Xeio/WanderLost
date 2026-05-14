@@ -133,7 +133,9 @@ public class DiscordPushProcessor(
                             DiscordNotificationUserId = subscription.UserId,
                         });
                     }
-                    catch(HttpException e) when (e.DiscordCode == DiscordErrorCode.CannotSendMessageToUser)
+                    catch(HttpException e) when (
+                        e.DiscordCode == DiscordErrorCode.CannotSendMessageToUser || 
+                        e.DiscordCode == (DiscordErrorCode)50278) //Cannot send messages to this user due to having no mutual guilds
                     {
                         //User disallows DMs or the bot otherwise can't send the message, purge the subscription
                         FailedDiscordNotifications.Inc();
